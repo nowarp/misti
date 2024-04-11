@@ -1,0 +1,9 @@
+{
+  "entryPoints": [
+    "src/main.ts"
+  ],
+  "out": "docs",
+  "name": "Misti",
+  "theme": "default",
+  "excludePrivate": true
+}

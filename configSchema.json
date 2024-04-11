@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "$id": "http://raw.githubusercontent.com/misti/misti/master/configSchema.json",
+  "title": "Misti configuration schema",
+  "description": "JSON Schema for misti.config.json",
+  "type": "object",
+  "required": [
+    "detectors"
+  ],
+  "properties": {
+    "detectors": {
+      "type": "array",
+      "description": "List of Misti detectors to run, each potentially defined by a path and always by a class name. Built-in detectors don't have a path.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "modulePath": {
+            "type": "string",
+            "description": "The file path of the detector module",
+            "optional": true
+          },
+          "className": {
+            "type": "string",
+            "description": "The class name of the detector"
+          }
+        },
+        "required": [
+          "className"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "ignored_projects": {
+      "type": "array",
+      "description": "List of Tact projects that will be ignored by the analyzer",
+      "items": {
+        "type": "string"
+      }
+    },
+    "verbosity": {
+      "type": "string",
+      "description": "Verbosity level of the logs output by the system.",
+      "enum": ["quiet", "debug", "default"],
+      "default": "default"
+    }
+  }
+}

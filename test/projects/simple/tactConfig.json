@@ -1,0 +1,10 @@
+{
+  "projects": [
+    {
+      "name": "Simple",
+      "path": "./contract.tact",
+      "output": "./output",
+      "options": {}
+    }
+  ]
+}

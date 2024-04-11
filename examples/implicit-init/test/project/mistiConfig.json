@@ -1,0 +1,10 @@
+{
+  "detectors": [
+    {
+      "modulePath": "../examples/implicit-init/implicitInit.ts",
+      "className": "ImplicitInit"
+    }
+  ],
+  "ignored_projects": [],
+  "verbosity": "quiet"
+}
