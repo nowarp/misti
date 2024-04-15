@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/schema#",
-  "$id": "http://raw.githubusercontent.com/misti/misti/master/configSchema.json",
+  "$id": "http://raw.githubusercontent.com/nowarp/misti/master/configSchema.json",
   "title": "Misti configuration schema",
-  "description": "JSON Schema for misti.config.json",
+  "description": "JSON Schema for mistiConfig.json",
   "type": "object",
   "required": [
     "detectors"

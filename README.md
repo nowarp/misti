@@ -1,10 +1,20 @@
 # Misti
 
-Misti is a static analysis tool designed to detect potential issues in [Tact](https://docs.tact-lang.org/) smart contracts.
+Misti is a static analysis tool for [Tact](https://tact-lang.org/) smart contracts.
+
+## Installation
+Clone the repository and install dependencies:
+```bash
+git clone https://github.com/nowarp/misti
+cd misti
+yarn install && yarn build
+```
 
 ## Quick Start
-- **Configure**: Set up your `misti.config.json` according to your project needs.
-- **Run Analysis**: Execute the tool via command line or integrate it into your build process.
+Run Misti by specifying a Tact project configuration:
+```bash
+./bin/misti test/projects/simple/tactConfig.json
+```
 
 ## Documentation
-For more detailed information on configuration and usage, please visit our [documentation page](https://example.com/docs).
+For detailed configuration and usage instructions, visit the [Misti Documentation](https://nowarp.github.io/misti/).

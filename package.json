@@ -1,8 +1,8 @@
 {
   "name": "misti",
   "version": "0.0.1",
-  "repository": "",
-  "homepage": "",
+  "repository": "https://github.com/nowarp/misti/",
+  "homepage": "https://nowarp.github.io/misti/",
   "description": "TON Static Analyser",
   "author": "",
   "license": "Apache-2.0",
