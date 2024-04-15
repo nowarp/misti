@@ -16,8 +16,14 @@
     "misti": "ts-node src/main.ts"
   },
   "files": [
-    "src/**/*"
+    "dist/**/*",
+    "src/**/*",
+    "bin/**/*"
   ],
+  "main": "./dist/src/main.js",
+  "bin": {
+    "misti": "./bin/misti"
+  },
   "dependencies": {
     "@tact-lang/compiler": "^1.2.0",
     "@types/js-yaml": "^4.0.9",
