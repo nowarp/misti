@@ -150,10 +150,11 @@ export class TactIRBuilder {
       path.dirname(this.tactConfigPath),
       false,
     );
+    // This adjustment is needed to get an actual path to stdlib distributed within the tact package.
+    const distPathPrefix = __dirname.includes("/dist/") ? "../../.." : "../..";
     const stdlibPath = path.resolve(
       __dirname,
-      "..",
-      "..",
+      distPathPrefix,
       "node_modules",
       "@tact-lang/compiler",
       "stdlib",
