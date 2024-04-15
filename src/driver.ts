@@ -4,17 +4,19 @@ import { ProjectName, CompilationUnit } from "./internals/ir";
 import { MistiTactError } from "./internals/errors";
 import { Detector, findBuiltInDetector } from "./detectors/detector";
 
+import path from "path";
+
 /**
  * Manages the initialization and execution of detectors for analyzing compilation units.
  */
 export class Driver {
   ctx: MistiContext;
   detectors: Detector[] = [];
+  private tactConfigPath: string;
 
-  constructor(
-    private tactConfigPath: string,
-    mistiConfigPath?: string,
-  ) {
+  constructor(tactConfigPath: string, mistiConfigPath?: string) {
+    // Tact internals are able to work with absolute paths only
+    this.tactConfigPath = path.resolve(tactConfigPath);
     this.ctx = new MistiContext(mistiConfigPath);
     this.initializeDetectors();
   }
