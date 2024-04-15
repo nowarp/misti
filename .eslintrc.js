@@ -8,7 +8,6 @@ module.exports = {
   ],
   plugins: [
     "@typescript-eslint",
-    "jsdoc"
   ],
   rules: {
     "@typescript-eslint/no-unused-vars": [
@@ -20,9 +19,4 @@ module.exports = {
       },
     ],
   },
-  settings: {
-    jsdoc: {
-      mode: "typescript",
-    }
-  }
 };
