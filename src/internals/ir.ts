@@ -1,21 +1,10 @@
-import {
-  ASTConstant,
-  ASTFunction,
-  ASTNativeFunction,
-  ASTType,
-  ASTRef,
-} from "@tact-lang/compiler/dist/grammar/ast";
+import { ASTRef, ASTNode } from "@tact-lang/compiler/dist/grammar/ast";
 
 export type ProjectName = string;
 
-// Imported from Tact sources.
-export type TactAST = {
-  sources: { code: string; path: string }[];
-  funcSources: { code: string; path: string }[];
-  functions: (ASTFunction | ASTNativeFunction)[];
-  constants: ASTConstant[];
-  types: ASTType[];
-};
+export class TactASTStore {
+  constructor(public idxToNode: Map<number, ASTNode>) {}
+}
 
 export type EdgeIdx = number;
 export type NodeIdx = number;
@@ -98,6 +87,26 @@ export class CFG {
     public edges: Edge[],
     public ref: ASTRef,
   ) {}
+
+  /**
+   * Iterates over all nodes in a CFG, applying a callback to each node.
+   * The callback can perform any operation, such as analyzing or transforming the node.
+   * @param astStore The store containing the AST nodes.
+   * @param callback The function to apply to each node.
+   */
+  forEachNode(
+    astStore: TactASTStore,
+    callback: (astNode: ASTNode, cfgNode: Node) => void,
+  ) {
+    this.nodes.forEach((cfgNode) => {
+      const astNode = astStore.idxToNode.get(cfgNode.stmtID);
+      if (astNode) {
+        callback(astNode, cfgNode);
+      } else {
+        throw new Error(`No AST node found for statement ID ${cfgNode.stmtID}`);
+      }
+    });
+  }
 }
 
 /**
@@ -132,8 +141,34 @@ export class CompilationUnit {
    */
   constructor(
     public projectName: ProjectName,
-    public ast: TactAST,
+    public ast: TactASTStore,
     public functions: Map<FunctionName, CFG>,
     public contracts: Set<Contract>,
   ) {}
+
+  /**
+   * Iterates over all CFGs in a Compilation Unit, and applies a callback to each node in every CFG.
+   * @param astStore The store containing the AST nodes.
+   * @param callback The function to apply to each node within each CFG.
+   */
+  forEachCFG(
+    astStore: TactASTStore,
+    callback: (funName: string, astNode: ASTNode, cfgNode: Node) => void,
+  ) {
+    // Iterate over all functions' CFGs
+    this.functions.forEach((cfg, functionName) => {
+      cfg.forEachNode(astStore, (astNode, cfgNode) => {
+        callback(functionName, astNode, cfgNode);
+      });
+    });
+
+    // Iterate over all contracts and their methods' CFGs
+    this.contracts.forEach((contract) => {
+      contract.methods.forEach((cfg, methodName) => {
+        cfg.forEachNode(astStore, (astNode, cfgNode) => {
+          callback(`${contract.name}.${methodName}`, astNode, cfgNode);
+        });
+      });
+    });
+  }
 }
