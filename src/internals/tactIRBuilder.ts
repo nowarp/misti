@@ -1,4 +1,14 @@
-import { ASTStatement, ASTRef } from "@tact-lang/compiler/dist/grammar/ast";
+import {
+  ASTStatement,
+  ASTRef,
+  ASTNode,
+  ASTExpression,
+  ASTTypeRef,
+  ASTConstant,
+  ASTFunction,
+  ASTNativeFunction,
+  ASTType,
+} from "@tact-lang/compiler/dist/grammar/ast";
 
 import { MistiContext } from "./context";
 import { CompilerContext } from "@tact-lang/compiler/dist/context";
@@ -15,7 +25,7 @@ import fs from "fs";
 import {
   ProjectName,
   CompilationUnit,
-  TactAST,
+  TactASTStore,
   NodeIdx,
   Edge,
   Node,
@@ -23,6 +33,175 @@ import {
   CFG,
   Contract,
 } from "./ir";
+
+// Imported from Tact sources.
+export type TactAST = {
+  sources: { code: string; path: string }[];
+  funcSources: { code: string; path: string }[];
+  functions: (ASTFunction | ASTNativeFunction)[];
+  constants: ASTConstant[];
+  types: ASTType[];
+};
+
+/**
+ * Transforms the TactAST imported from the tact compiler to a representation more suitable for analysis.
+ */
+export class ASTMapper {
+  private idToASTNode: Map<number, ASTNode> = new Map();
+
+  constructor(private ast: TactAST) {
+    this.initializeASTMapping();
+  }
+
+  public generateASTStore(): TactASTStore {
+    return new TactASTStore(this.idToASTNode);
+  }
+
+  private initializeASTMapping(): void {
+    this.ast.functions.forEach((func) => {
+      if (func.kind == "def_function") {
+        this.processFunction(func);
+      } else {
+        this.processNativeFunction(func);
+      }
+    });
+    this.ast.constants.forEach((constant) =>
+      this.idToASTNode.set(constant.id, constant),
+    );
+    this.ast.types.forEach((type) => this.processType(type));
+  }
+
+  private processFunction(func: ASTFunction): void {
+    this.idToASTNode.set(func.id, func);
+    func.args.forEach((arg) => this.idToASTNode.set(arg.id, arg));
+    if (func.return) {
+      this.processTypeRef(func.return);
+    }
+    func.statements?.forEach((stmt) => this.processStmt(stmt));
+  }
+
+  private processNativeFunction(func: ASTNativeFunction): void {
+    this.idToASTNode.set(func.id, func);
+    func.args.forEach((arg) => this.idToASTNode.set(arg.id, arg));
+    if (func.return) {
+      this.processTypeRef(func.return);
+    }
+  }
+
+  private processStmt(stmt: ASTStatement): void {
+    this.idToASTNode.set(stmt.id, stmt);
+    switch (stmt.kind) {
+      case "statement_let":
+        this.processExpr(stmt.expression);
+        this.processTypeRef(stmt.type);
+        break;
+      case "statement_return":
+        if (stmt.expression) {
+          this.processExpr(stmt.expression);
+        }
+        break;
+      case "statement_expression":
+        this.processExpr(stmt.expression);
+        break;
+      case "statement_assign":
+      case "statement_augmentedassign":
+        stmt.path.forEach((path) => this.processExpr(path));
+        this.processExpr(stmt.expression);
+        break;
+      case "statement_condition":
+        this.processExpr(stmt.expression);
+        stmt.trueStatements.forEach((s) => this.processStmt(s));
+        stmt.falseStatements?.forEach((s) => this.processStmt(s));
+        if (stmt.elseif) {
+          this.processStmt(stmt.elseif);
+        }
+        break;
+      case "statement_while":
+      case "statement_until":
+        this.processExpr(stmt.condition);
+        stmt.statements.forEach((s) => this.processStmt(s));
+        break;
+      case "statement_repeat":
+        this.processExpr(stmt.condition);
+        stmt.statements.forEach((s) => this.processStmt(s));
+        break;
+      default:
+        throw new Error(`Unsupported statement type: ${stmt}`);
+    }
+  }
+
+  private processExpr(expr: ASTExpression): void {
+    switch (expr.kind) {
+      case "number":
+      case "id":
+      case "boolean":
+      case "string":
+      case "null":
+      case "lvalue_ref": {
+        this.idToASTNode.set(expr.id, expr);
+        break;
+      }
+      case "op_binary": {
+        this.idToASTNode.set(expr.id, expr);
+        this.processExpr(expr.left);
+        this.processExpr(expr.right);
+        break;
+      }
+      case "op_unary": {
+        this.idToASTNode.set(expr.id, expr);
+        this.processExpr(expr.right);
+        break;
+      }
+      case "op_field": {
+        this.idToASTNode.set(expr.id, expr);
+        this.processExpr(expr.src);
+        break;
+      }
+      case "op_call": {
+        this.idToASTNode.set(expr.id, expr);
+        this.processExpr(expr.src);
+        expr.args.forEach((arg) => this.processExpr(arg));
+        break;
+      }
+      case "init_of":
+      case "op_static_call": {
+        this.idToASTNode.set(expr.id, expr);
+        expr.args.forEach((arg) => this.processExpr(arg));
+        break;
+      }
+      case "op_new": {
+        this.idToASTNode.set(expr.id, expr);
+        expr.args.forEach((param) => {
+          this.idToASTNode.set(param.id, param);
+          this.processExpr(param.exp);
+        });
+        break;
+      }
+      case "conditional": {
+        this.idToASTNode.set(expr.id, expr);
+        this.processExpr(expr.condition);
+        this.processExpr(expr.thenBranch);
+        this.processExpr(expr.elseBranch);
+        break;
+      }
+      default:
+        throw new Error(`unsupported expression: ${expr}`);
+    }
+  }
+
+  private processType(type: ASTType): void {
+    this.idToASTNode.set(type.id, type);
+    // Handle specific types if they contain other identifiable AST nodes
+  }
+
+  private processTypeRef(typeRef: ASTTypeRef): void {
+    this.idToASTNode.set(typeRef.id, typeRef);
+  }
+
+  public getASTNodeById(id: number): ASTNode | undefined {
+    return this.idToASTNode.get(id);
+  }
+}
 
 /**
  * The TactIRBuilder class is responsible for constructing the Intermediate Representation (IR) of Tact projects.
@@ -115,7 +294,12 @@ export class TactIRBuilder {
       return acc;
     }, new Set<Contract>());
 
-    return new CompilationUnit(projectName, ast, functionCFGs, contractEntries);
+    return new CompilationUnit(
+      projectName,
+      new ASTMapper(ast).generateASTStore(),
+      functionCFGs,
+      contractEntries,
+    );
   }
 
   /**
