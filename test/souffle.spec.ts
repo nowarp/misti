@@ -1,5 +1,6 @@
 import {
   Relation,
+  Rule,
   SouffleProgram,
   SouffleExecutor,
 } from "../src/internals/souffle";
@@ -56,12 +57,43 @@ describe("Souffle Datalog tests", () => {
         "utf8",
       );
     });
+
+    it("should compile and emit the rules correctly", () => {
+      const program = new SouffleProgram();
+      program.addRelation("TestRelation", ["x", "number"]);
+      program.addRule(
+        new Rule([{ name: "out", arguments: ["x"] }], {
+          kind: "atom",
+          value: { name: "TestRelation", arguments: ["x"] },
+          negated: false,
+        }),
+      );
+      const output = program.emit();
+      expect(output).toContain(".decl TestRelation(x:number)");
+      expect(output).toContain("out(x) :-\n    TestRelation(x).");
+    });
   });
 
   describe("SouffleExecutor class", () => {
     it("should execute the Souffle program correctly", async () => {
       const program = new SouffleProgram();
       program.addRelation("TestRelation", ["x", "number"]);
+      const executor = new SouffleExecutor(soufflePath, factDir, outputDir);
+      const success = await executor.execute(program);
+      expect(success).toBe(true);
+    });
+
+    it("should handle rules in the execution", async () => {
+      const program = new SouffleProgram();
+      program.addRelation("TestRelation", ["x", "number"]);
+      program.addFact("TestRelation", 42);
+      program.addRule(
+        new Rule([{ name: "output", arguments: ["x"] }], {
+          kind: "atom",
+          value: { name: "TestRelation", arguments: ["x"] },
+          negated: false,
+        }),
+      );
       const executor = new SouffleExecutor(soufflePath, factDir, outputDir);
       const success = await executor.execute(program);
       expect(success).toBe(true);

@@ -56,6 +56,60 @@ export class Relation {
 }
 
 /**
+ * Represents an atom of a Soufflé rule: https://souffle-lang.github.io/rules#atom
+ */
+export type RuleAtom = {
+  name: string;
+  arguments: string[];
+};
+
+/**
+ * Head of the rule: https://souffle-lang.github.io/rules#multiple-heads.
+ */
+export type RuleHead = RuleAtom[];
+
+/**
+ * Body of a rule which is present as a conjunction of (negated) atoms/constraints/disjunctions:
+ * https://souffle-lang.github.io/rules#conjunction.
+ */
+export type RuleBodyEntry = { kind: "atom"; value: RuleAtom; negated: boolean };
+
+/**
+ * Represents a single Datalog rule in a Souffle program.
+ */
+export class Rule {
+  private heads: RuleHead;
+  private body: RuleBodyEntry[];
+
+  /**
+   * Constructs a Datalog rule with the given heads and body entries.
+   * See: https://souffle-lang.github.io/rules for more information.
+   * @param head Heads of the rule.
+   * @param bodyEntries Entries that represent a body of a rule.
+   */
+  constructor(heads: RuleHead, ...bodyEntries: RuleBodyEntry[]) {
+    this.heads = heads;
+    this.body = bodyEntries;
+  }
+
+  /**
+   * Emits the Datalog rule as a string suitable for inclusion in a Souffle program.
+   * @returns The formatted Datalog rule.
+   */
+  public emit(): string {
+    const formatAtom = (atom: RuleAtom) =>
+      `${atom.name}(${atom.arguments.join(", ")})`;
+    const formatHead = (heads: RuleHead) =>
+      heads.map((head) => formatAtom(head)).join(", ");
+    const formatBodyEntry = (entry: RuleBodyEntry) =>
+      `${entry.negated ? "!" : ""}${formatAtom(entry.value)}`;
+    const headsStr = formatHead(this.heads);
+    const bodyStr = this.body.map(formatBodyEntry).join(", ");
+    return `${headsStr} :-\n    ${bodyStr}.`;
+  }
+}
+
+/**
  * Manages multiple Soufflé relations.
  */
 export class SouffleProgram {
@@ -63,6 +117,11 @@ export class SouffleProgram {
    * A map to hold declarations of relations.
    */
   private relations = new Map<RelationName, Relation>();
+
+  /**
+   * Soufflé rules defined in the program.
+   */
+  private rules: Rule[] = [];
 
   /**
    * Adds a new relation to the context.
@@ -96,15 +155,23 @@ export class SouffleProgram {
   }
 
   /**
-   * Compiles all relation declarations and their facts into a single Soufflé Datalog program.
+   * Adds a new rule to the Souffle program.
+   * @param rule The rule to add to the program.
+   */
+  public addRule(rule: Rule) {
+    this.rules.push(rule);
+  }
+
+  /**
+   * Compiles all relation declarations, their facts, and rules into a single Soufflé Datalog program.
    * @returns A string containing the formatted Datalog program.
    */
   public emit(): string {
-    return Array.from(this.relations.values())
-      .reduce((acc, relation) => {
-        return acc + relation.emit() + "\n";
-      }, "")
-      .trim();
+    const relationsOutput = Array.from(this.relations.values())
+      .map((relation) => relation.emit())
+      .join("\n");
+    const rulesOutput = this.rules.map((rule) => rule.emit()).join("\n");
+    return `${relationsOutput}\n${rulesOutput}`.trim();
   }
 
   /**
