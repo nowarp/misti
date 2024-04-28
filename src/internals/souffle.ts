@@ -37,7 +37,7 @@ export class Relation {
    * Outputs the relation and its facts in Soufflé Datalog syntax.
    */
   public emit(): string {
-    let result: string[] = [];
+    const result: string[] = [];
 
     // Format declaration
     const argsFormatted = this.args
@@ -100,11 +100,11 @@ export class SouffleProgram {
    * @returns A string containing the formatted Datalog program.
    */
   public emit(): string {
-    let result: string[] = [];
-    for (const [_, relation] of this.relations.entries()) {
-      result.push(relation.emit());
-    }
-    return result.join("\n");
+    return Array.from(this.relations.values())
+      .reduce((acc, relation) => {
+        return acc + relation.emit() + "\n";
+      }, "")
+      .trim();
   }
 
   /**
