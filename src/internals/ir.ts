@@ -289,11 +289,21 @@ export type ContractName = string;
  */
 export class CFG {
   /**
+   * Map from unique node indices to nodes indecies in the `this.nodes`.
+   */
+  private nodesMap: Map<NodeIdx, number>;
+
+  /**
+   * Map from unique node indices to nodes indecies in the `this.edges`.
+   */
+  private edgesMap: Map<NodeIdx, number>;
+
+  /**
    * Creates an instance of CFG.
    * @param name The name of the function or method this CFG represents.
    * @param ty Indicates whether this CFG represents a standalone function or a method belonging to a contract or class.
-   * @param nodes An array of nodes in the CFG.
-   * @param edges An array of edges in the CFG.
+   * @param nodes Map of node indices to nodes in the CFG.
+   * @param edges Map of edge indices to edges in the CFG.
    * @param ref AST reference that corresponds to the function definition.
    */
   constructor(
@@ -302,7 +312,47 @@ export class CFG {
     public nodes: Node[],
     public edges: Edge[],
     public ref: ASTRef,
-  ) {}
+  ) {
+    this.nodesMap = new Map();
+    this.initializeMapping(this.nodesMap, nodes);
+    this.edgesMap = new Map();
+    this.initializeMapping(this.edgesMap, edges);
+  }
+
+  private initializeMapping(
+    mapping: Map<number, number>,
+    entries: Node[] | Edge[],
+  ): void {
+    entries.forEach((entry, arrayIdx) => {
+      mapping.set(entry.idx, arrayIdx);
+    });
+  }
+
+  /**
+   * Retrieves a Node from the CFG based on its unique index.
+   * @param idx The index of the node to retrieve.
+   * @returns The Node if found, otherwise undefined.
+   */
+  public getNode(idx: NodeIdx): Node | undefined {
+    const nodesIdx = this.nodesMap.get(idx);
+    if (!nodesIdx) {
+      return undefined;
+    }
+    return this.nodes[nodesIdx];
+  }
+
+  /**
+   * Retrieves an Edge from the CFG based on its unique index.
+   * @param idx The index of the edge to retrieve.
+   * @returns The Edge if found, otherwise undefined.
+   */
+  public getEdge(idx: EdgeIdx): Edge | undefined {
+    const edgesIdx = this.edgesMap.get(idx);
+    if (!edgesIdx) {
+      return undefined;
+    }
+    return this.edges[edgesIdx];
+  }
 
   /**
    * Iterates over all nodes in a CFG, applying a callback to each node.
