@@ -1,6 +1,5 @@
 import {
   ASTRef,
-  ASTNode,
   ASTStatement,
   ASTReceive,
   ASTField,
@@ -149,7 +148,7 @@ export class TactASTStore {
   }
 
   /**
-   * Retrieves the IDs of methods and receive methods for a specified contract.
+   * Retrieves the IDs of methods for a specified contract which have one of the following types: ASTFunction, ASTReceive, ASTInitFunction.
    * @param contractId The ID of the contract.
    * @returns An array of method IDs or undefined if no contract is found.
    */
@@ -158,6 +157,16 @@ export class TactASTStore {
     if (!contract) {
       return undefined;
     }
+    return contract.declarations.reduce((result, decl) => {
+      if (
+        decl.kind === "def_function" ||
+        decl.kind === "def_init_function" ||
+        decl.kind === "def_receive"
+      ) {
+        result.push(decl.id);
+      }
+      return result;
+    }, [] as number[]);
   }
 
   /**
@@ -166,7 +175,14 @@ export class TactASTStore {
    * @returns The ID of the init function or undefined if the contract does not exist.
    */
   public getInitId(contractId: number): number | undefined {
-    return undefined;
+    const contract = this.getContract(contractId);
+    if (!contract) {
+      return undefined;
+    }
+    const initFunction = contract.declarations.find(
+      (decl) => decl.kind === "def_init_function",
+    );
+    return initFunction ? initFunction.id : undefined;
   }
 
   /**
@@ -175,7 +191,16 @@ export class TactASTStore {
    * @returns An array of constant IDs or undefined if no contract is found.
    */
   public getConstants(contractId: number): number[] | undefined {
-    return undefined;
+    const contract = this.getContract(contractId);
+    if (!contract) {
+      return undefined;
+    }
+    return contract.declarations.reduce((result, decl) => {
+      if (decl.kind === "def_constant") {
+        result.push(decl.id);
+      }
+      return result;
+    }, [] as number[]);
   }
 
   /**
@@ -184,7 +209,16 @@ export class TactASTStore {
    * @returns An array of ASTField or undefined if no contract is found.
    */
   public getFields(contractId: number): ASTField[] | undefined {
-    return undefined;
+    const contract = this.getContract(contractId);
+    if (!contract) {
+      return undefined;
+    }
+    return contract.declarations.reduce((result, decl) => {
+      if (decl.kind === "def_field") {
+        result.push(decl);
+      }
+      return result;
+    }, [] as ASTField[]);
   }
 }
 
