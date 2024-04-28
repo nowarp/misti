@@ -14,35 +14,22 @@ export class Driver {
   detectors: Detector[] = [];
   private tactConfigPath: string;
 
-  constructor(tactConfigPath: string, mistiConfigPath?: string) {
+  private constructor(tactConfigPath: string, mistiConfigPath?: string) {
     // Tact internals are able to work with absolute paths only
     this.tactConfigPath = path.resolve(tactConfigPath);
     this.ctx = new MistiContext(mistiConfigPath);
-    this.initializeDetectors();
   }
 
   /**
-   * Executes checks on all compilation units and reports found errors sorted by severity.
-   * @returns True if any errors were found, otherwise false.
+   * Asynchronously creates a driver initializing all detectors.
    */
-  public async execute(): Promise<boolean> {
-    const cus: Map<ProjectName, CompilationUnit> = createIR(
-      this.ctx,
-      this.tactConfigPath,
-    );
-    return Array.from(cus.entries()).reduce(
-      (foundErrors, [projectName, cu]) => {
-        this.ctx.logger.debug(`Checking ${projectName}...`);
-        const thisCUErrors: MistiTactError[] = this.checkCU(cu);
-        thisCUErrors.sort((a, b) => b.severity - a.severity);
-        thisCUErrors.forEach((error) => {
-          this.reportError(error);
-          foundErrors = true;
-        });
-        return foundErrors;
-      },
-      false,
-    );
+  public static async create(
+    tactConfigPath: string,
+    mistiConfigPath?: string,
+  ): Promise<Driver> {
+    const driver = new Driver(tactConfigPath, mistiConfigPath);
+    await driver.initializeDetectors();
+    return driver;
   }
 
   /**
@@ -80,6 +67,30 @@ export class Driver {
   }
 
   /**
+   * Executes checks on all compilation units and reports found errors sorted by severity.
+   * @returns True if any errors were found, otherwise false.
+   */
+  public async execute(): Promise<boolean> {
+    const cus: Map<ProjectName, CompilationUnit> = createIR(
+      this.ctx,
+      this.tactConfigPath,
+    );
+    return Array.from(cus.entries()).reduce(
+      (foundErrors, [projectName, cu]) => {
+        this.ctx.logger.debug(`Checking ${projectName}...`);
+        const thisCUErrors: MistiTactError[] = this.checkCU(cu);
+        thisCUErrors.sort((a, b) => b.severity - a.severity);
+        thisCUErrors.forEach((error) => {
+          this.reportError(error);
+          foundErrors = true;
+        });
+        return foundErrors;
+      },
+      false,
+    );
+  }
+
+  /**
    * Logs a error to the standard error stream.
    * @param error The error object to report.
    */
@@ -111,7 +122,7 @@ export async function run(
   mistiConfig: string | undefined = undefined,
 ): Promise<boolean> {
   try {
-    const driver = new Driver(tactConfig, mistiConfig);
+    const driver = await Driver.create(tactConfig, mistiConfig);
     return await driver.execute();
   } catch (err) {
     if (err instanceof Error) {
