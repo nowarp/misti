@@ -69,7 +69,7 @@ export type FunctionName = string;
 export type ContractName = string;
 
 /**
- * Describes the interprocedural control flow graph (CFG) that corresponds to a function or method within the project.
+ * Describes the intraprocedural control flow graph (CFG) that corresponds to a function or method within the project.
  */
 export class CFG {
   /**
