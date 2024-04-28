@@ -1,12 +1,15 @@
 import {
   ASTStatement,
   ASTRef,
-  ASTNode,
-  ASTExpression,
-  ASTTypeRef,
   ASTConstant,
   ASTFunction,
   ASTNativeFunction,
+  ASTReceive,
+  ASTInitFunction,
+  ASTContract,
+  ASTPrimitive,
+  ASTStruct,
+  ASTTrait,
   ASTType,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
@@ -47,69 +50,105 @@ export type TactAST = {
  * Transforms the TactAST imported from the tact compiler to a representation more suitable for analysis.
  */
 export class ASTMapper {
-  private idToASTNode: Map<number, ASTNode> = new Map();
+  private functions = new Map<
+    number,
+    ASTFunction | ASTReceive | ASTInitFunction
+  >();
+  private constants = new Map<number, ASTConstant>();
+  private contracts = new Map<number, ASTContract>();
+  private nativeFunctions = new Map<number, ASTNativeFunction>();
+  private primitives = new Map<number, ASTPrimitive>();
+  private structs = new Map<number, ASTStruct>();
+  private traits = new Map<number, ASTTrait>();
+  private statements = new Map<number, ASTStatement>();
 
   constructor(private ast: TactAST) {
-    this.initializeASTMapping();
-  }
-
-  public generateASTStore(): TactASTStore {
-    return new TactASTStore(this.idToASTNode);
-  }
-
-  private initializeASTMapping(): void {
     this.ast.functions.forEach((func) => {
       if (func.kind == "def_function") {
         this.processFunction(func);
       } else {
-        this.processNativeFunction(func);
+        this.nativeFunctions.set(func.id, func);
       }
     });
     this.ast.constants.forEach((constant) =>
-      this.idToASTNode.set(constant.id, constant),
+      this.constants.set(constant.id, constant),
     );
     this.ast.types.forEach((type) => this.processType(type));
   }
 
-  private processFunction(func: ASTFunction): void {
-    this.idToASTNode.set(func.id, func);
-    func.args.forEach((arg) => this.idToASTNode.set(arg.id, arg));
-    if (func.return) {
-      this.processTypeRef(func.return);
+  public getASTStore(): TactASTStore {
+    return new TactASTStore(
+      this.functions,
+      this.constants,
+      this.contracts,
+      this.nativeFunctions,
+      this.primitives,
+      this.structs,
+      this.traits,
+      this.statements,
+    );
+  }
+
+  private processType(type: ASTType): void {
+    switch (type.kind) {
+      case "primitive":
+        this.primitives.set(type.id, type);
+        break;
+      case "def_struct":
+        this.structs.set(type.id, type);
+        break;
+      case "def_trait":
+        this.traits.set(type.id, type);
+        break;
+      case "def_contract":
+        this.processContract(type);
+        break;
+      default:
+        throw new Error(`Unsupported ASTType: ${type}`);
     }
+  }
+
+  private processContract(contract: ASTContract): void {
+    this.contracts.set(contract.id, contract);
+    for (const decl of contract.declarations) {
+      switch (decl.kind) {
+        case "def_field":
+          // Do nothing, as they are accessible through contract definitions
+          break;
+        case "def_function":
+        case "def_init_function":
+        case "def_receive":
+          this.processFunction(decl);
+          break;
+        case "def_constant":
+          this.constants.set(decl.id, decl);
+          break;
+        default:
+          throw new Error(`Unsupported contract declaration: ${decl}`);
+      }
+    }
+  }
+
+  private processFunction(
+    func: ASTFunction | ASTInitFunction | ASTReceive,
+  ): void {
+    this.functions.set(func.id, func);
     func.statements?.forEach((stmt) => this.processStmt(stmt));
   }
 
-  private processNativeFunction(func: ASTNativeFunction): void {
-    this.idToASTNode.set(func.id, func);
-    func.args.forEach((arg) => this.idToASTNode.set(arg.id, arg));
-    if (func.return) {
-      this.processTypeRef(func.return);
-    }
-  }
-
   private processStmt(stmt: ASTStatement): void {
-    this.idToASTNode.set(stmt.id, stmt);
+    this.statements.set(stmt.id, stmt);
     switch (stmt.kind) {
       case "statement_let":
-        this.processExpr(stmt.expression);
-        this.processTypeRef(stmt.type);
         break;
       case "statement_return":
-        if (stmt.expression) {
-          this.processExpr(stmt.expression);
-        }
         break;
       case "statement_expression":
-        this.processExpr(stmt.expression);
         break;
       case "statement_assign":
       case "statement_augmentedassign":
-        stmt.path.forEach((path) => this.processExpr(path));
-        this.processExpr(stmt.expression);
         break;
       case "statement_condition":
-        this.processExpr(stmt.expression);
         stmt.trueStatements.forEach((s) => this.processStmt(s));
         stmt.falseStatements?.forEach((s) => this.processStmt(s));
         if (stmt.elseif) {
@@ -118,88 +157,14 @@ export class ASTMapper {
         break;
       case "statement_while":
       case "statement_until":
-        this.processExpr(stmt.condition);
         stmt.statements.forEach((s) => this.processStmt(s));
         break;
       case "statement_repeat":
-        this.processExpr(stmt.condition);
         stmt.statements.forEach((s) => this.processStmt(s));
         break;
       default:
         throw new Error(`Unsupported statement type: ${stmt}`);
     }
-  }
-
-  private processExpr(expr: ASTExpression): void {
-    switch (expr.kind) {
-      case "number":
-      case "id":
-      case "boolean":
-      case "string":
-      case "null":
-      case "lvalue_ref": {
-        this.idToASTNode.set(expr.id, expr);
-        break;
-      }
-      case "op_binary": {
-        this.idToASTNode.set(expr.id, expr);
-        this.processExpr(expr.left);
-        this.processExpr(expr.right);
-        break;
-      }
-      case "op_unary": {
-        this.idToASTNode.set(expr.id, expr);
-        this.processExpr(expr.right);
-        break;
-      }
-      case "op_field": {
-        this.idToASTNode.set(expr.id, expr);
-        this.processExpr(expr.src);
-        break;
-      }
-      case "op_call": {
-        this.idToASTNode.set(expr.id, expr);
-        this.processExpr(expr.src);
-        expr.args.forEach((arg) => this.processExpr(arg));
-        break;
-      }
-      case "init_of":
-      case "op_static_call": {
-        this.idToASTNode.set(expr.id, expr);
-        expr.args.forEach((arg) => this.processExpr(arg));
-        break;
-      }
-      case "op_new": {
-        this.idToASTNode.set(expr.id, expr);
-        expr.args.forEach((param) => {
-          this.idToASTNode.set(param.id, param);
-          this.processExpr(param.exp);
-        });
-        break;
-      }
-      case "conditional": {
-        this.idToASTNode.set(expr.id, expr);
-        this.processExpr(expr.condition);
-        this.processExpr(expr.thenBranch);
-        this.processExpr(expr.elseBranch);
-        break;
-      }
-      default:
-        throw new Error(`unsupported expression: ${expr}`);
-    }
-  }
-
-  private processType(type: ASTType): void {
-    this.idToASTNode.set(type.id, type);
-    // Handle specific types if they contain other identifiable AST nodes
-  }
-
-  private processTypeRef(typeRef: ASTTypeRef): void {
-    this.idToASTNode.set(typeRef.id, typeRef);
-  }
-
-  public getASTNodeById(id: number): ASTNode | undefined {
-    return this.idToASTNode.get(id);
   }
 }
 
@@ -296,7 +261,7 @@ export class TactIRBuilder {
 
     return new CompilationUnit(
       projectName,
-      new ASTMapper(ast).generateASTStore(),
+      new ASTMapper(ast).getASTStore(),
       functionCFGs,
       contractEntries,
     );
