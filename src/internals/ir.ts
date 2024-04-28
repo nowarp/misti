@@ -1,9 +1,191 @@
-import { ASTRef, ASTNode } from "@tact-lang/compiler/dist/grammar/ast";
+import {
+  ASTRef,
+  ASTNode,
+  ASTStatement,
+  ASTReceive,
+  ASTField,
+  ASTInitFunction,
+  ASTFunction,
+  ASTNativeFunction,
+  ASTConstant,
+  ASTContract,
+  ASTPrimitive,
+  ASTStruct,
+  ASTTrait,
+} from "@tact-lang/compiler/dist/grammar/ast";
 
 export type ProjectName = string;
 
+/**
+ * Provides storage and access to various AST components of a Tact project.
+ */
 export class TactASTStore {
-  constructor(public idxToNode: Map<number, ASTNode>) {}
+  /**
+   * Constructs a TactASTStore with mappings to all major AST components.
+   * @param functions Functions and methods including user-defined and special methods.
+   * @param constants Constants defined across the compilation unit.
+   * @param contracts Contracts defined within the project.
+   * @param nativeFunctions Functions defined natively (not in user's source code).
+   * @param primitives Primitive types defined in the project.
+   * @param structs Structs defined in the project.
+   * @param traits Traits defined in the project.
+   * @param statements All executable statements within all functions of the project.
+   */
+  constructor(
+    private functions: Map<number, ASTFunction | ASTReceive | ASTInitFunction>,
+    private constants: Map<number, ASTConstant>,
+    private contracts: Map<number, ASTContract>,
+    private nativeFunctions: Map<number, ASTNativeFunction>,
+    private primitives: Map<number, ASTPrimitive>,
+    private structs: Map<number, ASTStruct>,
+    private traits: Map<number, ASTTrait>,
+    private statements: Map<number, ASTStatement>,
+  ) {}
+
+  /**
+   * Retrieves a function or method by its ID.
+   * @param id The unique identifier of the function or method.
+   * @returns The function or method if found, otherwise undefined.
+   */
+  public getFunction(
+    id: number,
+  ): ASTFunction | ASTReceive | ASTInitFunction | undefined {
+    return this.functions.get(id);
+  }
+
+  public hasFunction(id: number): boolean {
+    return this.getFunction(id) !== undefined;
+  }
+
+  /**
+   * Retrieves a constant by its ID.
+   * @param id The unique identifier of the constant.
+   * @returns The constant if found, otherwise undefined.
+   */
+  public getConstant(id: number): ASTConstant | undefined {
+    return this.constants.get(id);
+  }
+
+  public hasConstant(id: number): boolean {
+    return this.getConstant(id) !== undefined;
+  }
+
+  /**
+   * Retrieves a contract by its ID.
+   * @param id The unique identifier of the contract.
+   * @returns The contract if found, otherwise undefined.
+   */
+  public getContract(id: number): ASTContract | undefined {
+    return this.contracts.get(id);
+  }
+
+  public hasContract(id: number): boolean {
+    return this.getContract(id) !== undefined;
+  }
+
+  /**
+   * Retrieves a native function by its ID.
+   * @param id The unique identifier of the native function.
+   * @returns The native function if found, otherwise undefined.
+   */
+  public getNativeFunction(id: number): ASTNativeFunction | undefined {
+    return this.nativeFunctions.get(id);
+  }
+
+  public hasNativeFunction(id: number): boolean {
+    return this.getNativeFunction(id) !== undefined;
+  }
+
+  /**
+   * Retrieves a primitive type by its ID.
+   * @param id The unique identifier of the primitive type.
+   * @returns The primitive type if found, otherwise undefined.
+   */
+  public getPrimitive(id: number): ASTPrimitive | undefined {
+    return this.primitives.get(id);
+  }
+
+  public hasPrimitive(id: number): boolean {
+    return this.getPrimitive(id) !== undefined;
+  }
+
+  /**
+   * Retrieves a struct by its ID.
+   * @param id The unique identifier of the struct.
+   * @returns The struct if found, otherwise undefined.
+   */
+  public getStruct(id: number): ASTStruct | undefined {
+    return this.structs.get(id);
+  }
+
+  public hasStruct(id: number): boolean {
+    return this.getStruct(id) !== undefined;
+  }
+
+  /**
+   * Retrieves a trait by its ID.
+   * @param id The unique identifier of the trait.
+   * @returns The trait if found, otherwise undefined.
+   */
+  public getTrait(id: number): ASTTrait | undefined {
+    return this.traits.get(id);
+  }
+
+  public hasTrait(id: number): boolean {
+    return this.getTrait(id) !== undefined;
+  }
+
+  /**
+   * Retrieves a statement by its ID.
+   * @param id The unique identifier of the statement.
+   * @returns The statement if found, otherwise undefined.
+   */
+  public getStatement(id: number): ASTStatement | undefined {
+    return this.statements.get(id);
+  }
+
+  public hasStatement(id: number): boolean {
+    return this.getStatement(id) !== undefined;
+  }
+
+  /**
+   * Retrieves the IDs of methods and receive methods for a specified contract.
+   * @param contractId The ID of the contract.
+   * @returns An array of method IDs or undefined if no contract is found.
+   */
+  public getMethods(contractId: number): number[] | undefined {
+    const contract = this.getContract(contractId);
+    if (!contract) {
+      return undefined;
+    }
+  }
+
+  /**
+   * Retrieves the ID of the initialization function for a specified contract.
+   * @param contractId The ID of the contract.
+   * @returns The ID of the init function or undefined if the contract does not exist.
+   */
+  public getInitId(contractId: number): number | undefined {
+    return undefined;
+  }
+
+  /**
+   * Retrieves the IDs of constants associated with a specified contract.
+   * @param contractId The ID of the contract.
+   * @returns An array of constant IDs or undefined if no contract is found.
+   */
+  public getConstants(contractId: number): number[] | undefined {
+    return undefined;
+  }
+
+  /**
+   * Retrieves the fields defined within a specified contract.
+   * @param contractId The ID of the contract.
+   * @returns An array of ASTField or undefined if no contract is found.
+   */
+  public getFields(contractId: number): ASTField[] | undefined {
+    return undefined;
+  }
 }
 
 export type EdgeIdx = number;
@@ -96,14 +278,14 @@ export class CFG {
    */
   forEachNode(
     astStore: TactASTStore,
-    callback: (astNode: ASTNode, cfgNode: Node) => void,
+    callback: (stmt: ASTStatement, cfgNode: Node) => void,
   ) {
     this.nodes.forEach((cfgNode) => {
-      const astNode = astStore.idxToNode.get(cfgNode.stmtID);
+      const astNode = astStore.getStatement(cfgNode.stmtID);
       if (astNode) {
         callback(astNode, cfgNode);
       } else {
-        throw new Error(`No AST node found for statement ID ${cfgNode.stmtID}`);
+        throw new Error(`Cannot find a statement: id=${cfgNode.stmtID}`);
       }
     });
   }
@@ -153,7 +335,7 @@ export class CompilationUnit {
    */
   forEachCFG(
     astStore: TactASTStore,
-    callback: (funName: string, astNode: ASTNode, cfgNode: Node) => void,
+    callback: (funName: string, stmt: ASTStatement, cfgNode: Node) => void,
   ) {
     // Iterate over all functions' CFGs
     this.functions.forEach((cfg, functionName) => {
