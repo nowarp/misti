@@ -1,9 +1,14 @@
-import { exec } from "child_process";
+import { exec, execSync } from "child_process";
 import path from "path";
-import { promises as fs } from "fs";
+import fs from "fs";
 
 type RelationName = string;
 type AttrName = string;
+
+/**
+ * An optional IO attribute that adds ".input" or ".output" directive for the relation.
+ */
+type RelationIO = "input" | "output" | undefined;
 
 export type FactEntry =
   | { kind: "symbol"; value: string }
@@ -12,13 +17,54 @@ export type FactEntry =
   | { kind: "float"; value: number };
 
 /**
+ * Used to avoid adding duplicate facts to the relation.
+ */
+class FactSet {
+  private map = new Map<string, FactEntry["value"][]>();
+
+  private serialize(array: FactEntry["value"][]): string {
+    return array.map((item) => `${item}`).join("|");
+  }
+
+  public add(array: FactEntry["value"][]): void {
+    const key = this.serialize(array);
+    if (!this.map.has(key)) {
+      this.map.set(key, array);
+    }
+  }
+
+  public has(array: FactEntry["value"][]): boolean {
+    return this.map.has(this.serialize(array));
+  }
+
+  public remove(array: FactEntry["value"][]): boolean {
+    return this.map.delete(this.serialize(array));
+  }
+
+  public values(): IterableIterator<FactEntry["value"][]> {
+    return this.map.values();
+  }
+
+  public size(): number {
+    return this.map.size;
+  }
+}
+
+/**
  * Represents a Soufflé relation with its facts and declarations.
  */
 export class Relation {
+  /**
+   * @param name The name of the relation.
+   * @param args An array of tuples specifying the attribute name and its type.
+   * @param io Optional directive specifying if the relation is an input or output relation.
+   * @param facts An optional array of initial facts for the relation.
+   */
   constructor(
     public name: RelationName,
     public args: [AttrName, FactEntry["kind"]][],
-    public facts: FactEntry["value"][][] = [],
+    public io: RelationIO = undefined,
+    public facts: FactSet = new FactSet(),
   ) {}
 
   /**
@@ -30,28 +76,40 @@ export class Relation {
         `incorrect number of arguments for ${this.name}: got ${fact.length} expected ${this.args.length}`,
       );
     }
-    this.facts.push(fact);
+    this.facts.add(fact);
   }
 
   /**
-   * Outputs the relation and its facts in Soufflé Datalog syntax.
+   * Outputs the declaration of the relation in Soufflé Datalog syntax.
    */
-  public emit(): string {
-    const result: string[] = [];
-
-    // Format declaration
+  public emitDecl(): string {
     const argsFormatted = this.args
       .map(([name, type]) => `${name}:${type}`)
       .join(", ");
-    result.push(`.decl ${this.name}(${argsFormatted})`);
+    const io =
+      this.io === undefined
+        ? ``
+        : this.io === "input"
+          ? `\n.input ${this.name}`
+          : `\n.output ${this.name}`;
+    return `.decl ${this.name}(${argsFormatted})${io}`;
+  }
 
-    // Format facts
-    for (const fact of this.facts) {
-      const factFormatted = fact.join(", ");
-      result.push(`${this.name}(${factFormatted}).`);
-    }
-
-    return result.join("\n");
+  /**
+   * Outputs the facts of the relation in Soufflé Datalog syntax.
+   */
+  public emitFacts(): string {
+    return Array.from(this.facts.values())
+      .reduce((result, fact) => {
+        const factFormatted = fact
+          .map((factEntry) =>
+            typeof factEntry === "string" ? `"${factEntry}"` : factEntry,
+          )
+          .join(", ");
+        result.push(`${this.name}(${factFormatted}).`);
+        return result;
+      }, [])
+      .join("\n");
   }
 }
 
@@ -78,8 +136,8 @@ export type RuleBodyEntry = { kind: "atom"; value: RuleAtom; negated: boolean };
  * Represents a single Datalog rule in a Souffle program.
  */
 export class Rule {
-  private heads: RuleHead;
-  private body: RuleBodyEntry[];
+  public heads: RuleHead;
+  public body: RuleBodyEntry[];
 
   /**
    * Constructs a Datalog rule with the given heads and body entries.
@@ -124,6 +182,18 @@ export class SouffleProgram {
   private rules: Rule[] = [];
 
   /**
+   * @param name Unique name of this program.
+   */
+  constructor(private name: string) {}
+
+  /**
+   * Filename of the Datalog file generated from this program.
+   */
+  get filename(): string {
+    return `${this.name}.dl`;
+  }
+
+  /**
    * Adds a new relation to the context.
    * @param name The unique name of the relation.
    * @param args A list of tuples specifying the name and type of each attribute in the relation.
@@ -131,12 +201,13 @@ export class SouffleProgram {
    */
   public addRelation(
     name: RelationName,
+    io: RelationIO,
     ...args: [AttrName, FactEntry["kind"]][]
   ) {
     if (this.relations.has(name)) {
       throw new Error(`relation ${name} is already declared`);
     }
-    const decl = new Relation(name, args);
+    const decl = new Relation(name, args, io);
     this.relations.set(name, decl);
   }
 
@@ -157,36 +228,61 @@ export class SouffleProgram {
   /**
    * Adds a new rule to the Souffle program.
    * @param rule The rule to add to the program.
+   * @throws Error if any head relation is not defined.
    */
   public addRule(rule: Rule) {
+    const undefinedRelations = rule.heads
+      .filter((head) => !this.relations.has(head.name))
+      .map((head) => head.name);
+    if (undefinedRelations.length > 0) {
+      throw new Error(
+        `Undefined relations in the \`${rule}\` rule: ${undefinedRelations.join(", ")}\nPlease add them using \`addRelation\`.`,
+      );
+    }
     this.rules.push(rule);
   }
 
   /**
-   * Compiles all relation declarations, their facts, and rules into a single Soufflé Datalog program.
-   * @returns A string containing the formatted Datalog program.
+   * Outputs the available rules as a Soufflé program.
    */
+  private emitRules(): string {
+    return this.rules.map((rule) => rule.emit()).join("\n");
+  }
+
   public emit(): string {
-    const relationsOutput = Array.from(this.relations.values())
-      .map((relation) => relation.emit())
+    const relationsStr = Array.from(this.relations)
+      .reduce((result, [_name, relation]) => {
+        result.push(relation.emitDecl());
+        result.push(relation.emitFacts());
+        if (relation.facts.size() > 0) {
+          result.push(" ");
+        }
+        return result;
+      }, [] as string[])
       .join("\n");
-    const rulesOutput = this.rules.map((rule) => rule.emit()).join("\n");
-    return `${relationsOutput}\n${rulesOutput}`.trim();
+    return `${relationsStr}\n${this.emitRules()}`;
   }
 
   /**
-   * Dumps the generated Soufflé program facts to separate files within a specified directory.
+   * Asynchronously dumps the generated Soufflé program and facts to a single file within the specified directory.
    * @param dir The directory where the Soufflé fact files should be written.
    */
   public async dump(dir: string): Promise<void> {
-    for (const [name, relation] of this.relations.entries()) {
-      const filePath = path.join(dir, `${name}.facts`);
-      const facts = relation.facts.map((fact) => fact.join(",")).join("\n");
-      await fs.writeFile(filePath, facts, "utf8");
-    }
+    const programPath = path.join(dir, this.filename);
+    await fs.promises.writeFile(programPath, this.emit(), "utf8");
+  }
+
+  /**
+   * Synchronously dumps the generated Soufflé program and facts to a single file within the specified directory.
+   * @param dir The directory where the Soufflé fact files should be written.
+   */
+  public dumpSync(dir: string): void {
+    const programPath = path.join(dir, this.filename);
+    fs.writeFileSync(programPath, this.emit(), "utf8");
   }
 }
 
+/** An argument to Soufflé `-D` which makes it dump results to stdout. */
 const STDOUT_OUTPUT = "-";
 
 /**
@@ -195,22 +291,28 @@ const STDOUT_OUTPUT = "-";
 export class SouffleExecutor {
   /**
    * @param soufflePath Path to the Soufflé executable.
-   * @param factDir Directory to store input facts for Soufflé.
+   * @param inputDir Directory to store input facts for Soufflé.
    * @param outputDir Directory or path to output results from Soufflé.
    */
   constructor(
     private soufflePath: string = "souffle",
-    private factDir: string = "/tmp/misti/souffle",
+    private inputDir: string = "/tmp/misti/souffle",
     private outputDir: string = STDOUT_OUTPUT,
   ) {}
+
+  private makeSouffleCommand(program: SouffleProgram, debug = false): string {
+    const programPath = path.join(this.inputDir, program.filename);
+    return `${this.soufflePath} -F${this.inputDir} -D"${this.outputDir}" ${debug ? "" : "--no-warn"} ${programPath}`;
+  }
 
   /**
    * Executes the Datalog program using the Soufflé engine.
    * @returns `true` if the command executes without errors, otherwise `false`.
    */
   public async execute(program: SouffleProgram): Promise<boolean> {
-    program.dump(this.factDir);
-    const cmd = `${this.soufflePath} -F${this.factDir} -D${this.outputDir}`;
+    await fs.promises.mkdir(this.inputDir, { recursive: true });
+    await program.dump(this.inputDir);
+    const cmd = this.makeSouffleCommand(program);
     return new Promise((resolve, _) => {
       exec(cmd, (error, stdout, stderr) => {
         if (error) {
@@ -226,5 +328,25 @@ export class SouffleExecutor {
         }
       });
     });
+  }
+
+  /**
+   * Executes the Datalog program using the Soufflé engine synchronously.
+   * @returns `true` if the command executes without errors, otherwise `false`.
+   */
+  public executeSync(program: SouffleProgram): boolean {
+    try {
+      fs.mkdirSync(this.inputDir, { recursive: true });
+      program.dumpSync(this.inputDir);
+      const cmd = this.makeSouffleCommand(program);
+      const stdout = execSync(cmd, {
+        stdio: ["pipe", "pipe", "pipe"],
+      });
+      console.log("Soufflé Execution Output:", stdout.toString());
+      return true;
+    } catch (error) {
+      console.error("Error executing Soufflé:", error);
+      return false;
+    }
   }
 }

@@ -4,23 +4,26 @@ import {
   SouffleProgram,
   SouffleExecutor,
 } from "../src/internals/souffle";
-import { promises as fs } from "fs";
+import fs from "fs";
 import path from "path";
 
 jest.mock("fs", () => {
   return {
     promises: {
       writeFile: jest.fn(),
+      mkdir: jest.fn(() => Promise.resolve()),
     },
+    writeFileSync: jest.fn(),
+    mkdirSync: jest.fn(),
   };
 });
 
 jest.mock("child_process", () => {
-  return {
-    exec: jest.fn((cmd, callback) => {
-      callback(null, "Execution complete", "");
-    }),
-  };
+  const exec = jest.fn((cmd, callback) => {
+    callback(null, "Execution complete", "");
+  });
+  const execSync = jest.fn(() => "Execution complete");
+  return { exec, execSync };
 });
 
 describe("Souffle Datalog tests", () => {
@@ -32,8 +35,8 @@ describe("Souffle Datalog tests", () => {
     it("should add facts correctly and emit Datalog syntax", () => {
       const relation = new Relation("TestRelation", [["x", "number"]]);
       relation.addFact([42]);
-      expect(relation.emit()).toContain(".decl TestRelation(x:number)");
-      expect(relation.emit()).toContain("TestRelation(42).");
+      expect(relation.emitDecl()).toContain(".decl TestRelation(x:number)");
+      expect(relation.emitFacts()).toContain("TestRelation(42).");
     });
 
     it("should throw error when incorrect number of facts are added", () => {
@@ -46,21 +49,25 @@ describe("Souffle Datalog tests", () => {
   });
 
   describe("SouffleProgram class", () => {
+    let program: SouffleProgram;
+
+    beforeEach(() => {
+      program = new SouffleProgram("test");
+      program.addRelation("TestRelation", undefined, ["x", "number"]);
+    });
+
     it("should compile and dump the facts correctly", async () => {
-      const program = new SouffleProgram();
-      program.addRelation("TestRelation", ["x", "number"]);
       program.addFact("TestRelation", 42);
       await program.dump(factDir);
-      expect(fs.writeFile).toHaveBeenCalledWith(
-        path.join(factDir, "TestRelation.facts"),
-        "42",
+      expect(fs.promises.writeFile).toHaveBeenCalledWith(
+        path.join(factDir, "test.dl"),
+        expect.any(String),
         "utf8",
       );
     });
 
     it("should compile and emit the rules correctly", () => {
-      const program = new SouffleProgram();
-      program.addRelation("TestRelation", ["x", "number"]);
+      program.addRelation("out", "output", ["x", "number"]);
       program.addRule(
         new Rule([{ name: "out", arguments: ["x"] }], {
           kind: "atom",
@@ -72,30 +79,31 @@ describe("Souffle Datalog tests", () => {
       expect(output).toContain(".decl TestRelation(x:number)");
       expect(output).toContain("out(x) :-\n    TestRelation(x).");
     });
-  });
 
-  describe("SouffleExecutor class", () => {
-    it("should execute the Souffle program correctly", async () => {
-      const program = new SouffleProgram();
-      program.addRelation("TestRelation", ["x", "number"]);
-      const executor = new SouffleExecutor(soufflePath, factDir, outputDir);
-      const success = await executor.execute(program);
-      expect(success).toBe(true);
-    });
-
-    it("should handle rules in the execution", async () => {
-      const program = new SouffleProgram();
-      program.addRelation("TestRelation", ["x", "number"]);
-      program.addFact("TestRelation", 42);
+    it("should handle rules and relations properly when dumped", async () => {
+      program.addRelation("out", "output", ["x", "number"]);
       program.addRule(
-        new Rule([{ name: "output", arguments: ["x"] }], {
+        new Rule([{ name: "out", arguments: ["x"] }], {
           kind: "atom",
           value: { name: "TestRelation", arguments: ["x"] },
           negated: false,
         }),
       );
+      await program.dump(factDir);
+      expect(fs.promises.writeFile).toHaveBeenCalledWith(
+        path.join(factDir, "test.dl"),
+        expect.stringContaining("out(x) :-\n    TestRelation(x)."),
+        "utf8",
+      );
+    });
+  });
+
+  describe("SouffleExecutor class", () => {
+    it("should execute the Souffle program correctly using synchronous method", () => {
+      const program = new SouffleProgram("test");
+      program.addRelation("TestRelation", undefined, ["x", "number"]);
       const executor = new SouffleExecutor(soufflePath, factDir, outputDir);
-      const success = await executor.execute(program);
+      const success = executor.executeSync(program);
       expect(success).toBe(true);
     });
   });
