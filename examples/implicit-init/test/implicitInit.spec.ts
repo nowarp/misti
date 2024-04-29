@@ -15,9 +15,7 @@ describe("ImplicitInit Detector Tests", () => {
     );
 
     const driver = await Driver.create(tactConfigPath, mistiConfigPath);
-    return await driver.execute();
 
-    await driver.initializeDetectors();
     expect(driver.detectors.length).toBe(1);
     expect(driver.detectors[0].id).toBe("II");
 
