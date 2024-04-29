@@ -14,7 +14,8 @@ describe("ImplicitInit Detector Tests", () => {
       "mistiConfig.json",
     );
 
-    const driver = new Driver(tactConfigPath, mistiConfigPath);
+    const driver = await Driver.create(tactConfigPath, mistiConfigPath);
+    return await driver.execute();
 
     await driver.initializeDetectors();
     expect(driver.detectors.length).toBe(1);
