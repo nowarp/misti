@@ -1,6 +1,7 @@
 import { exec, execSync } from "child_process";
 import path from "path";
 import fs from "fs";
+import { Transform, TransformCallback } from "stream";
 
 type RelationName = string;
 type AttrName = string;
@@ -15,6 +16,31 @@ export type FactEntry =
   | { kind: "number"; value: number }
   | { kind: "unsigned"; value: number }
   | { kind: "float"; value: number };
+
+/**
+ * Custom Transform Stream to parse space-separated values.
+ */
+class SpaceSeparatedParser extends Transform {
+  constructor(options = {}) {
+    super({ ...options, objectMode: true });
+  }
+
+  _transform(
+    chunk: Buffer | string,
+    _: BufferEncoding,
+    callback: TransformCallback,
+  ): void {
+    const data = chunk.toString();
+    const lines = data.split("\n").map((line) => line.trim());
+    lines.forEach((line) => {
+      if (line !== "") {
+        const values = line.split(/\s+/);
+        this.push(values);
+      }
+    });
+    callback();
+  }
+}
 
 /**
  * Used to avoid adding duplicate facts to the relation.
@@ -187,10 +213,25 @@ export class SouffleProgram {
   constructor(private name: string) {}
 
   /**
-   * Filename of the Datalog file generated from this program.
+   * Filename of the Soufflé file generated from this program.
    */
   get filename(): string {
     return `${this.name}.dl`;
+  }
+
+  /**
+   * Collects names of relations which produce output on executing.
+   */
+  collectOutputNames(): string[] {
+    return Array.from(this.relations.entries()).reduce(
+      (outputNames, [_, relation]) => {
+        if (relation.io === "output") {
+          outputNames.push(relation.name);
+        }
+        return outputNames;
+      },
+      [] as string[],
+    );
   }
 
   /**
@@ -282,71 +323,150 @@ export class SouffleProgram {
   }
 }
 
-/** An argument to Soufflé `-D` which makes it dump results to stdout. */
-const STDOUT_OUTPUT = "-";
-
 /**
  * Manages Soufflé execution context.
  */
 export class SouffleExecutor {
   /**
    * @param soufflePath Path to the Soufflé executable.
-   * @param inputDir Directory to store input facts for Soufflé.
-   * @param outputDir Directory or path to output results from Soufflé.
+   * @param inputDir Temporary directory to store input facts for Soufflé.
+   * @param outputDir Temporary directory or path to CSV output from Soufflé.
    */
   constructor(
     private soufflePath: string = "souffle",
     private inputDir: string = "/tmp/misti/souffle",
-    private outputDir: string = STDOUT_OUTPUT,
+    private outputDir: string = "/tmp/misti/souffle",
   ) {}
 
-  private makeSouffleCommand(program: SouffleProgram, debug = false): string {
+  /**
+   * Produces a Soufflé command that returns output in the CSV format.
+   */
+  private makeSouffleCommand(program: SouffleProgram): string {
     const programPath = path.join(this.inputDir, program.filename);
-    return `${this.soufflePath} -F${this.inputDir} -D"${this.outputDir}" ${debug ? "" : "--no-warn"} ${programPath}`;
+    return `${this.soufflePath} -F${this.inputDir} -D${this.outputDir} ${programPath}`;
   }
 
   /**
    * Executes the Datalog program using the Soufflé engine.
-   * @returns `true` if the command executes without errors, otherwise `false`.
+   * @returns `SouffleExecutionResult` which contains the status of execution.
    */
-  public async execute(program: SouffleProgram): Promise<boolean> {
+  public async execute(
+    program: SouffleProgram,
+  ): Promise<SouffleExecutionResult> {
     await fs.promises.mkdir(this.inputDir, { recursive: true });
     await program.dump(this.inputDir);
     const cmd = this.makeSouffleCommand(program);
-    return new Promise((resolve, _) => {
-      exec(cmd, (error, stdout, stderr) => {
+    return new Promise((resolve, reject) => {
+      exec(cmd, async (error, _, stderr) => {
         if (error) {
-          console.error("Error executing Soufflé:", error);
-          resolve(false);
-        }
-        if (stderr) {
-          console.error("Soufflé Execution Errors:", stderr);
-          resolve(false);
+          reject(new SouffleExecutionResult(false, `${error}`));
+        } else if (stderr) {
+          reject(new SouffleExecutionResult(false, `${stderr}`));
         } else {
-          console.log("Soufflé Execution Output:", stdout);
-          resolve(true);
+          try {
+            const results = await program
+              .collectOutputNames()
+              .reduce(async (accPromise, relationName) => {
+                const acc = await accPromise;
+                const filepath = path.join(
+                  this.outputDir,
+                  `${relationName}.csv`,
+                );
+                const results = await this.parseResults(filepath);
+                acc.set(relationName, results);
+                return acc;
+              }, Promise.resolve(new Map<string, RawSouffleOutput>()));
+            resolve(new SouffleExecutionResult(true, "", results));
+          } catch (parseError) {
+            reject(new SouffleExecutionResult(false, `${parseError}`));
+          }
         }
       });
     });
   }
 
   /**
-   * Executes the Datalog program using the Soufflé engine synchronously.
-   * @returns `true` if the command executes without errors, otherwise `false`.
+   * Asynchronously parses a file into a `RawSouffleOutput`.
+   * @param filePath Path to the file to parse.
+   * @returns `RawSouffleOutput` containing the parsed data.
    */
-  public executeSync(program: SouffleProgram): boolean {
+  public async parseResults(filePath: string): Promise<RawSouffleOutput> {
+    return new Promise((resolve, reject) => {
+      const results: RawSouffleOutput = [];
+      fs.createReadStream(filePath)
+        .pipe(new SpaceSeparatedParser())
+        .on("data", (data) => {
+          results.push(data);
+        })
+        .on("end", () => {
+          resolve(results);
+        })
+        .on("error", (error) => {
+          console.error("Error reading CSV file:", error);
+          reject(error);
+        });
+    });
+  }
+
+  /**
+   * Executes the Datalog program using the Soufflé engine synchronously.
+   * @returns `SouffleExecutionResult` which contains the status of execution.
+   */
+  public executeSync(program: SouffleProgram): SouffleExecutionResult {
     try {
       fs.mkdirSync(this.inputDir, { recursive: true });
       program.dumpSync(this.inputDir);
       const cmd = this.makeSouffleCommand(program);
-      const stdout = execSync(cmd, {
-        stdio: ["pipe", "pipe", "pipe"],
-      });
-      console.log("Soufflé Execution Output:", stdout.toString());
-      return true;
+      execSync(cmd, { stdio: ["ignore", "ignore", "pipe"] });
+      const results = program
+        .collectOutputNames()
+        .reduce((acc, relationName) => {
+          const filepath = path.join(this.outputDir, `${relationName}.csv`);
+          const results = this.parseResultsSync(filepath);
+          acc.set(relationName, results);
+          return acc;
+        }, new Map<string, RawSouffleOutput>());
+      return new SouffleExecutionResult(true, "", results);
     } catch (error) {
-      console.error("Error executing Soufflé:", error);
-      return false;
+      return new SouffleExecutionResult(false, `${error}`);
     }
   }
+
+  /**
+   * Synchronously parses a file into a `SouffleExecutionResult`.
+   * @param filePath Path to the file to parse.
+   * @returns `RawSouffleOutput` containing the parsed data.
+   */
+  public parseResultsSync(filePath: string): RawSouffleOutput {
+    const data = fs.readFileSync(filePath, { encoding: "utf8" });
+    return this.parseSpaceSeparatedValues(data);
+  }
+
+  /**
+   * Parses CSV-like Soufflé output.
+   */
+  parseSpaceSeparatedValues(input: string) {
+    return input
+      .split("\n")
+      .filter((line) => line.trim() !== "")
+      .map((line) => line.trim())
+      .reduce((acc, line) => {
+        const strings = line.split(/\s+/);
+        acc.push(strings);
+        return acc;
+      }, [] as RawSouffleOutput);
+  }
+}
+
+type RawSouffleOutput = string[][];
+
+/**
+ * Encapsulates results of the Soufflé execution.
+ */
+export class SouffleExecutionResult {
+  constructor(
+    public success: boolean,
+    public stderr: string = "",
+    public results: Map<string, RawSouffleOutput> = new Map(),
+  ) {}
 }

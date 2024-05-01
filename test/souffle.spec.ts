@@ -8,18 +8,28 @@ import fs from "fs";
 import path from "path";
 
 jest.mock("fs", () => {
+  const originalFs = jest.requireActual("fs");
   return {
+    ...originalFs,
     promises: {
       writeFile: jest.fn(),
       mkdir: jest.fn(() => Promise.resolve()),
     },
     writeFileSync: jest.fn(),
     mkdirSync: jest.fn(),
+    readFileSync: jest.fn().mockReturnValue("name x\nresult  42\n"),
+    createReadStream: jest.fn().mockImplementation(() => {
+      const Readable = require("stream").Readable;
+      const mockStream = new Readable();
+      mockStream.push("name x\nresult  42\n");
+      mockStream.push(null); // end of stream
+      return mockStream;
+    }),
   };
 });
 
 jest.mock("child_process", () => {
-  const exec = jest.fn((cmd, callback) => {
+  const exec = jest.fn((_cmd, callback) => {
     callback(null, "Execution complete", "");
   });
   const execSync = jest.fn(() => "Execution complete");
@@ -101,10 +111,16 @@ describe("Souffle Datalog tests", () => {
   describe("SouffleExecutor class", () => {
     it("should execute the Souffle program correctly using synchronous method", () => {
       const program = new SouffleProgram("test");
-      program.addRelation("TestRelation", undefined, ["x", "number"]);
+      program.addRelation("TestRelation", "output", ["x", "number"]);
       const executor = new SouffleExecutor(soufflePath, factDir, outputDir);
-      const success = executor.executeSync(program);
-      expect(success).toBe(true);
+      const result = executor.executeSync(program);
+      const resultsArray = Array.from(result.results.values());
+      expect(resultsArray).toStrictEqual([
+        [
+          ["name", "x"],
+          ["result", "42"],
+        ],
+      ]);
     });
   });
 });
