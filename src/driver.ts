@@ -1,10 +1,12 @@
 import { MistiContext } from "./internals/context";
 import { createIR } from "./internals/tactIRBuilder";
+import { GraphvizDumper, JSONDumper } from "./internals/irDump";
 import { ProjectName, CompilationUnit } from "./internals/ir";
 import { MistiTactError } from "./internals/errors";
 import { Detector, findBuiltInDetector } from "./detectors/detector";
 
 import path from "path";
+import fs from "fs";
 
 /**
  * Manages the initialization and execution of detectors for analyzing compilation units.
@@ -12,12 +14,18 @@ import path from "path";
 export class Driver {
   ctx: MistiContext;
   detectors: Detector[] = [];
+  private dump?: "json" | "dot" = undefined;
   private tactConfigPath: string;
 
-  private constructor(tactConfigPath: string, mistiConfigPath?: string) {
+  private constructor(
+    tactConfigPath: string,
+    mistiConfigPath?: string,
+    dump?: "json" | "dot",
+  ) {
     // Tact internals are able to work with absolute paths only
     this.tactConfigPath = path.resolve(tactConfigPath);
     this.ctx = new MistiContext(mistiConfigPath);
+    this.dump = dump;
   }
 
   /**
@@ -25,9 +33,9 @@ export class Driver {
    */
   public static async create(
     tactConfigPath: string,
-    mistiConfigPath?: string,
+    options: CLIOptions,
   ): Promise<Driver> {
-    const driver = new Driver(tactConfigPath, mistiConfigPath);
+    const driver = new Driver(tactConfigPath, options.config, options.dump);
     await driver.initializeDetectors();
     return driver;
   }
@@ -75,6 +83,20 @@ export class Driver {
       this.ctx,
       this.tactConfigPath,
     );
+    if (this.dump !== undefined) {
+      const promises = Array.from(cus.entries()).reduce((acc, [name, cu]) => {
+        const dump =
+          this.dump === "dot"
+            ? GraphvizDumper.dumpCU(cu)
+            : JSONDumper.dumpCU(cu);
+        const filename = this.dump === "dot" ? `${name}.dot` : `${name}.json`;
+        const promise = fs.promises.writeFile(filename, dump, "utf8");
+        acc.push(promise);
+        return acc;
+      }, [] as Promise<void>[]);
+      await Promise.all(promises);
+      return false;
+    }
     return Array.from(cus.entries()).reduce(
       (foundErrors, [projectName, cu]) => {
         this.ctx.logger.debug(`Checking ${projectName}...`);
@@ -112,17 +134,28 @@ export class Driver {
 }
 
 /**
+ * Format of the CLI options.
+ */
+interface CLIOptions {
+  dump?: "json" | "dot";
+  config?: string;
+}
+
+/**
  * Entry point of code analysis.
- * @param tactConfig - Path to Tact project configuration
- * @param mistiConfig - Path to Misti configuration file
- * @return true if detected any problems
+ * @param tactConfig Path to Tact project configuration.
+ * @param mistiConfig Path to Misti configuration file.
+ * @return true if detected any problems.
  */
 export async function run(
   tactConfig: string,
-  mistiConfig: string | undefined = undefined,
+  options: CLIOptions = {
+    dump: undefined,
+    config: undefined,
+  },
 ): Promise<boolean> {
   try {
-    const driver = await Driver.create(tactConfig, mistiConfig);
+    const driver = await Driver.create(tactConfig, options);
     return await driver.execute();
   } catch (err) {
     if (err instanceof Error) {

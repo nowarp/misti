@@ -10,8 +10,13 @@ command
   .description("TON Static Analyzer")
   .version(packageJson.version)
   .arguments("<TACT_CONFIG_PATH>")
-  .action((TACT_CONFIG_PATH) => {
-    run(TACT_CONFIG_PATH);
+  .option("--dump <type>", "Dump CFG in format: 'json' or 'dot'", [
+    "json",
+    "dot",
+  ])
+  .option("--config <path>", "Path to Misti configuration file")
+  .action((TACT_CONFIG_PATH, options) => {
+    run(TACT_CONFIG_PATH, options);
   });
 command.option("--help", "display help for command", () => {
   command.help();
