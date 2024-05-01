@@ -311,7 +311,7 @@ export class TactIRBuilder {
     const stdlib = createNodeFileSystem(stdlibPath, false);
     return config.projects.reduce(
       (acc: Map<ProjectName, TactAST>, projectConfig) => {
-        this.ctx.logger.debug(`Checking project ${projectConfig.name} ...`);
+        this.ctx.logger.debug(`Parsing project ${projectConfig.name} ...`);
         const ctx = precompile(
           new CompilerContext({ shared: {} }),
           project,
