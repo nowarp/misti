@@ -301,14 +301,16 @@ export class CFG {
   /**
    * Creates an instance of CFG.
    * @param name The name of the function or method this CFG represents.
-   * @param ty Indicates whether this CFG represents a standalone function or a method belonging to a contract or class.
+   * @param kind Indicates whether this CFG represents a standalone function or a method belonging to a contract or class.
+   * @param origin Indicates whether the function was defined in users code or in standard library.
    * @param nodes Map of node indices to nodes in the CFG.
    * @param edges Map of edge indices to edges in the CFG.
    * @param ref AST reference that corresponds to the function definition.
    */
   constructor(
     public name: FunctionName,
-    public ty: "function" | "method",
+    public kind: "function" | "method",
+    public origin: "user" | "stdlib",
     public nodes: Node[],
     public edges: Edge[],
     public ref: ASTRef,
@@ -419,12 +421,17 @@ export class CompilationUnit {
    */
   forEachCFG(
     astStore: TactASTStore,
-    callback: (funName: string, stmt: ASTStatement, cfgNode: Node) => void,
+    callback: (
+      funName: string,
+      funOrigin: "user" | "stdlib",
+      stmt: ASTStatement,
+      cfgNode: Node,
+    ) => void,
   ) {
     // Iterate over all functions' CFGs
     this.functions.forEach((cfg, functionName) => {
       cfg.forEachNode(astStore, (astNode, cfgNode) => {
-        callback(functionName, astNode, cfgNode);
+        callback(functionName, cfg.origin, astNode, cfgNode);
       });
     });
 
@@ -432,7 +439,12 @@ export class CompilationUnit {
     this.contracts.forEach((contract) => {
       contract.methods.forEach((cfg, methodName) => {
         cfg.forEachNode(astStore, (astNode, cfgNode) => {
-          callback(`${contract.name}.${methodName}`, astNode, cfgNode);
+          callback(
+            `${contract.name}.${methodName}`,
+            cfg.origin,
+            astNode,
+            cfgNode,
+          );
         });
       });
     });

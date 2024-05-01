@@ -217,6 +217,7 @@ export class TactIRBuilder {
           this.createCFGFromStatements(
             name,
             "function",
+            fun.origin,
             fun.statements,
             fun.ref,
           ),
@@ -236,6 +237,7 @@ export class TactIRBuilder {
               this.createCFGFromStatements(
                 name,
                 "method",
+                entry.origin,
                 decl.statements,
                 decl.ref,
               ),
@@ -247,6 +249,7 @@ export class TactIRBuilder {
               this.createCFGFromStatements(
                 name,
                 "method",
+                entry.origin,
                 decl.statements,
                 decl.ref,
               ),
@@ -330,20 +333,22 @@ export class TactIRBuilder {
    * Each node represents a single statement, and edges represent control flow between statements.
    *
    * @param functionName The name of the function or method being processed.
-   * @param functionTy Indicates whether the input represents a function or a method.
+   * @param kind Indicates whether the input represents a function or a method.
+   * @param origin Indicates whether the function was defined in users code or in standard library.
    * @param statements An array of ASTStatement from the AST of the function or method.
    * @param ref AST reference to the corresponding function or method.
    * @returns A CFG instance populated with nodes and edges for the provided statements.
    */
   createCFGFromStatements(
     functionName: FunctionName,
-    functionTy: "function" | "method",
+    kind: "function" | "method",
+    origin: "user" | "stdlib",
     statements: ASTStatement[] | null,
     ref: ASTRef,
   ): CFG {
     const [nodes, edges] =
       statements === null ? [[], []] : this.processStatements(statements);
-    return new CFG(functionName, functionTy, nodes, edges, ref);
+    return new CFG(functionName, kind, origin, nodes, edges, ref);
   }
 
   /**

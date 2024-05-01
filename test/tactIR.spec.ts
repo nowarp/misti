@@ -93,6 +93,7 @@ fun test(): Int {
     const cfg = builder.createCFGFromStatements(
       fun.name,
       "function",
+      "user",
       fun.statements,
       fun.ref,
     );
@@ -125,6 +126,7 @@ fun test(): Int {
     const cfg = builder.createCFGFromStatements(
       fun.name,
       "function",
+      "user",
       fun.statements,
       fun.ref,
     );
@@ -156,6 +158,7 @@ fun test(): Int {
     const cfg = builder.createCFGFromStatements(
       fun.name,
       "function",
+      "user",
       fun.statements,
       fun.ref,
     );
