@@ -27,8 +27,10 @@
   "dependencies": {
     "@tact-lang/compiler": "^1.2.0",
     "@types/js-yaml": "^4.0.9",
+    "@types/json-bigint": "^1.0.4",
     "commander": "^12.0.0",
     "js-yaml": "^4.1.0",
+    "json-bigint": "^1.0.0",
     "yarn": "^1.22.22"
   },
   "devDependencies": {
