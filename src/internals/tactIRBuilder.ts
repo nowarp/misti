@@ -3,11 +3,13 @@ import {
   ASTRef,
   ASTConstant,
   ASTFunction,
+  ASTExpression,
   ASTNativeFunction,
   ASTReceive,
   ASTInitFunction,
   ASTContract,
   ASTPrimitive,
+  ASTField,
   ASTStruct,
   ASTTrait,
   ASTType,
@@ -28,9 +30,14 @@ import fs from "fs";
 import {
   ProjectName,
   CompilationUnit,
+  FunctionKind,
   TactASTStore,
   NodeIdx,
+  ContractName,
   Edge,
+  CFGIdx,
+  ContractIdx,
+  NodeKind,
   Node,
   FunctionName,
   CFG,
@@ -45,6 +52,30 @@ export type TactAST = {
   constants: ASTConstant[];
   types: ASTType[];
 };
+
+/**
+ * Generates a unique name used to identify receive functions in CFG.
+ */
+function generateReceiveName(receive: ASTReceive): string {
+  switch (receive.selector.kind) {
+    case "internal-simple":
+      return `receive_internal_simple_${receive.id}`;
+    case "internal-fallback":
+      return `receive_internal_fallback_${receive.id}`;
+    case "internal-comment":
+      return `receive_internal_comment_${receive.id}_${receive.selector.comment.value}`;
+    case "bounce":
+      return `receive_bounce_${receive.id}`;
+    case "external-simple":
+      return `receive_external_simple_${receive.id}`;
+    case "external-fallback":
+      return `receive_external_fallback_${receive.id}`;
+    case "external-comment":
+      return `receive_external_comment_${receive.id}_${receive.selector.comment.value}`;
+    default:
+      throw new Error("Unsupported receive selector type");
+  }
+}
 
 /**
  * Transforms the TactAST imported from the tact compiler to a representation more suitable for analysis.
@@ -169,37 +200,45 @@ export class ASTMapper {
 }
 
 /**
- * The TactIRBuilder class is responsible for constructing the Intermediate Representation (IR) of Tact projects.
+ * Maps each function name to its corresponding CFG index.
+ */
+type FunctionsMap = Map<FunctionName, CFGIdx>;
+
+/**
+ * Maps each contract name to a map of its methods, where each method is mapped to its CFG index.
+ */
+type MethodsMap = Map<ContractName, FunctionsMap>;
+
+/**
+ * Represents a stateful object which is responsible for constructing the IR of a single Tact project.
  * Currently, it creates a one-statement-per-basic-block CFG.
  */
 export class TactIRBuilder {
   /**
+   * Keeps unique identifiers registered for building CFG nodes for free functions.
+   */
+  private functionIndexes: FunctionsMap = new Map();
+
+  /**
+   * Keeps unique identifiers registered for building CFG nodes for contract methods.
+   */
+  private methodIndexes: MethodsMap = new Map();
+
+  /**
    * Creates an instance of TactIRBuilder.
    * @param ctx: Misti context.
    * @param tactConfigPath The path to the Tact configuration file.
+   * @param projectName The name of the project being compiled and analyzed, used for referencing within the compilation environment.
+   * @param ast The AST of the project.
    */
   constructor(
     private ctx: MistiContext,
     private tactConfigPath: string,
-  ) {}
-
-  /**
-   * Generates the IR for each project defined in the Tact configuration.
-   * @returns A mapping of project names to their corresponding CompilationUnit objects.
-   */
-  public generate(): Map<ProjectName, CompilationUnit> {
-    const config = this.readTactConfig();
-    const astEntries: Map<ProjectName, TactAST> =
-      this.parseTactProjects(config);
-    const irEntries = Array.from(astEntries).reduce(
-      (acc, [projectName, ast]) => {
-        acc.set(projectName, this.CUFromAST(projectName, ast));
-        return acc;
-      },
-      new Map<ProjectName, CompilationUnit>(),
-    );
-
-    return irEntries;
+    private projectName: ProjectName,
+    private ast: TactAST,
+  ) {
+    this.registerFunctions();
+    this.registerContracts();
   }
 
   /**
@@ -208,13 +247,48 @@ export class TactIRBuilder {
    * @param projectName The name of the project for which the compilation unit is being created.
    * @param ast The AST representing the parsed source code of the project.
    */
-  CUFromAST(projectName: ProjectName, ast: TactAST): CompilationUnit {
-    const functionCFGs = ast.functions.reduce((acc, fun) => {
+  build(): CompilationUnit {
+    const functions = this.createFunctions();
+    const contracts = this.createContracts();
+    return new CompilationUnit(
+      this.projectName,
+      new ASTMapper(this.ast).getASTStore(),
+      functions,
+      contracts,
+    );
+  }
+
+  /**
+   * Assign the unique identifiers to CFG structures to refer to them in function calls later.
+   */
+  private registerFunctions(): void {
+    this.functionIndexes = this.ast.functions.reduce((acc, fun) => {
+      if (fun.kind == "def_function") {
+        const idx = this.registerCFGIdx(
+          fun.name,
+          "function",
+          fun.origin,
+          fun.ref,
+        );
+        acc.set(fun.name, idx);
+      }
+      return acc;
+    }, new Map<FunctionName, CFGIdx>());
+  }
+
+  /**
+   * Creates CFGs for each free function defined in the AST using their previously registered unique identifiers.
+   * @returns A map of CFG structures keyed by their unique identifiers, representing each free function's CFG.
+   */
+  private createFunctions(): Map<CFGIdx, CFG> {
+    return this.ast.functions.reduce((acc, fun) => {
       if (fun.kind == "def_function") {
         const name = fun.name;
+        const idx = this.functionIndexes.get(fun.name)!;
         acc.set(
-          name,
+          idx,
           this.createCFGFromStatements(
+            idx,
             name,
             "function",
             fun.origin,
@@ -224,131 +298,215 @@ export class TactIRBuilder {
         );
       }
       return acc;
-    }, new Map<FunctionName, CFG>());
+    }, new Map<CFGIdx, CFG>());
+  }
 
-    const contractEntries = ast.types.reduce((acc, entry) => {
+  /**
+   * Extracts information from the contract AST entry if it is a method.
+   */
+  private getMethodInfo(
+    decl: ASTField | ASTFunction | ASTInitFunction | ASTReceive | ASTConstant,
+  ): [string | undefined, FunctionKind | undefined, ASTStatement[] | null] {
+    return decl.kind === "def_function"
+      ? [decl.name, "method", decl.statements]
+      : decl.kind === "def_init_function"
+        ? ["init", "method", decl.statements]
+        : decl.kind === "def_receive"
+          ? [generateReceiveName(decl), "receive", decl.statements]
+          : [undefined, undefined, null];
+  }
+
+  /**
+   * Assign the unique identifiers to CFG structures to refer to them in function calls later.
+   */
+  private registerContracts(): void {
+    this.methodIndexes = this.ast.types.reduce((acc, entry) => {
       if (entry.kind == "def_contract") {
         const contractName = entry.name;
+        const methodsMap = entry.declarations.reduce((methodAcc, decl) => {
+          const [name, kind, _] = this.getMethodInfo(decl);
+          if (kind && name) {
+            const idx = this.registerCFGIdx(name, kind, entry.origin, decl.ref);
+            methodAcc.set(name, idx);
+          }
+          return methodAcc;
+        }, new Map<FunctionName, CFGIdx>());
+        acc.set(contractName, methodsMap);
+      }
+      return acc;
+    }, new Map<ContractName, Map<FunctionName, CFGIdx>>());
+  }
+
+  /**
+   * Creates the complete CFGs for contract entries using the previously registred CFG identifiers.
+   */
+  private createContracts(): Map<ContractIdx, Contract> {
+    return this.ast.types.reduce((acc, entry) => {
+      if (entry.kind == "def_contract") {
+        const contractName = entry.name;
+        const methodsMap = this.methodIndexes.get(contractName)!;
         const methodCFGs = entry.declarations.reduce((methodAcc, decl) => {
-          if (decl.kind == "def_function") {
-            const name = decl.name;
+          const [name, kind, stmts] = this.getMethodInfo(decl);
+          if (kind && name) {
+            const idx = methodsMap.get(name)!;
             methodAcc.set(
-              name,
+              idx,
               this.createCFGFromStatements(
+                idx,
                 name,
                 "method",
                 entry.origin,
-                decl.statements,
-                decl.ref,
-              ),
-            );
-          } else if (decl.kind == "def_init_function") {
-            const name = "init";
-            methodAcc.set(
-              name,
-              this.createCFGFromStatements(
-                name,
-                "method",
-                entry.origin,
-                decl.statements,
+                stmts,
                 decl.ref,
               ),
             );
           }
           return methodAcc;
-        }, new Map<FunctionName, CFG>());
-        acc.add(new Contract(contractName, methodCFGs, entry.ref));
+        }, new Map<CFGIdx, CFG>());
+        const contract = new Contract(contractName, methodCFGs, entry.ref);
+        acc.set(contract.idx, contract);
       }
       return acc;
-    }, new Set<Contract>());
-
-    return new CompilationUnit(
-      projectName,
-      new ASTMapper(ast).getASTStore(),
-      functionCFGs,
-      contractEntries,
-    );
+    }, new Map<ContractIdx, Contract>());
   }
 
   /**
-   * Reads the Tact configuration file from the specified path, parses it, and returns
-   * the TactConfig object.
-   * @throws {Error} If the config file does not exist or cannot be parsed.
-   * @returns The parsed TactConfig object.
+   * Creates an unique CFG index for the function with the given name.
    */
-  readTactConfig(): TactConfig {
-    const resolvedPath = path.resolve(this.tactConfigPath);
-    let config: TactConfig;
-    if (!fs.existsSync(resolvedPath)) {
-      throw new Error("Unable to find config file at " + resolvedPath);
-    }
-    try {
-      config = parseConfig(fs.readFileSync(resolvedPath, "utf8"));
-    } catch (err) {
-      throw new Error(
-        "Unable to parse config file at " + resolvedPath + ":\n" + err,
-      );
-    }
-    return config;
-  }
-
-  /**
-   * Parses the projects defined in the Tact configuration file, generating an AST for each.
-   * @param config The Tact configuration object.
-   * @returns A mapping of project names to their corresponding ASTs.
-   */
-  parseTactProjects(config: TactConfig): Map<ProjectName, TactAST> {
-    const project = createNodeFileSystem(
-      path.dirname(this.tactConfigPath),
-      false,
-    );
-    // This adjustment is needed to get an actual path to stdlib distributed within the tact package.
-    const distPathPrefix = __dirname.includes("/dist/") ? "../../.." : "../..";
-    const stdlibPath = path.resolve(
-      __dirname,
-      distPathPrefix,
-      "node_modules",
-      "@tact-lang/compiler",
-      "stdlib",
-    );
-    const stdlib = createNodeFileSystem(stdlibPath, false);
-    return config.projects.reduce(
-      (acc: Map<ProjectName, TactAST>, projectConfig) => {
-        this.ctx.logger.debug(`Parsing project ${projectConfig.name} ...`);
-        const ctx = precompile(
-          new CompilerContext({ shared: {} }),
-          project,
-          stdlib,
-          projectConfig.path,
-        );
-        acc.set(projectConfig.name, getRawAST(ctx));
-        return acc;
-      },
-      new Map<ProjectName, TactAST>(),
-    );
+  private registerCFGIdx(
+    name: FunctionName,
+    kind: "function" | "method" | "receive",
+    origin: "user" | "stdlib",
+    ref: ASTRef,
+  ): CFGIdx {
+    return new CFG(name, kind, origin, [], [], ref).idx;
   }
 
   /**
    * Generates nodes and edges for the CFG based on the statements within a given function or method.
    * Each node represents a single statement, and edges represent control flow between statements.
    *
-   * @param functionName The name of the function or method being processed.
+   * @param idx Unique CFG identifier created on the function registration step.
+   * @param name The name of the function or method being processed.
    * @param kind Indicates whether the input represents a function or a method.
    * @param origin Indicates whether the function was defined in users code or in standard library.
    * @param statements An array of ASTStatement from the AST of the function or method.
    * @param ref AST reference to the corresponding function or method.
    * @returns A CFG instance populated with nodes and edges for the provided statements.
    */
-  createCFGFromStatements(
-    functionName: FunctionName,
-    kind: "function" | "method",
+  private createCFGFromStatements(
+    idx: CFGIdx,
+    name: FunctionName,
+    kind: "function" | "method" | "receive",
     origin: "user" | "stdlib",
     statements: ASTStatement[] | null,
     ref: ASTRef,
   ): CFG {
     const [nodes, edges] =
       statements === null ? [[], []] : this.processStatements(statements);
-    return new CFG(functionName, kind, origin, nodes, edges, ref);
+    return new CFG(name, kind, origin, nodes, edges, ref, idx);
+  }
+
+  /**
+   * Recursively collects function and method calls from the given expression using the registered unique indexes.
+   * @param expr The AST expression from which to collect function and method calls.
+   * @param parentCalls A set of CFG indexes to which the indices of found function/method calls will be added.
+   * @returns A set containing CFG indexes of function and method calls within the expression.
+   */
+  private collectFunctionCalls(
+    expr: ASTExpression,
+    parentCalls: Set<CFGIdx> = new Set(),
+  ): Set<CFGIdx> {
+    switch (expr.kind) {
+      case "op_call": // method
+        if (expr.src.kind === "id") {
+          const contractMethods = this.methodIndexes.get(expr.src.value);
+          if (contractMethods) {
+            const methodIdx = contractMethods.get(expr.name);
+            if (methodIdx !== undefined) {
+              parentCalls.add(methodIdx);
+            } else {
+              this.ctx.logger.warn(
+                `Calling an unknown contract method: ${expr.src.value}.${expr.name}`,
+              );
+            }
+          } else {
+            this.ctx.logger.warn(
+              `Accessing an unknown contract: ${expr.src.value}`,
+            );
+          }
+        } else {
+          this.ctx.logger.warn(
+            `Unsupported contrct method access: ${expr.src}`,
+          );
+        }
+        expr.args.forEach((arg) => this.collectFunctionCalls(arg, parentCalls));
+        this.collectFunctionCalls(expr.src, parentCalls);
+        break;
+      case "op_static_call": // free function
+        const funcIdx = this.functionIndexes.get(expr.name);
+        if (funcIdx !== undefined) {
+          parentCalls.add(funcIdx);
+        }
+        expr.args.forEach((arg) => this.collectFunctionCalls(arg, parentCalls));
+        break;
+      case "op_binary":
+        this.collectFunctionCalls(expr.left, parentCalls);
+        this.collectFunctionCalls(expr.right, parentCalls);
+        break;
+      case "op_unary":
+        this.collectFunctionCalls(expr.right, parentCalls);
+        break;
+      case "op_field":
+        this.collectFunctionCalls(expr.src, parentCalls);
+        break;
+      case "op_new":
+        expr.args.forEach((arg) =>
+          this.collectFunctionCalls(arg.exp, parentCalls),
+        );
+        break;
+      case "init_of":
+        expr.args.forEach((arg) => this.collectFunctionCalls(arg, parentCalls));
+        break;
+      case "conditional":
+        this.collectFunctionCalls(expr.condition, parentCalls);
+        this.collectFunctionCalls(expr.thenBranch, parentCalls);
+        this.collectFunctionCalls(expr.elseBranch, parentCalls);
+        break;
+      case "string":
+      case "number":
+      case "boolean":
+      case "null":
+      case "lvalue_ref":
+      case "id":
+        break;
+      default:
+        throw new Error(`Unsupported expression: ${expr}`);
+    }
+    return parentCalls;
+  }
+
+  /**
+   * Determines kind of the basic block while creating statemenets.
+   */
+  getNodeKind(stmt: ASTStatement): NodeKind {
+    switch (stmt.kind) {
+      case "statement_return":
+        return { kind: "return" };
+      case "statement_let":
+      case "statement_expression":
+      case "statement_assign":
+      case "statement_augmentedassign": {
+        const callees = this.collectFunctionCalls(stmt.expression);
+        if (callees.size > 0) {
+          return { kind: "call", callees };
+        } else {
+          return { kind: "regular" };
+        }
+      }
+      default:
+        return { kind: "regular" };
+    }
   }
 
   /**
@@ -368,8 +526,8 @@ export class TactIRBuilder {
   ): [Node[], Edge[]] {
     let lastNodeIdx: NodeIdx | undefined = parentNodeIdx;
 
-    statements.forEach((statement, index) => {
-      const newNode = new Node(statement.id);
+    statements.forEach((stmt, index) => {
+      const newNode = new Node(stmt.id, this.getNodeKind(stmt));
       nodes.push(newNode);
 
       // For the first node, if there's a parent node, connect this node to the parent
@@ -394,16 +552,16 @@ export class TactIRBuilder {
       lastNodeIdx = newNode.idx;
 
       if (
-        statement.kind == "statement_let" ||
-        statement.kind == "statement_expression" ||
-        statement.kind == "statement_assign" ||
-        statement.kind == "statement_augmentedassign"
+        stmt.kind == "statement_let" ||
+        stmt.kind == "statement_expression" ||
+        stmt.kind == "statement_assign" ||
+        stmt.kind == "statement_augmentedassign"
       ) {
         // Logic for linear flow statements
-      } else if (statement.kind === "statement_condition") {
+      } else if (stmt.kind === "statement_condition") {
         // Branching logic for trueStatements
         const [trueNodes, trueEdges] = this.processStatements(
-          statement.trueStatements,
+          stmt.trueStatements,
           nodes,
           edges,
           newNode.idx,
@@ -419,10 +577,10 @@ export class TactIRBuilder {
           newNode.dstEdges.add(edgeToNext.idx);
         }
 
-        if (statement.falseStatements) {
+        if (stmt.falseStatements) {
           // Branching logic for falseStatements
           const [falseNodes, falseEdges] = this.processStatements(
-            statement.falseStatements,
+            stmt.falseStatements,
             nodes,
             edges,
             newNode.idx,
@@ -438,9 +596,9 @@ export class TactIRBuilder {
           }
         }
       } else if (
-        statement.kind == "statement_while" ||
-        statement.kind == "statement_until" ||
-        statement.kind == "statement_repeat"
+        stmt.kind == "statement_while" ||
+        stmt.kind == "statement_until" ||
+        stmt.kind == "statement_repeat"
       ) {
         // Create an edge from the current node (loop condition) back to the start of the loop body,
         // and from the end of the loop body back to the current node to represent the loop's cycle.
@@ -448,7 +606,7 @@ export class TactIRBuilder {
 
         // Process the statements within the loop body.
         const [loopNodes, loopEdges] = this.processStatements(
-          statement.statements,
+          stmt.statements,
           [],
           [],
           newNode.idx, // Pass the loop condition node as the parent node to link back to.
@@ -481,11 +639,11 @@ export class TactIRBuilder {
 
         // Prevent automatic linking to the next node, since we have already done this manually.
         lastNodeIdx = undefined;
-      } else if (statement.kind === "statement_return") {
+      } else if (stmt.kind === "statement_return") {
         // No need to connect return statements to subsequent nodes
         lastNodeIdx = undefined; // This effectively ends the current flow
       } else {
-        throw new Error(`Unsupported statement: ${statement}`);
+        throw new Error(`Unsupported statement: ${stmt}`);
       }
     });
 
@@ -493,12 +651,92 @@ export class TactIRBuilder {
   }
 }
 
+class TactConfigManager {
+  private config: TactConfig;
+
+  /**
+   * @param ctx: Misti context.
+   */
+  constructor(
+    private ctx: MistiContext,
+    private tactConfigPath: string,
+  ) {
+    this.config = this.readTactConfig();
+  }
+
+  /**
+   * Reads the Tact configuration file from the specified path, parses it, and returns
+   * the TactConfig object.
+   * @throws {Error} If the config file does not exist or cannot be parsed.
+   * @returns The parsed TactConfig object.
+   */
+  readTactConfig(): TactConfig {
+    const resolvedPath = path.resolve(this.tactConfigPath);
+    let config: TactConfig;
+    if (!fs.existsSync(resolvedPath)) {
+      throw new Error("Unable to find config file at " + resolvedPath);
+    }
+    try {
+      config = parseConfig(fs.readFileSync(resolvedPath, "utf8"));
+    } catch (err) {
+      throw new Error(
+        "Unable to parse config file at " + resolvedPath + ":\n" + err,
+      );
+    }
+    return config;
+  }
+
+  /**
+   * Parses the projects defined in the Tact configuration file, generating an AST for each.
+   * @param config The Tact configuration object.
+   * @returns A mapping of project names to their corresponding ASTs.
+   */
+  parseTactProjects(): Map<ProjectName, TactAST> {
+    const project = createNodeFileSystem(
+      path.dirname(this.tactConfigPath),
+      false,
+    );
+    // This adjustment is needed to get an actual path to stdlib distributed within the tact package.
+    const distPathPrefix = __dirname.includes("/dist/") ? "../../.." : "../..";
+    const stdlibPath = path.resolve(
+      __dirname,
+      distPathPrefix,
+      "node_modules",
+      "@tact-lang/compiler",
+      "stdlib",
+    );
+    const stdlib = createNodeFileSystem(stdlibPath, false);
+    return this.config.projects.reduce(
+      (acc: Map<ProjectName, TactAST>, projectConfig) => {
+        this.ctx.logger.debug(`Parsing project ${projectConfig.name} ...`);
+        const ctx = precompile(
+          new CompilerContext({ shared: {} }),
+          project,
+          stdlib,
+          projectConfig.path,
+        );
+        acc.set(projectConfig.name, getRawAST(ctx));
+        return acc;
+      },
+      new Map<ProjectName, TactAST>(),
+    );
+  }
+}
+
 /**
  * Creates the Intermediate Representation (IR) for projects defined in a Tact configuration file.
+ * @returns A mapping of project names to their corresponding CompilationUnit objects.
  */
 export function createIR(
   ctx: MistiContext,
-  tactConfig: string,
+  tactConfigPath: string,
 ): Map<ProjectName, CompilationUnit> {
-  return new TactIRBuilder(ctx, tactConfig).generate();
+  const configManager = new TactConfigManager(ctx, tactConfigPath);
+  const astEntries: Map<ProjectName, TactAST> =
+    configManager.parseTactProjects();
+  return Array.from(astEntries).reduce((acc, [projectName, ast]) => {
+    const irBuilder = new TactIRBuilder(ctx, tactConfigPath, projectName, ast);
+    acc.set(projectName, irBuilder.build());
+    return acc;
+  }, new Map<ProjectName, CompilationUnit>());
 }

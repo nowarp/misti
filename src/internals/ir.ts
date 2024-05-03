@@ -224,6 +224,8 @@ export class TactASTStore {
 
 export type EdgeIdx = number;
 export type NodeIdx = number;
+export type CFGIdx = number;
+export type ContractIdx = number;
 
 /**
  * Generates unique indexes is used to assign unique identifiers to nodes and edges,
@@ -263,10 +265,31 @@ export class Edge {
 }
 
 /**
+ * Represents the kinds of basic blocks that can be present in a control flow graph (CFG).
+ */
+export type NodeKind =
+  /**
+   * Represents a regular control flow node with no special control behavior.
+   */
+  | { kind: "regular" }
+  /**
+   * Represents a node that contains function calls in its expressions.
+   * `callees` refers to unique indecies of the callee within the CFG.
+   * Functions which definitions are not available in the current
+   * compilation unit are omitted.
+   */
+  | { kind: "call"; callees: Set<CFGIdx> }
+  /**
+   * Represents a return node that effectively terminates the execution of the current control flow.
+   */
+  | { kind: "return" };
+
+/**
  * Represents a node in a Control Flow Graph (CFG), corresponding to a single statement in the source code.
  * Nodes are connected by edges that represent the flow of control between statements.
  *
  * @param stmtID The unique identifier of the statement this node represents.
+ * @param kind Kind of the basic block representing ways it behave.
  * @param srcEdges A set of indices for edges incoming to this node, representing control flows leading into this statement.
  * @param dstEdges A set of indices for edges outgoing from this node, representing potential control flows out of this statement.
  */
@@ -274,6 +297,7 @@ export class Node {
   public idx: NodeIdx;
   constructor(
     public stmtID: number,
+    public kind: NodeKind,
     public srcEdges: Set<EdgeIdx> = new Set<EdgeIdx>(),
     public dstEdges: Set<EdgeIdx> = new Set<EdgeIdx>(),
   ) {
@@ -285,9 +309,19 @@ export type FunctionName = string;
 export type ContractName = string;
 
 /**
+ * Kind of a function that appear in CFG.
+ */
+export type FunctionKind = "function" | "method" | "receive";
+
+/**
  * Describes the intraprocedural control flow graph (CFG) that corresponds to a function or method within the project.
  */
 export class CFG {
+  /**
+   * The unique identifier of this CFG among the compilation unit it belongs to.
+   */
+  public idx: CFGIdx;
+
   /**
    * Map from unique node indices to nodes indecies in the `this.nodes`.
    */
@@ -301,20 +335,23 @@ export class CFG {
   /**
    * Creates an instance of CFG.
    * @param name The name of the function or method this CFG represents.
-   * @param kind Indicates whether this CFG represents a standalone function or a method belonging to a contract or class.
+   * @param kind Indicates whether this CFG represents a standalone function or a method or a receive method belonging to a contract.
    * @param origin Indicates whether the function was defined in users code or in standard library.
    * @param nodes Map of node indices to nodes in the CFG.
    * @param edges Map of edge indices to edges in the CFG.
    * @param ref AST reference that corresponds to the function definition.
+   * @param idx An optional unique index. If not set, a new one will be chosen automatically.
    */
   constructor(
     public name: FunctionName,
-    public kind: "function" | "method",
+    public kind: FunctionKind,
     public origin: "user" | "stdlib",
     public nodes: Node[],
     public edges: Edge[],
     public ref: ASTRef,
+    idx: CFGIdx | undefined = undefined,
   ) {
+    this.idx = idx ? idx : IdxGenerator.next();
     this.nodesMap = new Map();
     this.initializeMapping(this.nodesMap, nodes);
     this.edgesMap = new Map();
@@ -322,7 +359,7 @@ export class CFG {
   }
 
   private initializeMapping(
-    mapping: Map<number, number>,
+    mapping: Map<NodeIdx | EdgeIdx, number>,
     entries: Node[] | Edge[],
   ): void {
     entries.forEach((entry, arrayIdx) => {
@@ -383,16 +420,25 @@ export class CFG {
  */
 export class Contract {
   /**
+   * The unique identifier of this Contract among the compilation unit it belongs to.
+   */
+  public idx: ContractIdx;
+
+  /**
    * Creates an instance of Contract.
    * @param name The unique name identifying this contract within the project.
-   * @param methods A mapping of method names to their CFGs, representing the detailed flow and structure of each method included in the contract.
+   * @param methods A mapping of method ids to their CFGs.
    * @param ref AST reference that corresponds to the contract definition.
+   * @param idx An optional unique index. If not set, a new one will be chosen automatically.
    */
   constructor(
     public name: ContractName,
-    public methods: Map<FunctionName, CFG>,
+    public methods: Map<CFGIdx, CFG>,
     public ref: ASTRef,
-  ) {}
+    idx: ContractIdx | undefined = undefined,
+  ) {
+    this.idx = idx ? idx : IdxGenerator.next();
+  }
 }
 
 /**
@@ -404,15 +450,26 @@ export class CompilationUnit {
    * Creates an instance of CompilationUnit.
    * @param projectName The name of the project this Compilation Unit belongs to.
    * @param ast The AST of the project.
-   * @param functions A mapping from names of free functions to their CFGs.
-   * @param contracts A set of contract entries, representing the contracts and their methods.
+   * @param functions A mapping from unique IDs of free functions to their CFGs.
+   * @param contracts A mapping from unique IDs of contract entries to contracts.
    */
   constructor(
     public projectName: ProjectName,
     public ast: TactASTStore,
-    public functions: Map<FunctionName, CFG>,
-    public contracts: Set<Contract>,
+    public functions: Map<CFGIdx, CFG>,
+    public contracts: Map<ContractIdx, Contract>,
   ) {}
+
+  /**
+   * Looks for a CFG node among functions and contract methods.
+   * @returns Found CFG or `undefined` if not found.
+   */
+  findCFGNode(idx: NodeIdx): CFG | undefined {
+    const funCfg = this.functions.get(idx);
+    if (funCfg) {
+      return funCfg;
+    }
+  }
 
   /**
    * Iterates over all CFGs in a Compilation Unit, and applies a callback to each node in every CFG.
@@ -421,30 +478,20 @@ export class CompilationUnit {
    */
   forEachCFG(
     astStore: TactASTStore,
-    callback: (
-      funName: string,
-      funOrigin: "user" | "stdlib",
-      stmt: ASTStatement,
-      cfgNode: Node,
-    ) => void,
+    callback: (cfg: CFG, node: Node, stmt: ASTStatement) => void,
   ) {
     // Iterate over all functions' CFGs
-    this.functions.forEach((cfg, functionName) => {
-      cfg.forEachNode(astStore, (astNode, cfgNode) => {
-        callback(functionName, cfg.origin, astNode, cfgNode);
+    this.functions.forEach((cfg, _) => {
+      cfg.forEachNode(astStore, (stmt, node) => {
+        callback(cfg, node, stmt);
       });
     });
 
     // Iterate over all contracts and their methods' CFGs
     this.contracts.forEach((contract) => {
-      contract.methods.forEach((cfg, methodName) => {
-        cfg.forEachNode(astStore, (astNode, cfgNode) => {
-          callback(
-            `${contract.name}.${methodName}`,
-            cfg.origin,
-            astNode,
-            cfgNode,
-          );
+      contract.methods.forEach((cfg, _) => {
+        cfg.forEachNode(astStore, (stmt, node) => {
+          callback(cfg, node, stmt);
         });
       });
     });

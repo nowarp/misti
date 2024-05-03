@@ -1,4 +1,6 @@
-import { CompilationUnit, CFG } from "./ir";
+import { ASTStatement } from "@tact-lang/compiler/dist/grammar/ast";
+
+import { CompilationUnit, CFG, CFGIdx, Node } from "./ir";
 
 import JSONbig from "json-bigint";
 
@@ -14,16 +16,36 @@ export class GraphvizDumper {
   public static dumpCU(cu: CompilationUnit): string {
     let graph = `digraph ${cu.projectName} {\n`;
     graph += "    node [shape=box];\n";
-    cu.functions.forEach((cfg, functionName) => {
-      graph += this.dumpCFG(cfg, functionName);
+    cu.functions.forEach((cfg) => {
+      graph += this.dumpCFG(cfg, cfg.name);
     });
     cu.contracts.forEach((contract) => {
-      contract.methods.forEach((cfg, methodName) => {
-        graph += this.dumpCFG(cfg, `${contract.name}__${methodName}`);
+      contract.methods.forEach((cfg) => {
+        graph += this.dumpCFG(cfg, `${contract.name}__${cfg.name}`);
       });
     });
+    graph += this.connectFunctionCalls(cu);
     graph += "}\n";
     return graph;
+  }
+
+  /**
+   * Creates edges between function and method calls within the CFG.
+   * @param cu The CompilationUnit containing all CFGs of the project.
+   * @returns The Graphviz dot representation of the created edges.
+   */
+  private static connectFunctionCalls(cu: CompilationUnit): string {
+    let output = "";
+    cu.forEachCFG(cu.ast, (cfg: CFG, node: Node, _: ASTStatement) => {
+      if (node.kind.kind === "call") {
+        node.kind.callees.forEach((calleeIdx) => {
+          if (cfg.getNode(calleeIdx)) {
+            output += `"${node.idx}" -> "${calleeIdx}";\n`;
+          }
+        });
+      }
+    });
+    return output;
   }
 
   /**
@@ -66,7 +88,7 @@ export class JSONDumper {
         name,
         cfg: this.dumpCFG(cfg),
       })),
-      contracts: Array.from(cu.contracts).map((contract) => ({
+      contracts: Array.from(cu.contracts).map(([_idx, contract]) => ({
         name: contract.name,
         methods: Array.from(contract.methods.entries()).map(
           ([methodName, cfg]) => ({
