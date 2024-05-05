@@ -1,3 +1,6 @@
+import { ASTRef } from "@tact-lang/compiler/dist/grammar/ast";
+import * as path from "path";
+
 export enum LogLevel {
   DEBUG,
   INFO,
@@ -34,26 +37,36 @@ export class Logger {
   /**
    * Logs a message at the specified log level if a corresponding log function is defined.
    * @param level The severity level of the log entry.
-   * @param message The content of the log message.
+   * @param msg The content of the log message.
+   * @param ref An optional source location.
    */
-  protected log(level: LogLevel, message: string): void {
+  protected log(level: LogLevel, msg: string, ref?: ASTRef): void {
     const logFunction = this.logFunctions.get(level);
     if (logFunction) {
-      logFunction(message);
+      logFunction(`${this.formatPosition(ref)}\n${msg}`);
     }
   }
 
-  debug(msg: string) {
-    this.log(LogLevel.DEBUG, msg);
+  debug(msg: string, ref?: ASTRef) {
+    this.log(LogLevel.DEBUG, msg, ref);
   }
-  info(msg: string) {
-    this.log(LogLevel.INFO, msg);
+  info(msg: string, ref?: ASTRef) {
+    this.log(LogLevel.INFO, msg, ref);
   }
-  warn(msg: string) {
-    this.log(LogLevel.WARN, msg);
+  warn(msg: string, ref?: ASTRef) {
+    this.log(LogLevel.WARN, msg, ref);
   }
-  error(msg: string) {
-    this.log(LogLevel.ERROR, msg);
+  error(msg: string, ref?: ASTRef) {
+    this.log(LogLevel.ERROR, msg, ref);
+  }
+
+  private formatPosition(ref?: ASTRef): string {
+    if (!ref || !ref.file) {
+      return "";
+    }
+    const relativeFilePath = path.relative(process.cwd(), ref.file);
+    const lc = ref.interval.getLineAndColumn();
+    return `${relativeFilePath}: ${lc}`;
   }
 }
 
