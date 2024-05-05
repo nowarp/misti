@@ -461,14 +461,43 @@ export class CompilationUnit {
   ) {}
 
   /**
-   * Looks for a CFG node among functions and contract methods.
+   * Looks for a CFG with a specific index.
    * @returns Found CFG or `undefined` if not found.
    */
-  findCFGNode(idx: NodeIdx): CFG | undefined {
+  public findCFGByIdx(idx: NodeIdx): CFG | undefined {
     const funCfg = this.functions.get(idx);
-    if (funCfg) {
-      return funCfg;
+    if (funCfg) return funCfg;
+    return Array.from(this.contracts.values())
+      .map((contract) => contract.methods.get(idx))
+      .find((cfg) => cfg !== undefined);
+  }
+
+  /**
+   * Looks for a CFG for a function node with a specific name.
+   * @returns Found CFG or `undefined` if not found.
+   */
+  public findFunctionCFGByName(name: FunctionName): CFG | undefined {
+    return Array.from(this.functions.values()).find((cfg) => cfg.name === name);
+  }
+
+  /**
+   * Looks for a CFG for a method node with a specific name.
+   * @returns Found CFG or `undefined` if not found.
+   */
+  public findMethodCFGByName(
+    contractName: ContractName,
+    methodName: FunctionName,
+  ): CFG | undefined {
+    const contract = Array.from(this.contracts.values()).find(
+      (contract) => contract.name === contractName,
+    );
+    if (!contract) {
+      return undefined;
     }
+    const cfg = Array.from(contract.methods.values()).find(
+      (cfg) => cfg.name === methodName,
+    );
+    return cfg;
   }
 
   /**
