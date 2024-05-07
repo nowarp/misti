@@ -15,12 +15,14 @@ export class Driver {
   ctx: MistiContext;
   detectors: Detector[] = [];
   private dump?: "json" | "dot" = undefined;
-  private dumpStdlib: boolean = false;
+  private dumpStdlib: boolean;
+  private dumpOutput: string;
   private tactConfigPath: string;
 
   private constructor(
     tactConfigPath: string,
-    dumpStdlib: boolean,
+    dumpStdlib?: boolean,
+    dumpOutput?: string,
     mistiConfigPath?: string,
     dump?: "json" | "dot",
   ) {
@@ -28,7 +30,8 @@ export class Driver {
     this.tactConfigPath = path.resolve(tactConfigPath);
     this.ctx = new MistiContext(mistiConfigPath);
     this.dump = dump;
-    this.dumpStdlib = dumpStdlib;
+    this.dumpStdlib = dumpStdlib ? dumpStdlib : false;
+    this.dumpOutput = dumpOutput ? dumpOutput : DUMP_STDOUT_PATH;
   }
 
   /**
@@ -41,6 +44,7 @@ export class Driver {
     const driver = new Driver(
       tactConfigPath,
       options.dumpCfgStdlib,
+      options.dumpCfgOutput,
       options.config,
       options.dumpCfg,
     );
@@ -97,9 +101,15 @@ export class Driver {
           this.dump === "dot"
             ? GraphvizDumper.dumpCU(cu, this.dumpStdlib)
             : JSONDumper.dumpCU(cu, this.dumpStdlib);
-        const filename = this.dump === "dot" ? `${name}.dot` : `${name}.json`;
-        const promise = fs.promises.writeFile(filename, dump, "utf8");
-        acc.push(promise);
+        if (this.dumpOutput === DUMP_STDOUT_PATH) {
+          console.log(dump);
+        } else {
+          const filename = this.dump === "dot" ? `${name}.dot` : `${name}.json`;
+          const filepath = path.join(this.dumpOutput, filename);
+          const promise = fs.promises.writeFile(filepath, dump, "utf8");
+          this.ctx.logger.debug(`CFG dump will be saved at ${filepath}`);
+          acc.push(promise);
+        }
         return acc;
       }, [] as Promise<void>[]);
       await Promise.all(promises);
@@ -141,11 +151,15 @@ export class Driver {
   }
 }
 
+const DUMP_STDOUT_PATH = "-";
+
 interface CLIOptions {
   /** Specifies the format for dumping CFG. */
   dumpCfg?: "json" | "dot";
   /** Determines whether to include standard library components in the dump. */
-  dumpCfgStdlib: boolean;
+  dumpCfgStdlib?: boolean;
+  /** Path where to save CFG dumps. If equals to DUMP_STDOUT_PATH, the stdout is used. */
+  dumpCfgOutput?: string;
   /** Optional path to the configuration file. If provided, the analyzer uses settings from this file. */
   config?: string;
 }
@@ -161,6 +175,7 @@ export async function run(
   options: CLIOptions = {
     dumpCfg: undefined,
     dumpCfgStdlib: false,
+    dumpCfgOutput: DUMP_STDOUT_PATH,
     config: undefined,
   },
 ): Promise<boolean> {
