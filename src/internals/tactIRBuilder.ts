@@ -426,17 +426,20 @@ export class TactIRBuilder {
               parentCalls.add(methodIdx);
             } else {
               this.ctx.logger.warn(
-                `Calling an unknown contract method: ${expr.src.value}.${expr.name}`,
+                `Calling an unknown contract method`,
+                expr.ref,
               );
             }
           } else {
             this.ctx.logger.warn(
               `Accessing an unknown contract: ${expr.src.value}`,
+              expr.src.ref,
             );
           }
         } else {
           this.ctx.logger.warn(
-            `Unsupported contrct method access: ${expr.src}`,
+            `Unsupported contract method access: ${expr.src.kind}`,
+            expr.src.ref,
           );
         }
         expr.args.forEach((arg) => this.collectFunctionCalls(arg, parentCalls));
@@ -673,13 +676,13 @@ class TactConfigManager {
     const resolvedPath = path.resolve(this.tactConfigPath);
     let config: TactConfig;
     if (!fs.existsSync(resolvedPath)) {
-      throw new Error("Unable to find config file at " + resolvedPath);
+      throw new Error(`Unable to find config file at ${resolvedPath}`);
     }
     try {
       config = parseConfig(fs.readFileSync(resolvedPath, "utf8"));
     } catch (err) {
       throw new Error(
-        "Unable to parse config file at " + resolvedPath + ":\n" + err,
+        `Unable to parse config file at ${resolvedPath}:\n${err}`,
       );
     }
     return config;
