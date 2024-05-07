@@ -11,16 +11,23 @@ export class GraphvizDumper {
   /**
    * Generates a Graphviz dot format string for a given CompilationUnit.
    * @param cu The compilation unit to be dumped.
+   * @param dumpStdlib If true, the standard library definitions will be included in the dump.
    * @returns The Graphviz dot representation of the compilation unit.
    */
-  public static dumpCU(cu: CompilationUnit): string {
+  public static dumpCU(cu: CompilationUnit, dumpStdlib: boolean): string {
     let graph = `digraph ${cu.projectName} {\n`;
     graph += "    node [shape=box];\n";
     cu.functions.forEach((cfg) => {
+      if (!dumpStdlib && cfg.origin == "stdlib") {
+        return;
+      }
       graph += this.dumpCFG(cfg, cfg.name);
     });
     cu.contracts.forEach((contract) => {
       contract.methods.forEach((cfg) => {
+        if (!dumpStdlib && cfg.origin == "stdlib") {
+          return;
+        }
         graph += this.dumpCFG(cfg, `${contract.name}__${cfg.name}`);
       });
     });
@@ -79,23 +86,38 @@ export class JSONDumper {
   /**
    * Generates a JSON format string for a given CompilationUnit.
    * @param cu The compilation unit to be dumped.
+   * @param dumpStdlib If true, the standard library definitions will be included in the dump.
    * @returns The JSON representation of the compilation unit.
    */
-  public static dumpCU(cu: CompilationUnit): string {
+  public static dumpCU(cu: CompilationUnit, dumpStdlib: boolean): string {
     const data = {
       projectName: cu.projectName,
-      functions: Array.from(cu.functions.entries()).map(([name, cfg]) => ({
-        name,
-        cfg: this.dumpCFG(cfg),
-      })),
+      functions: Array.from(cu.functions.entries()).reduce<
+        { name: string; cfg: object }[]
+      >((acc, [_, cfg]) => {
+        if (!dumpStdlib && cfg.origin == "stdlib") {
+          return acc;
+        }
+        acc.push({
+          name: cfg.name,
+          cfg: this.dumpCFG(cfg),
+        });
+        return acc;
+      }, []),
       contracts: Array.from(cu.contracts).map(([_idx, contract]) => ({
         name: contract.name,
-        methods: Array.from(contract.methods.entries()).map(
-          ([methodName, cfg]) => ({
-            name: `${contract.name}.${methodName}`,
+        methods: Array.from(contract.methods.entries()).reduce<
+          { name: string; cfg: object }[]
+        >((acc, [_, cfg]) => {
+          if (!dumpStdlib && cfg.origin == "stdlib") {
+            return acc;
+          }
+          acc.push({
+            name: `${contract.name}.${cfg.name}`,
             cfg: this.dumpCFG(cfg),
-          }),
-        ),
+          });
+          return acc;
+        }, []),
       })),
     };
     return JSONbig.stringify(data, null, 2);

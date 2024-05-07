@@ -15,10 +15,12 @@ export class Driver {
   ctx: MistiContext;
   detectors: Detector[] = [];
   private dump?: "json" | "dot" = undefined;
+  private dumpStdlib: boolean = false;
   private tactConfigPath: string;
 
   private constructor(
     tactConfigPath: string,
+    dumpStdlib: boolean,
     mistiConfigPath?: string,
     dump?: "json" | "dot",
   ) {
@@ -26,6 +28,7 @@ export class Driver {
     this.tactConfigPath = path.resolve(tactConfigPath);
     this.ctx = new MistiContext(mistiConfigPath);
     this.dump = dump;
+    this.dumpStdlib = dumpStdlib;
   }
 
   /**
@@ -35,7 +38,12 @@ export class Driver {
     tactConfigPath: string,
     options: CLIOptions,
   ): Promise<Driver> {
-    const driver = new Driver(tactConfigPath, options.config, options.dump);
+    const driver = new Driver(
+      tactConfigPath,
+      options.dumpCfgStdlib,
+      options.config,
+      options.dumpCfg,
+    );
     await driver.initializeDetectors();
     return driver;
   }
@@ -87,8 +95,8 @@ export class Driver {
       const promises = Array.from(cus.entries()).reduce((acc, [name, cu]) => {
         const dump =
           this.dump === "dot"
-            ? GraphvizDumper.dumpCU(cu)
-            : JSONDumper.dumpCU(cu);
+            ? GraphvizDumper.dumpCU(cu, this.dumpStdlib)
+            : JSONDumper.dumpCU(cu, this.dumpStdlib);
         const filename = this.dump === "dot" ? `${name}.dot` : `${name}.json`;
         const promise = fs.promises.writeFile(filename, dump, "utf8");
         acc.push(promise);
@@ -133,24 +141,26 @@ export class Driver {
   }
 }
 
-/**
- * Format of the CLI options.
- */
 interface CLIOptions {
-  dump?: "json" | "dot";
+  /** Specifies the format for dumping CFG. */
+  dumpCfg?: "json" | "dot";
+  /** Determines whether to include standard library components in the dump. */
+  dumpCfgStdlib: boolean;
+  /** Optional path to the configuration file. If provided, the analyzer uses settings from this file. */
   config?: string;
 }
 
 /**
  * Entry point of code analysis.
  * @param tactConfig Path to Tact project configuration.
- * @param mistiConfig Path to Misti configuration file.
+ * @param options CLI options.
  * @return true if detected any problems.
  */
 export async function run(
   tactConfig: string,
   options: CLIOptions = {
-    dump: undefined,
+    dumpCfg: undefined,
+    dumpCfgStdlib: false,
     config: undefined,
   },
 ): Promise<boolean> {
