@@ -14,8 +14,8 @@ export class ImplicitInit extends Detector {
   }
 
   check(_ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
-    return Array.from(cu.contracts).reduce((foundErrors, contract) => {
-      if (!contract.methods.has("init")) {
+    return Array.from(cu.contracts).reduce((foundErrors, [_, contract]) => {
+      if (!cu.findMethodCFGByName(contract.name, "init")) {
         const err = this.createError(
           `contract ${contract.name} doesn't define an init function`,
           Severity.INFO,
