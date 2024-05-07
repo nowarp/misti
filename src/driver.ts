@@ -65,7 +65,13 @@ export class Driver {
       async (config) => {
         if (config.modulePath) {
           // Dynamic import for external detectors
-          const module = await import(config.modulePath);
+          let module;
+          try {
+            module = await import(config.modulePath);
+          } catch (error) {
+            console.error(`Failed to import module: ${config.modulePath}`);
+            console.error(error);
+          }
           const DetectorClass = module[config.className];
           if (!DetectorClass) {
             throw new Error(
