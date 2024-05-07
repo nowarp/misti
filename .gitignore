@@ -130,3 +130,8 @@ dist
 .pnp.*
 tags
 docs
+
+# Generated test artifacts
+test/contracts/*.config.json
+test/contracts/*.json
+!test/contracts/*.expected.json

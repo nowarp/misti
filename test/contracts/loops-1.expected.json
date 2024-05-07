@@ -1,0 +1,100 @@
+{
+  "projectName": "loops-1",
+  "functions": [
+    {
+      "name": "test",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 450,
+            "stmtID": 6029,
+            "srcEdges": [],
+            "dstEdges": [
+              452
+            ]
+          },
+          {
+            "id": 451,
+            "stmtID": 6032,
+            "srcEdges": [
+              452
+            ],
+            "dstEdges": [
+              454
+            ]
+          },
+          {
+            "id": 453,
+            "stmtID": 6046,
+            "srcEdges": [
+              454,
+              459
+            ],
+            "dstEdges": [
+              460
+            ]
+          },
+          {
+            "id": 455,
+            "stmtID": 6040,
+            "srcEdges": [
+              456
+            ],
+            "dstEdges": [
+              458
+            ]
+          },
+          {
+            "id": 457,
+            "stmtID": 6045,
+            "srcEdges": [
+              458
+            ],
+            "dstEdges": [
+              459
+            ]
+          },
+          {
+            "id": 461,
+            "stmtID": 6048,
+            "srcEdges": [],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 452,
+            "src": 450,
+            "dst": 451
+          },
+          {
+            "id": 454,
+            "src": 451,
+            "dst": 453
+          },
+          {
+            "id": 456,
+            "src": 453,
+            "dst": 455
+          },
+          {
+            "id": 458,
+            "src": 455,
+            "dst": 457
+          },
+          {
+            "id": 459,
+            "src": 457,
+            "dst": 453
+          },
+          {
+            "id": 460,
+            "src": 453,
+            "dst": 6048
+          }
+        ]
+      }
+    }
+  ],
+  "contracts": []
+}
