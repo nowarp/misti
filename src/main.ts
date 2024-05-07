@@ -24,6 +24,8 @@ command
     "Directory to save CFG dump. If <path> is `-` then stdout is used.",
     "-",
   )
+  .option("--verbose", "Enable verbose output.", false)
+  .option("--quiet", "Suppress output.", false)
   .option("--config <path>", "Path to Misti configuration file")
   .action((TACT_CONFIG_PATH, options) => {
     run(TACT_CONFIG_PATH, options);

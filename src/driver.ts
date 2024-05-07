@@ -25,10 +25,12 @@ export class Driver {
     dumpOutput?: string,
     mistiConfigPath?: string,
     dump?: "json" | "dot",
+    verbose?: boolean,
+    quiet?: boolean,
   ) {
     // Tact internals are able to work with absolute paths only
     this.tactConfigPath = path.resolve(tactConfigPath);
-    this.ctx = new MistiContext(mistiConfigPath);
+    this.ctx = new MistiContext(mistiConfigPath, verbose, quiet);
     this.dump = dump;
     this.dumpStdlib = dumpStdlib ? dumpStdlib : false;
     this.dumpOutput = dumpOutput ? dumpOutput : DUMP_STDOUT_PATH;
@@ -47,6 +49,8 @@ export class Driver {
       options.dumpCfgOutput,
       options.config,
       options.dumpCfg,
+      options.verbose,
+      options.quiet,
     );
     await driver.initializeDetectors();
     return driver;
@@ -162,6 +166,20 @@ interface CLIOptions {
   dumpCfgOutput?: string;
   /** Optional path to the configuration file. If provided, the analyzer uses settings from this file. */
   config?: string;
+  /** Add additional stdout output. */
+  verbose?: boolean;
+  /** Suppress driver's output. */
+  quiet?: boolean;
+}
+
+/**
+ * Check CLI options for ambiguities.
+ * @throws If Misti cannot be executed with the given options
+ */
+function checkCLIOptions(options: CLIOptions) {
+  if (options.verbose === true && options.quiet === true) {
+    throw new Error(`Please choose only one option: --verbose or --quiet`);
+  }
 }
 
 /**
@@ -177,9 +195,12 @@ export async function run(
     dumpCfgStdlib: false,
     dumpCfgOutput: DUMP_STDOUT_PATH,
     config: undefined,
+    verbose: false,
+    quiet: false,
   },
 ): Promise<boolean> {
   try {
+    checkCLIOptions(options);
     const driver = await Driver.create(tactConfig, options);
     return await driver.execute();
   } catch (err) {

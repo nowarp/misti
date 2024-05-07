@@ -11,16 +11,25 @@ export class MistiContext {
   /**
    * Initializes the context for Misti, setting up configuration and appropriate logger.
    * @param mistiConfigPath Path to the Misti configuration file.
+   * @param mistiConfigPath CLI option to force verbose output.
+   * @param mistiConfigPath CLI option to forcefuly suppress output.
    */
-  constructor(mistiConfigPath?: string) {
+  constructor(mistiConfigPath?: string, verbose?: boolean, quiet?: boolean) {
     this.config = new MistiConfig(mistiConfigPath);
 
-    if (this.config.verbosity == "quiet") {
-      this.logger = new QuietLogger();
-    } else if (this.config.verbosity == "debug") {
+    // Prioritize CLI options
+    if (verbose === true) {
       this.logger = new DebugLogger();
+    } else if (quiet === true) {
+      this.logger = new QuietLogger();
     } else {
-      this.logger = new Logger();
+      if (this.config.verbosity == "quiet") {
+        this.logger = new QuietLogger();
+      } else if (this.config.verbosity == "debug") {
+        this.logger = new DebugLogger();
+      } else {
+        this.logger = new Logger();
+      }
     }
   }
 }
