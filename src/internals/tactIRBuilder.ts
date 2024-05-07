@@ -233,7 +233,6 @@ export class TactIRBuilder {
    */
   constructor(
     private ctx: MistiContext,
-    private tactConfigPath: string,
     private projectName: ProjectName,
     private ast: TactAST,
   ) {
@@ -735,7 +734,7 @@ export function createIR(
   const astEntries: Map<ProjectName, TactAST> =
     configManager.parseTactProjects();
   return Array.from(astEntries).reduce((acc, [projectName, ast]) => {
-    const irBuilder = new TactIRBuilder(ctx, tactConfigPath, projectName, ast);
+    const irBuilder = new TactIRBuilder(ctx, projectName, ast);
     acc.set(projectName, irBuilder.build());
     return acc;
   }, new Map<ProjectName, CompilationUnit>());
