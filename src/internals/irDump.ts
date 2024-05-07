@@ -1,6 +1,5 @@
 import { ASTStatement } from "@tact-lang/compiler/dist/grammar/ast";
-
-import { CompilationUnit, CFG, CFGIdx, Node } from "./ir";
+import { CompilationUnit, CFG, Node } from "./ir";
 
 import JSONbig from "json-bigint";
 
