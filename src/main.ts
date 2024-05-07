@@ -19,11 +19,16 @@ command
     "Include standard library components in the CFG dump",
     false,
   )
+  .option(
+    "--dump-cfg-output <path>",
+    "Directory to save CFG dump. If <path> is `-` then stdout is used.",
+    "-",
+  )
   .option("--config <path>", "Path to Misti configuration file")
   .action((TACT_CONFIG_PATH, options) => {
     run(TACT_CONFIG_PATH, options);
   });
-command.option("--help", "display help for command", () => {
+command.option("--help", "Display help for command", () => {
   command.help();
 });
 
