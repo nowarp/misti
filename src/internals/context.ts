@@ -11,8 +11,8 @@ export class MistiContext {
   /**
    * Initializes the context for Misti, setting up configuration and appropriate logger.
    * @param mistiConfigPath Path to the Misti configuration file.
-   * @param mistiConfigPath CLI option to force verbose output.
-   * @param mistiConfigPath CLI option to forcefuly suppress output.
+   * @param verbose CLI option to force verbose output.
+   * @param quiet CLI option to forcefuly suppress output.
    */
   constructor(mistiConfigPath?: string, verbose?: boolean, quiet?: boolean) {
     this.config = new MistiConfig(mistiConfigPath);
