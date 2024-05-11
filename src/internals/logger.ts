@@ -94,7 +94,6 @@ export class DebugLogger extends Logger {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function trace(...args: any) {
   console.log(...args);
   console.trace();
