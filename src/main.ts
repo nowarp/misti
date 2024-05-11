@@ -10,10 +10,7 @@ command
   .description("TON Static Analyzer")
   .version(packageJson.version)
   .arguments("<TACT_CONFIG_PATH>")
-  .option("--dump-cfg <type>", "Dump CFG in format: 'json' or 'dot'", [
-    "json",
-    "dot",
-  ])
+  .option("--dump-cfg <type>", "Dump CFG in format: 'json' or 'dot'", undefined)
   .option(
     "--dump-cfg-stdlib",
     "Include standard library components in the CFG dump",
