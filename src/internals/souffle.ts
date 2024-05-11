@@ -323,20 +323,33 @@ export class SouffleProgram {
   }
 }
 
+export interface SouffleExecutorParameters {
+  /** Path to the Soufflé executable. */
+  soufflePath?: string;
+  /** Temporary directory to store input facts for Soufflé. */
+  inputDir?: string;
+  /** Temporary directory or path to CSV output from Soufflé. */
+  outputDir?: string;
+}
+
 /**
  * Manages Soufflé execution context.
  */
 export class SouffleExecutor {
-  /**
-   * @param soufflePath Path to the Soufflé executable.
-   * @param inputDir Temporary directory to store input facts for Soufflé.
-   * @param outputDir Temporary directory or path to CSV output from Soufflé.
-   */
-  constructor(
-    private soufflePath: string = "souffle",
-    private inputDir: string = "/tmp/misti/souffle",
-    private outputDir: string = "/tmp/misti/souffle",
-  ) {}
+  private soufflePath: string;
+  private inputDir: string;
+  private outputDir: string;
+
+  constructor(params: Partial<SouffleExecutorParameters> = {}) {
+    const {
+      soufflePath = "souffle",
+      inputDir = "/tmp/misti/souffle",
+      outputDir = "/tmp/misti/souffle",
+    } = params;
+    this.soufflePath = soufflePath;
+    this.inputDir = inputDir;
+    this.outputDir = outputDir;
+  }
 
   /**
    * Produces a Soufflé command that returns output in the CSV format.

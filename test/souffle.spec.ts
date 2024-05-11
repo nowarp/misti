@@ -112,7 +112,11 @@ describe("Souffle Datalog tests", () => {
     it("should execute the Souffle program correctly using synchronous method", () => {
       const program = new SouffleProgram("test");
       program.addRelation("TestRelation", "output", ["x", "number"]);
-      const executor = new SouffleExecutor(soufflePath, factDir, outputDir);
+      const executor = new SouffleExecutor({
+        soufflePath,
+        inputDir: factDir,
+        outputDir,
+      });
       const result = executor.executeSync(program);
       const resultsArray = Array.from(result.results.values());
       expect(resultsArray).toStrictEqual([
