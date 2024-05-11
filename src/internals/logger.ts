@@ -93,3 +93,22 @@ export class DebugLogger extends Logger {
     });
   }
 }
+
+function trace(...args: any) {
+  console.log(...args);
+  console.trace();
+}
+
+/**
+ * Logger that adds backtraces to each log function.
+ */
+export class TraceLogger extends Logger {
+  constructor() {
+    super({
+      [LogLevel.DEBUG]: trace,
+      [LogLevel.INFO]: trace,
+      [LogLevel.WARN]: trace,
+      [LogLevel.ERROR]: trace,
+    });
+  }
+}

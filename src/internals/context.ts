@@ -1,4 +1,4 @@
-import { Logger, QuietLogger, DebugLogger } from "./logger";
+import { Logger, QuietLogger, DebugLogger, TraceLogger } from "./logger";
 import { MistiConfig } from "./config";
 
 /**
@@ -41,6 +41,11 @@ export class MistiContext {
       } else {
         this.logger = new Logger();
       }
+    }
+
+    // Add backtraces to the logger output if requested
+    if (process.env.MISTI_TRACE === "1") {
+      this.logger = new TraceLogger();
     }
   }
 }
