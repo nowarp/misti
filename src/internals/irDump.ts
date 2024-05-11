@@ -5,6 +5,9 @@ import JSONbig from "json-bigint";
 
 /**
  * Class responsible for generating a Graphviz dot representation of a CompilationUnit.
+ *
+ * The graphviz representation uses the following colors:
+ * * `lightgrey`: standard library functions
  */
 export class GraphvizDumper {
   /**
