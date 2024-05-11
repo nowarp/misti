@@ -86,12 +86,21 @@ export class Relation {
    * @param io Optional directive specifying if the relation is an input or output relation.
    * @param facts An optional array of initial facts for the relation.
    */
-  constructor(
+  private constructor(
     public name: RelationName,
     public args: [AttrName, FactEntry["kind"]][],
     public io: RelationIO = undefined,
     public facts: FactSet = new FactSet(),
   ) {}
+
+  static from(
+    name: RelationName,
+    args: [AttrName, FactEntry["kind"]][],
+    io: RelationIO = undefined,
+    facts: FactSet = new FactSet(),
+  ): Relation {
+    return new Relation(name, args, io, facts);
+  }
 
   /**
    * Adds a fact to the relation, validating argument count.
@@ -142,28 +151,54 @@ export class Relation {
 /**
  * Represents an atom of a Soufflé rule: https://souffle-lang.github.io/rules#atom
  */
-export type RuleAtom = {
-  name: string;
-  arguments: string[];
-};
+export class Atom {
+  public name: string;
+  public args: string[];
+
+  constructor(name: string, args: string[] = []) {
+    this.name = name;
+    this.args = args;
+  }
+
+  static from(name: string, args: string[] = []): Atom {
+    return new Atom(name, args);
+  }
+}
 
 /**
  * Head of the rule: https://souffle-lang.github.io/rules#multiple-heads.
  */
-export type RuleHead = RuleAtom[];
+export type RuleHead = Atom[];
+
+type RuleBodyParams = {
+  negated?: boolean;
+};
 
 /**
  * Body of a rule which is present as a conjunction of (negated) atoms/constraints/disjunctions:
  * https://souffle-lang.github.io/rules#conjunction.
  */
-export type RuleBodyEntry = { kind: "atom"; value: RuleAtom; negated: boolean };
+export class RuleBody {
+  public value: Atom;
+  public negated: boolean;
+
+  private constructor(value: Atom, params: Partial<RuleBodyParams> = {}) {
+    const { negated = false } = params;
+    this.value = value!;
+    this.negated = negated;
+  }
+
+  static from(value: Atom, params: Partial<RuleBodyParams> = {}): RuleBody {
+    return new RuleBody(value, params);
+  }
+}
 
 /**
  * Represents a single Datalog rule in a Souffle program.
  */
 export class Rule {
   public heads: RuleHead;
-  public body: RuleBodyEntry[];
+  public body: RuleBody[];
 
   /**
    * Constructs a Datalog rule with the given heads and body entries.
@@ -171,9 +206,13 @@ export class Rule {
    * @param head Heads of the rule.
    * @param bodyEntries Entries that represent a body of a rule.
    */
-  constructor(heads: RuleHead, ...bodyEntries: RuleBodyEntry[]) {
+  private constructor(heads: RuleHead, ...bodyEntries: RuleBody[]) {
     this.heads = heads;
     this.body = bodyEntries;
+  }
+
+  static from(heads: RuleHead, ...bodyEntries: RuleBody[]): Rule {
+    return new Rule(heads, ...bodyEntries);
   }
 
   /**
@@ -181,11 +220,10 @@ export class Rule {
    * @returns The formatted Datalog rule.
    */
   public emit(): string {
-    const formatAtom = (atom: RuleAtom) =>
-      `${atom.name}(${atom.arguments.join(", ")})`;
+    const formatAtom = (atom: Atom) => `${atom.name}(${atom.args.join(", ")})`;
     const formatHead = (heads: RuleHead) =>
       heads.map((head) => formatAtom(head)).join(", ");
-    const formatBodyEntry = (entry: RuleBodyEntry) =>
+    const formatBodyEntry = (entry: RuleBody) =>
       `${entry.negated ? "!" : ""}${formatAtom(entry.value)}`;
     const headsStr = formatHead(this.heads);
     const bodyStr = this.body.map(formatBodyEntry).join(", ");
@@ -235,21 +273,28 @@ export class SouffleProgram {
   }
 
   /**
-   * Adds a new relation to the context.
-   * @param name The unique name of the relation.
-   * @param args A list of tuples specifying the name and type of each attribute in the relation.
-   * Throws an error if a relation with the same name is already defined.
+   * Adds new entities to the Soufflé program.
+   * @throws If an entity is already defined.
    */
-  public addRelation(
-    name: RelationName,
-    io: RelationIO,
-    ...args: [AttrName, FactEntry["kind"]][]
-  ) {
-    if (this.relations.has(name)) {
-      throw new Error(`relation ${name} is already declared`);
+  public add(entity: Relation | Rule) {
+    if (entity instanceof Relation) {
+      this.addRelation(entity);
+    } else if (entity instanceof Rule) {
+      this.addRule(entity);
+    } else {
+      throw new Error(`Cannot add unsupported entity: ${entity}`);
     }
-    const decl = new Relation(name, args, io);
-    this.relations.set(name, decl);
+  }
+
+  /**
+   * Adds a new relation to the Soufflé program.
+   * @throws If a relation with the same name is already defined.
+   */
+  private addRelation(relation: Relation) {
+    if (this.relations.has(relation.name)) {
+      throw new Error(`Relation ${relation.name} is already declared`);
+    }
+    this.relations.set(relation.name, relation);
   }
 
   /**
@@ -267,11 +312,11 @@ export class SouffleProgram {
   }
 
   /**
-   * Adds a new rule to the Souffle program.
+   * Adds a new rule to the Soufflé program.
    * @param rule The rule to add to the program.
    * @throws Error if any head relation is not defined.
    */
-  public addRule(rule: Rule) {
+  private addRule(rule: Rule) {
     const undefinedRelations = rule.heads
       .filter((head) => !this.relations.has(head.name))
       .map((head) => head.name);
@@ -323,7 +368,7 @@ export class SouffleProgram {
   }
 }
 
-export interface SouffleExecutorParameters {
+export interface SouffleExecutorParams {
   /** Path to the Soufflé executable. */
   soufflePath?: string;
   /** Temporary directory to store input facts for Soufflé. */
@@ -340,7 +385,7 @@ export class SouffleExecutor {
   private inputDir: string;
   private outputDir: string;
 
-  constructor(params: Partial<SouffleExecutorParameters> = {}) {
+  constructor(params: Partial<SouffleExecutorParams> = {}) {
     const {
       soufflePath = "souffle",
       inputDir = "/tmp/misti/souffle",
