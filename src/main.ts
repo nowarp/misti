@@ -21,6 +21,11 @@ command
     "Directory to save CFG dump. If <path> is `-` then stdout is used.",
     "-",
   )
+  .option(
+    "--souffle-path <path>",
+    "Directory to save generated Soufflé files. If not set, a temporary directory will be used.",
+    undefined,
+  )
   .option("--verbose", "Enable verbose output.", false)
   .option("--quiet", "Suppress output.", false)
   .option("--config <path>", "Path to Misti configuration file")

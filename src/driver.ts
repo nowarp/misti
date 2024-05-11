@@ -14,26 +14,27 @@ import fs from "fs";
 export class Driver {
   ctx: MistiContext;
   detectors: Detector[] = [];
-  private dump?: "json" | "dot" = undefined;
-  private dumpStdlib: boolean;
-  private dumpOutput: string;
+  private dumpCFG?: "json" | "dot" = undefined;
+  private dumpCFGStdlib: boolean;
+  private dumpCFGOutput: string;
   private tactConfigPath: string;
 
   private constructor(
     tactConfigPath: string,
-    dumpStdlib?: boolean,
-    dumpOutput?: string,
-    mistiConfigPath?: string,
-    dump?: "json" | "dot",
+    dumpCFG?: "json" | "dot",
+    dumpCFGStdlib?: boolean,
+    dumpCFGOutput?: string,
+    soufflePath?: string,
     verbose?: boolean,
     quiet?: boolean,
+    mistiConfigPath?: string,
   ) {
     // Tact internals are able to work with absolute paths only
     this.tactConfigPath = path.resolve(tactConfigPath);
-    this.ctx = new MistiContext(mistiConfigPath, verbose, quiet);
-    this.dump = dump;
-    this.dumpStdlib = dumpStdlib ? dumpStdlib : false;
-    this.dumpOutput = dumpOutput ? dumpOutput : DUMP_STDOUT_PATH;
+    this.ctx = new MistiContext(mistiConfigPath, soufflePath, verbose, quiet);
+    this.dumpCFG = dumpCFG;
+    this.dumpCFGStdlib = dumpCFGStdlib ? dumpCFGStdlib : false;
+    this.dumpCFGOutput = dumpCFGOutput ? dumpCFGOutput : DUMP_STDOUT_PATH;
   }
 
   /**
@@ -45,12 +46,13 @@ export class Driver {
   ): Promise<Driver> {
     const driver = new Driver(
       tactConfigPath,
+      options.dumpCfg,
       options.dumpCfgStdlib,
       options.dumpCfgOutput,
-      options.config,
-      options.dumpCfg,
+      options.soufflePath,
       options.verbose,
       options.quiet,
+      options.config,
     );
     await driver.initializeDetectors();
     return driver;
@@ -105,17 +107,18 @@ export class Driver {
       this.ctx,
       this.tactConfigPath,
     );
-    if (this.dump !== undefined) {
+    if (this.dumpCFG !== undefined) {
       const promises = Array.from(cus.entries()).reduce((acc, [name, cu]) => {
         const dump =
-          this.dump === "dot"
-            ? GraphvizDumper.dumpCU(cu, this.dumpStdlib)
-            : JSONDumper.dumpCU(cu, this.dumpStdlib);
-        if (this.dumpOutput === DUMP_STDOUT_PATH) {
+          this.dumpCFG === "dot"
+            ? GraphvizDumper.dumpCU(cu, this.dumpCFGStdlib)
+            : JSONDumper.dumpCU(cu, this.dumpCFGStdlib);
+        if (this.dumpCFGOutput === DUMP_STDOUT_PATH) {
           console.log(dump);
         } else {
-          const filename = this.dump === "dot" ? `${name}.dot` : `${name}.json`;
-          const filepath = path.join(this.dumpOutput, filename);
+          const filename =
+            this.dumpCFG === "dot" ? `${name}.dot` : `${name}.json`;
+          const filepath = path.join(this.dumpCFGOutput, filename);
           const promise = fs.promises.writeFile(filepath, dump, "utf8");
           this.ctx.logger.debug(`CFG dump will be saved at ${filepath}`);
           acc.push(promise);
@@ -164,18 +167,23 @@ export class Driver {
 const DUMP_STDOUT_PATH = "-";
 
 interface CLIOptions {
-  /** Specifies the format for dumping CFG. */
+  /** Specifies the format for dumping CFG. If `undefined`, no dumps will be generated. */
   dumpCfg?: "json" | "dot";
   /** Determines whether to include standard library components in the dump. */
   dumpCfgStdlib?: boolean;
   /** Path where to save CFG dumps. If equals to DUMP_STDOUT_PATH, the stdout is used. */
   dumpCfgOutput?: string;
-  /** Optional path to the configuration file. If provided, the analyzer uses settings from this file. */
-  config?: string;
+  /**
+   * Specifies path to save generated Soufflé files. If equals to DUMP_STDOUT_PATH, the
+   * stdout is used. If `undefined`, no dumps will be generated.
+   */
+  soufflePath?: string;
   /** Add additional stdout output. */
   verbose?: boolean;
   /** Suppress driver's output. */
   quiet?: boolean;
+  /** Optional path to the configuration file. If provided, the analyzer uses settings from this file. */
+  config?: string;
 }
 
 /**
@@ -200,9 +208,10 @@ export async function run(
     dumpCfg: undefined,
     dumpCfgStdlib: false,
     dumpCfgOutput: DUMP_STDOUT_PATH,
-    config: undefined,
+    soufflePath: undefined,
     verbose: false,
     quiet: false,
+    config: undefined,
   },
 ): Promise<boolean> {
   try {

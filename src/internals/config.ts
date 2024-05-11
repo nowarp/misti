@@ -16,6 +16,7 @@ const VerbositySchema = z.enum(["quiet", "debug", "default"]);
 const ConfigSchema = z.object({
   detectors: z.array(DetectorConfigSchema),
   ignored_projects: z.array(z.string()).optional(),
+  soufflePath: z.string().optional(),
   verbosity: VerbositySchema.optional().default("default"),
 });
 
@@ -28,6 +29,7 @@ export const BUILTIN_DETECTORS: DetectorConfig[] = [
 export class MistiConfig {
   public detectorsEnabled: DetectorConfig[];
   public ignoredProjects: string[];
+  public soufflePath?: string;
   public verbosity: "quiet" | "debug" | "default";
 
   constructor(configPath?: string) {
@@ -50,6 +52,7 @@ export class MistiConfig {
       configData = {
         detectors: BUILTIN_DETECTORS,
         ignored_projects: [],
+        soufflePath: undefined,
         verbosity: "default",
       };
     }

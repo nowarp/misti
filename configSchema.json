@@ -37,10 +37,19 @@
         "type": "string"
       }
     },
+    "soufflePath": {
+      "type": "string",
+      "description": "Directory to save generated Soufflé files. If not set, a temporary directory will be used.",
+      "optional": true
+    },
     "verbosity": {
       "type": "string",
       "description": "Verbosity level of the logs output by the system.",
-      "enum": ["quiet", "debug", "default"],
+      "enum": [
+        "quiet",
+        "debug",
+        "default"
+      ],
       "default": "default"
     }
   }
