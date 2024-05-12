@@ -11,11 +11,17 @@ type AttrName = string;
  */
 type RelationIO = "input" | "output" | undefined;
 
+/**
+ * An optional annotation of the fact that holds some information about the meaning of that fact.
+ * For example, it could be used to map some program entities with generated Soufflé facts.
+ */
+export type FactData = any;
+
 export type FactEntry =
-  | { kind: "symbol"; value: string }
-  | { kind: "number"; value: number }
-  | { kind: "unsigned"; value: number }
-  | { kind: "float"; value: number };
+  | { kind: "symbol"; value: string; data?: FactData }
+  | { kind: "number"; value: number; data?: FactData }
+  | { kind: "unsigned"; value: number; data?: FactData }
+  | { kind: "float"; value: number; data?: FactData };
 
 /**
  * Custom Transform Stream to parse space-separated values.
@@ -47,24 +53,43 @@ class SpaceSeparatedParser extends Transform {
  */
 class FactSet {
   private map = new Map<string, FactEntry["value"][]>();
+  private data = new Map<string, FactData>();
 
-  private serialize(array: FactEntry["value"][]): string {
-    return array.map((item) => `${item}`).join("|");
+  private serialize(names: FactEntry["value"][]): string {
+    return names.map((item) => `${item}`).join("|");
   }
 
-  public add(array: FactEntry["value"][]): void {
-    const key = this.serialize(array);
+  public add(names: FactEntry["value"][], data?: FactData): void {
+    const key = this.serialize(names);
     if (!this.map.has(key)) {
-      this.map.set(key, array);
+      this.map.set(key, names);
+      this.data.set(key, data);
+    } else {
+      const existentData = this.data.get(key)!;
+      if (existentData !== data) {
+        throw new Error(
+          `Fact ${names} is already present but has a different annotation (existent: ${existentData} new: ${data})`,
+        );
+      }
     }
   }
 
-  public has(array: FactEntry["value"][]): boolean {
-    return this.map.has(this.serialize(array));
+  public has(names: FactEntry["value"][]): boolean {
+    return this.map.has(this.serialize(names));
   }
 
-  public remove(array: FactEntry["value"][]): boolean {
-    return this.map.delete(this.serialize(array));
+  public getFactData(names: FactEntry["value"][]): FactData | undefined {
+    if (!this.has(names)) {
+      const available = Array.from(this.values()).join("\n");
+      throw new Error(
+        `Fact ${names} is not available\nAvailable facts:\n${available}`,
+      );
+    }
+    return this.data.get(this.serialize(names));
+  }
+
+  public remove(names: FactEntry["value"][]): boolean {
+    return this.map.delete(this.serialize(names));
   }
 
   public values(): IterableIterator<FactEntry["value"][]> {
@@ -103,15 +128,23 @@ export class Relation {
   }
 
   /**
+   * Reads an optional FactData for the defined fact.
+   * @throws If the given fact is not available.
+   */
+  public getFactData(fact: FactEntry["value"][]): FactData | undefined {
+    return this.facts.getFactData(fact);
+  }
+
+  /**
    * Adds a fact to the relation, validating argument count.
    */
-  public addFact(fact: FactEntry["value"][]) {
+  public addFact(fact: FactEntry["value"][], data?: FactData) {
     if (fact.length !== this.args.length) {
       throw new Error(
-        `incorrect number of arguments for ${this.name}: got ${fact.length} expected ${this.args.length}`,
+        `Incorrect number of arguments for ${this.name}: got ${fact.length} expected ${this.args.length}`,
       );
     }
-    this.facts.add(fact);
+    this.facts.add(fact, data);
   }
 
   /**
@@ -258,9 +291,40 @@ export class SouffleProgram {
   }
 
   /**
+   * Finds a rule which has the given name among its heads.
+   */
+  public findRule(name: string): Rule | undefined {
+    return this.rules.find(
+      (r) => r.heads.find((h) => h.name == name) !== undefined,
+    );
+  }
+
+  /**
+   * Finds a relation defined within the program.
+   */
+  public getRelation(name: RelationName): Relation | undefined {
+    return this.relations.get(name);
+  }
+
+  /**
+   * Reads an optional FactData for the defined fact.
+   * @throws If the given fact or the relation is not available.
+   */
+  public getFactData(
+    relationName: RelationName,
+    fact: FactEntry["value"][],
+  ): FactData | undefined {
+    const relation = this.relations.get(relationName);
+    if (relation === undefined) {
+      throw new Error(`Relation ${relationName} is not available`);
+    }
+    return relation.getFactData(fact);
+  }
+
+  /**
    * Collects names of relations which produce output on executing.
    */
-  collectOutputNames(): string[] {
+  public collectOutputNames(): string[] {
     return Array.from(this.relations.entries()).reduce(
       (outputNames, [_, relation]) => {
         if (relation.io === "output") {
@@ -303,12 +367,16 @@ export class SouffleProgram {
    * @param args The values representing the fact, corresponding to the relation's arguments.
    * @throws Error if the relation does not exist.
    */
-  public addFact(name: RelationName, ...args: FactEntry["value"][]) {
+  public addFact(
+    name: RelationName,
+    args: FactEntry["value"][],
+    data?: FactData,
+  ) {
     const relation = this.relations.get(name);
     if (!relation) {
       throw new Error(`unknown relation: ${name}`);
     }
-    relation.addFact(args);
+    relation.addFact(args, data);
   }
 
   /**
@@ -417,12 +485,12 @@ export class SouffleExecutor {
     return new Promise((resolve, reject) => {
       exec(cmd, async (error, _, stderr) => {
         if (error) {
-          reject(new SouffleExecutionResult(false, `${error}`));
+          reject({ success: false, stderr: `${error}` });
         } else if (stderr) {
-          reject(new SouffleExecutionResult(false, `${stderr}`));
+          reject({ success: false, stderr: `${stderr}` });
         } else {
           try {
-            const results = await program
+            const rawResults = await program
               .collectOutputNames()
               .reduce(async (accPromise, relationName) => {
                 const acc = await accPromise;
@@ -430,13 +498,14 @@ export class SouffleExecutor {
                   this.outputDir,
                   `${relationName}.csv`,
                 );
-                const results = await this.parseResults(filepath);
-                acc.set(relationName, results);
+                const rawResults = await this.parseResults(filepath);
+                acc.set(relationName, rawResults);
                 return acc;
               }, Promise.resolve(new Map<string, RawSouffleOutput>()));
-            resolve(new SouffleExecutionResult(true, "", results));
+            const results = ParsedSouffleOutput.fromRaw(program, rawResults);
+            resolve({ success: true, results });
           } catch (parseError) {
-            reject(new SouffleExecutionResult(false, `${parseError}`));
+            reject({ success: false, stderr: `${parseError}` });
           }
         }
       });
@@ -476,17 +545,17 @@ export class SouffleExecutor {
       program.dumpSync(this.inputDir);
       const cmd = this.makeSouffleCommand(program);
       execSync(cmd, { stdio: ["ignore", "ignore", "pipe"] });
-      const results = program
+      const rawResults = program
         .collectOutputNames()
         .reduce((acc, relationName) => {
           const filepath = path.join(this.outputDir, `${relationName}.csv`);
-          const results = this.parseResultsSync(filepath);
-          acc.set(relationName, results);
+          acc.set(relationName, this.parseResultsSync(filepath));
           return acc;
-        }, new Map<string, RawSouffleOutput>());
-      return new SouffleExecutionResult(true, "", results);
+        }, new Map<RelationName, RawSouffleOutput>());
+      const results = ParsedSouffleOutput.fromRaw(program, rawResults);
+      return { success: true, results };
     } catch (error) {
-      return new SouffleExecutionResult(false, `${error}`);
+      return { success: false, stderr: `${error}` };
     }
   }
 
@@ -503,7 +572,7 @@ export class SouffleExecutor {
   /**
    * Parses CSV-like Soufflé output.
    */
-  parseSpaceSeparatedValues(input: string) {
+  private parseSpaceSeparatedValues(input: string): RawSouffleOutput {
     return input
       .split("\n")
       .filter((line) => line.trim() !== "")
@@ -516,15 +585,53 @@ export class SouffleExecutor {
   }
 }
 
+/**
+ * Raw strings parsed from the Soufflé CSV-like output in the following format:
+ * rule_name |-> [relation_name, fact_name]
+ */
 type RawSouffleOutput = string[][];
+
+export type RuleName = string;
+
+/**
+ * Structured Soufflé output that contains information about facts with additional
+ * annotations added to the executed `SouffleProgram`.
+ */
+export class ParsedSouffleOutput {
+  public entries: Map<RelationName, [FactEntry["value"][], FactData?]>;
+
+  private constructor(
+    entries: Map<RelationName, [FactEntry["value"][], FactData?]>,
+  ) {
+    this.entries = entries;
+  }
+
+  /**
+   * Generates a structured Soufflé output from raw CSV strings and the given SouffleProgram.
+   * @throws If the given output cannot be unmarshalled using the given program.
+   */
+  static fromRaw(
+    program: SouffleProgram,
+    rawOut: Map<RelationName, RawSouffleOutput>,
+  ): ParsedSouffleOutput {
+    let entries = new Map<RelationName, [FactEntry["value"][], FactData?]>();
+    for (const [relationName, factNames] of rawOut.entries()) {
+      const relation = program.getRelation(relationName);
+      if (relation === undefined) {
+        throw new Error(`Cannot find relation: ${relationName}`);
+      }
+      for (const factName of factNames) {
+        const data = relation.getFactData(factName);
+        entries.set(relationName, [factName, data]);
+      }
+    }
+    return new ParsedSouffleOutput(entries);
+  }
+}
 
 /**
  * Encapsulates results of the Soufflé execution.
  */
-export class SouffleExecutionResult {
-  constructor(
-    public success: boolean,
-    public stderr: string = "",
-    public results: Map<string, RawSouffleOutput> = new Map(),
-  ) {}
-}
+export type SouffleExecutionResult =
+  | { success: true; results: ParsedSouffleOutput }
+  | { success: false; stderr: string };
