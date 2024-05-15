@@ -614,7 +614,7 @@ export class ParsedSouffleOutput {
     program: SouffleProgram,
     rawOut: Map<RelationName, RawSouffleOutput>,
   ): ParsedSouffleOutput {
-    let entries = new Map<RelationName, [FactEntry["value"][], FactData?]>();
+    const entries = new Map<RelationName, [FactEntry["value"][], FactData?]>();
     for (const [relationName, factNames] of rawOut.entries()) {
       const relation = program.getRelation(relationName);
       if (relation === undefined) {
