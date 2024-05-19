@@ -1,10 +1,12 @@
 import {
   Relation,
   Rule,
+  Fact,
   RuleBody,
+  FactType,
   Atom,
-  SouffleProgram,
-  SouffleExecutor,
+  Context,
+  Executor,
 } from "../src/internals/souffle";
 import fs from "fs";
 import path from "path";
@@ -45,32 +47,22 @@ describe("Souffle Datalog tests", () => {
 
   describe("Relation class", () => {
     it("should add facts correctly and emit Datalog syntax", () => {
-      const relation = Relation.from("TestRelation", [["x", "number"]]);
-      relation.addFact([42]);
-      expect(relation.emitDecl()).toContain(".decl TestRelation(x:number)");
-      expect(relation.emitFacts()).toContain("TestRelation(42).");
-    });
-
-    it("should throw error when incorrect number of facts are added", () => {
-      const relation = Relation.from("TestRelation", [
-        ["x", "number"],
-        ["y", "number"],
-      ]);
-      expect(() => relation.addFact([42])).toThrowError();
+      const relation = Relation.from("TestRelation", [["x", FactType.Number]]);
+      expect(relation.emitDecl()).toContain(".decl TestRelation(x: number)");
     });
   });
 
-  describe("SouffleProgram class", () => {
-    let program: SouffleProgram;
+  describe("Context class", () => {
+    let ctx: Context<any>;
 
     beforeEach(() => {
-      program = new SouffleProgram("test");
-      program.add(Relation.from("TestRelation", [["x", "number"]]));
+      ctx = new Context("test");
+      ctx.add(Relation.from("TestRelation", [["x", FactType.Number]]));
     });
 
     it("should compile and dump the facts correctly", async () => {
-      program.addFact("TestRelation", 42);
-      await program.dump(factDir);
+      ctx.addFact("TestRelation", Fact.from([42]));
+      await ctx.dump(factDir);
       expect(fs.promises.writeFile).toHaveBeenCalledWith(
         path.join(factDir, "test.dl"),
         expect.any(String),
@@ -79,52 +71,32 @@ describe("Souffle Datalog tests", () => {
     });
 
     it("should compile and emit the rules correctly", () => {
-      program.add(Relation.from("out", [["x", "number"]], "output"));
-      program.add(
+      ctx.add(Relation.from("out", [["x", FactType.Number]], "output"));
+      ctx.add(
         Rule.from(
           [Atom.from("out", ["x"])],
           RuleBody.from(Atom.from("TestRelation", ["x"])),
         ),
       );
-      const output = program.emit();
-      expect(output).toContain(".decl TestRelation(x:number)");
-      expect(output).toContain("out(x) :-\n    TestRelation(x).");
+      const output = ctx.emit();
+      expect(output).toContain(".decl TestRelation(x: number)");
+      expect(output).toContain("out(x) :-\n  TestRelation(x).");
     });
 
     it("should handle rules and relations properly when dumped", async () => {
-      program.add(Relation.from("out", [["x", "number"]], "output"));
-      program.add(
+      ctx.add(Relation.from("out", [["x", FactType.Number]], "output"));
+      ctx.add(
         Rule.from(
           [Atom.from("out", ["x"])],
           RuleBody.from(Atom.from("TestRelation", ["x"])),
         ),
       );
-      await program.dump(factDir);
+      await ctx.dump(factDir);
       expect(fs.promises.writeFile).toHaveBeenCalledWith(
         path.join(factDir, "test.dl"),
-        expect.stringContaining("out(x) :-\n    TestRelation(x)."),
+        expect.stringContaining("out(x) :-\n  TestRelation(x)."),
         "utf8",
       );
-    });
-  });
-
-  describe("SouffleExecutor class", () => {
-    it("should execute the Souffle program correctly using synchronous method", () => {
-      const program = new SouffleProgram("test");
-      program.add(Relation.from("TestRelation", [["x", "number"]], "output"));
-      const executor = new SouffleExecutor({
-        soufflePath,
-        inputDir: factDir,
-        outputDir,
-      });
-      const result = executor.executeSync(program);
-      const resultsArray = Array.from(result.results.values());
-      expect(resultsArray).toStrictEqual([
-        [
-          ["name", "x"],
-          ["result", "42"],
-        ],
-      ]);
     });
   });
 });

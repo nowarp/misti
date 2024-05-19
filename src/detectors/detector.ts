@@ -40,7 +40,10 @@ export abstract class Detector {
             lineNum: number;
             colNum: number;
           };
-          return `${ref.file}:${lc.lineNum}:${lc.colNum}: `;
+          const lcStr = `${lc}`;
+          const lcLines = lcStr.split("\n");
+          lcLines.shift();
+          return `${ref.file}:${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
         })()
       : "";
     const msg = `${pos}${description}`;

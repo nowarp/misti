@@ -1,11 +1,13 @@
-import { ASTStatement } from "@tact-lang/compiler/dist/grammar/ast";
+import { ASTStatement, ASTRef } from "@tact-lang/compiler/dist/grammar/ast";
 import { Detector } from "../detector";
 import { MistiContext } from "../../internals/context";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
 import {
-  SouffleProgram,
+  Context,
+  Fact,
+  FactType,
   Relation,
-  SouffleExecutor,
+  Executor,
   Rule,
   RuleBody,
   Atom,
@@ -26,71 +28,77 @@ export class ReadOnlyVariables extends Detector {
   check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
     ctx.logger.debug("Checking for read-only variables...");
 
-    const program = new SouffleProgram(this.id);
+    const program = new Context<ASTRef>(this.id);
     this.addDecls(program);
     this.addRules(program);
     this.addConstraints(cu, program);
 
     const executor = ctx.config.soufflePath
-      ? new SouffleExecutor({
+      ? new Executor<ASTRef>({
           inputDir: ctx.config.soufflePath,
           outputDir: ctx.config.soufflePath,
         })
-      : new SouffleExecutor();
+      : new Executor<ASTRef>();
     const result = executor.executeSync(program);
     if (!result.success) {
       throw new Error(`Error executing Soufflé: ${result.stderr}`);
     }
 
-    const warnings = Array.from(result.results.entries.values()).map(
-      ([_, ref]) =>
-        new MistiTactError("Variable is never used", ref, Severity.MEDIUM),
-    );
+    const warnings = Array.from(result.results.entries.values()).map((fact) => {
+      if (fact.data === undefined) {
+        throw new Error(`AST position for fact ${fact} is not available`);
+      }
+      return this.createError(
+        "Variable is never used",
+        Severity.MEDIUM,
+        fact.data,
+      );
+    });
 
     return warnings;
   }
 
   /**
    * Adds declarations to the Souffle program to represent the properties of variables.
-   * @param program The Souffle program where the relations are to be added.
+   * @param ctx The Souffle program where the relations are to be added.
    */
-  addDecls(program: SouffleProgram) {
-    program.add(
+  addDecls(ctx: Context<ASTRef>) {
+    ctx.add(
       Relation.from(
         "varDecl",
         [
-          ["var", "symbol"],
-          ["func", "symbol"],
+          ["var", FactType.Symbol],
+          ["func", FactType.Symbol],
         ],
         undefined,
       ),
     );
-    program.add(
+    ctx.add(
       Relation.from(
         "varAssign",
         [
-          ["var", "symbol"],
-          ["func", "symbol"],
+          ["var", FactType.Symbol],
+          ["func", FactType.Symbol],
         ],
         undefined,
       ),
     );
-    program.add(
+    ctx.add(
       Relation.from(
         "varUse",
         [
-          ["var", "symbol"],
-          ["func", "symbol"],
+          ["var", FactType.Symbol],
+          ["func", FactType.Symbol],
         ],
         undefined,
       ),
     );
-    program.add(
+    ctx.add(
       Relation.from(
         "readOnly",
         [
-          ["var", "symbol"],
-          ["func", "symbol"],
+          ["var", FactType.Symbol],
+          ["func", FactType.Symbol],
         ],
         "output",
       ),
@@ -99,11 +107,10 @@ export class ReadOnlyVariables extends Detector {
 
   /**
    * Collects facts based on the IR to populate the Souffle program.
-   * @param ctx The Misti context containing the logger and configuration.
    * @param cu The compilation unit containing the CFGs and AST information.
-   * @param program The Souffle program to which the facts are added.
+   * @param ctx The Souffle program to which the facts are added.
    */
-  addConstraints(cu: CompilationUnit, program: SouffleProgram) {
+  addConstraints(cu: CompilationUnit, ctx: Context<ASTRef>) {
     cu.forEachCFG(cu.ast, (cfg: CFG, _: Node, stmt: ASTStatement) => {
       if (cfg.origin === "stdlib") {
         return;
@@ -111,20 +118,22 @@ export class ReadOnlyVariables extends Detector {
       const funName = cfg.name;
       switch (stmt.kind) {
         case "statement_let":
-          program.addFact("varDecl", [stmt.name, funName], stmt.ref);
+          ctx.addFact("varDecl", Fact.from([stmt.name, funName], stmt.ref));
           break;
         case "statement_assign":
         case "statement_augmentedassign":
           // NOTE: Variables unpacking is not supported
-          program.addFact("varAssign", [stmt.path[0].name, funName], stmt.ref);
+          ctx.addFact(
+            "varAssign",
+            Fact.from([stmt.path[0].name, funName], stmt.ref),
+          );
           break;
         case "statement_expression":
           // TODO: Other cases?
           if (stmt.expression.kind === "id") {
-            program.addFact(
+            ctx.addFact(
               "varUse",
-              [stmt.expression.value, funName],
-              stmt.ref,
+              Fact.from([stmt.expression.value, funName], stmt.ref),
             );
           }
           break;
@@ -134,12 +143,12 @@ export class ReadOnlyVariables extends Detector {
     });
   }
 
-  addRules(program: SouffleProgram) {
+  addRules(ctx: Context<ASTRef>) {
     // readOnly(var, func) :-
     //     varDecl(var, func),
     //     varAssign(var, func),
     //     !varUse(var, func).
-    program.add(
+    ctx.add(
       Rule.from(
         [Atom.from("readOnly", ["var", "func"])],
         RuleBody.from(Atom.from("varDecl", ["var", "func"])),
@@ -151,7 +160,7 @@ export class ReadOnlyVariables extends Detector {
     //     varDecl(var, func),
     //     !varAssign(var, func),
     //     !varUse(var, func).
-    program.add(
+    ctx.add(
       Rule.from(
         [Atom.from("readOnly", ["var", "func"])],
         RuleBody.from(Atom.from("varDecl", ["var", "func"])),
