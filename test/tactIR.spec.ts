@@ -75,4 +75,3 @@ fs.readdirSync(CONTRACTS_DIR)
       });
     });
   });
-

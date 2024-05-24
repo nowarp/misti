@@ -10,8 +10,8 @@
     "clean": "rm -fr dist",
     "build": "tsc",
     "test": "jest",
-    "lint": "eslint src",
-    "fmt": "prettier --check src",
+    "lint": "eslint src test examples",
+    "fmt": "prettier --check src test examples",
     "docs": "yarn typedoc --out docs --entryPointStrategy expand src",
     "misti": "ts-node src/main.ts"
   },

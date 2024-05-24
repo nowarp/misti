@@ -9,36 +9,24 @@
             "id": 299,
             "stmtID": 4012,
             "srcEdges": [],
-            "dstEdges": [
-              301
-            ]
+            "dstEdges": [301]
           },
           {
             "id": 300,
             "stmtID": 4015,
-            "srcEdges": [
-              301
-            ],
-            "dstEdges": [
-              303
-            ]
+            "srcEdges": [301],
+            "dstEdges": [303]
           },
           {
             "id": 302,
             "stmtID": 4020,
-            "srcEdges": [
-              303
-            ],
-            "dstEdges": [
-              305
-            ]
+            "srcEdges": [303],
+            "dstEdges": [305]
           },
           {
             "id": 304,
             "stmtID": 4022,
-            "srcEdges": [
-              305
-            ],
+            "srcEdges": [305],
             "dstEdges": []
           }
         ],

@@ -6,7 +6,6 @@ import {
   FactType,
   Atom,
   Context,
-  Executor,
 } from "../src/internals/souffle";
 import fs from "fs";
 import path from "path";
@@ -23,6 +22,7 @@ jest.mock("fs", () => {
     mkdirSync: jest.fn(),
     readFileSync: jest.fn().mockReturnValue("name x\nresult  42\n"),
     createReadStream: jest.fn().mockImplementation(() => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const Readable = require("stream").Readable;
       const mockStream = new Readable();
       mockStream.push("name x\nresult  42\n");
@@ -42,9 +42,6 @@ jest.mock("child_process", () => {
 
 describe("Souffle Datalog tests", () => {
   const factDir = "/tmp/misti/souffle";
-  const outputDir = "-";
-  const soufflePath = "souffle";
-
   describe("Relation class", () => {
     it("should add facts correctly and emit Datalog syntax", () => {
       const relation = Relation.from("TestRelation", [["x", FactType.Number]]);

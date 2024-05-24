@@ -13,10 +13,11 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "test/**/*",
+    "examples/**/*"
   ],
   "exclude": [
-    "**/**.spec.ts",
     "**/**.bind.ts",
     "src/test/features/output/**/*"
   ]
