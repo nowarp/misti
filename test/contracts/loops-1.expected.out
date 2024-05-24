@@ -1,0 +1,7 @@
+
+/home/jubnzv/Dev/misti/test/contracts/loops-1.tact:2:3:
+  1 | fun test(): Int {
+> 2 |   let sum: Int = 0;
+        ^
+  3 |   let i: Int = 0;
+Variable is never used

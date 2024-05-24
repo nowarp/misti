@@ -1,0 +1,7 @@
+
+/home/jubnzv/Dev/misti/test/contracts/linear-flow-1.tact:4:5:
+  3 |     let b: Int = 22;
+> 4 |     let c: Int = a + b;
+          ^
+  5 |     return c;
+Variable is never used
