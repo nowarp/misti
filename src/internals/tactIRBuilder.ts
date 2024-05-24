@@ -431,13 +431,17 @@ export class TactIRBuilder {
               );
             }
           } else {
-            this.ctx.logger.warn(
+            // TODO: This could be trivially implemented after introducing typed
+            // AST in Tact: https://github.com/tact-lang/tact/issues/289.
+            this.ctx.logger.debug(
               `Accessing an unknown contract: ${expr.src.value}`,
               expr.src.ref,
             );
           }
         } else {
-          this.ctx.logger.warn(
+          // TODO: This could be trivially implemented after introducing typed
+          // AST in Tact: https://github.com/tact-lang/tact/issues/289.
+          this.ctx.logger.debug(
             `Unsupported contract method access: ${expr.src.kind}`,
             expr.src.ref,
           );
