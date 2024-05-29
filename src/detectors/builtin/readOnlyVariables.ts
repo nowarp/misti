@@ -12,7 +12,7 @@ import {
   RuleBody,
   Atom,
 } from "../../internals/souffle";
-import { MistiTactError, Severity } from "../../internals/errors";
+import { createError, MistiTactError, Severity } from "../../internals/errors";
 
 /**
  * A detector that identifies read-only variables and fields.
@@ -48,11 +48,7 @@ export class ReadOnlyVariables extends Detector {
       if (fact.data === undefined) {
         throw new Error(`AST position for fact ${fact} is not available`);
       }
-      return this.createError(
-        "Variable is never used",
-        Severity.MEDIUM,
-        fact.data,
-      );
+      return createError("Variable is never used", Severity.MEDIUM, fact.data);
     });
 
     return warnings;

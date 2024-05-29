@@ -33,3 +33,32 @@ export class MistiTactError extends Error {
     return this._severity;
   }
 }
+
+/**
+ * Constructs an error object with a description and the source code location.
+ *
+ * @param description Descriptive text of the error.
+ * @param severity Severity of the finding.
+ * @param ref Reference to the source code that includes file information and position data.
+ * @returns A new MistiTactError containing the error message and source code reference.
+ */
+export function createError(
+  description: string,
+  severity: Severity,
+  ref: ASTRef,
+): MistiTactError {
+  const pos = ref.file
+    ? (() => {
+        const lc = ref.interval.getLineAndColumn() as {
+          lineNum: number;
+          colNum: number;
+        };
+        const lcStr = `${lc}`;
+        const lcLines = lcStr.split("\n");
+        lcLines.shift();
+        return `${ref.file}:${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
+      })()
+    : "";
+  const msg = `${pos}${description}`;
+  return new MistiTactError(msg, ref, severity);
+}
