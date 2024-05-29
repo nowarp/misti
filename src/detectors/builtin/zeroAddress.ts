@@ -33,10 +33,6 @@ function findZeroAddress(
  * result in loss of funds or tokens, as there is no private key to access this address.
  */
 export class ZeroAddress extends Detector {
-  get id(): string {
-    return "ZeroAddress";
-  }
-
   check(_ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(foldExpressions(node, [], findZeroAddress));

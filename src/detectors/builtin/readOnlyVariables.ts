@@ -21,10 +21,6 @@ import { createError, MistiTactError, Severity } from "../../internals/errors";
  * Alternatively, identifying read-only variables may reveal issues where unused values are being replaced unintentionally.
  */
 export class ReadOnlyVariables extends Detector {
-  get id(): string {
-    return "ROV";
-  }
-
   check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
     const program = new Context<ASTRef>(this.id);
     this.addDecls(program);

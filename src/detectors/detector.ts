@@ -10,7 +10,9 @@ export abstract class Detector {
    * Gets the short identifier of the detector, used in analyzer warnings.
    * @returns The unique identifier of the detector.
    */
-  abstract get id(): string;
+  get id(): string {
+    return this.constructor.name;
+  }
 
   /**
    * Executes the detector's logic to check for issues within the provided compilation unit.
