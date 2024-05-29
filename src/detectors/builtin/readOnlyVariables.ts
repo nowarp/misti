@@ -26,8 +26,6 @@ export class ReadOnlyVariables extends Detector {
   }
 
   check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
-    ctx.logger.debug("Checking for read-only variables...");
-
     const program = new Context<ASTRef>(this.id);
     this.addDecls(program);
     this.addRules(program);
