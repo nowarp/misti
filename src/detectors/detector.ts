@@ -1,7 +1,6 @@
 import { MistiContext } from "../internals/context";
 import { CompilationUnit } from "../internals/ir";
-import { MistiTactError, Severity } from "../internals/errors";
-import { ASTRef } from "@tact-lang/compiler/dist/grammar/ast";
+import { MistiTactError } from "../internals/errors";
 
 /**
  * Abstract base class for a detector module, providing an interface for defining various types of detectors.
@@ -31,6 +30,8 @@ const BuiltInDetectors: Record<string, () => Promise<Detector>> = {
     import("./builtin/readOnlyVariables").then(
       (module) => new module.ReadOnlyVariables(),
     ),
+  ZeroAddress: () =>
+    import("./builtin/zeroAddress").then((module) => new module.ZeroAddress()),
 };
 
 /**

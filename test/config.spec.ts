@@ -6,7 +6,10 @@ jest.mock("fs");
 describe("Config class", () => {
   const MOCK_CONFIG_PATH = "./mistiConfig_mock.json";
   const MOCK_CONFIG_CONTENT = JSON.stringify({
-    detectors: [{ className: "ReadOnlyVariables" }],
+    detectors: [
+      { className: "ReadOnlyVariables" },
+      { className: "ZeroAddress" },
+    ],
     ignored_projects: ["ignoredProject"],
   });
 
@@ -19,6 +22,7 @@ describe("Config class", () => {
     const configInstance = new MistiConfig(MOCK_CONFIG_PATH);
     expect(configInstance.detectorsEnabled).toEqual([
       { className: "ReadOnlyVariables" },
+      { className: "ZeroAddress" },
     ]);
     expect(configInstance.ignoredProjects).toEqual(["ignoredProject"]);
   });

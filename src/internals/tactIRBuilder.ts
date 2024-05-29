@@ -81,6 +81,7 @@ function generateReceiveName(receive: ASTReceive): string {
  * Transforms the TactAST imported from the tact compiler to a representation more suitable for analysis.
  */
 export class ASTMapper {
+  private programEntries = new Set<number>();
   private functions = new Map<
     number,
     ASTFunction | ASTReceive | ASTInitFunction
@@ -95,20 +96,26 @@ export class ASTMapper {
 
   constructor(private ast: TactAST) {
     this.ast.functions.forEach((func) => {
+      this.programEntries.add(func.id);
       if (func.kind == "def_function") {
         this.processFunction(func);
       } else {
         this.nativeFunctions.set(func.id, func);
       }
     });
-    this.ast.constants.forEach((constant) =>
-      this.constants.set(constant.id, constant),
-    );
-    this.ast.types.forEach((type) => this.processType(type));
+    this.ast.constants.forEach((constant) => {
+      this.programEntries.add(constant.id);
+      this.constants.set(constant.id, constant);
+    });
+    this.ast.types.forEach((type) => {
+      this.programEntries.add(type.id);
+      this.processType(type);
+    });
   }
 
   public getASTStore(): TactASTStore {
     return new TactASTStore(
+      this.programEntries,
       this.functions,
       this.constants,
       this.contracts,

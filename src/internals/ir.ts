@@ -4,6 +4,7 @@ import {
   ASTReceive,
   ASTField,
   ASTInitFunction,
+  ASTNode,
   ASTFunction,
   ASTNativeFunction,
   ASTConstant,
@@ -21,6 +22,7 @@ export type ProjectName = string;
 export class TactASTStore {
   /**
    * Constructs a TactASTStore with mappings to all major AST components.
+   * @param programEntries Identifiers of AST elements defined on the top-level.
    * @param functions Functions and methods including user-defined and special methods.
    * @param constants Constants defined across the compilation unit.
    * @param contracts Contracts defined within the project.
@@ -31,6 +33,7 @@ export class TactASTStore {
    * @param statements All executable statements within all functions of the project.
    */
   constructor(
+    private programEntries: Set<number>,
     private functions: Map<number, ASTFunction | ASTReceive | ASTInitFunction>,
     private constants: Map<number, ASTConstant>,
     private contracts: Map<number, ASTContract>,
@@ -40,6 +43,32 @@ export class TactASTStore {
     private traits: Map<number, ASTTrait>,
     private statements: Map<number, ASTStatement>,
   ) {}
+
+  /**
+   * Returns program entries defined on the top-level.
+   */
+  getProgramEntries(): ASTNode[] {
+    return Array.from(this.programEntries).reduce((acc, id) => {
+      if (this.functions.has(id)) {
+        acc.push(this.functions.get(id)!);
+      } else if (this.constants.has(id)) {
+        acc.push(this.constants.get(id)!);
+      } else if (this.contracts.has(id)) {
+        acc.push(this.contracts.get(id)!);
+      } else if (this.nativeFunctions.has(id)) {
+        acc.push(this.nativeFunctions.get(id)!);
+      } else if (this.primitives.has(id)) {
+        acc.push(this.primitives.get(id)!);
+      } else if (this.structs.has(id)) {
+        acc.push(this.structs.get(id)!);
+      } else if (this.traits.has(id)) {
+        acc.push(this.traits.get(id)!);
+      } else {
+        throw new Error(`No entry found for ID: ${id}`);
+      }
+      return acc;
+    }, [] as ASTNode[]);
+  }
 
   /**
    * Retrieves a function or method by its ID.
@@ -190,7 +219,7 @@ export class TactASTStore {
    * @param contractId The ID of the contract.
    * @returns An array of constant IDs or undefined if no contract is found.
    */
-  public getConstants(contractId: number): number[] | undefined {
+  public getContractConstants(contractId: number): number[] | undefined {
     const contract = this.getContract(contractId);
     if (!contract) {
       return undefined;
@@ -208,7 +237,7 @@ export class TactASTStore {
    * @param contractId The ID of the contract.
    * @returns An array of ASTField or undefined if no contract is found.
    */
-  public getFields(contractId: number): ASTField[] | undefined {
+  public getContractFields(contractId: number): ASTField[] | undefined {
     const contract = this.getContract(contractId);
     if (!contract) {
       return undefined;

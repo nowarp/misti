@@ -1,0 +1,25 @@
+{
+  "projectName": "zero-address",
+  "functions": [],
+  "contracts": [
+    {
+      "name": "SampleContract",
+      "methods": [
+        {
+          "name": "SampleContract.init",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 606,
+                "stmtID": 8037,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        }
+      ]
+    }
+  ]
+}
