@@ -25,7 +25,8 @@ processTactFiles(CONTRACTS_DIR, (file) => {
       const runCommand = `node dist/src/main.js ${configPath}`;
       await new Promise((resolve, reject) => {
         exec(runCommand, (error, stdout, stderr) => {
-          fs.writeFileSync(outputFilePath, stdout + stderr);
+          const out = stdout.trim() + stderr.trim();
+            fs.writeFileSync(outputFilePath, out ? out : "\n");
           if (error) {
             reject(error);
           } else {
