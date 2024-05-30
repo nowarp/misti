@@ -106,6 +106,13 @@ export class ReadOnlyVariables extends Detector {
    * @param ctx The Souffle program to which the facts are added.
    */
   addConstraints(cu: CompilationUnit, ctx: Context<ASTRef>) {
+    const addUses = (funName: string, node: ASTStatement | ASTExpression) => {
+      forEachExpression(node, (expr: ASTExpression) => {
+        if (expr.kind === "id") {
+          ctx.addFact("varUse", Fact.from([expr.value, funName], expr.ref));
+        }
+      });
+    };
     cu.forEachCFG(cu.ast, (cfg: CFG, _: Node, stmt: ASTStatement) => {
       if (cfg.origin === "stdlib") {
         return;
@@ -114,11 +121,7 @@ export class ReadOnlyVariables extends Detector {
       switch (stmt.kind) {
         case "statement_let":
           ctx.addFact("varDecl", Fact.from([stmt.name, funName], stmt.ref));
-          forEachExpression(stmt.expression, (expr: ASTExpression) => {
-            if (expr.kind === "id") {
-              ctx.addFact("varUse", Fact.from([expr.value, funName], expr.ref));
-            }
-          });
+          addUses(funName, stmt.expression);
           break;
         case "statement_assign":
         case "statement_augmentedassign":
@@ -126,18 +129,10 @@ export class ReadOnlyVariables extends Detector {
             "varAssign",
             Fact.from([stmt.path[0].name, funName], stmt.ref),
           );
-          forEachExpression(stmt.expression, (expr: ASTExpression) => {
-            if (expr.kind === "id") {
-              ctx.addFact("varUse", Fact.from([expr.value, funName], expr.ref));
-            }
-          });
+          addUses(funName, stmt.expression);
           break;
         default:
-          forEachExpression(stmt, (expr: ASTExpression) => {
-            if (expr.kind === "id") {
-              ctx.addFact("varUse", Fact.from([expr.value, funName], stmt.ref));
-            }
-          });
+          addUses(funName, stmt);
           break;
       }
     });
