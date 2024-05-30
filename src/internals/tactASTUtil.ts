@@ -89,44 +89,77 @@ export function forEachExpression(
   }
 
   function traverseNode(node: ASTNode): void {
-    if (
-      node.kind === "def_function" ||
-      node.kind === "def_init_function" ||
-      node.kind === "def_receive"
-    ) {
-      if (node.statements) {
-        node.statements.forEach(traverseStatement);
-      }
-    } else if (node.kind === "def_contract" || node.kind === "def_trait") {
-      node.declarations.forEach(traverseNode);
-    } else if (node.kind === "def_field") {
-      if (node.init) traverseExpression(node.init);
-    } else if (node.kind === "def_constant") {
-      if (node.value) traverseExpression(node.value);
-    } else if (node.kind === "program_import") {
-      traverseExpression(node.path);
-    } else if (
-      node.kind === "statement_let" ||
-      node.kind === "statement_assign" ||
-      node.kind === "statement_augmentedassign" ||
-      node.kind === "statement_return" ||
-      node.kind === "statement_expression" ||
-      node.kind === "statement_condition" ||
-      node.kind === "statement_while" ||
-      node.kind === "statement_until" ||
-      node.kind === "statement_repeat"
-    ) {
-      traverseStatement(node);
-    } else if (node.kind === "program") {
-      node.entries.forEach(traverseNode);
-    } else if (
-      node.kind === "def_native_function" ||
-      node.kind === "def_struct" ||
-      node.kind === "primitive"
-    ) {
-      // Do nothing
-    } else {
-      throw new Error(`Unsupported node: ${JSONbig.stringify(node)}`);
+    switch (node.kind) {
+      case "program":
+        node.entries.forEach(traverseNode);
+        break;
+      case "def_native_function":
+      case "def_struct":
+      case "primitive":
+        // These node types do not require further traversal of expressions or sub-nodes
+        break;
+      case "def_function":
+      case "def_init_function":
+      case "def_receive":
+        if (node.statements) {
+          node.statements.forEach(traverseStatement);
+        }
+        break;
+      case "def_contract":
+      case "def_trait":
+        node.declarations.forEach(traverseNode);
+        break;
+      case "def_field":
+        if (node.init) {
+          traverseExpression(node.init);
+        }
+        break;
+      case "def_constant":
+        if (node.value) {
+          traverseExpression(node.value);
+        }
+        break;
+      case "program_import":
+        traverseExpression(node.path);
+        break;
+      case "statement_let":
+      case "statement_assign":
+      case "statement_augmentedassign":
+      case "statement_return":
+      case "statement_expression":
+      case "statement_condition":
+      case "statement_while":
+      case "statement_until":
+      case "statement_repeat":
+        traverseStatement(node);
+        break;
+      case "op_binary":
+      case "op_unary":
+      case "op_field":
+      case "op_call":
+      case "op_static_call":
+      case "op_new":
+      case "init_of":
+      case "conditional":
+      case "string":
+      case "number":
+      case "boolean":
+      case "id":
+      case "null":
+      case "lvalue_ref":
+        traverseExpression(node);
+        break;
+      case "new_parameter":
+        traverseExpression(node.exp);
+        break;
+      case "def_argument":
+      case "type_ref_simple":
+      case "type_ref_map":
+      case "type_ref_bounced":
+        // Do nothing
+        break;
+      default:
+        throw new Error(`Unsupported node: ${JSONbig.stringify(node)}`);
     }
   }
 
@@ -236,50 +269,292 @@ export function foldExpressions<T>(
   }
 
   function traverseNode(acc: T, node: ASTNode): T {
-    if (
-      node.kind === "def_function" ||
-      node.kind === "def_init_function" ||
-      node.kind === "def_receive"
-    ) {
-      if (node.statements) {
-        node.statements.forEach((stmt) => {
-          acc = traverseStatement(acc, stmt);
+    switch (node.kind) {
+      case "program":
+        node.entries.forEach((entry) => {
+          acc = traverseNode(acc, entry);
         });
-      }
-    } else if (node.kind === "def_contract" || node.kind === "def_trait") {
-      node.declarations.forEach((decl) => {
-        acc = traverseNode(acc, decl);
-      });
-    } else if (node.kind === "def_field") {
-      if (node.init) acc = traverseExpression(acc, node.init);
-    } else if (node.kind === "def_constant") {
-      if (node.value) acc = traverseExpression(acc, node.value);
-    } else if (node.kind === "program_import") {
-      acc = traverseExpression(acc, node.path);
-    } else if (
-      node.kind === "statement_let" ||
-      node.kind === "statement_assign" ||
-      node.kind === "statement_augmentedassign" ||
-      node.kind === "statement_return" ||
-      node.kind === "statement_expression" ||
-      node.kind === "statement_condition" ||
-      node.kind === "statement_while" ||
-      node.kind === "statement_until" ||
-      node.kind === "statement_repeat"
-    ) {
-      acc = traverseStatement(acc, node);
-    } else if (node.kind === "program") {
-      node.entries.forEach((entry) => {
-        acc = traverseNode(acc, entry);
-      });
-    } else if (
-      node.kind === "def_native_function" ||
-      node.kind === "def_struct" ||
-      node.kind === "primitive"
-    ) {
-      // Do nothing
-    } else {
-      throw new Error(`Unsupported node: ${JSONbig.stringify(node)}`);
+        break;
+      case "def_native_function":
+      case "def_struct":
+      case "primitive":
+        // These node types do not require further traversal of expressions or sub-nodes
+        break;
+      case "def_function":
+      case "def_init_function":
+      case "def_receive":
+        if (node.statements) {
+          node.statements.forEach((stmt) => {
+            acc = traverseStatement(acc, stmt);
+          });
+        }
+        break;
+      case "def_contract":
+      case "def_trait":
+        node.declarations.forEach((decl) => {
+          acc = traverseNode(acc, decl);
+        });
+        break;
+      case "def_field":
+        if (node.init) {
+          acc = traverseExpression(acc, node.init);
+        }
+        break;
+      case "def_constant":
+        if (node.value) {
+          acc = traverseExpression(acc, node.value);
+        }
+        break;
+      case "program_import":
+        acc = traverseExpression(acc, node.path);
+        break;
+      case "statement_let":
+      case "statement_assign":
+      case "statement_augmentedassign":
+      case "statement_return":
+      case "statement_expression":
+      case "statement_condition":
+      case "statement_while":
+      case "statement_until":
+      case "statement_repeat":
+        acc = traverseStatement(acc, node);
+        break;
+      case "op_binary":
+      case "op_unary":
+      case "op_field":
+      case "op_call":
+      case "op_static_call":
+      case "op_new":
+      case "init_of":
+      case "conditional":
+      case "string":
+      case "number":
+      case "boolean":
+      case "id":
+      case "null":
+      case "lvalue_ref":
+        acc = traverseExpression(acc, node);
+        break;
+      case "new_parameter":
+        acc = traverseExpression(acc, node.exp);
+        break;
+      case "def_argument":
+      case "type_ref_simple":
+      case "type_ref_map":
+      case "type_ref_bounced":
+        // Do nothing
+        break;
+      default:
+        throw new Error(`Unsupported node: ${JSONbig.stringify(node)}`);
+    }
+    return acc;
+  }
+
+  return traverseNode(acc, node);
+}
+
+/**
+ * Recursively iterates over each statement in an ASTNode and applies a callback to each statement.
+ * @param node The node to traverse.
+ * @param callback The callback function to apply to each statement.
+ */
+export function forEachStatement(
+  node: ASTNode,
+  callback: (stmt: ASTStatement) => void,
+): void {
+  function traverseStatement(stmt: ASTStatement): void {
+    callback(stmt);
+
+    switch (stmt.kind) {
+      case "statement_let":
+      case "statement_assign":
+      case "statement_augmentedassign":
+      case "statement_expression":
+        break;
+      case "statement_return":
+        break;
+      case "statement_condition":
+        stmt.trueStatements.forEach(traverseStatement);
+        if (stmt.falseStatements)
+          stmt.falseStatements.forEach(traverseStatement);
+        if (stmt.elseif) traverseStatement(stmt.elseif);
+        break;
+      case "statement_while":
+      case "statement_until":
+      case "statement_repeat":
+        stmt.statements.forEach(traverseStatement);
+        break;
+      default:
+        throw new Error(`Unsupported statement: ${JSONbig.stringify(stmt)}`);
+    }
+  }
+
+  function traverseNode(node: ASTNode): void {
+    switch (node.kind) {
+      case "program":
+        node.entries.forEach(traverseNode);
+        break;
+      case "def_function":
+      case "def_init_function":
+      case "def_receive":
+        if (node.statements) node.statements.forEach(traverseStatement);
+        break;
+      case "def_contract":
+      case "def_trait":
+        node.declarations.forEach(traverseNode);
+        break;
+      case "statement_let":
+      case "statement_assign":
+      case "statement_augmentedassign":
+      case "statement_return":
+      case "statement_expression":
+      case "statement_condition":
+      case "statement_while":
+      case "statement_until":
+      case "statement_repeat":
+        traverseStatement(node);
+        break;
+      case "op_binary":
+      case "op_unary":
+      case "op_field":
+      case "op_call":
+      case "op_static_call":
+      case "op_new":
+      case "init_of":
+      case "conditional":
+      case "string":
+      case "number":
+      case "boolean":
+      case "id":
+      case "null":
+      case "lvalue_ref":
+      case "new_parameter":
+      case "def_argument":
+      case "type_ref_simple":
+      case "type_ref_map":
+      case "type_ref_bounced":
+      case "def_native_function":
+      case "def_struct":
+      case "def_constant":
+      case "def_field":
+      case "program_import":
+      case "def_argument":
+      case "primitive":
+        // Do nothing
+        break;
+      default:
+        throw new Error(`Unsupported node: ${JSONbig.stringify(node)}`);
+    }
+  }
+
+  traverseNode(node);
+}
+
+/**
+ * Recursively iterates over each statement in an ASTNode and applies a callback to each statement.
+ * @param node The node to traverse.
+ * @param acc The initial value of the accumulator.
+ * @param callback The callback function to apply to each statement, also passes the accumulator.
+ * @returns The final value of the accumulator after processing all statements.
+ */
+export function foldStatements<T>(
+  node: ASTNode,
+  acc: T,
+  callback: (acc: T, stmt: ASTStatement) => T,
+): T {
+  function traverseStatement(acc: T, stmt: ASTStatement): T {
+    acc = callback(acc, stmt);
+
+    switch (stmt.kind) {
+      case "statement_let":
+      case "statement_assign":
+      case "statement_augmentedassign":
+      case "statement_expression":
+        break;
+      case "statement_return":
+        break;
+      case "statement_condition":
+        stmt.trueStatements.forEach((st) => (acc = traverseStatement(acc, st)));
+        if (stmt.falseStatements)
+          stmt.falseStatements.forEach(
+            (st) => (acc = traverseStatement(acc, st)),
+          );
+        if (stmt.elseif) acc = traverseStatement(acc, stmt.elseif);
+        break;
+      case "statement_while":
+      case "statement_until":
+      case "statement_repeat":
+        stmt.statements.forEach((st) => (acc = traverseStatement(acc, st)));
+        break;
+      default:
+        throw new Error(`Unsupported statement: ${JSONbig.stringify(stmt)}`);
+    }
+    return acc;
+  }
+
+  function traverseNode(acc: T, node: ASTNode): T {
+    switch (node.kind) {
+      case "program":
+        node.entries.forEach((entry) => {
+          acc = traverseNode(acc, entry);
+        });
+        break;
+      case "def_function":
+      case "def_init_function":
+      case "def_receive":
+        if (node.statements) {
+          node.statements.forEach((stmt) => {
+            acc = traverseStatement(acc, stmt);
+          });
+        }
+        break;
+      case "def_contract":
+      case "def_trait":
+        node.declarations.forEach((decl) => {
+          acc = traverseNode(acc, decl);
+        });
+        break;
+      case "statement_let":
+      case "statement_assign":
+      case "statement_augmentedassign":
+      case "statement_return":
+      case "statement_expression":
+      case "statement_condition":
+      case "statement_while":
+      case "statement_until":
+      case "statement_repeat":
+        acc = traverseStatement(acc, node);
+        break;
+      case "op_binary":
+      case "op_unary":
+      case "op_field":
+      case "op_call":
+      case "op_static_call":
+      case "op_new":
+      case "init_of":
+      case "conditional":
+      case "string":
+      case "number":
+      case "boolean":
+      case "id":
+      case "null":
+      case "lvalue_ref":
+      case "new_parameter":
+      case "def_argument":
+      case "type_ref_simple":
+      case "type_ref_map":
+      case "type_ref_bounced":
+      case "def_native_function":
+      case "def_struct":
+      case "def_constant":
+      case "def_field":
+      case "program_import":
+      case "def_argument":
+      case "primitive":
+        // Do nothing
+        break;
+      default:
+        throw new Error(`Unsupported node: ${JSONbig.stringify(node)}`);
     }
     return acc;
   }
