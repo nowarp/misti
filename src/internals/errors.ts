@@ -1,4 +1,5 @@
 import { ASTRef } from "@tact-lang/compiler/dist/grammar/ast";
+import * as path from "path";
 
 /**
  * Enumerates the levels of severity that can be assigned to detected findings.
@@ -56,7 +57,8 @@ export function createError(
         const lcStr = `${lc}`;
         const lcLines = lcStr.split("\n");
         lcLines.shift();
-        return `${ref.file}:${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
+        const relativeFilePath = path.relative(process.cwd(), ref.file);
+        return `${relativeFilePath}:${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
       })()
     : "";
   const msg = `${pos}${description}`;

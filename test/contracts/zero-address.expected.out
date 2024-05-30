@@ -1,5 +1,5 @@
 
-/home/jubnzv/Dev/misti/test/contracts/zero-address.tact:3:23:
+test/contracts/zero-address.tact:3:23:
   2 |     init() {
 > 3 |         newAddress(1, 0x000000000000000000000000000000000000000000000000);
                             ^
