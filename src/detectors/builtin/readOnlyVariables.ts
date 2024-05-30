@@ -17,9 +17,7 @@ import {
   Atom,
 } from "../../internals/souffle";
 import { createError, MistiTactError, Severity } from "../../internals/errors";
-import {
-  forEachExpression,
-} from "../../internals/tactASTUtil";
+import { forEachExpression } from "../../internals/tactASTUtil";
 
 /**
  * A detector that identifies read-only variables and fields.
