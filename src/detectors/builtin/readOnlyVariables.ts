@@ -18,7 +18,6 @@ import {
 } from "../../internals/souffle";
 import { createError, MistiTactError, Severity } from "../../internals/errors";
 import {
-  foldExpressions,
   forEachExpression,
 } from "../../internals/tactASTUtil";
 
