@@ -1,0 +1,43 @@
+{
+  "projectName": "readonly-2",
+  "functions": [
+    {
+      "name": "test1",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 762,
+            "stmtID": 10059,
+            "srcEdges": [],
+            "dstEdges": [764]
+          },
+          {
+            "id": 763,
+            "stmtID": 10062,
+            "srcEdges": [764],
+            "dstEdges": [766]
+          },
+          {
+            "id": 765,
+            "stmtID": 10064,
+            "srcEdges": [766],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 764,
+            "src": 762,
+            "dst": 763
+          },
+          {
+            "id": 766,
+            "src": 763,
+            "dst": 765
+          }
+        ]
+      }
+    }
+  ],
+  "contracts": []
+}

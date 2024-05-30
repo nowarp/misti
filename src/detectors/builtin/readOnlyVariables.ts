@@ -1,4 +1,8 @@
-import { ASTStatement, ASTRef } from "@tact-lang/compiler/dist/grammar/ast";
+import {
+  ASTStatement,
+  ASTRef,
+  ASTExpression,
+} from "@tact-lang/compiler/dist/grammar/ast";
 import { Detector } from "../detector";
 import { MistiContext } from "../../internals/context";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
@@ -13,6 +17,10 @@ import {
   Atom,
 } from "../../internals/souffle";
 import { createError, MistiTactError, Severity } from "../../internals/errors";
+import {
+  foldExpressions,
+  forEachExpression,
+} from "../../internals/tactASTUtil";
 
 /**
  * A detector that identifies read-only variables and fields.
@@ -109,25 +117,30 @@ export class ReadOnlyVariables extends Detector {
       switch (stmt.kind) {
         case "statement_let":
           ctx.addFact("varDecl", Fact.from([stmt.name, funName], stmt.ref));
+          forEachExpression(stmt.expression, (expr: ASTExpression) => {
+            if (expr.kind === "id") {
+              ctx.addFact("varUse", Fact.from([expr.value, funName], expr.ref));
+            }
+          });
           break;
         case "statement_assign":
         case "statement_augmentedassign":
-          // NOTE: Variables unpacking is not supported
           ctx.addFact(
             "varAssign",
             Fact.from([stmt.path[0].name, funName], stmt.ref),
           );
-          break;
-        case "statement_expression":
-          // TODO: Other cases?
-          if (stmt.expression.kind === "id") {
-            ctx.addFact(
-              "varUse",
-              Fact.from([stmt.expression.value, funName], stmt.ref),
-            );
-          }
+          forEachExpression(stmt.expression, (expr: ASTExpression) => {
+            if (expr.kind === "id") {
+              ctx.addFact("varUse", Fact.from([expr.value, funName], expr.ref));
+            }
+          });
           break;
         default:
+          forEachExpression(stmt, (expr: ASTExpression) => {
+            if (expr.kind === "id") {
+              ctx.addFact("varUse", Fact.from([expr.value, funName], stmt.ref));
+            }
+          });
           break;
       }
     });

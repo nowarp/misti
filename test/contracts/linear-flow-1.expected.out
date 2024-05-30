@@ -1,7 +1,7 @@
 
-/home/jubnzv/Dev/misti/test/contracts/linear-flow-1.tact:4:5:
-  3 |     let b: Int = 22;
-> 4 |     let c: Int = a + b;
+/home/jubnzv/Dev/misti/test/contracts/linear-flow-1.tact:3:5:
+  2 |     let a: Int = 20;
+> 3 |     let b: Int = 22;
           ^
-  5 |     return c;
+  4 |     let c: Int = a + b;
 Variable is never used
