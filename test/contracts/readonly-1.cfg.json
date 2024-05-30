@@ -9,36 +9,56 @@
             "id": 606,
             "stmtID": 8051,
             "srcEdges": [],
-            "dstEdges": [608]
+            "dstEdges": [
+              608
+            ]
           },
           {
             "id": 607,
             "stmtID": 8054,
-            "srcEdges": [608],
-            "dstEdges": [610]
+            "srcEdges": [
+              608
+            ],
+            "dstEdges": [
+              610
+            ]
           },
           {
             "id": 609,
             "stmtID": 8057,
-            "srcEdges": [610],
-            "dstEdges": [612]
+            "srcEdges": [
+              610
+            ],
+            "dstEdges": [
+              612
+            ]
           },
           {
             "id": 611,
             "stmtID": 8064,
-            "srcEdges": [612],
-            "dstEdges": [614, 615, 617]
+            "srcEdges": [
+              612
+            ],
+            "dstEdges": [
+              614,
+              615,
+              617
+            ]
           },
           {
             "id": 613,
             "stmtID": 8063,
-            "srcEdges": [614],
+            "srcEdges": [
+              614
+            ],
             "dstEdges": []
           },
           {
             "id": 616,
             "stmtID": 8066,
-            "srcEdges": [617],
+            "srcEdges": [
+              617
+            ],
             "dstEdges": []
           }
         ],
