@@ -71,6 +71,48 @@ export class TactASTStore {
   }
 
   /**
+   * Returns all the functions and methods defined within the program.
+   */
+  getFunctions(): IterableIterator<ASTFunction | ASTReceive | ASTInitFunction> {
+    return this.functions.values();
+  }
+
+  /**
+   * Returns all the constants defined within the program, including top-level constants
+   * and contract constants.
+   */
+  getConstants(): IterableIterator<ASTConstant> {
+    return this.constants.values();
+  }
+
+  getContracts(): IterableIterator<ASTContract> {
+    return this.contracts.values();
+  }
+
+  getNativeFunctions(): IterableIterator<ASTNativeFunction> {
+    return this.nativeFunctions.values();
+  }
+
+  getPrimitives(): IterableIterator<ASTPrimitive> {
+    return this.primitives.values();
+  }
+
+  getStructs(): IterableIterator<ASTStruct> {
+    return this.structs.values();
+  }
+
+  getTraits(): IterableIterator<ASTTrait> {
+    return this.traits.values();
+  }
+
+  /**
+   * Returns all the statements defined within the program.
+   */
+  getStatements(): IterableIterator<ASTStatement> {
+    return this.statements.values();
+  }
+
+  /**
    * Retrieves a function or method by its ID.
    * @param id The unique identifier of the function or method.
    * @returns The function or method if found, otherwise undefined.
