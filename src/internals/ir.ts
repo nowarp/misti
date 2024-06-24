@@ -403,7 +403,7 @@ export class CFG {
    */
   public getNode(idx: NodeIdx): Node | undefined {
     const nodesIdx = this.nodesMap.get(idx);
-    if (!nodesIdx) {
+    if (nodesIdx === undefined) {
       return undefined;
     }
     return this.nodes[nodesIdx];
@@ -416,7 +416,7 @@ export class CFG {
    */
   public getEdge(idx: EdgeIdx): Edge | undefined {
     const edgesIdx = this.edgesMap.get(idx);
-    if (!edgesIdx) {
+    if (edgesIdx === undefined) {
       return undefined;
     }
     return this.edges[edgesIdx];
