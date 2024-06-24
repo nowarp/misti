@@ -32,6 +32,10 @@ const BuiltInDetectors: Record<string, () => Promise<Detector>> = {
     import("./builtin/readOnlyVariables").then(
       (module) => new module.ReadOnlyVariables(),
     ),
+  NeverAccessedVariables: () =>
+    import("./builtin/neverAccessedVariables").then(
+      (module) => new module.NeverAccessedVariables(),
+    ),
   ZeroAddress: () =>
     import("./builtin/zeroAddress").then((module) => new module.ZeroAddress()),
 };
