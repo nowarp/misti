@@ -527,7 +527,7 @@ export class CFG {
       if (astNode) {
         callback(astNode, cfgNode);
       } else {
-        throw new Error(`Cannot find a statement: id=${cfgNode.stmtID}`);
+        throw new Error(`Cannot find a statement: #${cfgNode.stmtID}`);
       }
     });
   }
