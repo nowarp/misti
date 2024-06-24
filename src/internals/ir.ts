@@ -422,6 +422,54 @@ export class CFG {
     return this.edges[edgesIdx];
   }
 
+  private traverseNodes(
+    edgeIdxs: Set<EdgeIdx>,
+    isSrc: boolean,
+  ): Node[] | undefined {
+    return Array.from(edgeIdxs).reduce(
+      (acc, srcIdx: NodeIdx) => {
+        if (acc === undefined) {
+          return undefined;
+        }
+        const edge = this.getEdge(srcIdx);
+        if (edge === undefined) {
+          return undefined;
+        }
+        const targetNode = this.getNode(isSrc ? edge.src : edge.dst);
+        if (targetNode === undefined) {
+          return undefined;
+        }
+        acc.push(targetNode);
+        return acc;
+      },
+      [] as Node[] | undefined,
+    );
+  }
+
+  /**
+   * Returns successors for the given node.
+   * @returns A list of predecessor nodes or `undefined` if any of the node indexes cannot be found in this CFG.
+   */
+  public getSuccessors(nodeIdx: NodeIdx): Node[] | undefined {
+    const node = this.getNode(nodeIdx);
+    if (node === undefined) {
+      return undefined;
+    }
+    return this.traverseNodes(node.dstEdges, false);
+  }
+
+  /**
+   * Returns predecessors for the given node.
+   * @returns A list of predecessor nodes or `undefined` if any of the node indexes cannot be found in this CFG.
+   */
+  public getPredecessors(nodeIdx: NodeIdx): Node[] | undefined {
+    const node = this.getNode(nodeIdx);
+    if (node === undefined) {
+      return undefined;
+    }
+    return this.traverseNodes(node.srcEdges, true);
+  }
+
   /**
    * Iterates over all nodes in a CFG, applying a callback to each node.
    * The callback can perform any operation, such as analyzing or transforming the node.
