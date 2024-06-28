@@ -1,0 +1,71 @@
+{
+  "projectName": "never-accessed-1",
+  "functions": [
+    {
+      "name": "test",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 606,
+            "stmtID": 8043,
+            "srcEdges": [],
+            "dstEdges": [
+              608
+            ]
+          },
+          {
+            "id": 607,
+            "stmtID": 8048,
+            "srcEdges": [
+              608
+            ],
+            "dstEdges": [
+              610,
+              611,
+              613
+            ]
+          },
+          {
+            "id": 609,
+            "stmtID": 8047,
+            "srcEdges": [
+              610
+            ],
+            "dstEdges": []
+          },
+          {
+            "id": 612,
+            "stmtID": 8050,
+            "srcEdges": [
+              613
+            ],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 608,
+            "src": 606,
+            "dst": 607
+          },
+          {
+            "id": 610,
+            "src": 607,
+            "dst": 609
+          },
+          {
+            "id": 611,
+            "src": 607,
+            "dst": 8050
+          },
+          {
+            "id": 613,
+            "src": 607,
+            "dst": 612
+          }
+        ]
+      }
+    }
+  ],
+  "contracts": []
+}

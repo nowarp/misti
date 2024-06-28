@@ -1,0 +1,6 @@
+test/contracts/never-accessed-1.tact:2:5:
+  1 | fun test(): Int {
+> 2 |     let a: Int = 20;
+          ^
+  3 |     if (true) { // error: write-only variable
+Variable a is never accessed
