@@ -16,12 +16,15 @@ import {
 
 export type ProjectName = string;
 
+export type EntryOrigin = "user" | "stdlib";
+
 /**
  * Provides storage and access to various AST components of a Tact project.
  */
 export class TactASTStore {
   /**
    * Constructs a TactASTStore with mappings to all major AST components.
+   * @param stdlibConstants Identifiers of constants defined in stdlib.
    * @param programEntries Identifiers of AST elements defined on the top-level.
    * @param functions Functions and methods including user-defined and special methods.
    * @param constants Constants defined across the compilation unit.
@@ -33,6 +36,7 @@ export class TactASTStore {
    * @param statements All executable statements within all functions of the project.
    */
   constructor(
+    private stdlibConstants = new Set<number>(),
     private programEntries: Set<number>,
     private functions: Map<number, ASTFunction | ASTReceive | ASTInitFunction>,
     private constants: Map<number, ASTConstant>,
@@ -80,9 +84,16 @@ export class TactASTStore {
   /**
    * Returns all the constants defined within the program, including top-level constants
    * and contract constants.
+   * @param includeStdlib If true, includes constants defined in stdlib.
    */
-  getConstants(): IterableIterator<ASTConstant> {
-    return this.constants.values();
+  getConstants(allowStdlib: boolean = true): IterableIterator<ASTConstant> {
+    if (allowStdlib) {
+      return this.constants.values();
+    }
+    const userConstants = Array.from(this.constants.values()).filter(
+      (c) => !this.stdlibConstants.has(c.id),
+    );
+    return userConstants.values();
   }
 
   getContracts(): IterableIterator<ASTContract> {
@@ -416,7 +427,7 @@ export class CFG {
   constructor(
     public name: FunctionName,
     public kind: FunctionKind,
-    public origin: "user" | "stdlib",
+    public origin: EntryOrigin,
     public nodes: Node[],
     public edges: Edge[],
     public ref: ASTRef,
