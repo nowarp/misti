@@ -78,10 +78,29 @@ function generateReceiveName(receive: ASTReceive): string {
 }
 
 /**
+ * A mandatory part of the file path to stdlib.
+ */
+const STDLIB_PATH_ELEMENTS = [
+  "node_modules",
+  "@tact-lang",
+  "compiler",
+  "stdlib",
+];
+
+/**
+ * Checks if there are subdirectories present in the absolute path.
+ */
+function hasSubdirs(filePath: string, subdirs: string[]): boolean {
+  const splitPath = filePath.split(path.sep);
+  return subdirs.every((dir) => splitPath.includes(dir));
+}
+
+/**
  * Transforms the TactAST imported from the tact compiler to a representation more suitable for analysis.
  */
 export class ASTMapper {
   private programEntries = new Set<number>();
+  private stdlibConstants = new Set<number>();
   private functions = new Map<
     number,
     ASTFunction | ASTReceive | ASTInitFunction
@@ -104,6 +123,12 @@ export class ASTMapper {
       }
     });
     this.ast.constants.forEach((constant) => {
+      if (
+        constant.ref.file !== null &&
+        hasSubdirs(constant.ref.file, STDLIB_PATH_ELEMENTS)
+      ) {
+        this.stdlibConstants.add(constant.id);
+      }
       this.programEntries.add(constant.id);
       this.constants.set(constant.id, constant);
     });
@@ -115,6 +140,7 @@ export class ASTMapper {
 
   public getASTStore(): TactASTStore {
     return new TactASTStore(
+      this.stdlibConstants,
       this.programEntries,
       this.functions,
       this.constants,
@@ -714,9 +740,7 @@ class TactConfigManager {
     const stdlibPath = path.resolve(
       __dirname,
       distPathPrefix,
-      "node_modules",
-      "@tact-lang/compiler",
-      "stdlib",
+      ...STDLIB_PATH_ELEMENTS,
     );
     const stdlib = createNodeFileSystem(stdlibPath, false);
     return this.config.projects.reduce(
