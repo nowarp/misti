@@ -1,47 +1,31 @@
-import { JoinSemilattice } from "./lattice";
-import { CFG, Node, NodeIdx } from "./ir";
+import { JoinSemilattice } from "../lattice";
+import { CFG, Node, CompilationUnit } from "../ir";
+import { SolverResults } from "./results";
+import { Transfer } from "../transfer";
 
 /**
- * Results of solving a generic dataflow problem.
- * @template State The type representing the state in the dataflow analysis.
+ * Provides a framework for solving dataflow analysis problems by employing a worklist-based algorithm.
+ *
+ * This class encapsulates the control flow graph (CFG), node state transformations,
+ * and lattice properties necessary for the computation of fixpoints in dataflow equations.
  */
-export class SolverResults<State> {
-  private stateMap: Map<NodeIdx, State>;
-
-  constructor() {
-    this.stateMap = new Map();
-  }
-
-  public getState(idx: NodeIdx): State | undefined {
-    return this.stateMap.get(idx);
-  }
-
-  public setState(idx: NodeIdx, state: State): void {
-    this.stateMap.set(idx, state);
-  }
-
-  public getStates(): Map<NodeIdx, State> {
-    return this.stateMap;
-  }
-}
-
-/**
- * Solver for generic dataflow problems.
- */
-export class Solver<State> {
-  private cfg: CFG;
-  private transfer: (node: Node, state: State) => State;
-  private lattice: JoinSemilattice<State>;
+export class WorklistSolver<State> {
+  private readonly cu: CompilationUnit;
+  private readonly cfg: CFG;
+  private transfer: Transfer<State>;
+  private readonly lattice: JoinSemilattice<State>;
 
   /**
    * @param transfer A function that defines the transfer operation for a node and its state.
    * @param lattice An instance of a lattice that defines the join, bottom, and leq operations.
    */
   constructor(
+    cu: CompilationUnit,
     cfg: CFG,
-    transfer: (node: Node, state: State) => State,
+    transfer: Transfer<State>,
     lattice: JoinSemilattice<State>,
   ) {
+    this.cu = cu;
     this.cfg = cfg;
     this.transfer = transfer;
     this.lattice = lattice;
@@ -53,7 +37,6 @@ export class Solver<State> {
       throw new Error(
         `Incorrect definition in the CFG: Node #${node.idx} has an undefined predecessor`,
       );
-      // return [];
     }
     return predecessors;
   }
@@ -77,7 +60,13 @@ export class Solver<State> {
         return this.lattice.join(acc, results.getState(pred.idx)!);
       }, this.lattice.bottom());
 
-      const outState = this.transfer(node, inState);
+      const stmt = this.cu.ast.getStatement(node.stmtID);
+      if (stmt === undefined) {
+        throw new Error(
+          `Cannot find statement #${node.stmtID} defined within node #${node.idx}`,
+        );
+      }
+      const outState = this.transfer.transfer(inState, node, stmt);
 
       if (!this.lattice.leq(outState, results.getState(node.idx)!)) {
         results.setState(node.idx, outState);

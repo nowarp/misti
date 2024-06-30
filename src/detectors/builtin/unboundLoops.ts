@@ -10,6 +10,7 @@ import { Detector } from "../detector";
 import { JoinSemilattice } from "../../internals/lattice";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
 import { MistiContext } from "../../internals/context";
+import { Transfer } from "../../internals/transfer";
 import {
   Context,
   Fact,
@@ -101,22 +102,6 @@ class LoopVariablesLattice implements JoinSemilattice<VariableState> {
         b.has(key) && this.areSimpleMapsSubsets(innerMap, b.get(key)!),
     );
   }
-}
-
-interface Transfer<State> {
-  /**
-   * Transforms the input state based on the analysis of a CFG node.
-   *
-   * This function updates the state of dataflow analysis as it processes
-   * each node (e.g., statements, expressions) in a control flow graph,
-   * reflecting changes due to program actions.
-   *
-   * @param node The CFG construct being analyzed.
-   * @param stmt The statement defined within the node.
-   * @param inState The dataflow state prior to the execution of `node`.
-   * @returns The updated dataflow state post node execution.
-   */
-  transfer(inState: State, node: Node, stmt: ASTStatement): State;
 }
 
 class LoopTransfer implements Transfer<VariableState> {

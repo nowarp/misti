@@ -1,5 +1,6 @@
 import { ASTStatement, ASTRef } from "@tact-lang/compiler/dist/grammar/ast";
-import { Solver } from "../../internals/solver";
+import { WorklistSolver } from "../../internals/solver/";
+import { Transfer } from "../../internals/transfer";
 import { Detector } from "../detector";
 import { JoinSemilattice } from "../../internals/lattice";
 import { MistiContext } from "../../internals/context";
@@ -34,6 +35,26 @@ class VariableUsageLattice implements JoinSemilattice<VariableState> {
       [...a.declared].every((x) => b.declared.has(x)) &&
       [...a.used].every((x) => b.used.has(x))
     );
+  }
+}
+
+class NeverAccessedTransfer implements Transfer<VariableState> {
+  public transfer(
+    inState: VariableState,
+    _node: Node,
+    stmt: ASTStatement,
+  ): VariableState {
+    const outState = { ...inState };
+    if (stmt.kind === "statement_let") {
+      outState.declared.add([stmt.name, stmt.ref]);
+    } else {
+      forEachExpression(stmt, (expr) => {
+        if (expr.kind === "id") {
+          outState.used.add(expr.value);
+        }
+      });
+    }
+    return outState;
   }
 }
 
@@ -133,20 +154,8 @@ export class NeverAccessedVariables extends Detector {
         return;
       }
       const lattice = new VariableUsageLattice();
-      const transfer = (_node: Node, inState: VariableState) => {
-        const outState = { ...inState };
-        if (stmt.kind === "statement_let") {
-          outState.declared.add([stmt.name, stmt.ref]);
-        } else {
-          forEachExpression(stmt, (expr) => {
-            if (expr.kind === "id") {
-              outState.used.add(expr.value);
-            }
-          });
-        }
-        return outState;
-      };
-      const solver = new Solver(cfg, transfer, lattice);
+      const transfer = new NeverAccessedTransfer();
+      const solver = new WorklistSolver(cu, cfg, transfer, lattice);
       const results = solver.findFixpoint();
 
       const declaredVariables = new Map<string, ASTRef>();
