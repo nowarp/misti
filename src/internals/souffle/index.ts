@@ -7,4 +7,4 @@ export {
 } from "./relation";
 export { Atom, RuleHead, RuleName, RuleBody, Rule } from "./rule";
 export { Context } from "./context";
-export { Executor } from "./executor";
+export { Executor, SouffleExecutionResult } from "./executor";

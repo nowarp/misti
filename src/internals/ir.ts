@@ -542,6 +542,16 @@ export class CFG {
       }
     });
   }
+
+  /**
+   * Iterates over all edges in a CFG, applying a callback to each edge.
+   * @param callback The function to apply to each edge.
+   */
+  forEachEdge(callback: (cfgEdge: Edge) => void) {
+    this.edges.forEach((cfgEdge) => {
+      callback(cfgEdge);
+    });
+  }
 }
 
 /**
@@ -655,4 +665,17 @@ export class CompilationUnit {
       });
     });
   }
+}
+
+/**
+ * An utility funciton that extracts node's predecessors.
+ */
+export function getPredecessors(cfg: CFG, node: Node): Node[] {
+  const predecessors = cfg.getPredecessors(node.idx);
+  if (predecessors === undefined) {
+    throw new Error(
+      `Incorrect definition in the CFG: Node #${node.idx} has an undefined predecessor`,
+    );
+  }
+  return predecessors;
 }
