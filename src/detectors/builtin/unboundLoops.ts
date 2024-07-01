@@ -7,22 +7,14 @@ import {
   ASTStatementUntil,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { Detector } from "../detector";
+import { SouffleSolver, SouffleMapper } from "../../internals/solver";
 import { JoinSemilattice } from "../../internals/lattice";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
 import { MistiContext } from "../../internals/context";
 import { Transfer } from "../../internals/transfer";
-import {
-  Context,
-  Fact,
-  FactType,
-  Relation,
-  Executor,
-  Rule,
-  RuleBody,
-  Atom,
-} from "../../internals/souffle";
+import { Context } from "../../internals/souffle";
 import { createError, MistiTactError, Severity } from "../../internals/errors";
-import { foldStatements, forEachExpression } from "../../internals/tactASTUtil";
+import { forEachExpression } from "../../internals/tactASTUtil";
 
 type LoopRef = ASTRef;
 
@@ -104,6 +96,9 @@ class LoopVariablesLattice implements JoinSemilattice<VariableState> {
   }
 }
 
+/**
+ * The transfer function used by the worklist-based solver.
+ */
 class LoopTransfer implements Transfer<VariableState> {
   public transfer(
     inState: VariableState,
@@ -187,6 +182,14 @@ class LoopTransfer implements Transfer<VariableState> {
   }
 }
 
+export class LoopSouffleMapper implements SouffleMapper {
+  public addDecls(ctx: Context<ASTRef>): void {}
+
+  public addRules(ctx: Context<ASTRef>): void {}
+
+  public addConstraints(ctx: Context<ASTRef>): void {}
+}
+
 /**
  * A detector that analyzes loop conditions and control flow to ensure loops have proper termination criteria.
  *
@@ -215,20 +218,17 @@ class LoopTransfer implements Transfer<VariableState> {
  * ```
  */
 export class UnboundLoops extends Detector {
-  check(_ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
-    cu.forEachCFG(cu.ast, (cfg: CFG, _: Node, stmt: ASTStatement) => {
+  check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
+    cu.forEachCFG(cu.ast, (cfg: CFG, _: Node, _stmt: ASTStatement) => {
       if (cfg.origin === "stdlib") {
         return;
       }
-      const lattice = new LoopVariablesLattice();
+      const mapper = new LoopSouffleMapper();
+      const solver = new SouffleSolver(this.id, ctx, cu, cfg, mapper);
+      const results = solver.solve();
+      // TODO: Process results and generate warnings
     });
 
-    // TODO: Create and solve dataflow equations using Souffle
     return [];
   }
-
-  /**
-   * Collects dataflow info within a single loop statement.
-   */
-  private collectLoopInfo(lattice: LoopVariablesLattice) {}
 }

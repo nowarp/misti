@@ -156,7 +156,7 @@ export class NeverAccessedVariables extends Detector {
       const lattice = new VariableUsageLattice();
       const transfer = new NeverAccessedTransfer();
       const solver = new WorklistSolver(cu, cfg, transfer, lattice);
-      const results = solver.findFixpoint();
+      const results = solver.solve();
 
       const declaredVariables = new Map<string, ASTRef>();
       const usedVariables = new Set<string>();

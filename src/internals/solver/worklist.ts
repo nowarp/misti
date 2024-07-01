@@ -1,6 +1,7 @@
 import { JoinSemilattice } from "../lattice";
-import { CFG, Node, CompilationUnit } from "../ir";
+import { CFG, Node, CompilationUnit, getPredecessors } from "../ir";
 import { SolverResults } from "./results";
+import { Solver } from "./solver";
 import { Transfer } from "../transfer";
 
 /**
@@ -9,14 +10,14 @@ import { Transfer } from "../transfer";
  * This class encapsulates the control flow graph (CFG), node state transformations,
  * and lattice properties necessary for the computation of fixpoints in dataflow equations.
  */
-export class WorklistSolver<State> {
+export class WorklistSolver<State> implements Solver<State> {
   private readonly cu: CompilationUnit;
   private readonly cfg: CFG;
   private transfer: Transfer<State>;
   private readonly lattice: JoinSemilattice<State>;
 
   /**
-   * @param transfer A function that defines the transfer operation for a node and its state.
+   * @param transfer An object that defines the transfer operation for a node and its state.
    * @param lattice An instance of a lattice that defines the join, bottom, and leq operations.
    */
   constructor(
@@ -29,16 +30,6 @@ export class WorklistSolver<State> {
     this.cfg = cfg;
     this.transfer = transfer;
     this.lattice = lattice;
-  }
-
-  private getPredecessors(node: Node): Node[] {
-    const predecessors = this.cfg.getPredecessors(node.idx);
-    if (predecessors === undefined) {
-      throw new Error(
-        `Incorrect definition in the CFG: Node #${node.idx} has an undefined predecessor`,
-      );
-    }
-    return predecessors;
   }
 
   /**
@@ -56,7 +47,7 @@ export class WorklistSolver<State> {
 
     while (worklist.length > 0) {
       const node = worklist.pop()!;
-      const inState = this.getPredecessors(node).reduce((acc, pred) => {
+      const inState = getPredecessors(this.cfg, node).reduce((acc, pred) => {
         return this.lattice.join(acc, results.getState(pred.idx)!);
       }, this.lattice.bottom());
 
@@ -70,10 +61,14 @@ export class WorklistSolver<State> {
 
       if (!this.lattice.leq(outState, results.getState(node.idx)!)) {
         results.setState(node.idx, outState);
-        worklist.push(...this.getPredecessors(node));
+        worklist.push(...getPredecessors(this.cfg, node));
       }
     }
 
     return results;
+  }
+
+  public solve(): SolverResults<State> {
+    return this.findFixpoint();
   }
 }
