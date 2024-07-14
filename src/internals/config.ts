@@ -22,6 +22,7 @@ const ConfigSchema = z.object({
 
 /** Built-in detectors enabled by default, if no user configuration is provided. */
 export const BUILTIN_DETECTORS: DetectorConfig[] = [
+  { className: "DivideBeforeMultiply" },
   { className: "ReadOnlyVariables" },
   { className: "NeverAccessedVariables" },
   { className: "UnboundLoops" },
