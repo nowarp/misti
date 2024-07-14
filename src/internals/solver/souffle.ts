@@ -6,9 +6,6 @@ import {
   SouffleExecutionResult,
   FactValue,
   Executor,
-  Rule,
-  RuleBody,
-  Atom,
 } from "../souffle/";
 import { MistiContext } from "../context";
 import { ASTRef } from "@tact-lang/compiler/dist/grammar/ast";
@@ -104,7 +101,7 @@ export class SouffleSolver<State> implements Solver<State> {
    * @param ctx The Souffle program where the relations are to be added.
    */
   private addDataflowFacts(ctx: Context<ASTRef>): void {
-    this.cfg.forEachNode(this.cu.ast, (stmt, node) => {
+    this.cfg.forEachNode(this.cu.ast, (_stmt, node) => {
       ctx.addFact("bb", Fact.from([BB_FACT(node.idx)]));
     });
     // TODO: replace w/ predecessors? is it convinient to access that information in user-defined rules?
@@ -130,7 +127,7 @@ export class SouffleSolver<State> implements Solver<State> {
    * Converts the souffle execution results to the solver results as required by the class interface.
    */
   private createSouffleResults(
-    souffleResults: Fact<FactValue, ASTRef>[],
+    _souffleResults: Fact<FactValue, ASTRef>[],
   ): SolverResults<State> {
     throw new Error("NYI");
   }
