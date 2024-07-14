@@ -1,0 +1,77 @@
+{
+  "projectName": "unbound-loop-4",
+  "functions": [
+    {
+      "name": "fn",
+      "cfg": {
+        "nodes": [],
+        "edges": []
+      }
+    },
+    {
+      "name": "test",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 1514,
+            "stmtID": 20075,
+            "srcEdges": [],
+            "dstEdges": [
+              1516
+            ]
+          },
+          {
+            "id": 1515,
+            "stmtID": 20082,
+            "srcEdges": [
+              1516,
+              1519
+            ],
+            "dstEdges": [
+              1520
+            ]
+          },
+          {
+            "id": 1517,
+            "stmtID": 20081,
+            "srcEdges": [
+              1518
+            ],
+            "dstEdges": [
+              1519
+            ]
+          },
+          {
+            "id": 1521,
+            "stmtID": 20084,
+            "srcEdges": [],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 1516,
+            "src": 1514,
+            "dst": 1515
+          },
+          {
+            "id": 1518,
+            "src": 1515,
+            "dst": 1517
+          },
+          {
+            "id": 1519,
+            "src": 1517,
+            "dst": 1515
+          },
+          {
+            "id": 1520,
+            "src": 1515,
+            "dst": 20084
+          }
+        ]
+      }
+    }
+  ],
+  "contracts": []
+}

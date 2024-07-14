@@ -1,0 +1,70 @@
+{
+  "projectName": "unbound-loop-3",
+  "functions": [
+    {
+      "name": "test",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 1361,
+            "stmtID": 18063,
+            "srcEdges": [],
+            "dstEdges": [
+              1363
+            ]
+          },
+          {
+            "id": 1362,
+            "stmtID": 18070,
+            "srcEdges": [
+              1363,
+              1366
+            ],
+            "dstEdges": [
+              1367
+            ]
+          },
+          {
+            "id": 1364,
+            "stmtID": 18069,
+            "srcEdges": [
+              1365
+            ],
+            "dstEdges": [
+              1366
+            ]
+          },
+          {
+            "id": 1368,
+            "stmtID": 18072,
+            "srcEdges": [],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 1363,
+            "src": 1361,
+            "dst": 1362
+          },
+          {
+            "id": 1365,
+            "src": 1362,
+            "dst": 1364
+          },
+          {
+            "id": 1366,
+            "src": 1364,
+            "dst": 1362
+          },
+          {
+            "id": 1367,
+            "src": 1362,
+            "dst": 18072
+          }
+        ]
+      }
+    }
+  ],
+  "contracts": []
+}

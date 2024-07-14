@@ -36,6 +36,10 @@ const BuiltInDetectors: Record<string, () => Promise<Detector>> = {
     import("./builtin/neverAccessedVariables").then(
       (module) => new module.NeverAccessedVariables(),
     ),
+  UnboundLoops: () =>
+    import("./builtin/unboundLoops").then(
+      (module) => new module.UnboundLoops(),
+    ),
   ZeroAddress: () =>
     import("./builtin/zeroAddress").then((module) => new module.ZeroAddress()),
 };
