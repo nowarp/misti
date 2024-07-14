@@ -149,7 +149,7 @@ export class NeverAccessedVariables extends Detector {
    */
   checkVariables(cu: CompilationUnit): MistiTactError[] {
     const errors: MistiTactError[] = [];
-    cu.forEachCFG(cu.ast, (cfg: CFG, _: Node, stmt: ASTStatement) => {
+    cu.forEachCFG(cu.ast, (cfg: CFG, _node: Node, _stmt: ASTStatement) => {
       if (cfg.origin === "stdlib") {
         return;
       }

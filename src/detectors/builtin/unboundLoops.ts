@@ -1,7 +1,4 @@
-import {
-  ASTStatement,
-  ASTRef,
-} from "@tact-lang/compiler/dist/grammar/ast";
+import { ASTStatement, ASTRef } from "@tact-lang/compiler/dist/grammar/ast";
 import {
   Context,
   Fact,
@@ -72,7 +69,11 @@ export class UnboundLoops extends Detector {
       if (fact.data === undefined) {
         throw new Error(`AST position for fact ${fact} is not available`);
       }
-      return createError("Unbounded loop: the condition variable doesn't change within the loop", Severity.MEDIUM, fact.data);
+      return createError(
+        "Unbounded loop: the condition variable doesn't change within the loop",
+        Severity.MEDIUM,
+        fact.data,
+      );
     });
 
     return warnings;
