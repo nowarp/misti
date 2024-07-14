@@ -28,6 +28,10 @@ export abstract class Detector {
  * This allows for lazy loading of detectors, which may include importing necessary modules dynamically.
  */
 const BuiltInDetectors: Record<string, () => Promise<Detector>> = {
+  DivideBeforeMultiply: () =>
+    import("./builtin/divideBeforeMultiply").then(
+      (module) => new module.DivideBeforeMultiply(),
+    ),
   ReadOnlyVariables: () =>
     import("./builtin/readOnlyVariables").then(
       (module) => new module.ReadOnlyVariables(),
