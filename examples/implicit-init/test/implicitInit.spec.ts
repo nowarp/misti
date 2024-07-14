@@ -12,7 +12,7 @@ describe("ImplicitInit Detector Tests", () => {
     const driver = await Driver.create(tactConfigPath, { config });
 
     expect(driver.detectors.length).toBe(1);
-    expect(driver.detectors[0].id).toBe("II");
+    expect(driver.detectors[0].id).toBe("ImplicitInit");
 
     const foundErrors = await driver.execute();
     // TODO(bh): Add an error here when Tact v1.3 with implicit inits is released.
