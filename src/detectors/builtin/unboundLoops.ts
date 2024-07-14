@@ -1,194 +1,25 @@
 import {
   ASTStatement,
   ASTRef,
-  ASTExpression,
-  ASTStatementWhile,
-  ASTStatementRepeat,
-  ASTStatementUntil,
 } from "@tact-lang/compiler/dist/grammar/ast";
+import {
+  Context,
+  Fact,
+  FactType,
+  Relation,
+  Executor,
+  Rule,
+  RuleBody,
+  Atom,
+} from "../../internals/souffle";
 import { Detector } from "../detector";
-import { SouffleSolver, SouffleMapper } from "../../internals/solver";
-import { JoinSemilattice } from "../../internals/lattice";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
 import { MistiContext } from "../../internals/context";
-import { Transfer } from "../../internals/transfer";
-import { Context } from "../../internals/souffle";
 import { createError, MistiTactError, Severity } from "../../internals/errors";
-import { forEachExpression } from "../../internals/tactASTUtil";
-
-type LoopRef = ASTRef;
-
-/**
- * Describes a dataflow state of local variables within the loop construction.
- */
-interface VariableState {
-  /** Variables defined within dataflow of the current function. */
-  defined: Map<string, ASTRef>;
-  /** Variables used in loop's condition. */
-  condition: Map<LoopRef, Map<string, ASTRef>>;
-  /** Variables modified within loop's body. */
-  modified: Map<LoopRef, Map<string, ASTRef>>;
-}
-
-class LoopVariablesLattice implements JoinSemilattice<VariableState> {
-  bottom(): VariableState {
-    return { defined: new Map(), condition: new Map(), modified: new Map() };
-  }
-
-  join(a: VariableState, b: VariableState): VariableState {
-    const joinedDefined = this.mergeSimpleMaps(a.defined, b.defined);
-    const joinedCondition = this.mergeNestedMaps(a.condition, b.condition);
-    const joinedModified = this.mergeNestedMaps(a.modified, b.modified);
-    return {
-      defined: joinedDefined,
-      condition: joinedCondition,
-      modified: joinedModified,
-    };
-  }
-
-  leq(a: VariableState, b: VariableState): boolean {
-    return (
-      this.areSimpleMapsSubsets(a.defined, b.defined) &&
-      this.areNestedMapsSubsets(a.condition, b.condition) &&
-      this.areNestedMapsSubsets(a.modified, b.modified)
-    );
-  }
-
-  private mergeSimpleMaps(
-    a: Map<string, ASTRef>,
-    b: Map<string, ASTRef>,
-  ): Map<string, ASTRef> {
-    const mergedMap = new Map(a);
-    b.forEach((value, key) => mergedMap.set(key, value));
-    return mergedMap;
-  }
-
-  private mergeNestedMaps(
-    a: Map<LoopRef, Map<string, ASTRef>>,
-    b: Map<LoopRef, Map<string, ASTRef>>,
-  ): Map<LoopRef, Map<string, ASTRef>> {
-    const mergedMap = new Map(a);
-    b.forEach((innerMap, key) => {
-      if (mergedMap.has(key)) {
-        mergedMap.set(key, this.mergeSimpleMaps(mergedMap.get(key)!, innerMap));
-      } else {
-        mergedMap.set(key, new Map(innerMap));
-      }
-    });
-    return mergedMap;
-  }
-
-  private areSimpleMapsSubsets(
-    a: Map<string, ASTRef>,
-    b: Map<string, ASTRef>,
-  ): boolean {
-    return [...a].every(([key, value]) => b.has(key) && b.get(key) === value);
-  }
-
-  private areNestedMapsSubsets(
-    a: Map<LoopRef, Map<string, ASTRef>>,
-    b: Map<LoopRef, Map<string, ASTRef>>,
-  ): boolean {
-    return [...a].every(
-      ([key, innerMap]) =>
-        b.has(key) && this.areSimpleMapsSubsets(innerMap, b.get(key)!),
-    );
-  }
-}
-
-/**
- * The transfer function used by the worklist-based solver.
- */
-class LoopTransfer implements Transfer<VariableState> {
-  public transfer(
-    inState: VariableState,
-    _node: Node,
-    stmt: ASTStatement,
-  ): VariableState {
-    const outState = { ...inState };
-    switch (stmt.kind) {
-      case "statement_let":
-        outState.defined.set(stmt.name, stmt.ref);
-        break;
-      case "statement_while":
-        this.processCondition(outState, stmt.ref, stmt.condition);
-        this.processBody(outState, stmt);
-        break;
-      case "statement_until":
-        this.processCondition(outState, stmt.ref, stmt.condition);
-        this.processBody(outState, stmt);
-        break;
-      case "statement_repeat":
-        this.processCondition(outState, stmt.ref, stmt.condition);
-        this.processBody(outState, stmt);
-        break;
-      default:
-        break;
-    }
-    return outState;
-  }
-
-  /**
-   * Processes loop's condition collecting the variables defined in it to the out state.
-   */
-  private processCondition(
-    outState: VariableState,
-    loopRef: ASTRef,
-    expr: ASTExpression,
-  ): void {
-    forEachExpression(expr, (expr) => {
-      if (expr.kind === "id" && outState.defined.has(expr.value)) {
-        this.setDefault(outState.condition, loopRef, expr.value, expr.ref);
-      }
-    });
-  }
-
-  /**
-   * Processes loop's body collecting information about variables used within the loop.
-   */
-  private processBody(
-    outState: VariableState,
-    loop: ASTStatementWhile | ASTStatementRepeat | ASTStatementUntil,
-  ): void {
-    const conditionVars = outState.condition.get(loop.ref);
-    if (conditionVars === undefined) {
-      return; // Loop doesn't have variables in its condition
-    }
-    loop.statements.forEach((stmt) => {
-      forEachExpression(stmt, (expr) => {
-        // Find expressions that potentially modify a value of loop variables
-        if (expr.kind === "id" && conditionVars.has(expr.value)) {
-          this.setDefault(outState.modified, stmt.ref, expr.value, expr.ref);
-        }
-      });
-    });
-  }
-
-  /**
-   * Ensures that a key-value pair is added to a nested map, initializing a new inner map if necessary.
-   */
-  private setDefault(
-    outerMap: Map<LoopRef, Map<string, ASTRef>>,
-    loopRef: LoopRef,
-    innerKey: string,
-    innerValue: ASTRef,
-  ): void {
-    let innerMap = outerMap.get(loopRef);
-    if (!innerMap) {
-      innerMap = new Map<string, ASTRef>();
-      outerMap.set(loopRef, innerMap);
-    }
-    innerMap.set(innerKey, innerValue);
-  }
-}
-
-export class LoopSouffleMapper implements SouffleMapper {
-  public addDecls(ctx: Context<ASTRef>): void {}
-
-  public addRules(ctx: Context<ASTRef>): void {}
-
-  public addConstraints(ctx: Context<ASTRef>): void {}
-}
+import {
+  forEachExpression,
+  forEachStatement,
+} from "../../internals/tactASTUtil";
 
 /**
  * A detector that analyzes loop conditions and control flow to ensure loops have proper termination criteria.
@@ -219,16 +50,188 @@ export class LoopSouffleMapper implements SouffleMapper {
  */
 export class UnboundLoops extends Detector {
   check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
-    cu.forEachCFG(cu.ast, (cfg: CFG, _: Node, _stmt: ASTStatement) => {
+    // TODO: Extract method for this shared logic
+    const souffleCtx = new Context<ASTRef>(this.id);
+    this.addDecls(souffleCtx);
+    this.addRules(souffleCtx);
+    this.addConstantConstraints(cu, souffleCtx);
+    this.addConstraints(cu, souffleCtx);
+
+    const executor = ctx.config.soufflePath
+      ? new Executor<ASTRef>({
+          inputDir: ctx.config.soufflePath,
+          outputDir: ctx.config.soufflePath,
+        })
+      : new Executor<ASTRef>();
+    const result = executor.executeSync(souffleCtx);
+    if (!result.success) {
+      throw new Error(`Error executing Soufflé: ${result.stderr}`);
+    }
+
+    const warnings = Array.from(result.results.entries.values()).map((fact) => {
+      if (fact.data === undefined) {
+        throw new Error(`AST position for fact ${fact} is not available`);
+      }
+      return createError("Unbounded loop: the condition variable doesn't change within the loop", Severity.MEDIUM, fact.data);
+    });
+
+    return warnings;
+  }
+
+  private addDecls(ctx: Context<ASTRef>): void {
+    ctx.add(Relation.from("constDef", [["var", FactType.Symbol]], undefined));
+    ctx.add(
+      Relation.from(
+        "varDef",
+        [
+          ["var", FactType.Symbol],
+          ["func", FactType.Symbol],
+        ],
+        undefined,
+      ),
+    );
+    ctx.add(
+      Relation.from(
+        "loopDef",
+        [
+          ["loopId", FactType.Number],
+          ["func", FactType.Symbol],
+        ],
+        undefined,
+      ),
+    );
+    ctx.add(
+      Relation.from(
+        "loopCondDef",
+        [
+          ["var", FactType.Symbol],
+          ["loopId", FactType.Number],
+          ["func", FactType.Symbol],
+        ],
+        undefined,
+      ),
+    );
+    ctx.add(
+      Relation.from(
+        "loopVarUse",
+        [
+          ["var", FactType.Symbol],
+          ["loopId", FactType.Number],
+          ["func", FactType.Symbol],
+        ],
+        undefined,
+      ),
+    );
+    ctx.add(
+      Relation.from(
+        "unbound",
+        [
+          ["var", FactType.Symbol],
+          ["loopId", FactType.Number],
+          ["func", FactType.Symbol],
+        ],
+        "output",
+      ),
+    );
+  }
+
+  private addRules(ctx: Context<ASTRef>): void {
+    // unbound(var, loopId, func) :-
+    //   varDef(var, func),
+    //   loopDef(loopId, func),
+    //   loopCondDef(var, loopId, func),
+    //   !constDef(var)
+    //   !loopVarUse(var, loopId, func).
+    ctx.add(
+      Rule.from(
+        [Atom.from("unbound", ["var", "loopId", "func"])],
+        RuleBody.from(Atom.from("varDef", ["var", "func"])),
+        RuleBody.from(Atom.from("loopDef", ["loopId", "func"])),
+        RuleBody.from(Atom.from("loopCondDef", ["var", "loopId", "func"])),
+        RuleBody.from(Atom.from("constDef", ["var"]), {
+          negated: true,
+        }),
+        RuleBody.from(Atom.from("loopVarUse", ["var", "loopId", "func"]), {
+          negated: true,
+        }),
+      ),
+    );
+  }
+
+  /**
+   * Generates Souffle facts for constant definitions which should not be reported if used in the loop.
+   */
+  private addConstantConstraints(
+    cu: CompilationUnit,
+    ctx: Context<ASTRef>,
+  ): void {
+    for (const c of cu.ast.getConstants(/* allowStdlib = */ true)) {
+      ctx.addFact("constDef", Fact.from([c.name], c.ref));
+    }
+  }
+
+  /**
+   * Collects facts based on the IR to populate the Souffle program.
+   * @param cu The compilation unit containing the CFGs and AST information.
+   * @param ctx The Souffle program to which the facts are added.
+   */
+  private addConstraints(cu: CompilationUnit, ctx: Context<ASTRef>): void {
+    cu.forEachCFG(cu.ast, (cfg: CFG, _: Node, stmt: ASTStatement) => {
       if (cfg.origin === "stdlib") {
         return;
       }
-      const mapper = new LoopSouffleMapper();
-      const solver = new SouffleSolver(this.id, ctx, cu, cfg, mapper);
-      const results = solver.solve();
-      // TODO: Process results and generate warnings
+      const funName = cfg.name;
+      if (stmt.kind === "statement_let") {
+        ctx.addFact("varDef", Fact.from([stmt.name, funName], stmt.ref));
+        return;
+      }
+      if (
+        stmt.kind === "statement_while" ||
+        stmt.kind === "statement_repeat" ||
+        stmt.kind === "statement_until"
+      ) {
+        const loopId = stmt.id;
+        const usedInCond: Set<string> = new Set(); // names of variables used in this condition
+        ctx.addFact("loopDef", Fact.from([loopId, funName], stmt.ref));
+        forEachExpression(stmt.condition, (expr) => {
+          if (expr.kind === "id") {
+            const varName = expr.value;
+            usedInCond.add(varName);
+            ctx.addFact(
+              "loopCondDef",
+              Fact.from([varName, loopId, funName], expr.ref),
+            );
+          }
+        });
+        forEachStatement(stmt, (s) => {
+          if (
+            s.kind === "statement_assign" ||
+            s.kind === "statement_augmentedassign"
+          ) {
+            ctx.addFact(
+              "loopVarUse",
+              Fact.from([s.id, loopId, funName], s.ref),
+            );
+          } else if (s.kind === "statement_expression") {
+            const callExpr = s.expression;
+            if (
+              callExpr.kind === "op_call" ||
+              callExpr.kind === "op_static_call"
+            ) {
+              callExpr.args.forEach((a) => {
+                forEachExpression(a, (expr) => {
+                  if (expr.kind === "id" && usedInCond.has(expr.value)) {
+                    ctx.addFact(
+                      "loopVarUse",
+                      Fact.from([expr.id, loopId, funName], s.ref),
+                    );
+                  }
+                });
+              });
+            }
+          }
+        });
+      }
     });
-
-    return [];
   }
 }

@@ -24,6 +24,7 @@ const ConfigSchema = z.object({
 export const BUILTIN_DETECTORS: DetectorConfig[] = [
   { className: "ReadOnlyVariables" },
   { className: "NeverAccessedVariables" },
+  { className: "UnboundLoops" },
   { className: "ZeroAddress" },
 ];
 

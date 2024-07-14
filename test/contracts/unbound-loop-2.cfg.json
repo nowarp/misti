@@ -1,0 +1,49 @@
+{
+  "projectName": "unbound-loop-2",
+  "functions": [
+    {
+      "name": "test",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 1212,
+            "stmtID": 16060,
+            "srcEdges": [],
+            "dstEdges": [
+              1214
+            ]
+          },
+          {
+            "id": 1213,
+            "stmtID": 16064,
+            "srcEdges": [
+              1214
+            ],
+            "dstEdges": [
+              1215
+            ]
+          },
+          {
+            "id": 1216,
+            "stmtID": 16066,
+            "srcEdges": [],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 1214,
+            "src": 1212,
+            "dst": 1213
+          },
+          {
+            "id": 1215,
+            "src": 1213,
+            "dst": 16066
+          }
+        ]
+      }
+    }
+  ],
+  "contracts": []
+}
