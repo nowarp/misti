@@ -13,8 +13,8 @@ import {
   Relation,
   Executor,
   Rule,
-  RuleBody,
-  Atom,
+  makeRuleBody,
+  makeAtom,
 } from "../../internals/souffle";
 import { createError, MistiTactError, Severity } from "../../internals/errors";
 import { forEachExpression } from "../../internals/tactASTUtil";
@@ -145,10 +145,10 @@ export class ReadOnlyVariables extends Detector {
     //     !varUse(var, func).
     ctx.add(
       Rule.from(
-        [Atom.from("readOnly", ["var", "func"])],
-        RuleBody.from(Atom.from("varDecl", ["var", "func"])),
-        RuleBody.from(Atom.from("varAssign", ["var", "func"])),
-        RuleBody.from(Atom.from("varUse", ["var", "func"]), { negated: true }),
+        [makeAtom("readOnly", ["var", "func"])],
+        makeRuleBody(makeAtom("varDecl", ["var", "func"])),
+        makeRuleBody(makeAtom("varAssign", ["var", "func"])),
+        makeRuleBody(makeAtom("varUse", ["var", "func"]), { negated: true }),
       ),
     );
     // readOnly(var, func) :-
@@ -157,12 +157,12 @@ export class ReadOnlyVariables extends Detector {
     //     !varUse(var, func).
     ctx.add(
       Rule.from(
-        [Atom.from("readOnly", ["var", "func"])],
-        RuleBody.from(Atom.from("varDecl", ["var", "func"])),
-        RuleBody.from(Atom.from("varAssign", ["var", "func"]), {
+        [makeAtom("readOnly", ["var", "func"])],
+        makeRuleBody(makeAtom("varDecl", ["var", "func"])),
+        makeRuleBody(makeAtom("varAssign", ["var", "func"]), {
           negated: true,
         }),
-        RuleBody.from(Atom.from("varUse", ["var", "func"]), { negated: true }),
+        makeRuleBody(makeAtom("varUse", ["var", "func"]), { negated: true }),
       ),
     );
   }
