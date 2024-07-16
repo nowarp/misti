@@ -6,8 +6,8 @@ import {
   Relation,
   Executor,
   Rule,
-  RuleBody,
-  Atom,
+  makeRuleBody,
+  makeAtom,
 } from "../../internals/souffle";
 import { Detector } from "../detector";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
@@ -145,14 +145,14 @@ export class UnboundLoops extends Detector {
     //   !loopVarUse(var, loopId, func).
     ctx.add(
       Rule.from(
-        [Atom.from("unbound", ["var", "loopId", "func"])],
-        RuleBody.from(Atom.from("varDef", ["var", "func"])),
-        RuleBody.from(Atom.from("loopDef", ["loopId", "func"])),
-        RuleBody.from(Atom.from("loopCondDef", ["var", "loopId", "func"])),
-        RuleBody.from(Atom.from("constDef", ["var"]), {
+        [makeAtom("unbound", ["var", "loopId", "func"])],
+        makeRuleBody(makeAtom("varDef", ["var", "func"])),
+        makeRuleBody(makeAtom("loopDef", ["loopId", "func"])),
+        makeRuleBody(makeAtom("loopCondDef", ["var", "loopId", "func"])),
+        makeRuleBody(makeAtom("constDef", ["var"]), {
           negated: true,
         }),
-        RuleBody.from(Atom.from("loopVarUse", ["var", "loopId", "func"]), {
+        makeRuleBody(makeAtom("loopVarUse", ["var", "loopId", "func"]), {
           negated: true,
         }),
       ),

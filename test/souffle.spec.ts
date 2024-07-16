@@ -2,9 +2,9 @@ import {
   Relation,
   Rule,
   Fact,
-  RuleBody,
+  makeRuleBody,
   FactType,
-  Atom,
+  makeAtom,
   Context,
 } from "../src/internals/souffle";
 import fs from "fs";
@@ -71,8 +71,8 @@ describe("Souffle Datalog tests", () => {
       ctx.add(Relation.from("out", [["x", FactType.Number]], "output"));
       ctx.add(
         Rule.from(
-          [Atom.from("out", ["x"])],
-          RuleBody.from(Atom.from("TestRelation", ["x"])),
+          [makeAtom("out", ["x"])],
+          makeRuleBody(makeAtom("TestRelation", ["x"])),
         ),
       );
       const output = ctx.emit();
@@ -84,8 +84,8 @@ describe("Souffle Datalog tests", () => {
       ctx.add(Relation.from("out", [["x", FactType.Number]], "output"));
       ctx.add(
         Rule.from(
-          [Atom.from("out", ["x"])],
-          RuleBody.from(Atom.from("TestRelation", ["x"])),
+          [makeAtom("out", ["x"])],
+          makeRuleBody(makeAtom("TestRelation", ["x"])),
         ),
       );
       await ctx.dump(factDir);
