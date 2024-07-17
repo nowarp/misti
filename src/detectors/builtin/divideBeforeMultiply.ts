@@ -81,7 +81,30 @@ export class DivideBeforeMultiply extends Detector {
   }
 
   private addDecls(ctx: Context<ASTRef>): void {
-    // TODO: Add constants and fields
+    // Division expression definition.
+    ctx.add(
+      Relation.from(
+        "divDef",
+        [
+          ["divId", FactType.Number],
+          ["func", FactType.Symbol],
+        ],
+        undefined,
+      ),
+    );
+    // Division expressions defined within the multiplication expression (both lhs or rhs).
+    ctx.add(
+      Relation.from(
+        "divUsedInMul",
+        [
+          ["mulId", FactType.Number],
+          ["divId", FactType.Number],
+          ["func", FactType.Symbol],
+        ],
+        undefined,
+      ),
+    );
+    // Local variable definition.
     ctx.add(
       Relation.from(
         "varDef",
@@ -92,46 +115,65 @@ export class DivideBeforeMultiply extends Detector {
         undefined,
       ),
     );
+    // Describes variables appearing in division and multiply expressions.
+    // For example: `a = 10 / 3` will create a fact `varUsedInDiv(a, <id>)`.
     ctx.add(
       Relation.from(
-        "divOpDef",
-        [
-          ["divId", FactType.Number],
-          ["lhs", FactType.Symbol],
-          ["rhs", FactType.Symbol],
-          ["func", FactType.Symbol],
-        ],
-        undefined,
-      ),
-    );
-    ctx.add(
-      Relation.from(
-        "mulOpDef",
-        [
-          ["mulId", FactType.Number],
-          ["lhs", FactType.Symbol],
-          ["rhs", FactType.Symbol],
-          ["func", FactType.Symbol],
-        ],
-        undefined,
-      ),
-    );
-    ctx.add(
-      Relation.from(
-        "loopCondDef",
+        "varUsedInDiv",
         [
           ["var", FactType.Symbol],
-          ["loopId", FactType.Number],
+          ["divId", FactType.Number],
           ["func", FactType.Symbol],
         ],
         undefined,
       ),
     );
+    // Variable assignment to any expression containing another variable used
+    // for taint propagation.
+    // For example: `a = (b + 42) - 2` will create a fact: `varAssign(a, b)`.
+    ctx.add(
+      Relation.from(
+        "varAssign",
+        [
+          ["asigneed", FactType.Symbol],
+          ["asignee", FactType.Symbol],
+          ["func", FactType.Symbol],
+        ],
+        undefined,
+      ),
+    );
+    // // Describes variables appearing in the multiply expression.
+    // // For example: `a / 3 * b` will create both facts: `varUsedInMul(a)` and `varUsedInMul(b)`.
+    // ctx.add(
+    //   Relation.from(
+    //     "varUsedInMul",
+    //     [
+    //       ["var", FactType.Symbol],
+    //       ["mulId", FactType.Number],
+    //       ["func", FactType.Symbol],
+    //     ],
+    //     undefined,
+    //   ),
+    // );
+    // A declaration of the recursive rule that expresses the taint propagation
+    // for local variables involved in the division operation.
+    ctx.add(
+      Relation.from(
+        "taintedWithDiv",
+        [
+          ["var", FactType.Symbol],
+          ["divId", FactType.Number],
+          ["mulId", FactType.Number],
+          ["func", FactType.Symbol],
+        ],
+        undefined,
+      ),
+    );
+    // A declaration of the main rule of the detector
     ctx.add(
       Relation.from(
         "divBeforeMul",
         [
-          ["var", FactType.Symbol],
           ["divId", FactType.Number],
           ["mulId", FactType.Number],
           ["func", FactType.Symbol],
@@ -142,18 +184,67 @@ export class DivideBeforeMultiply extends Detector {
   }
 
   private addRules(ctx: Context<ASTRef>): void {
-    // divBeforeMul(var, divId, mulId, func) :-
-    //   varDef(var, func),
-    //   divOpDef(divId, var, _, func),
-    //   mulOpDef(mulId, var, _, func),
-    //   divId < mulId.
+    // NOTE: We leverage the observation that Tact AST elements have IDs that increase
+    // according to their point of definition. Therefore, if divide was defined after
+    // multiplication, its ID value will be larger.
+    // TODO: That's an additional check, do we really need it?
+
+    // Simple case: Division expression appears inside the multiply expression.
+    // divBeforeMul(mulId, divId, func) :-
+    //   divDef(divId, func),
+    //   divUsedInMul(mulId, divId, func).
     ctx.add(
       Rule.from(
-        [makeAtom("divBeforeMul", ["var", "divId", "mulId", "func"])],
+        [makeAtom("divBeforeMul", ["mulId", "divId", "func"])],
+        makeRuleBody(makeAtom("divDef", ["divId", "func"])),
+        makeRuleBody(makeAtom("divUsedInMul", ["mulId", "divId", "func"])),
+        // makeRuleBody(makeBinConstraint("divId", "<", "mulId")),
+      ),
+    );
+
+    // Base case: direct tainting with division. For example:
+    // ```
+    // let a: Int = 10 / 3;
+    // a * 5;
+    // ```
+    //
+    // taintedWithDiv(var, divId, mulId, func) :-
+    //   varDef(var, func),
+    //   divDef(divId, func),
+    //   varUsedInDiv(var, divId, func),
+    //   divUsedInMul(mulId, divId, func).
+    ctx.add(
+      Rule.from(
+        [makeAtom("taintedWithDiv", ["var", "divId", "mulId", "func"])],
         makeRuleBody(makeAtom("varDef", ["var", "func"])),
-        makeRuleBody(makeAtom("divOpDef", ["divId", "var", "_", "func"])),
-        makeRuleBody(makeAtom("mulOpDef", ["mulId", "var", "_", "func"])),
-        makeRuleBody(makeBinConstraint("divId", "<", "mulId")),
+        makeRuleBody(makeAtom("divDef", ["divId", "func"])),
+        makeRuleBody(makeAtom("varUsedInDiv", ["var", "divId", "func"])),
+        makeRuleBody(makeAtom("divUsedInMul", ["mulId", "divId", "func"])),
+        // makeRuleBody(makeBinConstraint("divId", "<", "mulId")),
+      ),
+    );
+
+    // Indirect tainting through another tainted variable.
+    // taintedWithDiv(var, divId, func) :-
+    //   varDef(var, func),
+    //   varDef(intermediateVar, func),
+    //   varAssign(var, intermediateVar, func),
+    //   taintedWithDiv(intermediateVar, divId, func).
+    ctx.add(
+      Rule.from(
+        [makeAtom("taintedWithDiv", ["var", "divId", "mulId", "func"])],
+        makeRuleBody(makeAtom("varDef", ["var", "func"])),
+        makeRuleBody(makeAtom("varDef", ["intermediateVar", "func"])),
+        makeRuleBody(makeAtom("varAssign", ["var", "intermediateVar", "func"])),
+        makeRuleBody(
+          makeAtom("taintedWithDiv", [
+            "intermediateVar",
+            "divId",
+            "mulId",
+            "func",
+          ]),
+        ),
+        // makeRuleBody(makeBinConstraint("divId", "<", "mulId")),
       ),
     );
   }
@@ -168,6 +259,19 @@ export class DivideBeforeMultiply extends Detector {
       if (cfg.origin === "stdlib") {
         return;
       }
+      forEachExpression(stmt, (expr) => {
+        if (expr.kind === "op_binary" && expr.op === "*") {
+          // Find nested divisions
+          let mulAdded = false;
+          forEachExpression(expr, (nestedExpr) => {
+            if (expr.kind === "op_binary" && expr.op === "/") {
+              if (mulAdded === false) {
+                // ctx.addFact("mulOpDef", Fact.from([expr.value, funName], expr.ref));
+              }
+            }
+          });
+        }
+      });
     });
   }
 }
