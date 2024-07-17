@@ -1,4 +1,10 @@
-import { ASTStatement, ASTRef } from "@tact-lang/compiler/dist/grammar/ast";
+import {
+  ASTStatement,
+  ASTRef,
+  ASTNode,
+  ASTExpression,
+  ASTOpBinary,
+} from "@tact-lang/compiler/dist/grammar/ast";
 import {
   Context,
   Fact,
@@ -16,6 +22,7 @@ import { MistiContext } from "../../internals/context";
 import { createError, MistiTactError, Severity } from "../../internals/errors";
 import {
   forEachExpression,
+  foldExpressions,
   forEachStatement,
 } from "../../internals/tactASTUtil";
 
@@ -142,19 +149,6 @@ export class DivideBeforeMultiply extends Detector {
         undefined,
       ),
     );
-    // // Describes variables appearing in the multiply expression.
-    // // For example: `a / 3 * b` will create both facts: `varUsedInMul(a)` and `varUsedInMul(b)`.
-    // ctx.add(
-    //   Relation.from(
-    //     "varUsedInMul",
-    //     [
-    //       ["var", FactType.Symbol],
-    //       ["mulId", FactType.Number],
-    //       ["func", FactType.Symbol],
-    //     ],
-    //     undefined,
-    //   ),
-    // );
     // A declaration of the recursive rule that expresses the taint propagation
     // for local variables involved in the division operation.
     ctx.add(
@@ -169,7 +163,7 @@ export class DivideBeforeMultiply extends Detector {
         undefined,
       ),
     );
-    // A declaration of the main rule of the detector
+    // Main rule declaration.
     ctx.add(
       Relation.from(
         "divBeforeMul",
@@ -193,6 +187,7 @@ export class DivideBeforeMultiply extends Detector {
     // divBeforeMul(mulId, divId, func) :-
     //   divDef(divId, func),
     //   divUsedInMul(mulId, divId, func).
+    // TODO How to access `taintedWithDiv` from here?
     ctx.add(
       Rule.from(
         [makeAtom("divBeforeMul", ["mulId", "divId", "func"])],
@@ -250,6 +245,30 @@ export class DivideBeforeMultiply extends Detector {
   }
 
   /**
+   * Iterates for each binary operation within the node.
+   */
+  private forEachBinop(node: ASTNode, callback: (expr: ASTOpBinary) => void) {
+    forEachExpression(node, (expr) => {
+      if (expr.kind === "op_binary") {
+        callback(expr);
+      }
+    });
+  }
+
+  /**
+   * Collects all the identifiers used within the node.
+   */
+  private collectIdentifiers(node: ASTNode): string[] {
+    const isId = (acc: string[], expr: ASTExpression): string[] => {
+      if (expr.kind === "id") {
+        acc.push(expr.value);
+      }
+      return acc;
+    };
+    return foldExpressions(node, [], isId);
+  }
+
+  /**
    * Collects facts based on the IR to populate the Souffle program.
    * @param cu The compilation unit containing the CFGs and AST information.
    * @param ctx The Souffle program to which the facts are added.
@@ -259,17 +278,47 @@ export class DivideBeforeMultiply extends Detector {
       if (cfg.origin === "stdlib") {
         return;
       }
-      forEachExpression(stmt, (expr) => {
-        if (expr.kind === "op_binary" && expr.op === "*") {
-          // Find nested divisions
-          let mulAdded = false;
-          forEachExpression(expr, (nestedExpr) => {
-            if (expr.kind === "op_binary" && expr.op === "/") {
-              if (mulAdded === false) {
-                // ctx.addFact("mulOpDef", Fact.from([expr.value, funName], expr.ref));
-              }
-            }
+      const funName = cfg.name;
+      // Collect information about variables definition
+      forEachStatement(stmt, (s) => {
+        if (s.kind === "statement_let") {
+          const varName = s.name;
+          ctx.addFact("varDef", Fact.from([varName, funName], s.ref));
+          this.collectIdentifiers(s.expression).forEach((rhsName) => {
+            ctx.addFact(
+              "varAssign",
+              Fact.from([varName, rhsName, funName], s.ref),
+            );
           });
+        }
+      });
+      // Collect information about expressions
+      this.forEachBinop(stmt, (binopExpr) => {
+        if (binopExpr.op === "/") {
+          ctx.addFact(
+            "divDef",
+            Fact.from([binopExpr.id, funName], binopExpr.ref),
+          );
+        }
+        if (binopExpr.op === "*") {
+          const mulId = binopExpr.id;
+          const processBinop = (binOpExpr: ASTOpBinary) => {
+            if (binOpExpr.op === "/") {
+              const divId = binOpExpr.id;
+              ctx.addFact(
+                "divUsedInMul",
+                Fact.from([mulId, divId, funName], binOpExpr.ref),
+              );
+              this.collectIdentifiers(binOpExpr).forEach((usedVar) => {
+                ctx.addFact(
+                  "varUsedInDiv",
+                  Fact.from([usedVar, divId, funName], binOpExpr.ref),
+                );
+              });
+            }
+          };
+          this.forEachBinop(binopExpr.left, processBinop);
+          this.forEachBinop(binopExpr.right, processBinop);
         }
       });
     });
