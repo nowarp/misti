@@ -122,14 +122,30 @@ export class DivideBeforeMultiply extends Detector {
         undefined,
       ),
     );
-    // Describes variables appearing in division and multiply expressions.
-    // For example: `a = 10 / 3` will create a fact `varUsedInDiv(a, <id>)`.
+    // Describes variables appearing in the division expression or assigning to
+    // a result of the division.
+    // Examples:
+    // * `10 / a` or `a / 10` will create a fact `varTaintedWithDiv(a, <id>)`
+    // * `let a: Int = 10 / 3;` will create a fact `varTaintedWithDiv(a, <id>)` as well
     ctx.add(
       Relation.from(
-        "varUsedInDiv",
+        "varTaintedWithDiv",
         [
           ["var", FactType.Symbol],
           ["divId", FactType.Number],
+          ["func", FactType.Symbol],
+        ],
+        undefined,
+      ),
+    );
+    // Describes variables appearing in the multiply expression.
+    // For example: `a * 3` or `3 + (a * 4)` will create a fact `varUsedInMul(a, <id>)`.
+    ctx.add(
+      Relation.from(
+        "varUsedInMul",
+        [
+          ["mulId", FactType.Number],
+          ["var", FactType.Symbol],
           ["func", FactType.Symbol],
         ],
         undefined,
@@ -157,19 +173,30 @@ export class DivideBeforeMultiply extends Detector {
         [
           ["var", FactType.Symbol],
           ["divId", FactType.Number],
-          ["mulId", FactType.Number],
           ["func", FactType.Symbol],
         ],
         undefined,
       ),
     );
-    // Main rule declaration.
+
+    // Main rule declaration: simple case.
     ctx.add(
       Relation.from(
         "divBeforeMul",
         [
           ["divId", FactType.Number],
           ["mulId", FactType.Number],
+          ["func", FactType.Symbol],
+        ],
+        "output",
+      ),
+    );
+    // Main rule reclaration: tainted case.
+    ctx.add(
+      Relation.from(
+        "taintedVarInMul",
+        [
+          ["var", FactType.Symbol],
           ["func", FactType.Symbol],
         ],
         "output",
@@ -183,39 +210,22 @@ export class DivideBeforeMultiply extends Detector {
     // multiplication, its ID value will be larger.
     // TODO: That's an additional check, do we really need it?
 
-    // Simple case: Division expression appears inside the multiply expression.
-    // divBeforeMul(mulId, divId, func) :-
-    //   divDef(divId, func),
-    //   divUsedInMul(mulId, divId, func).
-    // TODO How to access `taintedWithDiv` from here?
-    ctx.add(
-      Rule.from(
-        [makeAtom("divBeforeMul", ["mulId", "divId", "func"])],
-        makeRuleBody(makeAtom("divDef", ["divId", "func"])),
-        makeRuleBody(makeAtom("divUsedInMul", ["mulId", "divId", "func"])),
-        // makeRuleBody(makeBinConstraint("divId", "<", "mulId")),
-      ),
-    );
-
     // Base case: direct tainting with division. For example:
     // ```
     // let a: Int = 10 / 3;
     // a * 5;
     // ```
     //
-    // taintedWithDiv(var, divId, mulId, func) :-
+    // taintedWithDiv(var, divId, func) :-
     //   varDef(var, func),
     //   divDef(divId, func),
-    //   varUsedInDiv(var, divId, func),
-    //   divUsedInMul(mulId, divId, func).
+    //   varTaintedWithDiv(var, divId, func).
     ctx.add(
       Rule.from(
-        [makeAtom("taintedWithDiv", ["var", "divId", "mulId", "func"])],
+        [makeAtom("taintedWithDiv", ["var", "divId", "func"])],
         makeRuleBody(makeAtom("varDef", ["var", "func"])),
         makeRuleBody(makeAtom("divDef", ["divId", "func"])),
-        makeRuleBody(makeAtom("varUsedInDiv", ["var", "divId", "func"])),
-        makeRuleBody(makeAtom("divUsedInMul", ["mulId", "divId", "func"])),
-        // makeRuleBody(makeBinConstraint("divId", "<", "mulId")),
+        makeRuleBody(makeAtom("varTaintedWithDiv", ["var", "divId", "func"])),
       ),
     );
 
@@ -224,22 +234,40 @@ export class DivideBeforeMultiply extends Detector {
     //   varDef(var, func),
     //   varDef(intermediateVar, func),
     //   varAssign(var, intermediateVar, func),
-    //   taintedWithDiv(intermediateVar, divId, func).
+    //   taintedWithDiv(intermediateVar, _, func).
     ctx.add(
       Rule.from(
-        [makeAtom("taintedWithDiv", ["var", "divId", "mulId", "func"])],
+        [makeAtom("taintedWithDiv", ["var", "divId", "func"])],
         makeRuleBody(makeAtom("varDef", ["var", "func"])),
         makeRuleBody(makeAtom("varDef", ["intermediateVar", "func"])),
         makeRuleBody(makeAtom("varAssign", ["var", "intermediateVar", "func"])),
         makeRuleBody(
-          makeAtom("taintedWithDiv", [
-            "intermediateVar",
-            "divId",
-            "mulId",
-            "func",
-          ]),
+          makeAtom("taintedWithDiv", ["intermediateVar", "divId", "func"]),
         ),
-        // makeRuleBody(makeBinConstraint("divId", "<", "mulId")),
+      ),
+    );
+
+    // Simple case: Division expression appears inside the multiply expression.
+    // divBeforeMul(mulId, divId, func) :-
+    //   divDef(divId, func),
+    //   divUsedInMul(mulId, divId, func).
+    ctx.add(
+      Rule.from(
+        [makeAtom("divBeforeMul", ["mulId", "divId", "func"])],
+        makeRuleBody(makeAtom("divDef", ["divId", "func"])),
+        makeRuleBody(makeAtom("divUsedInMul", ["mulId", "divId", "func"])),
+      ),
+    );
+
+    // Tainted case: Using a variable tainted with division in the multiply expression.
+    // taintedVarInMul(var, func) :-
+    //   taintedWithDiv(var, _, func),
+    //   varUsedInMul(_, var, func).
+    ctx.add(
+      Rule.from(
+        [makeAtom("taintedVarInMul", ["var", "func"])],
+        makeRuleBody(makeAtom("taintedWithDiv", ["var", "_", "func"])),
+        makeRuleBody(makeAtom("varUsedInMul", ["_", "var", "func"])),
       ),
     );
   }
@@ -279,7 +307,7 @@ export class DivideBeforeMultiply extends Detector {
         return;
       }
       const funName = cfg.name;
-      // Collect information about variables definition
+      // Collect information about variables definitions and tainted divisions in initializers
       forEachStatement(stmt, (s) => {
         if (s.kind === "statement_let") {
           const varName = s.name;
@@ -289,6 +317,16 @@ export class DivideBeforeMultiply extends Detector {
               "varAssign",
               Fact.from([varName, rhsName, funName], s.ref),
             );
+          });
+          // Collect taints in the initializers, e.g.: `a = 10 / 3`
+          this.forEachBinop(s.expression, (binopExpr) => {
+            if (binopExpr.op === "/") {
+              const divId = binopExpr.id;
+              ctx.addFact(
+                "varTaintedWithDiv",
+                Fact.from([varName, divId, funName], binopExpr.ref),
+              );
+            }
           });
         }
       });
@@ -302,6 +340,12 @@ export class DivideBeforeMultiply extends Detector {
         }
         if (binopExpr.op === "*") {
           const mulId = binopExpr.id;
+          this.collectIdentifiers(binopExpr).forEach((usedVar) => {
+            ctx.addFact(
+              "varUsedInMul",
+              Fact.from([mulId, usedVar, funName], binopExpr.ref),
+            );
+          });
           const processBinop = (binOpExpr: ASTOpBinary) => {
             if (binOpExpr.op === "/") {
               const divId = binOpExpr.id;
@@ -311,7 +355,7 @@ export class DivideBeforeMultiply extends Detector {
               );
               this.collectIdentifiers(binOpExpr).forEach((usedVar) => {
                 ctx.addFact(
-                  "varUsedInDiv",
+                  "varTaintedWithDiv",
                   Fact.from([usedVar, divId, funName], binOpExpr.ref),
                 );
               });
