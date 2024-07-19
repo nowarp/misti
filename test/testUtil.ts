@@ -67,8 +67,7 @@ export class TAP {
       fs.promises.readFile(actualPath, "utf8"),
       fs.promises.readFile(expectedPath, "utf8"),
     ]);
-    // expect(JSON.parse(actual)).toEqual(JSON.parse(expected));
-    expect(actual.trim() == expected.trim());
+    expect(actual.trim()).toBe(expected.trim());
   }
 
   /**

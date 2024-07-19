@@ -9,7 +9,7 @@
   "scripts": {
     "clean": "rm -fr dist",
     "build": "tsc",
-    "test": "jest",
+    "test": "tsc && jest",
     "lint": "eslint src test examples",
     "fmt": "prettier --check src test examples",
     "docs": "yarn typedoc --out docs --entryPointStrategy expand src",
