@@ -3,5 +3,5 @@ fun test(): Int {
   let b: Int = 3;
   let c: Int = 2;
   let result: Int = a / b * c; // error: Division before multiplication
-  return result
+  return result;
 }
