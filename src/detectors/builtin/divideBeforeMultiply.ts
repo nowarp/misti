@@ -14,7 +14,6 @@ import {
   makeAtom,
   makeRuleBody,
   Rule,
-  makeBinConstraint,
 } from "../../internals/souffle";
 import { Detector } from "../detector";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
