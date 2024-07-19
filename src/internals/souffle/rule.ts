@@ -51,10 +51,6 @@ export const makeBooleanConstraint = (value: boolean): Constraint => {
  */
 export type RuleHead = Atom[];
 
-type RuleBodyParams = {
-  negated?: boolean;
-};
-
 /**
  * Body of a rule which is present as a conjunction of (negated) atoms/constraints/disjunctions:
  * https://souffle-lang.github.io/rules#conjunction.
