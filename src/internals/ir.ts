@@ -385,6 +385,13 @@ export class Node {
   ) {
     this.idx = IdxGenerator.next();
   }
+
+  /**
+   * Retuns true iff this basic block terminates control flow.
+   */
+  public isExit(): boolean {
+    return this.kind.kind === "return";
+  }
 }
 
 export type FunctionName = string;

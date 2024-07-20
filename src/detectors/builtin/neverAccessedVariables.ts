@@ -160,7 +160,10 @@ export class NeverAccessedVariables extends Detector {
 
       const declaredVariables = new Map<string, ASTRef>();
       const usedVariables = new Set<string>();
-      results.getStates().forEach((state) => {
+      results.getStates().forEach((state, nodeIdx) => {
+        if (!cfg.getNode(nodeIdx)!.isExit()) {
+          return;
+        }
         state.declared.forEach(([name, ref]) =>
           declaredVariables.set(name, ref),
         );
