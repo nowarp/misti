@@ -3,5 +3,5 @@ fun test(): Int {
     if (true) { // error: write-only variable
         a = 42;
     }
-    return a;
+    return 42;
 }

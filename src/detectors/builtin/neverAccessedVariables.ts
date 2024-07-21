@@ -71,13 +71,6 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
       const name = stmt.path.map((p) => p.name).join(".");
       outState.written.add(name);
       processExpressions(stmt.expression);
-    }
-    if (
-      stmt.kind === "statement_return" &&
-      stmt.expression &&
-      stmt.expression.kind === "id"
-    ) {
-      // Do nothing; we don't consider these returning a single value as an access operation
     } else {
       processExpressions(stmt);
     }
@@ -118,8 +111,11 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
  */
 export class NeverAccessedVariables extends Detector {
   check(_ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
-    const varErrors = this.checkVariables(cu);
-    return [...this.checkFields(cu), ...this.checkConstants(cu), ...varErrors];
+    return [
+      ...this.checkFields(cu),
+      ...this.checkConstants(cu),
+      ...this.checkVariables(cu),
+    ];
   }
 
   checkFields(cu: CompilationUnit): MistiTactError[] {
@@ -222,10 +218,11 @@ export class NeverAccessedVariables extends Detector {
         state.written.forEach((name) => writtenVariables.add(name));
       });
       Array.from(declaredVariables.keys()).forEach((name) => {
+        console.log(name);
         if (!accessedVariables.has(name)) {
           const msg = writtenVariables.has(name)
-            ? `Write-only variable`
-            : `Variable is never accessed`;
+            ? "Write-only variable"
+            : "Variable is never accessed";
           errors.push(
             createError(msg, Severity.MEDIUM, declaredVariables.get(name)!),
           );
