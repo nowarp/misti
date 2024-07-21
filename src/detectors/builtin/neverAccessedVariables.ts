@@ -1,4 +1,8 @@
-import { ASTStatement, ASTRef } from "@tact-lang/compiler/dist/grammar/ast";
+import {
+  ASTStatement,
+  ASTExpression,
+  ASTRef,
+} from "@tact-lang/compiler/dist/grammar/ast";
 import { WorklistSolver } from "../../internals/solver/";
 import { Transfer } from "../../internals/transfer";
 import { Detector } from "../detector";
@@ -13,7 +17,10 @@ type ConstantName = string;
 
 interface VariableState {
   declared: Set<[string, ASTRef]>;
-  used: Set<string>;
+  // The variable identifier was accessed in any expression
+  accessed: Set<string>;
+  // The variable value was reassigned
+  written: Set<string>;
 }
 
 /**
@@ -21,19 +28,21 @@ interface VariableState {
  */
 class VariableUsageLattice implements JoinSemilattice<VariableState> {
   bottom(): VariableState {
-    return { declared: new Set(), used: new Set() };
+    return { declared: new Set(), accessed: new Set(), written: new Set() };
   }
 
   join(a: VariableState, b: VariableState): VariableState {
-    const joinedDeclared = new Set([...a.declared, ...b.declared]);
-    const joinedUsed = new Set([...a.used, ...b.used]);
-    return { declared: joinedDeclared, used: joinedUsed };
+    const declared = new Set([...a.declared, ...b.declared]);
+    const accessed = new Set([...a.accessed, ...b.accessed]);
+    const written = new Set([...a.written, ...b.written]);
+    return { declared, accessed, written };
   }
 
   leq(a: VariableState, b: VariableState): boolean {
     return (
       [...a.declared].every((x) => b.declared.has(x)) &&
-      [...a.used].every((x) => b.used.has(x))
+      [...a.accessed].every((x) => b.accessed.has(x)) &&
+      [...a.written].every((x) => b.written.has(x))
     );
   }
 }
@@ -44,15 +53,33 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
     _node: Node,
     stmt: ASTStatement,
   ): VariableState {
-    const outState = { ...inState };
-    if (stmt.kind === "statement_let") {
-      outState.declared.add([stmt.name, stmt.ref]);
-    } else {
-      forEachExpression(stmt, (expr) => {
+    const outState = {
+      declared: inState.declared,
+      accessed: inState.accessed,
+      written: inState.written,
+    };
+    const processExpressions = (node: ASTStatement | ASTExpression) => {
+      forEachExpression(node, (expr) => {
         if (expr.kind === "id") {
-          outState.used.add(expr.value);
+          outState.accessed.add(expr.value);
         }
       });
+    };
+    if (stmt.kind === "statement_let") {
+      outState.declared.add([stmt.name, stmt.ref]);
+    } else if (stmt.kind === "statement_assign") {
+      const name = stmt.path.map((p) => p.name).join(".");
+      outState.written.add(name);
+      processExpressions(stmt.expression);
+    }
+    if (
+      stmt.kind === "statement_return" &&
+      stmt.expression &&
+      stmt.expression.kind === "id"
+    ) {
+      // Do nothing; we don't consider these returning a single value as an access operation
+    } else {
+      processExpressions(stmt);
     }
     return outState;
   }
@@ -91,11 +118,8 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
  */
 export class NeverAccessedVariables extends Detector {
   check(_ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
-    return [
-      ...this.checkFields(cu),
-      ...this.checkConstants(cu),
-      ...this.checkVariables(cu),
-    ];
+    const varErrors = this.checkVariables(cu);
+    return [...this.checkFields(cu), ...this.checkConstants(cu), ...varErrors];
   }
 
   checkFields(cu: CompilationUnit): MistiTactError[] {
@@ -173,17 +197,20 @@ export class NeverAccessedVariables extends Detector {
    */
   checkVariables(cu: CompilationUnit): MistiTactError[] {
     const errors: MistiTactError[] = [];
+    const traversedFunctions = new Set<string>();
     cu.forEachCFG(cu.ast, (cfg: CFG, _node: Node, _stmt: ASTStatement) => {
-      if (cfg.origin === "stdlib") {
+      if (cfg.origin === "stdlib" || traversedFunctions.has(cfg.name)) {
         return;
       }
+      traversedFunctions.add(cfg.name);
       const lattice = new VariableUsageLattice();
       const transfer = new NeverAccessedTransfer();
-      const solver = new WorklistSolver(cu, cfg, transfer, lattice);
+      const solver = new WorklistSolver(cu, cfg, transfer, lattice, "forward");
       const results = solver.solve();
 
       const declaredVariables = new Map<string, ASTRef>();
-      const usedVariables = new Set<string>();
+      const accessedVariables = new Set<string>();
+      const writtenVariables = new Set<string>();
       results.getStates().forEach((state, nodeIdx) => {
         if (!cfg.getNode(nodeIdx)!.isExit()) {
           return;
@@ -191,16 +218,16 @@ export class NeverAccessedVariables extends Detector {
         state.declared.forEach(([name, ref]) =>
           declaredVariables.set(name, ref),
         );
-        state.used.forEach((name) => usedVariables.add(name));
+        state.accessed.forEach((name) => accessedVariables.add(name));
+        state.written.forEach((name) => writtenVariables.add(name));
       });
       Array.from(declaredVariables.keys()).forEach((name) => {
-        if (!usedVariables.has(name)) {
+        if (!accessedVariables.has(name)) {
+          const msg = writtenVariables.has(name)
+            ? `Write-only variable`
+            : `Variable is never accessed`;
           errors.push(
-            createError(
-              `Variable ${name} is never accessed`,
-              Severity.MEDIUM,
-              declaredVariables.get(name)!,
-            ),
+            createError(msg, Severity.MEDIUM, declaredVariables.get(name)!),
           );
         }
       });
