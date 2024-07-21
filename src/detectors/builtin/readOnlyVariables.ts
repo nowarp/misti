@@ -47,7 +47,7 @@ export class ReadOnlyVariables extends Detector {
       if (fact.data === undefined) {
         throw new Error(`AST position for fact ${fact} is not available`);
       }
-      return createError("Variable is never used", Severity.MEDIUM, fact.data);
+      return createError("Read-only variable", Severity.MEDIUM, fact.data);
     });
 
     return warnings;
@@ -139,18 +139,6 @@ export class ReadOnlyVariables extends Detector {
   }
 
   addRules(ctx: Context<ASTRef>) {
-    // readOnly(var, func) :-
-    //     varDecl(var, func),
-    //     varAssign(var, func),
-    //     !varUse(var, func).
-    ctx.add(
-      Rule.from(
-        [makeAtom("readOnly", ["var", "func"])],
-        makeRuleBody(makeAtom("varDecl", ["var", "func"])),
-        makeRuleBody(makeAtom("varAssign", ["var", "func"])),
-        makeRuleBody(makeAtom("varUse", ["var", "func"]), { negated: true }),
-      ),
-    );
     // readOnly(var, func) :-
     //     varDecl(var, func),
     //     !varAssign(var, func),
