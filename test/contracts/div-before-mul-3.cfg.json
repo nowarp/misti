@@ -1,0 +1,111 @@
+{
+  "projectName": "div-before-mul-3",
+  "functions": [
+    {
+      "name": "test",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 626,
+            "stmtID": 8065,
+            "srcEdges": [],
+            "dstEdges": [
+              628
+            ]
+          },
+          {
+            "id": 627,
+            "stmtID": 8068,
+            "srcEdges": [
+              628
+            ],
+            "dstEdges": [
+              630
+            ]
+          },
+          {
+            "id": 629,
+            "stmtID": 8071,
+            "srcEdges": [
+              630
+            ],
+            "dstEdges": [
+              632
+            ]
+          },
+          {
+            "id": 631,
+            "stmtID": 8076,
+            "srcEdges": [
+              632
+            ],
+            "dstEdges": [
+              634
+            ]
+          },
+          {
+            "id": 633,
+            "stmtID": 8081,
+            "srcEdges": [
+              634
+            ],
+            "dstEdges": [
+              636
+            ]
+          },
+          {
+            "id": 635,
+            "stmtID": 8086,
+            "srcEdges": [
+              636
+            ],
+            "dstEdges": [
+              638
+            ]
+          },
+          {
+            "id": 637,
+            "stmtID": 8088,
+            "srcEdges": [
+              638
+            ],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 628,
+            "src": 626,
+            "dst": 627
+          },
+          {
+            "id": 630,
+            "src": 627,
+            "dst": 629
+          },
+          {
+            "id": 632,
+            "src": 629,
+            "dst": 631
+          },
+          {
+            "id": 634,
+            "src": 631,
+            "dst": 633
+          },
+          {
+            "id": 636,
+            "src": 633,
+            "dst": 635
+          },
+          {
+            "id": 638,
+            "src": 635,
+            "dst": 637
+          }
+        ]
+      }
+    }
+  ],
+  "contracts": []
+}

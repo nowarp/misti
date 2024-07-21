@@ -1,0 +1,81 @@
+{
+  "projectName": "div-before-mul-1",
+  "functions": [
+    {
+      "name": "test",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 310,
+            "stmtID": 4017,
+            "srcEdges": [],
+            "dstEdges": [
+              312
+            ]
+          },
+          {
+            "id": 311,
+            "stmtID": 4020,
+            "srcEdges": [
+              312
+            ],
+            "dstEdges": [
+              314
+            ]
+          },
+          {
+            "id": 313,
+            "stmtID": 4023,
+            "srcEdges": [
+              314
+            ],
+            "dstEdges": [
+              316
+            ]
+          },
+          {
+            "id": 315,
+            "stmtID": 4030,
+            "srcEdges": [
+              316
+            ],
+            "dstEdges": [
+              318
+            ]
+          },
+          {
+            "id": 317,
+            "stmtID": 4032,
+            "srcEdges": [
+              318
+            ],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 312,
+            "src": 310,
+            "dst": 311
+          },
+          {
+            "id": 314,
+            "src": 311,
+            "dst": 313
+          },
+          {
+            "id": 316,
+            "src": 313,
+            "dst": 315
+          },
+          {
+            "id": 318,
+            "src": 315,
+            "dst": 317
+          }
+        ]
+      }
+    }
+  ],
+  "contracts": []
+}
