@@ -27,6 +27,8 @@ import {
 import path from "path";
 import fs from "fs";
 
+import JSONbig from "json-bigint";
+
 import {
   ProjectName,
   CompilationUnit,
@@ -204,11 +206,8 @@ export class ASTMapper {
     this.statements.set(stmt.id, stmt);
     switch (stmt.kind) {
       case "statement_let":
-        break;
       case "statement_return":
-        break;
       case "statement_expression":
-        break;
       case "statement_assign":
       case "statement_augmentedassign":
         break;
@@ -227,7 +226,9 @@ export class ASTMapper {
         stmt.statements.forEach((s) => this.processStmt(s));
         break;
       default:
-        throw new Error(`Unsupported statement type: ${stmt}`);
+        throw new Error(
+          `Unsupported statement: ${JSONbig.stringify(stmt, null, 2)}`,
+        );
     }
   }
 }
@@ -315,13 +316,12 @@ export class TactIRBuilder {
   private createFunctions(): Map<CFGIdx, CFG> {
     return this.ast.functions.reduce((acc, fun) => {
       if (fun.kind == "def_function") {
-        const name = fun.name;
         const idx = this.functionIndexes.get(fun.name)!;
         acc.set(
           idx,
           this.createCFGFromStatements(
             idx,
-            name,
+            fun.name,
             "function",
             fun.origin,
             fun.statements,
@@ -520,7 +520,9 @@ export class TactIRBuilder {
       case "id":
         break;
       default:
-        throw new Error(`Unsupported expression: ${expr}`);
+        throw new Error(
+          `Unsupported expression:${JSONbig.stringify(expr, null, 2)}`,
+        );
     }
     return parentCalls;
   }
@@ -608,13 +610,7 @@ export class TactIRBuilder {
         nodes = trueNodes;
         edges = trueEdges;
 
-        // Connect to the next node in the main flow if it exists
-        const nextNodeIdx = statements[index + 1]?.id;
-        if (nextNodeIdx) {
-          const edgeToNext = new Edge(newNode.idx, nextNodeIdx);
-          edges.push(edgeToNext);
-          newNode.dstEdges.add(edgeToNext.idx);
-        }
+        const trueEndNode = trueNodes[trueNodes.length - 1];
 
         if (stmt.falseStatements) {
           // Branching logic for falseStatements
@@ -627,11 +623,36 @@ export class TactIRBuilder {
           nodes = falseNodes;
           edges = falseEdges;
 
-          // Connect false branch to the next node in the main flow if it exists
-          if (nextNodeIdx) {
-            const edgeToNextFromFalse = new Edge(newNode.idx, nextNodeIdx);
+          const falseEndNode = falseNodes[falseNodes.length - 1];
+
+          const nextStmt = statements[index + 1];
+          if (nextStmt) {
+            const nextNode = new Node(nextStmt.id, this.getNodeKind(nextStmt));
+            nodes.push(nextNode);
+
+            const edgeToNextFromTrue = new Edge(trueEndNode.idx, nextNode.idx);
+            edges.push(edgeToNextFromTrue);
+            trueEndNode.dstEdges.add(edgeToNextFromTrue.idx);
+            nextNode.srcEdges.add(edgeToNextFromTrue.idx);
+
+            const edgeToNextFromFalse = new Edge(
+              falseEndNode.idx,
+              nextNode.idx,
+            );
             edges.push(edgeToNextFromFalse);
-            newNode.dstEdges.add(edgeToNextFromFalse.idx);
+            falseEndNode.dstEdges.add(edgeToNextFromFalse.idx);
+            nextNode.srcEdges.add(edgeToNextFromFalse.idx);
+          }
+        } else {
+          const nextStmt = statements[index + 1];
+          if (nextStmt) {
+            const nextNode = new Node(nextStmt.id, this.getNodeKind(nextStmt));
+            nodes.push(nextNode);
+
+            const edgeToNextFromTrue = new Edge(trueEndNode.idx, nextNode.idx);
+            edges.push(edgeToNextFromTrue);
+            trueEndNode.dstEdges.add(edgeToNextFromTrue.idx);
+            nextNode.srcEdges.add(edgeToNextFromTrue.idx);
           }
         }
       } else if (
@@ -666,17 +687,16 @@ export class TactIRBuilder {
           newNode.srcEdges.add(backEdge.idx);
         }
 
-        // Connect to the next node in the main flow, representing the exit from the loop.
-        // This requires identifying the next statement after processing the loop.
-        const nextNodeIdx = statements[index + 1]?.id;
-        if (nextNodeIdx !== undefined) {
-          // Delay the creation of the edge to next node until after loop processing.
-          const exitEdge = new Edge(newNode.idx, nextNodeIdx);
+        const nextStmt = statements[index + 1];
+        if (nextStmt) {
+          const nextNode = new Node(nextStmt.id, this.getNodeKind(nextStmt));
+          nodes.push(nextNode);
+          const exitEdge = new Edge(newNode.idx, nextNode.idx);
           edges.push(exitEdge);
           newNode.dstEdges.add(exitEdge.idx);
+          nextNode.srcEdges.add(exitEdge.idx);
         }
 
-        // Prevent automatic linking to the next node, since we have already done this manually.
         lastNodeIdx = undefined;
       } else if (stmt.kind === "statement_return") {
         // No need to connect return statements to subsequent nodes

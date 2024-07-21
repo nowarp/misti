@@ -61,7 +61,7 @@ export class WorklistSolver<State> implements Solver<State> {
 
       if (!this.lattice.leq(outState, results.getState(node.idx)!)) {
         results.setState(node.idx, outState);
-        worklist.push(...getPredecessors(this.cfg, node));
+        worklist.push(...fn(this.cfg, node));
       }
     }
 
