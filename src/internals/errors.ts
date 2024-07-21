@@ -41,13 +41,26 @@ export class MistiTactError extends Error {
  * @param description Descriptive text of the error.
  * @param severity Severity of the finding.
  * @param ref Reference to the source code that includes file information and position data.
+ * @param extraDescription More comprehensive description that clarifies the error in a greater detail
+ * @param docURL URL to the lint documentation
+ * @param suggestion Suggested change in the source code
  * @returns A new MistiTactError containing the error message and source code reference.
  */
 export function createError(
   description: string,
   severity: Severity,
   ref: ASTRef,
+  data: Partial<{
+    extraDescription: string;
+    docURL: string;
+    suggestion: string;
+  }> = {},
 ): MistiTactError {
+  const {
+    extraDescription = undefined,
+    docURL = undefined,
+    suggestion = undefined,
+  } = data;
   const pos = ref.file
     ? (() => {
         const lc = ref.interval.getLineAndColumn() as {
@@ -61,6 +74,11 @@ export function createError(
         return `${relativeFilePath}:${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
       })()
     : "";
-  const msg = `${pos}${description}`;
+  const docURLStr = docURL === undefined ? "" : `(see: ${docURL})`;
+  const extraDescriptionStr =
+    extraDescription === undefined ? "" : `\n${extraDescription}`;
+  const suggestionStr =
+    suggestion === undefined ? "" : `\nSuggestion: ${suggestion}`;
+  const msg = `${pos}${description}${docURLStr}${extraDescriptionStr}${suggestionStr}`;
   return new MistiTactError(msg, ref, severity);
 }
