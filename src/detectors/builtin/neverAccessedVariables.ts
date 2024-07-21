@@ -218,7 +218,6 @@ export class NeverAccessedVariables extends Detector {
         state.written.forEach((name) => writtenVariables.add(name));
       });
       Array.from(declaredVariables.keys()).forEach((name) => {
-        console.log(name);
         if (!accessedVariables.has(name)) {
           const msg = writtenVariables.has(name)
             ? "Write-only variable"
