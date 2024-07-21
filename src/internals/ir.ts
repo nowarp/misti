@@ -426,8 +426,8 @@ export class CFG {
    * @param name The name of the function or method this CFG represents.
    * @param kind Indicates whether this CFG represents a standalone function or a method or a receive method belonging to a contract.
    * @param origin Indicates whether the function was defined in users code or in standard library.
-   * @param nodes Map of node indices to nodes in the CFG.
-   * @param edges Map of edge indices to edges in the CFG.
+   * @param nodes Map of node indices to nodes in the CFG that come in the reverse order.
+   * @param edges Map of edge indices to edges in the CFG that come in the reverse order.
    * @param ref AST reference that corresponds to the function definition.
    * @param idx An optional unique index. If not set, a new one will be chosen automatically.
    */
@@ -685,4 +685,17 @@ export function getPredecessors(cfg: CFG, node: Node): Node[] {
     );
   }
   return predecessors;
+}
+
+/**
+ * An utility funciton that extracts node's successors.
+ */
+export function getSuccessors(cfg: CFG, node: Node): Node[] {
+  const successors = cfg.getSuccessors(node.idx);
+  if (successors === undefined) {
+    throw new Error(
+      `Incorrect definition in the CFG: Node #${node.idx} has an undefined predecessor`,
+    );
+  }
+  return successors;
 }
