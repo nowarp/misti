@@ -20,7 +20,9 @@ const ConfigSchema = z.object({
   verbosity: VerbositySchema.optional().default("default"),
 });
 
-/** Built-in detectors enabled by default, if no user configuration is provided. */
+/**
+ * Built-in detectors enabled by default, if no user configuration is provided.
+ */
 export const BUILTIN_DETECTORS: DetectorConfig[] = [
   { className: "DivideBeforeMultiply" },
   { className: "ReadOnlyVariables" },
@@ -29,7 +31,9 @@ export const BUILTIN_DETECTORS: DetectorConfig[] = [
   { className: "ZeroAddress" },
 ];
 
-/** Represents content of the Misti configuration file (misti.config.json). */
+/**
+ * Represents content of the Misti configuration file (misti.config.json).
+ */
 export class MistiConfig {
   public detectorsEnabled: DetectorConfig[];
   public ignoredProjects: string[];

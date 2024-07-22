@@ -84,7 +84,7 @@ export class TactASTStore {
   /**
    * Returns all the constants defined within the program, including top-level constants
    * and contract constants.
-   * @param includeStdlib If true, includes constants defined in stdlib.
+   * @param allowStdlib If true, includes constants defined in stdlib.
    */
   getConstants(allowStdlib: boolean = true): IterableIterator<ASTConstant> {
     if (allowStdlib) {

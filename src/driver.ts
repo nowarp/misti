@@ -166,6 +166,9 @@ export class Driver {
 
 const DUMP_STDOUT_PATH = "-";
 
+/**
+ * CLI options for configuring the linter.
+ */
 interface CLIOptions {
   /** Specifies the format for dumping CFG. If `undefined`, no dumps will be generated. */
   dumpCfg?: "json" | "dot";

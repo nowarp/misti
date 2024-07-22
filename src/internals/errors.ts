@@ -41,9 +41,10 @@ export class MistiTactError extends Error {
  * @param description Descriptive text of the error.
  * @param severity Severity of the finding.
  * @param ref Reference to the source code that includes file information and position data.
- * @param extraDescription More comprehensive description that clarifies the error in a greater detail
- * @param docURL URL to the lint documentation
- * @param suggestion Suggested change in the source code
+ * @param data Additional optional data for the error, including:
+ * - `extraDescription`: More comprehensive description that clarifies the error in greater detail.
+ * - `docURL`: URL to the lint documentation.
+ * - `suggestion`: Suggested change in the source code.
  * @returns A new MistiTactError containing the error message and source code reference.
  */
 export function createError(

@@ -260,8 +260,6 @@ export class TactIRBuilder {
 
   /**
    * Creates an instance of TactIRBuilder.
-   * @param ctx: Misti context.
-   * @param tactConfigPath The path to the Tact configuration file.
    * @param projectName The name of the project being compiled and analyzed, used for referencing within the compilation environment.
    * @param ast The AST of the project.
    */
@@ -277,8 +275,6 @@ export class TactIRBuilder {
   /**
    * Transforms an AST into a CompilationUnit object iterating over all function and contract definitions
    * to generate CFG for each function and method.
-   * @param projectName The name of the project for which the compilation unit is being created.
-   * @param ast The AST representing the parsed source code of the project.
    */
   build(): CompilationUnit {
     const functions = this.createFunctions();
@@ -713,9 +709,6 @@ export class TactIRBuilder {
 class TactConfigManager {
   private config: TactConfig;
 
-  /**
-   * @param ctx: Misti context.
-   */
   constructor(
     private ctx: MistiContext,
     private tactConfigPath: string,
