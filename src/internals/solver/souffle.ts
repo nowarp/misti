@@ -141,7 +141,9 @@ export class SouffleSolver<State> implements Solver<State> {
     this.mapper.addConstraints(ctx);
     const result = this.execute(ctx);
     if (!result.success) {
-      throw new Error(`Error executing Soufflé: ${result.stderr}`);
+      throw new Error(
+        `Error executing Soufflé for ${this.lintId}: ${result.stderr}`,
+      );
     }
     return this.createSouffleResults(
       Array.from(result.results.entries.values()),

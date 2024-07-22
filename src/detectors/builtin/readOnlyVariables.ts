@@ -40,7 +40,9 @@ export class ReadOnlyVariables extends Detector {
       : new Executor<ASTRef>();
     const result = executor.executeSync(program);
     if (!result.success) {
-      throw new Error(`Error executing Soufflé: ${result.stderr}`);
+      throw new Error(
+        `Error executing Soufflé for ${this.id}:\n${result.stderr}`,
+      );
     }
 
     const warnings = Array.from(result.results.entries.values()).map((fact) => {
