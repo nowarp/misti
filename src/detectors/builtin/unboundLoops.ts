@@ -196,7 +196,9 @@ export class UnboundLoops extends Detector {
         const loopId = stmt.id;
         const usedInCond: Set<string> = new Set(); // names of variables used in this condition
         ctx.addFact("loopDef", Fact.from([loopId, funName], stmt.ref));
-        forEachExpression(stmt.condition, (expr) => {
+        const condition =
+          stmt.kind === "statement_repeat" ? stmt.iterations : stmt.condition;
+        forEachExpression(condition, (expr) => {
           if (expr.kind === "id") {
             const varName = expr.value;
             usedInCond.add(varName);

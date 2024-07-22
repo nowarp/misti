@@ -79,8 +79,11 @@ export function forEachExpression(
         break;
       case "statement_while":
       case "statement_until":
-      case "statement_repeat":
         traverseExpression(stmt.condition);
+        stmt.statements.forEach(traverseStatement);
+        break;
+      case "statement_repeat":
+        traverseExpression(stmt.iterations);
         stmt.statements.forEach(traverseStatement);
         break;
       default:
@@ -256,8 +259,13 @@ export function foldExpressions<T>(
         break;
       case "statement_while":
       case "statement_until":
-      case "statement_repeat":
         acc = traverseExpression(acc, stmt.condition);
+        stmt.statements.forEach((st) => {
+          acc = traverseStatement(acc, st);
+        });
+        break;
+      case "statement_repeat":
+        acc = traverseExpression(acc, stmt.iterations);
         stmt.statements.forEach((st) => {
           acc = traverseStatement(acc, st);
         });
