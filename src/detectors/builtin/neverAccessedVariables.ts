@@ -67,6 +67,7 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
     };
     if (stmt.kind === "statement_let") {
       outState.declared.add([stmt.name, stmt.ref]);
+      processExpressions(stmt.expression);
     } else if (stmt.kind === "statement_assign") {
       const name = stmt.path.map((p) => p.name).join(".");
       outState.written.add(name);
