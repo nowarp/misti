@@ -6,16 +6,26 @@
       "cfg": {
         "nodes": [
           {
-            "id": 788,
-            "stmtID": 10086,
+            "id": 786,
+            "stmtID": 10080,
             "srcEdges": [],
+            "dstEdges": [
+              788
+            ]
+          },
+          {
+            "id": 787,
+            "stmtID": 10083,
+            "srcEdges": [
+              788
+            ],
             "dstEdges": [
               790
             ]
           },
           {
             "id": 789,
-            "stmtID": 10089,
+            "stmtID": 10088,
             "srcEdges": [
               790
             ],
@@ -25,38 +35,28 @@
           },
           {
             "id": 791,
-            "stmtID": 10094,
+            "stmtID": 10090,
             "srcEdges": [
               792
-            ],
-            "dstEdges": [
-              794
-            ]
-          },
-          {
-            "id": 793,
-            "stmtID": 10096,
-            "srcEdges": [
-              794
             ],
             "dstEdges": []
           }
         ],
         "edges": [
           {
+            "id": 788,
+            "src": 786,
+            "dst": 787
+          },
+          {
             "id": 790,
-            "src": 788,
+            "src": 787,
             "dst": 789
           },
           {
             "id": 792,
             "src": 789,
             "dst": 791
-          },
-          {
-            "id": 794,
-            "src": 791,
-            "dst": 793
           }
         ]
       }
