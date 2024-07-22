@@ -1,6 +1,6 @@
-test/contracts/div-before-mul-3.tact:3:3:
-  2 |   let a: Int = 10 / 3; // Division operation
-> 3 |   let b: Int = 3;
-        ^
-  4 |   let c: Int = 2;
-Variable is never used
+test/contracts/div-before-mul-3.tact:2:16:
+  1 | fun test(): Int {
+> 2 |   let a: Int = 10 / 3; // Division operation
+                     ^
+  3 |   let c: Int = 2;
+Division operation before multiplication detected. Consider rearranging the operations.

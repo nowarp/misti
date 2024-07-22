@@ -69,19 +69,32 @@ export class DivideBeforeMultiply extends Detector {
       : new Executor<ASTRef>();
     const result = executor.executeSync(souffleCtx);
     if (!result.success) {
-      throw new Error(`Error executing Soufflé: ${result.stderr}`);
+      throw new Error(
+        `Error executing Soufflé for ${this.id}:\n${result.stderr}`,
+      );
     }
 
-    const warnings = Array.from(result.results.entries.values()).map((fact) => {
-      if (fact.data === undefined) {
-        throw new Error(`AST position for fact ${fact} is not available`);
-      }
-      return createError(
-        "Division operation before multiplication detected. Consider rearranging the operations.",
-        Severity.HIGH,
-        fact.data,
-      );
-    });
+    const reportedDivIds = new Set<number>();
+    const warnings = Array.from(result.results.entries.values()).reduce(
+      (acc, fact) => {
+        if (fact.data === undefined) {
+          throw new Error(`AST position for fact ${fact} is not available`);
+        }
+        const divId = fact.values[1] as number;
+        if (reportedDivIds.has(divId)) {
+          return acc;
+        }
+        reportedDivIds.add(divId);
+        const err = createError(
+          "Division operation before multiplication detected. Consider rearranging the operations.",
+          Severity.HIGH,
+          fact.data,
+        );
+        acc.push(err);
+        return acc;
+      },
+      [] as MistiTactError[],
+    );
 
     return warnings;
   }
@@ -177,8 +190,7 @@ export class DivideBeforeMultiply extends Detector {
         undefined,
       ),
     );
-
-    // Main rule declaration: simple case.
+    // Main rule: simple case.
     ctx.add(
       Relation.from(
         "divBeforeMul",
@@ -187,15 +199,27 @@ export class DivideBeforeMultiply extends Detector {
           ["mulId", FactType.Number],
           ["func", FactType.Symbol],
         ],
-        "output",
+        undefined,
       ),
     );
-    // Main rule reclaration: tainted case.
+    // Main rule: tainted case.
     ctx.add(
       Relation.from(
         "taintedVarInMul",
         [
           ["var", FactType.Symbol],
+          ["divId", FactType.Number],
+          ["func", FactType.Symbol],
+        ],
+        undefined,
+      ),
+    );
+    // Projection rule to refer the appropriate division operations in the output
+    ctx.add(
+      Relation.from(
+        "violated",
+        [
+          ["divId", FactType.Number],
           ["func", FactType.Symbol],
         ],
         "output",
@@ -204,11 +228,6 @@ export class DivideBeforeMultiply extends Detector {
   }
 
   private addRules(ctx: Context<ASTRef>): void {
-    // NOTE: We leverage the observation that Tact AST elements have IDs that increase
-    // according to their point of definition. Therefore, if divide was defined after
-    // multiplication, its ID value will be larger.
-    // TODO: That's an additional check, do we really need it?
-
     // Base case: direct tainting with division. For example:
     // ```
     // let a: Int = 10 / 3;
@@ -259,14 +278,32 @@ export class DivideBeforeMultiply extends Detector {
     );
 
     // Tainted case: Using a variable tainted with division in the multiply expression.
-    // taintedVarInMul(var, func) :-
+    // taintedVarInMul(var, divId, func) :-
     //   taintedWithDiv(var, _, func),
     //   varUsedInMul(_, var, func).
     ctx.add(
       Rule.from(
-        [makeAtom("taintedVarInMul", ["var", "func"])],
-        makeRuleBody(makeAtom("taintedWithDiv", ["var", "_", "func"])),
+        [makeAtom("taintedVarInMul", ["var", "divId", "func"])],
+        makeRuleBody(makeAtom("taintedWithDiv", ["var", "divId", "func"])),
         makeRuleBody(makeAtom("varUsedInMul", ["_", "var", "func"])),
+      ),
+    );
+
+    // The projection rule used to parse output:
+    // violated(divId, func) :-
+    //   taintedVarInMul(_, divId, func).
+    // violated(divId) :-
+    //   divBeforeMul(_, divId, func).
+    ctx.add(
+      Rule.from(
+        [makeAtom("violated", ["divId", "func"])],
+        makeRuleBody(makeAtom("taintedVarInMul", ["_", "divId", "func"])),
+      ),
+    );
+    ctx.add(
+      Rule.from(
+        [makeAtom("violated", ["divId", "func"])],
+        makeRuleBody(makeAtom("divBeforeMul", ["_", "divId", "func"])),
       ),
     );
   }
