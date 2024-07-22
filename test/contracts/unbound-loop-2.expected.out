@@ -1,1 +1,6 @@
-
+test/contracts/unbound-loop-2.tact:4:14:
+  3 |     do  { // error: a is not changing within the loop
+> 4 |     } until (a > 10);
+                   ^
+  5 |     return a;
+Unbounded loop: the condition variable doesn't change within the loop

@@ -6,69 +6,69 @@
       "cfg": {
         "nodes": [
           {
-            "id": 1890,
-            "stmtID": 24137,
+            "id": 1888,
+            "stmtID": 24131,
             "srcEdges": [],
             "dstEdges": [
-              1892
+              1890
+            ]
+          },
+          {
+            "id": 1889,
+            "stmtID": 24138,
+            "srcEdges": [
+              1890,
+              1893
+            ],
+            "dstEdges": [
+              1895
             ]
           },
           {
             "id": 1891,
-            "stmtID": 24144,
+            "stmtID": 24137,
             "srcEdges": [
-              1892,
-              1895
+              1892
             ],
             "dstEdges": [
-              1897
+              1893
             ]
           },
           {
-            "id": 1893,
-            "stmtID": 24143,
+            "id": 1894,
+            "stmtID": 24140,
             "srcEdges": [
-              1894
-            ],
-            "dstEdges": [
               1895
-            ]
-          },
-          {
-            "id": 1896,
-            "stmtID": 24146,
-            "srcEdges": [
-              1897
             ],
             "dstEdges": []
           },
           {
-            "id": 1898,
-            "stmtID": 24146,
+            "id": 1896,
+            "stmtID": 24140,
             "srcEdges": [],
             "dstEdges": []
           }
         ],
         "edges": [
           {
+            "id": 1890,
+            "src": 1888,
+            "dst": 1889
+          },
+          {
             "id": 1892,
-            "src": 1890,
+            "src": 1889,
             "dst": 1891
           },
           {
-            "id": 1894,
+            "id": 1893,
             "src": 1891,
-            "dst": 1893
+            "dst": 1889
           },
           {
             "id": 1895,
-            "src": 1893,
-            "dst": 1891
-          },
-          {
-            "id": 1897,
-            "src": 1891,
-            "dst": 1896
+            "src": 1889,
+            "dst": 1894
           }
         ]
       }

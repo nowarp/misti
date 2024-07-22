@@ -13,69 +13,69 @@
       "cfg": {
         "nodes": [
           {
-            "id": 2049,
-            "stmtID": 26149,
+            "id": 2047,
+            "stmtID": 26143,
             "srcEdges": [],
             "dstEdges": [
-              2051
+              2049
+            ]
+          },
+          {
+            "id": 2048,
+            "stmtID": 26150,
+            "srcEdges": [
+              2049,
+              2052
+            ],
+            "dstEdges": [
+              2054
             ]
           },
           {
             "id": 2050,
-            "stmtID": 26156,
+            "stmtID": 26149,
             "srcEdges": [
-              2051,
-              2054
+              2051
             ],
             "dstEdges": [
-              2056
+              2052
             ]
           },
           {
-            "id": 2052,
-            "stmtID": 26155,
+            "id": 2053,
+            "stmtID": 26152,
             "srcEdges": [
-              2053
-            ],
-            "dstEdges": [
               2054
-            ]
-          },
-          {
-            "id": 2055,
-            "stmtID": 26158,
-            "srcEdges": [
-              2056
             ],
             "dstEdges": []
           },
           {
-            "id": 2057,
-            "stmtID": 26158,
+            "id": 2055,
+            "stmtID": 26152,
             "srcEdges": [],
             "dstEdges": []
           }
         ],
         "edges": [
           {
+            "id": 2049,
+            "src": 2047,
+            "dst": 2048
+          },
+          {
             "id": 2051,
-            "src": 2049,
+            "src": 2048,
             "dst": 2050
           },
           {
-            "id": 2053,
+            "id": 2052,
             "src": 2050,
-            "dst": 2052
+            "dst": 2048
           },
           {
             "id": 2054,
-            "src": 2052,
-            "dst": 2050
-          },
-          {
-            "id": 2056,
-            "src": 2050,
-            "dst": 2055
+            "src": 2048,
+            "dst": 2053
           }
         ]
       }

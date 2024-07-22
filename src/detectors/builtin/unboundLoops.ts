@@ -62,7 +62,9 @@ export class UnboundLoops extends Detector {
       : new Executor<ASTRef>();
     const result = executor.executeSync(souffleCtx);
     if (!result.success) {
-      throw new Error(`Error executing Soufflé: ${result.stderr}`);
+      throw new Error(
+        `Error executing Soufflé for ${this.id}:\n${result.stderr}`,
+      );
     }
 
     const warnings = Array.from(result.results.entries.values()).map((fact) => {
@@ -211,7 +213,10 @@ export class UnboundLoops extends Detector {
           ) {
             ctx.addFact(
               "loopVarUse",
-              Fact.from([s.id, loopId, funName], s.ref),
+              Fact.from(
+                [s.path.map((p) => p.name).join("."), loopId, funName],
+                s.ref,
+              ),
             );
           } else if (s.kind === "statement_expression") {
             const callExpr = s.expression;
@@ -224,7 +229,7 @@ export class UnboundLoops extends Detector {
                   if (expr.kind === "id" && usedInCond.has(expr.value)) {
                     ctx.addFact(
                       "loopVarUse",
-                      Fact.from([expr.id, loopId, funName], s.ref),
+                      Fact.from([expr.value, loopId, funName], s.ref),
                     );
                   }
                 });

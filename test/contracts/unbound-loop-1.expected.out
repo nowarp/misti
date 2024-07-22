@@ -1,1 +1,6 @@
-
+test/contracts/unbound-loop-1.tact:3:12:
+  2 |     let a: Int = 20;
+> 3 |     while (a > 10) { // error: a is not changing within the loop
+                 ^
+  4 |     }
+Unbounded loop: the condition variable doesn't change within the loop
