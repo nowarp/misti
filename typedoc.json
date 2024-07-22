@@ -2,7 +2,7 @@
   "entryPoints": [
     "src/main.ts"
   ],
-  "out": "docs",
+  "out": "docs/api",
   "name": "Misti",
   "theme": "default",
   "excludePrivate": true
