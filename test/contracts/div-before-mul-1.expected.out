@@ -3,4 +3,6 @@ test/contracts/div-before-mul-1.tact:5:21:
 > 5 |   let result: Int = a / b * c; // error: Division before multiplication
                           ^
   6 |   return result;
-Division operation before multiplication detected. Consider rearranging the operations.
+Divide Before Multiply
+Help: Consider rearranging the operations: division should follow multiplication
+See: https://nowarp.github.io/docs/misti/docs/detectors/DivideBeforeMultiply)

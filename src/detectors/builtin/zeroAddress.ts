@@ -22,8 +22,9 @@ function findZeroAddress(
       expr.args[1].value === 0n
     ) {
       acc.push(
-        createError("Using zero address", Severity.MEDIUM, expr.args[1].ref, {
+        createError("Using Zero Address", Severity.MEDIUM, expr.args[1].ref, {
           docURL: makeDocURL("zeroAddress"),
+          suggestion: "Consider changing code to avoid using it",
         }),
       );
     }

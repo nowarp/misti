@@ -18,7 +18,12 @@ import {
 import { Detector } from "../detector";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
 import { MistiContext } from "../../internals/context";
-import { createError, MistiTactError, Severity } from "../../internals/errors";
+import {
+  createError,
+  makeDocURL,
+  MistiTactError,
+  Severity,
+} from "../../internals/errors";
 import {
   forEachExpression,
   foldExpressions,
@@ -86,9 +91,14 @@ export class DivideBeforeMultiply extends Detector {
         }
         reportedDivIds.add(divId);
         const err = createError(
-          "Division operation before multiplication detected. Consider rearranging the operations.",
+          "Divide Before Multiply",
           Severity.HIGH,
           fact.data,
+          {
+            docURL: makeDocURL(this.id),
+            suggestion:
+              "Consider rearranging the operations: division should follow multiplication",
+          },
         );
         acc.push(err);
         return acc;

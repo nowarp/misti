@@ -76,12 +76,13 @@ export class UnboundLoops extends Detector {
       if (fact.data === undefined) {
         throw new Error(`AST position for fact ${fact} is not available`);
       }
-      return createError(
-        "Unbounded loop: the condition variable doesn't change within the loop",
-        Severity.MEDIUM,
-        fact.data,
-        { docURL: makeDocURL(this.id) },
-      );
+      return createError("Unbounded Loop", Severity.MEDIUM, fact.data, {
+        docURL: makeDocURL(this.id),
+        suggestion:
+          "Consider changing the variable within the loop to ensure it terminates",
+        extraDescription:
+          "The condition variable doesn't change within the loop",
+      });
     });
 
     return warnings;

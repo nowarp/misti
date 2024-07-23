@@ -131,9 +131,10 @@ export class NeverAccessedVariables extends Detector {
       new Set(
         [...definedFields].filter(([name, _ref]) => !usedFields.has(name)),
       ),
-    ).map(([name, ref]) =>
-      createError(`Field ${name} is never used`, Severity.MEDIUM, ref, {
+    ).map(([_name, ref]) =>
+      createError("Field is never used", Severity.MEDIUM, ref, {
         docURL: makeDocURL(this.id),
+        suggestion: "Consider removing the field",
       }),
     );
   }
@@ -170,8 +171,9 @@ export class NeverAccessedVariables extends Detector {
         ),
       ),
     ).map(([name, ref]) =>
-      createError(`Constant ${name} is never used`, Severity.MEDIUM, ref, {
+      createError("Constant is never used", Severity.MEDIUM, ref, {
         docURL: makeDocURL(this.id),
+        suggestion: "Consider removing the constant",
       }),
     );
   }
@@ -229,12 +231,17 @@ export class NeverAccessedVariables extends Detector {
       });
       Array.from(declaredVariables.keys()).forEach((name) => {
         if (!accessedVariables.has(name)) {
-          const msg = writtenVariables.has(name)
+          const isWritten = writtenVariables.has(name);
+          const msg = isWritten
             ? "Write-only variable"
             : "Variable is never accessed";
+          const suggestion = isWritten
+            ? "The variable value should be accessed"
+            : "Consider removing the variable";
           errors.push(
             createError(msg, Severity.MEDIUM, declaredVariables.get(name)!, {
               docURL: makeDocURL(this.id),
+              suggestion,
             }),
           );
         }

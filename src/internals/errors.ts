@@ -88,11 +88,16 @@ export function createError(
         return `${relativeFilePath}:${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
       })()
     : "";
-  const docURLStr = docURL === undefined ? "" : ` (see: ${docURL})`;
   const extraDescriptionStr =
-    extraDescription === undefined ? "" : `\n${extraDescription}`;
-  const suggestionStr =
-    suggestion === undefined ? "" : `\nSuggestion: ${suggestion}`;
-  const msg = `${pos}${description}${docURLStr}${extraDescriptionStr}${suggestionStr}`;
+    extraDescription === undefined ? "" : `: ${extraDescription}`;
+  const suggestionStr = suggestion === undefined ? "" : `\nHelp: ${suggestion}`;
+  const docURLStr = docURL === undefined ? "" : `\nSee: ${docURL})`;
+  const msg = [
+    pos,
+    description,
+    extraDescriptionStr,
+    suggestionStr,
+    docURLStr,
+  ].join("");
   return new MistiTactError(msg, ref, severity);
 }
