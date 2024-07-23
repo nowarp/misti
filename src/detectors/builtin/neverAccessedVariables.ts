@@ -170,7 +170,7 @@ export class NeverAccessedVariables extends Detector {
           ([name, _ref]) => !usedConstants.has(name),
         ),
       ),
-    ).map(([name, ref]) =>
+    ).map(([_name, ref]) =>
       createError("Constant is never used", Severity.MEDIUM, ref, {
         docURL: makeDocURL(this.id),
         suggestion: "Consider removing the constant",
