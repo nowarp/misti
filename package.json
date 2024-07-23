@@ -12,7 +12,7 @@
     "test": "tsc && jest",
     "lint": "eslint src test examples",
     "fmt": "prettier --check src test examples",
-    "docs": "yarn typedoc --out docs --entryPointStrategy expand src",
+    "docs": "yarn typedoc --out docs/api --entryPointStrategy expand src",
     "misti": "ts-node src/main.ts"
   },
   "files": [
