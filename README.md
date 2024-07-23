@@ -3,7 +3,9 @@
 Misti is a static analysis tool for [Tact](https://tact-lang.org/) smart contracts.
 
 ## Installation
-Clone the repository and install dependencies:
+1. Install Soufflé according to [the official installation instruction](https://souffle-lang.github.io/install).
+
+2. Clone the repository and install dependencies:
 ```bash
 git clone https://github.com/nowarp/misti
 cd misti
@@ -17,4 +19,4 @@ Run Misti by specifying a Tact project configuration:
 ```
 
 ## Documentation
-For detailed configuration and usage instructions, visit the [Misti Documentation](https://nowarp.github.io/misti/).
+For detailed configuration and usage instructions, visit the [Misti Documentation](https://nowarp.github.io/docs/misti/).
