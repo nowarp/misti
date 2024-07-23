@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [18.x]
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -37,10 +37,6 @@ jobs:
         echo "deb [signed-by=/usr/share/keyrings/souffle-archive-keyring.gpg] https://souffle-lang.github.io/ppa/ubuntu/ stable main" | sudo tee /etc/apt/sources.list.d/souffle.list
         sudo apt update
         sudo apt install souffle
-    - name: Install Soufflé on macOS
-      if: matrix.os == 'macos-latest'
-      run: |
-        brew install --HEAD souffle-lang/souffle/souffle
 
     - name: Check formatting with Prettier
       run: yarn fmt
