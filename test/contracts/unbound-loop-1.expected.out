@@ -5,4 +5,4 @@ test/contracts/unbound-loop-1.tact:3:12:
   4 |     }
 Unbounded Loop: The condition variable doesn't change within the loop
 Help: Consider changing the variable within the loop to ensure it terminates
-See: https://nowarp.github.io/docs/misti/docs/detectors/UnboundLoops)
+See: https://nowarp.github.io/docs/misti/docs/detectors/UnboundLoops

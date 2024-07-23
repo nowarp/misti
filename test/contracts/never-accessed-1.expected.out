@@ -5,4 +5,4 @@ test/contracts/never-accessed-1.tact:2:5:
   3 |     if (true) { // error: write-only variable
 Write-only variable
 Help: The variable value should be accessed
-See: https://nowarp.github.io/docs/misti/docs/detectors/NeverAccessedVariables)
+See: https://nowarp.github.io/docs/misti/docs/detectors/NeverAccessedVariables

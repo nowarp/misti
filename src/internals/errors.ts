@@ -91,7 +91,7 @@ export function createError(
   const extraDescriptionStr =
     extraDescription === undefined ? "" : `: ${extraDescription}`;
   const suggestionStr = suggestion === undefined ? "" : `\nHelp: ${suggestion}`;
-  const docURLStr = docURL === undefined ? "" : `\nSee: ${docURL})`;
+  const docURLStr = docURL === undefined ? "" : `\nSee: ${docURL}`;
   const msg = [
     pos,
     description,

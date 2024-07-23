@@ -5,7 +5,7 @@ test/contracts/readonly-2.tact:2:5:
   3 |     let b: Int = 22;
 Read-only variable
 Help: Consider creating a constant instead
-See: https://nowarp.github.io/docs/misti/docs/detectors/ReadOnlyVariables)
+See: https://nowarp.github.io/docs/misti/docs/detectors/ReadOnlyVariables
 
 test/contracts/readonly-2.tact:2:5:
   1 | fun test1(): Int {
@@ -14,4 +14,4 @@ test/contracts/readonly-2.tact:2:5:
   3 |     let b: Int = 22;
 Variable is never accessed
 Help: Consider removing the variable
-See: https://nowarp.github.io/docs/misti/docs/detectors/NeverAccessedVariables)
+See: https://nowarp.github.io/docs/misti/docs/detectors/NeverAccessedVariables
