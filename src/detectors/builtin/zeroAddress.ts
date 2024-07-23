@@ -2,7 +2,12 @@ import { Detector } from "../detector";
 import { MistiContext } from "../../internals/context";
 import { CompilationUnit } from "../../internals/ir";
 import { foldExpressions } from "../../internals/tactASTUtil";
-import { createError, MistiTactError, Severity } from "../../internals/errors";
+import {
+  createError,
+  makeDocURL,
+  MistiTactError,
+  Severity,
+} from "../../internals/errors";
 import { ASTExpression } from "@tact-lang/compiler/dist/grammar/ast";
 
 function findZeroAddress(
@@ -17,7 +22,9 @@ function findZeroAddress(
       expr.args[1].value === 0n
     ) {
       acc.push(
-        createError("Using zero address", Severity.MEDIUM, expr.args[1].ref),
+        createError("Using zero address", Severity.MEDIUM, expr.args[1].ref, {
+          docURL: makeDocURL("zeroAddress"),
+        }),
       );
     }
   }

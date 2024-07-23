@@ -36,6 +36,19 @@ export class MistiTactError extends Error {
 }
 
 /**
+ * Base URL to detectors documentation.
+ */
+export const BASE_DOC_URL =
+  "https://nowarp.github.io/docs/misti/docs/detectors";
+
+/**
+ * Creates a link to the documentation for built-in detectors.
+ */
+export function makeDocURL(detectorName: string): string {
+  return `${BASE_DOC_URL}/${detectorName}`;
+}
+
+/**
  * Constructs an error object with a description and the source code location.
  *
  * @param description Descriptive text of the error.
@@ -75,7 +88,7 @@ export function createError(
         return `${relativeFilePath}:${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
       })()
     : "";
-  const docURLStr = docURL === undefined ? "" : `(see: ${docURL})`;
+  const docURLStr = docURL === undefined ? "" : ` (see: ${docURL})`;
   const extraDescriptionStr =
     extraDescription === undefined ? "" : `\n${extraDescription}`;
   const suggestionStr =

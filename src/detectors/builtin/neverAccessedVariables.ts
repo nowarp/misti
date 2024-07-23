@@ -9,7 +9,12 @@ import { Detector } from "../detector";
 import { JoinSemilattice } from "../../internals/lattice";
 import { MistiContext } from "../../internals/context";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
-import { createError, MistiTactError, Severity } from "../../internals/errors";
+import {
+  createError,
+  MistiTactError,
+  Severity,
+  makeDocURL,
+} from "../../internals/errors";
 import { forEachExpression } from "../../internals/tactASTUtil";
 
 type FieldName = string;
@@ -127,7 +132,9 @@ export class NeverAccessedVariables extends Detector {
         [...definedFields].filter(([name, _ref]) => !usedFields.has(name)),
       ),
     ).map(([name, ref]) =>
-      createError(`Field ${name} is never used`, Severity.MEDIUM, ref),
+      createError(`Field ${name} is never used`, Severity.MEDIUM, ref, {
+        docURL: makeDocURL(this.id),
+      }),
     );
   }
 
@@ -163,7 +170,9 @@ export class NeverAccessedVariables extends Detector {
         ),
       ),
     ).map(([name, ref]) =>
-      createError(`Constant ${name} is never used`, Severity.MEDIUM, ref),
+      createError(`Constant ${name} is never used`, Severity.MEDIUM, ref, {
+        docURL: makeDocURL(this.id),
+      }),
     );
   }
 
@@ -224,7 +233,9 @@ export class NeverAccessedVariables extends Detector {
             ? "Write-only variable"
             : "Variable is never accessed";
           errors.push(
-            createError(msg, Severity.MEDIUM, declaredVariables.get(name)!),
+            createError(msg, Severity.MEDIUM, declaredVariables.get(name)!, {
+              docURL: makeDocURL(this.id),
+            }),
           );
         }
       });

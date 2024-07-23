@@ -3,4 +3,4 @@ test/contracts/unbound-loop-2.tact:4:14:
 > 4 |     } until (a > 10);
                    ^
   5 |     return a;
-Unbounded loop: the condition variable doesn't change within the loop
+Unbounded loop: the condition variable doesn't change within the loop (see: https://nowarp.github.io/docs/misti/docs/detectors/UnboundLoops)

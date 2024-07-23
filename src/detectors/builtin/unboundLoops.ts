@@ -12,7 +12,12 @@ import {
 import { Detector } from "../detector";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
 import { MistiContext } from "../../internals/context";
-import { createError, MistiTactError, Severity } from "../../internals/errors";
+import {
+  createError,
+  MistiTactError,
+  Severity,
+  makeDocURL,
+} from "../../internals/errors";
 import {
   forEachExpression,
   forEachStatement,
@@ -75,6 +80,7 @@ export class UnboundLoops extends Detector {
         "Unbounded loop: the condition variable doesn't change within the loop",
         Severity.MEDIUM,
         fact.data,
+        { docURL: makeDocURL(this.id) },
       );
     });
 

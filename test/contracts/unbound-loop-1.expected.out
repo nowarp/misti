@@ -3,4 +3,4 @@ test/contracts/unbound-loop-1.tact:3:12:
 > 3 |     while (a > 10) { // error: a is not changing within the loop
                  ^
   4 |     }
-Unbounded loop: the condition variable doesn't change within the loop
+Unbounded loop: the condition variable doesn't change within the loop (see: https://nowarp.github.io/docs/misti/docs/detectors/UnboundLoops)

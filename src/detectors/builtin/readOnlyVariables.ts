@@ -16,7 +16,12 @@ import {
   makeRuleBody,
   makeAtom,
 } from "../../internals/souffle";
-import { createError, MistiTactError, Severity } from "../../internals/errors";
+import {
+  createError,
+  MistiTactError,
+  Severity,
+  makeDocURL,
+} from "../../internals/errors";
 import { forEachExpression } from "../../internals/tactASTUtil";
 
 /**
@@ -69,7 +74,9 @@ export class ReadOnlyVariables extends Detector {
       if (fact.data === undefined) {
         throw new Error(`AST position for fact ${fact} is not available`);
       }
-      return createError("Read-only variable", Severity.MEDIUM, fact.data);
+      return createError("Read-only variable", Severity.MEDIUM, fact.data, {
+        docURL: makeDocURL(this.id),
+      });
     });
 
     return warnings;

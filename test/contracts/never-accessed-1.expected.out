@@ -3,4 +3,4 @@ test/contracts/never-accessed-1.tact:2:5:
 > 2 |     let a: Int = 20;
           ^
   3 |     if (true) { // error: write-only variable
-Write-only variable
+Write-only variable (see: https://nowarp.github.io/docs/misti/docs/detectors/NeverAccessedVariables)
