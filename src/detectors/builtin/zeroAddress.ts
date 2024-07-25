@@ -11,6 +11,7 @@ import {
 import { ASTExpression } from "@tact-lang/compiler/dist/grammar/ast";
 
 function findZeroAddress(
+  ctx: MistiContext,
   acc: MistiTactError[],
   expr: ASTExpression,
 ): MistiTactError[] {
@@ -22,10 +23,16 @@ function findZeroAddress(
       expr.args[1].value === 0n
     ) {
       acc.push(
-        createError("Using Zero Address", Severity.MEDIUM, expr.args[1].ref, {
-          docURL: makeDocURL("zeroAddress"),
-          suggestion: "Consider changing code to avoid using it",
-        }),
+        createError(
+          ctx,
+          "Using Zero Address",
+          Severity.MEDIUM,
+          expr.args[1].ref,
+          {
+            docURL: makeDocURL("zeroAddress"),
+            suggestion: "Consider changing code to avoid using it",
+          },
+        ),
       );
     }
   }
@@ -70,9 +77,13 @@ function findZeroAddress(
  * ```
  */
 export class ZeroAddress extends Detector {
-  check(_ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
+  check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
-      return acc.concat(foldExpressions(node, [], findZeroAddress));
+      return acc.concat(
+        foldExpressions(node, [] as MistiTactError[], (acc, expr) => {
+          return findZeroAddress(ctx, acc, expr);
+        }),
+      );
     }, [] as MistiTactError[]);
   }
 }

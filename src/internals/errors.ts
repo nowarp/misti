@@ -1,4 +1,5 @@
 import { ASTRef } from "@tact-lang/compiler/dist/grammar/ast";
+import { MistiContext } from "./context";
 import * as path from "path";
 
 /**
@@ -61,6 +62,7 @@ export function makeDocURL(detectorName: string): string {
  * @returns A new MistiTactError containing the error message and source code reference.
  */
 export function createError(
+  ctx: MistiContext,
   description: string,
   severity: Severity,
   ref: ASTRef,
@@ -84,8 +86,12 @@ export function createError(
         const lcStr = `${lc}`;
         const lcLines = lcStr.split("\n");
         lcLines.shift();
-        const relativeFilePath = path.relative(process.cwd(), ref.file);
-        return `${relativeFilePath}:${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
+        const contractPath =
+          ctx.singleContractPath !== undefined
+            ? ctx.singleContractPath
+            : ref.file;
+        const shownPath = path.relative(process.cwd(), contractPath);
+        return `${shownPath}:${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
       })()
     : "";
   const extraDescriptionStr =

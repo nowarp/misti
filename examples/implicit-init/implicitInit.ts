@@ -13,10 +13,11 @@ import {
  * It reports all the contracts that doesn't have an explicit implementation of the init function.
  */
 export class ImplicitInit extends Detector {
-  check(_ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
+  check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
     return Array.from(cu.contracts).reduce((foundErrors, [_, contract]) => {
       if (!cu.findMethodCFGByName(contract.name, "init")) {
         const err = createError(
+          ctx,
           `contract ${contract.name} doesn't define an init function`,
           Severity.INFO,
           contract.ref,

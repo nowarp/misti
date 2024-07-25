@@ -31,10 +31,17 @@ export class Driver {
   ) {
     // Tact internals expect as an input a configuration file. Thus we have to
     // create a dummy config for a single contract with default options.
-    this.tactConfigPath = tactPath.endsWith(".tact")
+    const singleContract = tactPath.endsWith(".tact");
+    this.tactConfigPath = singleContract
       ? SingleContractProjectManager.fromContractPath(tactPath).generate()
       : path.resolve(tactPath); // Tact supports absolute paths only
-    this.ctx = new MistiContext(mistiConfigPath, soufflePath, verbose, quiet);
+    this.ctx = new MistiContext({
+      mistiConfigPath,
+      soufflePath,
+      verbose,
+      quiet,
+      singleContractPath: singleContract ? tactPath : undefined,
+    });
     this.dumpCFG = dumpCFG;
     this.dumpCFGStdlib = dumpCFGStdlib ? dumpCFGStdlib : false;
     this.dumpCFGOutput = dumpCFGOutput ? dumpCFGOutput : DUMP_STDOUT_PATH;

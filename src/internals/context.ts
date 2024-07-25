@@ -7,24 +7,39 @@ import { MistiConfig } from "./config";
 export class MistiContext {
   logger: Logger;
   config: MistiConfig;
+  /** Path to a single Tact contract if executed without project config. */
+  readonly singleContractPath: string | undefined;
 
   /**
    * Initializes the context for Misti, setting up configuration and appropriate logger.
-   * @param mistiConfigPath Path to the Misti configuration file.
-   * @param soufflePath Directory to save Soufflé files.
-   * @param verbose CLI option to force verbose output.
-   * @param quiet CLI option to forcefuly suppress output.
+   * @param params Contains various configuraiton options:
+   *   - mistiConfigPath: Path to the Misti configuration file.
+   *   - soufflePath: Directory to save Soufflé files.
+   *   - verbose: CLI option to force verbose output.
+   *   - quiet: CLI option to forcefuly suppress output.
+   *   - singleContractPath: Contains path to a single contract if executed without project configuraiton.
    */
   constructor(
-    mistiConfigPath?: string,
-    soufflePath?: string,
-    verbose?: boolean,
-    quiet?: boolean,
+    params: Partial<{
+      mistiConfigPath?: string;
+      soufflePath?: string;
+      verbose?: boolean;
+      quiet?: boolean;
+      singleContractPath?: string;
+    }> = {},
   ) {
+    const {
+      mistiConfigPath = undefined,
+      soufflePath = undefined,
+      verbose = false,
+      quiet = false,
+      singleContractPath: singleContractPath,
+    } = params;
+    this.singleContractPath = singleContractPath;
     this.config = new MistiConfig(mistiConfigPath);
 
     // Prioritize CLI options for Soufflé
-    if (soufflePath) {
+    if (soufflePath !== undefined) {
       this.config.soufflePath = soufflePath;
     }
 

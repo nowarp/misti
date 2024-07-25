@@ -76,7 +76,7 @@ export class UnboundLoops extends Detector {
       if (fact.data === undefined) {
         throw new Error(`AST position for fact ${fact} is not available`);
       }
-      return createError("Unbounded Loop", Severity.MEDIUM, fact.data, {
+      return createError(ctx, "Unbounded Loop", Severity.MEDIUM, fact.data, {
         docURL: makeDocURL(this.id),
         suggestion:
           "Consider changing the variable within the loop to ensure it terminates",

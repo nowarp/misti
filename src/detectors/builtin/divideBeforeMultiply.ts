@@ -91,6 +91,7 @@ export class DivideBeforeMultiply extends Detector {
         }
         reportedDivIds.add(divId);
         const err = createError(
+          ctx,
           "Divide Before Multiply",
           Severity.HIGH,
           fact.data,

@@ -116,15 +116,15 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
  * ```
  */
 export class NeverAccessedVariables extends Detector {
-  check(_ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
+  check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
     return [
-      ...this.checkFields(cu),
-      ...this.checkConstants(cu),
-      ...this.checkVariables(cu),
+      ...this.checkFields(ctx, cu),
+      ...this.checkConstants(ctx, cu),
+      ...this.checkVariables(ctx, cu),
     ];
   }
 
-  checkFields(cu: CompilationUnit): MistiTactError[] {
+  checkFields(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
     const definedFields = this.collectDefinedFields(cu);
     const usedFields = this.collectUsedFields(cu);
     return Array.from(
@@ -132,7 +132,7 @@ export class NeverAccessedVariables extends Detector {
         [...definedFields].filter(([name, _ref]) => !usedFields.has(name)),
       ),
     ).map(([_name, ref]) =>
-      createError("Field is never used", Severity.MEDIUM, ref, {
+      createError(ctx, "Field is never used", Severity.MEDIUM, ref, {
         docURL: makeDocURL(this.id),
         suggestion: "Consider removing the field",
       }),
@@ -161,7 +161,7 @@ export class NeverAccessedVariables extends Detector {
     }, new Set<FieldName>());
   }
 
-  checkConstants(cu: CompilationUnit): MistiTactError[] {
+  checkConstants(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
     const definedConstants = this.collectDefinedConstants(cu);
     const usedConstants = this.collectUsedNames(cu);
     return Array.from(
@@ -171,7 +171,7 @@ export class NeverAccessedVariables extends Detector {
         ),
       ),
     ).map(([_name, ref]) =>
-      createError("Constant is never used", Severity.MEDIUM, ref, {
+      createError(ctx, "Constant is never used", Severity.MEDIUM, ref, {
         docURL: makeDocURL(this.id),
         suggestion: "Consider removing the constant",
       }),
@@ -203,7 +203,7 @@ export class NeverAccessedVariables extends Detector {
    * Checks never accessed local variables in all the functions leveraging the
    * monotonic framework and the fixpoint dataflow solver.
    */
-  checkVariables(cu: CompilationUnit): MistiTactError[] {
+  checkVariables(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
     const errors: MistiTactError[] = [];
     const traversedFunctions = new Set<string>();
     cu.forEachCFG(cu.ast, (cfg: CFG, _node: Node, _stmt: ASTStatement) => {
@@ -239,10 +239,16 @@ export class NeverAccessedVariables extends Detector {
             ? "The variable value should be accessed"
             : "Consider removing the variable";
           errors.push(
-            createError(msg, Severity.MEDIUM, declaredVariables.get(name)!, {
-              docURL: makeDocURL(this.id),
-              suggestion,
-            }),
+            createError(
+              ctx,
+              msg,
+              Severity.MEDIUM,
+              declaredVariables.get(name)!,
+              {
+                docURL: makeDocURL(this.id),
+                suggestion,
+              },
+            ),
           );
         }
       });
