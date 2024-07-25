@@ -9,7 +9,7 @@ command
   .name("misti")
   .description("TON Static Analyzer")
   .version(packageJson.version)
-  .arguments("<TACT_CONFIG_PATH>")
+  .arguments("<TACT_CONFIG_PATH|TACT_FILE_PATH>")
   .option("--dump-cfg <type>", "Dump CFG in format: 'json' or 'dot'", undefined)
   .option(
     "--dump-cfg-stdlib",
@@ -29,8 +29,8 @@ command
   .option("--verbose", "Enable verbose output.", false)
   .option("--quiet", "Suppress output.", false)
   .option("--config <path>", "Path to Misti configuration file")
-  .action((TACT_CONFIG_PATH, options) => {
-    run(TACT_CONFIG_PATH, options);
+  .action((PROJECT_CONFIG_OR_FILE_PATH, options) => {
+    run(PROJECT_CONFIG_OR_FILE_PATH, options);
   });
 command.option("--help", "Display help for command", () => {
   command.help();

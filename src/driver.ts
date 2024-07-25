@@ -20,7 +20,7 @@ export class Driver {
   private tactConfigPath: string;
 
   private constructor(
-    tactConfigPath: string,
+    tactPath: string,
     dumpCFG?: "json" | "dot",
     dumpCFGStdlib?: boolean,
     dumpCFGOutput?: string,
@@ -29,8 +29,11 @@ export class Driver {
     quiet?: boolean,
     mistiConfigPath?: string,
   ) {
-    // Tact internals are able to work with absolute paths only
-    this.tactConfigPath = path.resolve(tactConfigPath);
+    // Tact internals expect as an input a configuration file. Thus we have to
+    // create a dummy config for a single contract with default options.
+    this.tactConfigPath = tactPath.endsWith(".tact")
+      ? SingleContractProjectManager.fromContractPath(tactPath).generate()
+      : path.resolve(tactPath); // Tact supports absolute paths only
     this.ctx = new MistiContext(mistiConfigPath, soufflePath, verbose, quiet);
     this.dumpCFG = dumpCFG;
     this.dumpCFGStdlib = dumpCFGStdlib ? dumpCFGStdlib : false;
@@ -39,13 +42,14 @@ export class Driver {
 
   /**
    * Asynchronously creates a driver initializing all detectors.
+   * @param tactPath Path to the Tact project configuration of to a single Tact contract.
    */
   public static async create(
-    tactConfigPath: string,
+    tactPath: string,
     options: CLIOptions,
   ): Promise<Driver> {
     const driver = new Driver(
-      tactConfigPath,
+      tactPath,
       options.dumpCfg,
       options.dumpCfgStdlib,
       options.dumpCfgOutput,
@@ -201,12 +205,12 @@ function checkCLIOptions(options: CLIOptions) {
 
 /**
  * Entry point of code analysis.
- * @param tactConfig Path to Tact project configuration.
+ * @param tactPath Path to Tact project configuration or to a single Tact contract.
  * @param options CLI options.
  * @return true if detected any problems.
  */
 export async function run(
-  tactConfig: string,
+  tactPath: string,
   options: CLIOptions = {
     dumpCfg: undefined,
     dumpCfgStdlib: false,
@@ -219,7 +223,7 @@ export async function run(
 ): Promise<boolean> {
   try {
     checkCLIOptions(options);
-    const driver = await Driver.create(tactConfig, options);
+    const driver = await Driver.create(tactPath, options);
     return await driver.execute();
   } catch (err) {
     if (err instanceof Error) {
@@ -228,5 +232,62 @@ export async function run(
     } else {
       throw err;
     }
+  }
+}
+
+/**
+ * Encapsulates logic of handling single Tact contracts without user-defined configuraiton.
+ */
+class SingleContractProjectManager {
+  private constructor(private contractPath: string) {}
+  static fromContractPath(contractPath: string): SingleContractProjectManager {
+    return new SingleContractProjectManager(contractPath);
+  }
+
+  /**
+   * Creates a project directory that contains the given contract and the
+   * configuration file to execute it.
+   * @returns Path to the created Tact project configuration.
+   */
+  public generate(): string {
+    const tempDir = this.createTempDir();
+    const contractName = this.extractContractName();
+    const configPath = path.join(tempDir, "tact.config.json");
+    const relativeContractPath = `./${contractName}.tact`;
+    const config = {
+      projects: [
+        {
+          name: contractName,
+          path: relativeContractPath,
+          output: `./output`,
+          options: {},
+        },
+      ],
+    };
+    fs.writeFileSync(configPath, JSON.stringify(config), "utf8");
+    fs.copyFileSync(
+      this.contractPath,
+      path.join(tempDir, relativeContractPath),
+    );
+    return configPath;
+  }
+
+  private extractContractName(): string {
+    const fileName = this.contractPath.split("/").pop();
+    if (!fileName) {
+      throw new Error(`Invalid contract path: ${this.contractPath}`);
+    }
+    return fileName.slice(0, -5);
+  }
+
+  /**
+   * Creates a temporary directory for a single contract project configuration.
+   */
+  private createTempDir(): string {
+    const baseDir = path.join("/tmp", "misti");
+    fs.mkdirSync(baseDir, { recursive: true });
+    const tempDirPrefix = path.join(baseDir, "temp-");
+    const dirPath = fs.mkdtempSync(tempDirPrefix);
+    return dirPath;
   }
 }
