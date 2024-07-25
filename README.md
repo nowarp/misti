@@ -18,5 +18,10 @@ Run Misti by specifying a Tact project configuration:
 ./bin/misti test/projects/simple/tactConfig.json
 ```
 
+Or execute it for a single contract using the default configuration:
+```bash
+./bin/misti test/projects/simple/contract.tact
+```
+
 ## Documentation
 For detailed configuration and usage instructions, visit the [Misti Documentation](https://nowarp.github.io/docs/misti/).
