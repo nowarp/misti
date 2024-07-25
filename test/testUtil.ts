@@ -5,25 +5,6 @@ import { expect } from "@jest/globals";
 export const CONTRACTS_DIR = path.resolve(__dirname, "contracts");
 
 /**
- * Generates a Tact configuration file for the given contract.
- */
-export async function generateConfig(contractName: string): Promise<string> {
-  const config = {
-    projects: [
-      {
-        name: `${contractName}`,
-        path: `./${contractName}.tact`,
-        output: `./output`,
-        options: {},
-      },
-    ],
-  };
-  const configPath = path.join(CONTRACTS_DIR, `${contractName}.config.json`);
-  await fs.promises.writeFile(configPath, JSON.stringify(config), "utf8");
-  return configPath;
-}
-
-/**
  * Provides a minimal TAP-like API.
  */
 export class TAP {
