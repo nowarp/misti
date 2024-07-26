@@ -25,6 +25,7 @@ export class TactASTStore {
   /**
    * Constructs a TactASTStore with mappings to all major AST components.
    * @param stdlibIds Identifiers of AST elements defined in stdlib.
+   * @param contractConstants Identifiers of constants defined within contracts (XXX: remove after #22 is fixed)
    * @param programEntries Identifiers of AST elements defined on the top-level.
    * @param functions Functions and methods including user-defined and special methods.
    * @param constants Constants defined across the compilation unit.
@@ -37,6 +38,7 @@ export class TactASTStore {
    */
   constructor(
     private stdlibIds = new Set<number>(),
+    private contractConstants = new Set<number>(),
     private programEntries: Set<number>,
     private functions: Map<number, ASTFunction | ASTReceive | ASTInitFunction>,
     private constants: Map<number, ASTConstant>,
@@ -110,11 +112,27 @@ export class TactASTStore {
    * and contract constants.
    * @param params Additional parameters:
    * - includeStdlib: If true, includes constants defined in stdlib.
+   * - includeContract: If true, includes contstants defined within a contract.
+   *   XXX: This won't compile since Tact 1.4.1, remove it after #22 is merged
    */
   getConstants(
-    params: Partial<{ includeStdlib: boolean }> = {},
+    params: Partial<{ includeStdlib: boolean; includeContract: boolean }> = {},
   ): IterableIterator<ASTConstant> {
-    return this.getItems(this.constants, params);
+    const { includeContract = false } = params;
+    const constants = this.getItems(this.constants, params);
+    function* filterIterator(
+      iterator: IterableIterator<ASTConstant>,
+      condition: (item: ASTConstant) => boolean,
+    ): IterableIterator<ASTConstant> {
+      for (const item of iterator) {
+        if (condition(item)) {
+          yield item;
+        }
+      }
+    }
+    return includeContract
+      ? constants
+      : filterIterator(constants, (c) => !this.contractConstants.has(c.id));
   }
 
   getContracts(): IterableIterator<ASTContract> {

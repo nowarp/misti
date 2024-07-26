@@ -179,10 +179,13 @@ export class NeverAccessedVariables extends Detector {
   }
 
   collectDefinedConstants(cu: CompilationUnit): Set<[ConstantName, ASTRef]> {
-    return Array.from(cu.ast.getConstants()).reduce((acc, constant) => {
-      acc.add([constant.name, constant.ref]);
-      return acc;
-    }, new Set<[ConstantName, ASTRef]>());
+    return Array.from(cu.ast.getConstants({ includeContract: false })).reduce(
+      (acc, constant) => {
+        acc.add([constant.name, constant.ref]);
+        return acc;
+      },
+      new Set<[ConstantName, ASTRef]>(),
+    );
   }
 
   /**

@@ -103,6 +103,7 @@ function hasSubdirs(filePath: string, subdirs: string[]): boolean {
 export class ASTMapper {
   private programEntries = new Set<number>();
   private stdlibIds = new Set<number>();
+  private contractConstants = new Set<number>();
   private functions = new Map<
     number,
     ASTFunction | ASTReceive | ASTInitFunction
@@ -149,6 +150,7 @@ export class ASTMapper {
   public getASTStore(): TactASTStore {
     return new TactASTStore(
       this.stdlibIds,
+      this.contractConstants,
       this.programEntries,
       this.functions,
       this.constants,
@@ -194,6 +196,7 @@ export class ASTMapper {
           break;
         case "def_constant":
           this.constants.set(decl.id, decl);
+          this.contractConstants.add(decl.id);
           break;
         default:
           throw new Error(`Unsupported contract declaration: ${decl}`);

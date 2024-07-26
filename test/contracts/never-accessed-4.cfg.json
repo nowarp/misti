@@ -1,17 +1,17 @@
 {
-  "projectName": "zero-address",
+  "projectName": "never-accessed-4",
   "functions": [],
   "contracts": [
     {
-      "name": "SampleContract",
+      "name": "ConstantFieldTest",
       "methods": [
         {
-          "name": "SampleContract.init_35818",
+          "name": "ConstantFieldTest.test",
           "cfg": {
             "nodes": [
               {
-                "id": 2660,
-                "stmtID": 35816,
+                "id": 1566,
+                "stmtID": 21139,
                 "srcEdges": [],
                 "dstEdges": []
               }
