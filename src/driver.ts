@@ -1,4 +1,5 @@
 import { MistiContext } from "./internals/context";
+import { Logger } from "./internals/logger";
 import { createIR } from "./internals/tactIRBuilder";
 import { GraphvizDumper, JSONDumper } from "./internals/irDump";
 import { ProjectName, CompilationUnit } from "./internals/ir";
@@ -234,7 +235,11 @@ export async function run(
     return await driver.execute();
   } catch (err) {
     if (err instanceof Error) {
-      console.error(err.message);
+      const logger = new Logger();
+      logger.error(err.message);
+      if (err.stack !== undefined && process.env.MISTI_TRACE === "1") {
+        logger.error(err.stack);
+      }
       return true;
     } else {
       throw err;
