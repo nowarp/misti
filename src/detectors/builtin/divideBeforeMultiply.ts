@@ -38,7 +38,7 @@ import {
  * Performing division before multiplication can lead to unexpected results due to precision loss and rounding errors:
  * * Precision Loss: Dividing first can result in significant precision loss, especially when dealing with integers or fixed-point numbers.
  * * Rounding Errors: Early division might cause rounding errors that propagate through subsequent calculations.
- * * Unexpected Behavior: Misordered operations can lead to incorrect outcomes, making debugging and maintenance more challenging.
+ * * Unexpected Behavior: Incorrectly ordered operations can lead to incorrect outcomes, making debugging and maintenance more challenging.
  *
  * ## Example
  * ```tact
@@ -181,8 +181,8 @@ export class DivideBeforeMultiply extends Detector {
       Relation.from(
         "varAssign",
         [
-          ["asigneed", FactType.Symbol],
-          ["asignee", FactType.Symbol],
+          ["assigned", FactType.Symbol],
+          ["assignee", FactType.Symbol],
           ["func", FactType.Symbol],
         ],
         undefined,

@@ -36,7 +36,7 @@ export const makeMatchConstraint = (
 ): Constraint => {
   return { kind: "match", lhs, rhs };
 };
-export const makeConstainsConstraint = (
+export const makeContainsConstraint = (
   lhs: ConstraintArg,
   rhs: ConstraintArg,
 ): Constraint => {

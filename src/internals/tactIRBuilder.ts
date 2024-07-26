@@ -376,7 +376,7 @@ export class TactIRBuilder {
   }
 
   /**
-   * Creates the complete CFGs for contract entries using the previously registred CFG identifiers.
+   * Creates the complete CFGs for contract entries using the previously registered CFG identifiers.
    */
   private createContracts(): Map<ContractIdx, Contract> {
     return this.ast.types.reduce((acc, entry) => {
@@ -534,7 +534,7 @@ export class TactIRBuilder {
   }
 
   /**
-   * Determines kind of the basic block while creating statemenets.
+   * Determines kind of the basic block while creating statements.
    */
   getNodeKind(stmt: ASTStatement): NodeKind {
     switch (stmt.kind) {

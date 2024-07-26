@@ -104,7 +104,7 @@ export class SouffleSolver<State> implements Solver<State> {
     this.cfg.forEachNode(this.cu.ast, (_stmt, node) => {
       ctx.addFact("bb", Fact.from([BB_FACT(node.idx)]));
     });
-    // TODO: replace w/ predecessors? is it convinient to access that information in user-defined rules?
+    // TODO: replace w/ predecessors? is it convenient to access that information in user-defined rules?
     this.cfg.forEachEdge((edge) => {
       ctx.addFact("edge", Fact.from([BB_FACT(edge.src), BB_FACT(edge.dst)]));
     });

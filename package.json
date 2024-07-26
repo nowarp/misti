@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "repository": "https://github.com/nowarp/misti/",
   "homepage": "https://nowarp.github.io/misti/",
-  "description": "TON Static Analyser",
+  "description": "TON Static Analyzer",
   "author": "",
   "license": "Apache-2.0",
   "scripts": {
@@ -12,6 +12,7 @@
     "test": "tsc && jest",
     "lint": "eslint src test examples",
     "fmt": "prettier --check src test examples",
+    "spell": "cspell \"**\" --no-progress --exclude \"dist/**\" --exclude \"node_modules/**\" --exclude \"tags/**\"",
     "docs": "yarn typedoc --out docs/api --entryPointStrategy expand src",
     "misti": "ts-node src/main.ts"
   },
@@ -40,6 +41,7 @@
     "@types/qs": "^6.9.7",
     "@typescript-eslint/eslint-plugin": "^7.0.4",
     "@typescript-eslint/parser": "^7.0.4",
+    "cspell": "^8.12.1",
     "eslint": "^8.57.0",
     "fast-check": "^3.16.0",
     "jest": "^29.7.0",

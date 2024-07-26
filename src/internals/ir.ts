@@ -112,7 +112,7 @@ export class TactASTStore {
    * and contract constants.
    * @param params Additional parameters:
    * - includeStdlib: If true, includes constants defined in stdlib.
-   * - includeContract: If true, includes contstants defined within a contract.
+   * - includeContract: If true, includes constants defined within a contract.
    *   XXX: This won't compile since Tact 1.4.1, remove it after #22 is merged
    */
   getConstants(
@@ -395,7 +395,7 @@ export type NodeKind =
   | { kind: "regular" }
   /**
    * Represents a node that contains function calls in its expressions.
-   * `callees` refers to unique indecies of the callee within the CFG.
+   * `callees` refers to unique indices of the callee within the CFG.
    * Functions which definitions are not available in the current
    * compilation unit are omitted.
    */
@@ -426,7 +426,7 @@ export class Node {
   }
 
   /**
-   * Retuns true iff this basic block terminates control flow.
+   * Returns true iff this basic block terminates control flow.
    */
   public isExit(): boolean {
     return this.kind.kind === "return";
@@ -451,12 +451,12 @@ export class CFG {
   public idx: CFGIdx;
 
   /**
-   * Map from unique node indices to nodes indecies in the `this.nodes`.
+   * Map from unique node indices to nodes indices in the `this.nodes`.
    */
   private nodesMap: Map<NodeIdx, number>;
 
   /**
-   * Map from unique node indices to nodes indecies in the `this.edges`.
+   * Map from unique node indices to nodes indices in the `this.edges`.
    */
   private edgesMap: Map<NodeIdx, number>;
 
@@ -714,7 +714,7 @@ export class CompilationUnit {
 }
 
 /**
- * An utility funciton that extracts node's predecessors.
+ * An utility function that extracts node's predecessors.
  */
 export function getPredecessors(cfg: CFG, node: Node): Node[] {
   const predecessors = cfg.getPredecessors(node.idx);
@@ -727,7 +727,7 @@ export function getPredecessors(cfg: CFG, node: Node): Node[] {
 }
 
 /**
- * An utility funciton that extracts node's successors.
+ * An utility function that extracts node's successors.
  */
 export function getSuccessors(cfg: CFG, node: Node): Node[] {
   const successors = cfg.getSuccessors(node.idx);

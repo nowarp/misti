@@ -16,7 +16,7 @@ export {
   Constraint,
   makeBinConstraint,
   makeMatchConstraint,
-  makeConstainsConstraint,
+  makeContainsConstraint,
   makeBooleanConstraint,
 } from "./rule";
 export { Context } from "./context";

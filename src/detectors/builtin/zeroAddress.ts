@@ -67,7 +67,7 @@ function findZeroAddress(
  * contract Proxy {
  *   to: Address;
  *   init(to: Address) {
- *     // Fixed: Using the input value on initializaiton.
+ *     // Fixed: Using the input value on initialization.
  *     self.to = to;
  *   }
  *   fun setAddress(to: Address) {

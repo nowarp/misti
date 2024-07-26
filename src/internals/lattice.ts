@@ -19,7 +19,7 @@ export interface Lattice<T> {
 }
 
 /**
- * Interface for a join semilattice that introduceses the join operation.
+ * Interface for a join semilattice that introduces the join operation.
  * @template T The type of elements in the semilattice.
  */
 export interface JoinSemilattice<T> extends Lattice<T> {
@@ -33,7 +33,7 @@ export interface JoinSemilattice<T> extends Lattice<T> {
 }
 
 /**
- * Interface for a meet semilattice that introduceses the meet operation.
+ * Interface for a meet semilattice that introduces the meet operation.
  * @template T The type of elements in the semilattice.
  */
 export interface MeetSemilattice<T> extends Lattice<T> {
@@ -41,7 +41,7 @@ export interface MeetSemilattice<T> extends Lattice<T> {
    * Meets two elements of the semilattice, returning the greatest lower bound (glb) of the two elements.
    * @param a First element to meet.
    * @param b Second element to meet.
-   * @returns The meeted value, representing the combination of `a` and `b`.
+   * @returns The met value, representing the combination of `a` and `b`.
    */
   meet(a: T, b: T): T;
 }

@@ -38,6 +38,10 @@ jobs:
         sudo apt update
         sudo apt install souffle
 
+    - name: Spellcheck code base
+      run: |
+        yarn spell
+
     - name: Check formatting with Prettier
       run: yarn fmt
 

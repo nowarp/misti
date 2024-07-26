@@ -12,12 +12,12 @@ export class MistiContext {
 
   /**
    * Initializes the context for Misti, setting up configuration and appropriate logger.
-   * @param params Contains various configuraiton options:
+   * @param params Contains various configuration options:
    *   - mistiConfigPath: Path to the Misti configuration file.
    *   - soufflePath: Directory to save Soufflé files.
    *   - verbose: CLI option to force verbose output.
-   *   - quiet: CLI option to forcefuly suppress output.
-   *   - singleContractPath: Contains path to a single contract if executed without project configuraiton.
+   *   - quiet: CLI option to forcefully suppress output.
+   *   - singleContractPath: Contains path to a single contract if executed without project configuration.
    */
   constructor(
     params: Partial<{

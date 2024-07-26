@@ -29,7 +29,7 @@ interface VariableState {
 }
 
 /**
- * A powerset lattice that keeps state of local varialbes within control flow.
+ * A powerset lattice that keeps state of local variables within control flow.
  */
 class VariableUsageLattice implements JoinSemilattice<VariableState> {
   bottom(): VariableState {

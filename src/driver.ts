@@ -243,7 +243,7 @@ export async function run(
 }
 
 /**
- * Encapsulates logic of handling single Tact contracts without user-defined configuraiton.
+ * Encapsulates logic of handling single Tact contracts without user-defined configuration.
  */
 class SingleContractProjectManager {
   private constructor(private contractPath: string) {}
