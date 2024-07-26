@@ -154,7 +154,7 @@ export class NeverAccessedVariables extends Detector {
     return Array.from(cu.ast.getFunctions()).reduce((acc, fun) => {
       forEachExpression(fun, (expr) => {
         if (expr.kind === "op_field" && expr.src.kind === "id") {
-          acc.add(expr.src.value);
+          acc.add(expr.name);
         }
       });
       return acc;
@@ -179,7 +179,7 @@ export class NeverAccessedVariables extends Detector {
   }
 
   collectDefinedConstants(cu: CompilationUnit): Set<[ConstantName, ASTRef]> {
-    return Array.from(cu.ast.getConstants(false)).reduce((acc, constant) => {
+    return Array.from(cu.ast.getConstants()).reduce((acc, constant) => {
       acc.add([constant.name, constant.ref]);
       return acc;
     }, new Set<[ConstantName, ASTRef]>());

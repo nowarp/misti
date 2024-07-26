@@ -1,0 +1,8 @@
+test/contracts/never-accessed-2.tact:3:5:
+  2 |     f1: Address;
+> 3 |     f2: Int as uint256 = 0;
+          ^
+  4 | 
+Field is never used
+Help: Consider removing the field
+See: https://nowarp.github.io/docs/misti/docs/detectors/NeverAccessedVariables

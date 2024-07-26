@@ -175,7 +175,7 @@ export class UnboundLoops extends Detector {
     cu: CompilationUnit,
     ctx: Context<ASTRef>,
   ): void {
-    for (const c of cu.ast.getConstants(/* allowStdlib = */ true)) {
+    for (const c of cu.ast.getConstants({ includeStdlib: true })) {
       ctx.addFact("constDef", Fact.from([c.name], c.ref));
     }
   }

@@ -1,0 +1,39 @@
+{
+  "projectName": "never-accessed-2",
+  "functions": [],
+  "contracts": [
+    {
+      "name": "FieldTest",
+      "methods": [
+        {
+          "name": "FieldTest.init",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 1263,
+                "stmtID": 16730,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        },
+        {
+          "name": "FieldTest.use_f1",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 1264,
+                "stmtID": 16735,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        }
+      ]
+    }
+  ]
+}

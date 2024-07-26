@@ -24,7 +24,7 @@ export type EntryOrigin = "user" | "stdlib";
 export class TactASTStore {
   /**
    * Constructs a TactASTStore with mappings to all major AST components.
-   * @param stdlibConstants Identifiers of constants defined in stdlib.
+   * @param stdlibIds Identifiers of AST elements defined in stdlib.
    * @param programEntries Identifiers of AST elements defined on the top-level.
    * @param functions Functions and methods including user-defined and special methods.
    * @param constants Constants defined across the compilation unit.
@@ -36,7 +36,7 @@ export class TactASTStore {
    * @param statements All executable statements within all functions of the project.
    */
   constructor(
-    private stdlibConstants = new Set<number>(),
+    private stdlibIds = new Set<number>(),
     private programEntries: Set<number>,
     private functions: Map<number, ASTFunction | ASTReceive | ASTInitFunction>,
     private constants: Map<number, ASTConstant>,
@@ -73,27 +73,48 @@ export class TactASTStore {
       return acc;
     }, [] as ASTNode[]);
   }
+  /**
+   * Returns all the items defined within the program.
+   * @param items The collection of items (functions or constants).
+   * @param params Additional parameters:
+   * - includeStdlib: If true, includes items defined in stdlib.
+   * @returns An iterator for the items.
+   */
+  private getItems<T extends { id: number }>(
+    items: Map<number, T>,
+    params: Partial<{ includeStdlib: boolean }> = {},
+  ): IterableIterator<T> {
+    const { includeStdlib = false } = params;
+    if (includeStdlib) {
+      return items.values();
+    }
+    const userItems = Array.from(items.values()).filter(
+      (c) => !this.stdlibIds.has(c.id),
+    );
+    return userItems.values();
+  }
 
   /**
    * Returns all the functions and methods defined within the program.
+   * @param params Additional parameters:
+   * - includeStdlib: If true, includes functions defined in stdlib.
    */
-  getFunctions(): IterableIterator<ASTFunction | ASTReceive | ASTInitFunction> {
-    return this.functions.values();
+  getFunctions(
+    params: Partial<{ includeStdlib: boolean }> = {},
+  ): IterableIterator<ASTFunction | ASTReceive | ASTInitFunction> {
+    return this.getItems(this.functions, params);
   }
 
   /**
    * Returns all the constants defined within the program, including top-level constants
    * and contract constants.
-   * @param allowStdlib If true, includes constants defined in stdlib.
+   * @param params Additional parameters:
+   * - includeStdlib: If true, includes constants defined in stdlib.
    */
-  getConstants(allowStdlib: boolean = true): IterableIterator<ASTConstant> {
-    if (allowStdlib) {
-      return this.constants.values();
-    }
-    const userConstants = Array.from(this.constants.values()).filter(
-      (c) => !this.stdlibConstants.has(c.id),
-    );
-    return userConstants.values();
+  getConstants(
+    params: Partial<{ includeStdlib: boolean }> = {},
+  ): IterableIterator<ASTConstant> {
+    return this.getItems(this.constants, params);
   }
 
   getContracts(): IterableIterator<ASTContract> {
