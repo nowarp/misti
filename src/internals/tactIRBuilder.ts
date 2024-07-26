@@ -769,14 +769,24 @@ class TactConfigManager {
     return this.config.projects.reduce(
       (acc: Map<ProjectName, TactAST>, projectConfig) => {
         this.ctx.logger.debug(`Parsing project ${projectConfig.name} ...`);
-        const ctx = precompile(
-          new CompilerContext({ shared: {} }),
-          project,
-          stdlib,
-          projectConfig.path,
-        );
-        acc.set(projectConfig.name, getRawAST(ctx));
-        return acc;
+        try {
+          const ctx = precompile(
+            new CompilerContext({ shared: {} }),
+            project,
+            stdlib,
+            projectConfig.path,
+          );
+          acc.set(projectConfig.name, getRawAST(ctx));
+          return acc;
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            throw new Error(
+              `Tact Compiler Error: ${error.message}\nPlease report it to https://github.com/nowarp/misti/issues/new`,
+            );
+          } else {
+            throw error;
+          }
+        }
       },
       new Map<ProjectName, TactAST>(),
     );
