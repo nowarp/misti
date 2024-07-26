@@ -340,11 +340,12 @@ export class TactIRBuilder {
    */
   private getMethodInfo(
     decl: ASTField | ASTFunction | ASTInitFunction | ASTReceive | ASTConstant,
+    contractId: number,
   ): [string | undefined, FunctionKind | undefined, ASTStatement[] | null] {
     return decl.kind === "def_function"
       ? [decl.name, "method", decl.statements]
       : decl.kind === "def_init_function"
-        ? ["init", "method", decl.statements]
+        ? [`init_${contractId}`, "method", decl.statements]
         : decl.kind === "def_receive"
           ? [generateReceiveName(decl), "receive", decl.statements]
           : [undefined, undefined, null];
@@ -358,7 +359,7 @@ export class TactIRBuilder {
       if (entry.kind == "def_contract") {
         const contractName = entry.name;
         const methodsMap = entry.declarations.reduce((methodAcc, decl) => {
-          const [name, kind, _] = this.getMethodInfo(decl);
+          const [name, kind, _] = this.getMethodInfo(decl, entry.id);
           if (kind && name) {
             const idx = this.registerCFGIdx(name, kind, entry.origin, decl.ref);
             methodAcc.set(name, idx);
@@ -380,7 +381,7 @@ export class TactIRBuilder {
         const contractName = entry.name;
         const methodsMap = this.methodIndexes.get(contractName)!;
         const methodCFGs = entry.declarations.reduce((methodAcc, decl) => {
-          const [name, kind, stmts] = this.getMethodInfo(decl);
+          const [name, kind, stmts] = this.getMethodInfo(decl, entry.id);
           if (kind && name) {
             const idx = methodsMap.get(name)!;
             methodAcc.set(
