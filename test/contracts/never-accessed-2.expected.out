@@ -4,5 +4,5 @@ test/contracts/never-accessed-2.tact:3:5:
           ^
   4 | 
 Field is never used
-Help: Consider removing the field
+Help: Consider creating a constant instead of field
 See: https://nowarp.github.io/docs/misti/docs/detectors/NeverAccessedVariables

@@ -134,7 +134,7 @@ export class NeverAccessedVariables extends Detector {
     ).map(([_name, ref]) =>
       createError(ctx, "Field is never used", Severity.MEDIUM, ref, {
         docURL: makeDocURL(this.id),
-        suggestion: "Consider removing the field",
+        suggestion: "Consider creating a constant instead of field",
       }),
     );
   }

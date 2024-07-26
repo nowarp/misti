@@ -2,8 +2,40 @@ import {
   ASTNode,
   ASTStatement,
   ASTExpression,
+  ASTLvalueRef,
+  ASTId,
+  ASTOpField,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import JSONbig from "json-bigint";
+
+// XXX: Remove after #22 is finished
+function createIdFromLvalue(lvalue: ASTLvalueRef): ASTId {
+  return {
+    kind: "id",
+    id: lvalue.id,
+    value: lvalue.name,
+    ref: lvalue.ref,
+  };
+}
+
+// Recursively create nested ASTOpField in the correct order
+// XXX: Remove after #22 is finished
+function createFieldFromLvalues(lvalues: ASTLvalueRef[]): ASTOpField {
+  if (lvalues.length === 0) {
+    throw new Error("The list of lvalues must not be empty.");
+  }
+  let currentField: ASTExpression = createIdFromLvalue(lvalues[0]);
+  for (let i = 1; i < lvalues.length; i++) {
+    currentField = {
+      kind: "op_field",
+      id: lvalues[i].id,
+      src: currentField,
+      name: lvalues[i].name,
+      ref: lvalues[i].ref,
+    };
+  }
+  return currentField as ASTOpField;
+}
 
 /**
  * Recursively iterates over each expression in an ASTNode and applies a callback to each expression.
@@ -14,6 +46,18 @@ export function forEachExpression(
   node: ASTNode,
   callback: (expr: ASTExpression) => void,
 ): void {
+  /**
+   * Traversing lvalue as an op_field operation.
+   * XXX: Remove this after #22 is finished.
+   */
+  function traverseLvalue(lvalues: ASTLvalueRef[]): void {
+    if (lvalues.length === 0) {
+      return;
+    }
+    const fieldOperation = createFieldFromLvalues(lvalues);
+    traverseExpression(fieldOperation);
+  }
+
   function traverseExpression(expr: ASTExpression): void {
     callback(expr);
 
@@ -46,12 +90,14 @@ export function forEachExpression(
         traverseExpression(expr.thenBranch);
         traverseExpression(expr.elseBranch);
         break;
+      case "lvalue_ref":
+        // See: `traverseLvalue`
+        break;
       case "string":
       case "number":
       case "boolean":
       case "id":
       case "null":
-      case "lvalue_ref":
         // Primitives and non-composite expressions don't require further traversal
         break;
       default:
@@ -61,9 +107,12 @@ export function forEachExpression(
 
   function traverseStatement(stmt: ASTStatement): void {
     switch (stmt.kind) {
-      case "statement_let":
       case "statement_assign":
       case "statement_augmentedassign":
+        traverseLvalue(stmt.path);
+        traverseExpression(stmt.expression);
+        break;
+      case "statement_let":
       case "statement_expression":
         traverseExpression(stmt.expression);
         break;
@@ -181,6 +230,18 @@ export function foldExpressions<T>(
   acc: T,
   callback: (acc: T, expr: ASTExpression) => T,
 ): T {
+  /**
+   * Traversing lvalue as an op_field operation.
+   * XXX: Remove this after #22 is finished.
+   */
+  function traverseLvalue(acc: T, lvalues: ASTLvalueRef[]): T {
+    if (lvalues.length === 0) {
+      return acc;
+    }
+    const fieldOperation = createFieldFromLvalues(lvalues);
+    return traverseExpression(acc, fieldOperation);
+  }
+
   function traverseExpression(acc: T, expr: ASTExpression): T {
     acc = callback(acc, expr);
 
@@ -237,9 +298,12 @@ export function foldExpressions<T>(
 
   function traverseStatement(acc: T, stmt: ASTStatement): T {
     switch (stmt.kind) {
-      case "statement_let":
       case "statement_assign":
       case "statement_augmentedassign":
+        acc = traverseLvalue(acc, stmt.path);
+        acc = traverseExpression(acc, stmt.expression);
+        break;
+      case "statement_let":
       case "statement_expression":
         acc = traverseExpression(acc, stmt.expression);
         break;
