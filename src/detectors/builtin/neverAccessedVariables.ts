@@ -1,8 +1,3 @@
-import {
-  ASTStatement,
-  ASTExpression,
-  ASTRef,
-} from "@tact-lang/compiler/dist/grammar/ast";
 import { WorklistSolver } from "../../internals/solver/";
 import { Transfer } from "../../internals/transfer";
 import { Detector } from "../detector";
@@ -15,13 +10,19 @@ import {
   Severity,
   makeDocURL,
 } from "../../internals/errors";
-import { forEachExpression } from "../../internals/tactASTUtil";
+import { extractPath, forEachExpression } from "../../internals/tactASTUtil";
+import {
+  AstStatement,
+  AstExpression,
+  SrcInfo,
+  isSelfId,
+} from "@tact-lang/compiler/dist/grammar/ast";
 
 type FieldName = string;
 type ConstantName = string;
 
 interface VariableState {
-  declared: Set<[string, ASTRef]>;
+  declared: Set<[string, SrcInfo]>;
   // The variable identifier was accessed in any expression
   accessed: Set<string>;
   // The variable value was reassigned
@@ -56,25 +57,25 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
   public transfer(
     inState: VariableState,
     _node: Node,
-    stmt: ASTStatement,
+    stmt: AstStatement,
   ): VariableState {
     const outState = {
       declared: inState.declared,
       accessed: inState.accessed,
       written: inState.written,
     };
-    const processExpressions = (node: ASTStatement | ASTExpression) => {
+    const processExpressions = (node: AstStatement | AstExpression) => {
       forEachExpression(node, (expr) => {
         if (expr.kind === "id") {
-          outState.accessed.add(expr.value);
+          outState.accessed.add(expr.text);
         }
       });
     };
     if (stmt.kind === "statement_let") {
-      outState.declared.add([stmt.name, stmt.ref]);
+      outState.declared.add([stmt.name.text, stmt.loc]);
       processExpressions(stmt.expression);
     } else if (stmt.kind === "statement_assign") {
-      const name = stmt.path.map((p) => p.name).join(".");
+      const name = extractPath(stmt.path);
       outState.written.add(name);
       processExpressions(stmt.expression);
     } else {
@@ -125,12 +126,10 @@ export class NeverAccessedVariables extends Detector {
   }
 
   checkFields(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
-    const definedFields = this.collectDefinedFields(cu);
-    const usedFields = this.collectUsedFields(cu);
+    const defined = this.collectDefinedFields(cu);
+    const used = this.collectUsedFields(cu);
     return Array.from(
-      new Set(
-        [...definedFields].filter(([name, _ref]) => !usedFields.has(name)),
-      ),
+      new Set([...defined].filter(([name, _ref]) => !used.has(name))),
     ).map(([_name, ref]) =>
       createError(ctx, "Field is never used", Severity.MEDIUM, ref, {
         docURL: makeDocURL(this.id),
@@ -139,22 +138,26 @@ export class NeverAccessedVariables extends Detector {
     );
   }
 
-  collectDefinedFields(cu: CompilationUnit): Set<[FieldName, ASTRef]> {
+  collectDefinedFields(cu: CompilationUnit): Set<[FieldName, SrcInfo]> {
     return Array.from(cu.ast.getContracts()).reduce((acc, contract) => {
       contract.declarations.forEach((decl) => {
-        if (decl.kind === "def_field") {
-          acc.add([decl.name, decl.ref]);
+        if (decl.kind === "field_decl") {
+          acc.add([decl.name.text, decl.loc]);
         }
       });
       return acc;
-    }, new Set<[FieldName, ASTRef]>());
+    }, new Set<[FieldName, SrcInfo]>());
   }
 
   collectUsedFields(cu: CompilationUnit): Set<FieldName> {
     return Array.from(cu.ast.getFunctions()).reduce((acc, fun) => {
       forEachExpression(fun, (expr) => {
-        if (expr.kind === "op_field" && expr.src.kind === "id") {
-          acc.add(expr.name);
+        if (
+          expr.kind === "field_access" &&
+          expr.aggregate.kind === "id" &&
+          isSelfId(expr.aggregate)
+        ) {
+          acc.add(expr.field.text);
         }
       });
       return acc;
@@ -178,13 +181,13 @@ export class NeverAccessedVariables extends Detector {
     );
   }
 
-  collectDefinedConstants(cu: CompilationUnit): Set<[ConstantName, ASTRef]> {
+  collectDefinedConstants(cu: CompilationUnit): Set<[ConstantName, SrcInfo]> {
     return Array.from(cu.ast.getConstants({ includeContract: false })).reduce(
       (acc, constant) => {
-        acc.add([constant.name, constant.ref]);
+        acc.add([constant.name.text, constant.loc]);
         return acc;
       },
-      new Set<[ConstantName, ASTRef]>(),
+      new Set<[ConstantName, SrcInfo]>(),
     );
   }
 
@@ -195,7 +198,7 @@ export class NeverAccessedVariables extends Detector {
     return Array.from(cu.ast.getStatements()).reduce((acc, stmt) => {
       forEachExpression(stmt, (expr) => {
         if (expr.kind === "id") {
-          acc.add(expr.value);
+          acc.add(expr.text);
         }
       });
       return acc;
@@ -209,7 +212,7 @@ export class NeverAccessedVariables extends Detector {
   checkVariables(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
     const errors: MistiTactError[] = [];
     const traversedFunctions = new Set<string>();
-    cu.forEachCFG(cu.ast, (cfg: CFG, _node: Node, _stmt: ASTStatement) => {
+    cu.forEachCFG(cu.ast, (cfg: CFG, _node: Node, _stmt: AstStatement) => {
       if (cfg.origin === "stdlib" || traversedFunctions.has(cfg.name)) {
         return;
       }
@@ -219,7 +222,7 @@ export class NeverAccessedVariables extends Detector {
       const solver = new WorklistSolver(cu, cfg, transfer, lattice, "forward");
       const results = solver.solve();
 
-      const declaredVariables = new Map<string, ASTRef>();
+      const declaredVariables = new Map<string, SrcInfo>();
       const accessedVariables = new Set<string>();
       const writtenVariables = new Set<string>();
       results.getStates().forEach((state, nodeIdx) => {

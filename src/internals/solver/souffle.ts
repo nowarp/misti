@@ -8,7 +8,7 @@ import {
   Executor,
 } from "../souffle/";
 import { MistiContext } from "../context";
-import { ASTRef } from "@tact-lang/compiler/dist/grammar/ast";
+import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import { CFG, NodeIdx, CompilationUnit } from "../ir";
 import { SolverResults } from "./results";
 import { Solver } from "./solver";
@@ -39,7 +39,7 @@ export interface SouffleMapper {
    * Example:
    * `.decl var_defined(bb: symbol, var: symbol)` - Variables defined in dataflow
    */
-  addDecls(ctx: Context<ASTRef>): void;
+  addDecls(ctx: Context<SrcInfo>): void;
 
   /**
    * Adds Souffle rules specific for the dataflow problem.
@@ -47,7 +47,7 @@ export interface SouffleMapper {
    * Example:
    * `out(bb, var) :- pred(bb, predBB), in(predBB, var).` - Computes the `out` state based on the `in` state
    */
-  addRules(ctx: Context<ASTRef>): void;
+  addRules(ctx: Context<SrcInfo>): void;
 
   /**
    * Adds Souffle facts to describe constraints for the dataflow problem.
@@ -55,7 +55,7 @@ export interface SouffleMapper {
    * Example:
    * `var_defined("bb4", "x").` - Variable `x` is defined within the basic block with index 4
    */
-  addConstraints(ctx: Context<ASTRef>): void;
+  addConstraints(ctx: Context<SrcInfo>): void;
 }
 
 /**
@@ -80,7 +80,7 @@ export class SouffleSolver<State> implements Solver<State> {
    * Adds common declarations to represent the dataflow problem.
    * @param ctx The Souffle program where the relations are to be added.
    */
-  private addDataflowDecls(ctx: Context<ASTRef>): void {
+  private addDataflowDecls(ctx: Context<SrcInfo>): void {
     // Basic block declaration
     ctx.add(Relation.from("bb", [["bb", FactType.Symbol]], undefined));
     // Predecessor declaration
@@ -100,7 +100,7 @@ export class SouffleSolver<State> implements Solver<State> {
    * Adds common facts to represent the dataflow problem.
    * @param ctx The Souffle program where the relations are to be added.
    */
-  private addDataflowFacts(ctx: Context<ASTRef>): void {
+  private addDataflowFacts(ctx: Context<SrcInfo>): void {
     this.cfg.forEachNode(this.cu.ast, (_stmt, node) => {
       ctx.addFact("bb", Fact.from([BB_FACT(node.idx)]));
     });
@@ -113,13 +113,13 @@ export class SouffleSolver<State> implements Solver<State> {
   /**
    * Executes the Souffle program generated within the solver.
    */
-  private execute(ctx: Context<ASTRef>): SouffleExecutionResult<ASTRef> {
+  private execute(ctx: Context<SrcInfo>): SouffleExecutionResult<SrcInfo> {
     const executor = this.ctx.config.soufflePath
-      ? new Executor<ASTRef>({
+      ? new Executor<SrcInfo>({
           inputDir: this.ctx.config.soufflePath,
           outputDir: this.ctx.config.soufflePath,
         })
-      : new Executor<ASTRef>();
+      : new Executor<SrcInfo>();
     return executor.executeSync(ctx);
   }
 
@@ -127,13 +127,13 @@ export class SouffleSolver<State> implements Solver<State> {
    * Converts the souffle execution results to the solver results as required by the class interface.
    */
   private createSouffleResults(
-    _souffleResults: Fact<FactValue, ASTRef>[],
+    _souffleResults: Fact<FactValue, SrcInfo>[],
   ): SolverResults<State> {
     throw new Error("NYI");
   }
 
   public solve(): SolverResults<State> {
-    const ctx: Context<ASTRef> = new Context<ASTRef>(this.lintId);
+    const ctx: Context<SrcInfo> = new Context<SrcInfo>(this.lintId);
     this.addDataflowDecls(ctx);
     this.mapper.addDecls(ctx);
     this.mapper.addRules(ctx);

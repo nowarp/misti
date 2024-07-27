@@ -1,4 +1,4 @@
-import { ASTRef } from "@tact-lang/compiler/dist/grammar/ast";
+import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import { MistiContext } from "./context";
 import * as path from "path";
 
@@ -17,14 +17,14 @@ export enum Severity {
  * Error instance that refers to a specific place in a Tact contract.
  */
 export class MistiTactError extends Error {
-  readonly ref: ASTRef;
+  readonly loc: SrcInfo;
   constructor(
     msg: string,
-    ref: ASTRef,
+    loc: SrcInfo,
     private _severity: Severity,
   ) {
     super(msg);
-    this.ref = ref;
+    this.loc = loc;
   }
 
   /**
@@ -54,7 +54,7 @@ export function makeDocURL(detectorName: string): string {
  *
  * @param description Descriptive text of the error.
  * @param severity Severity of the finding.
- * @param ref Reference to the source code that includes file information and position data.
+ * @param loc Reference to the source code that includes file information and position data.
  * @param data Additional optional data for the error, including:
  * - `extraDescription`: More comprehensive description that clarifies the error in greater detail.
  * - `docURL`: URL to the lint documentation.
@@ -65,7 +65,7 @@ export function createError(
   ctx: MistiContext,
   description: string,
   severity: Severity,
-  ref: ASTRef,
+  loc: SrcInfo,
   data: Partial<{
     extraDescription: string;
     docURL: string;
@@ -77,9 +77,9 @@ export function createError(
     docURL = undefined,
     suggestion = undefined,
   } = data;
-  const pos = ref.file
+  const pos = loc.file
     ? (() => {
-        const lc = ref.interval.getLineAndColumn() as {
+        const lc = loc.interval.getLineAndColumn() as {
           lineNum: number;
           colNum: number;
         };
@@ -89,7 +89,7 @@ export function createError(
         const contractPath =
           ctx.singleContractPath !== undefined
             ? ctx.singleContractPath
-            : ref.file;
+            : loc.file;
         const shownPath = path.relative(process.cwd(), contractPath);
         return `${shownPath}:${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
       })()
@@ -105,5 +105,5 @@ export function createError(
     suggestionStr,
     docURLStr,
   ].join("");
-  return new MistiTactError(msg, ref, severity);
+  return new MistiTactError(msg, loc, severity);
 }

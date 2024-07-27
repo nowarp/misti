@@ -1,4 +1,3 @@
-import { ASTStatement, ASTRef } from "@tact-lang/compiler/dist/grammar/ast";
 import {
   Context,
   Fact,
@@ -18,10 +17,9 @@ import {
   Severity,
   makeDocURL,
 } from "../../internals/errors";
-import {
-  forEachExpression,
-  forEachStatement,
-} from "../../internals/tactASTUtil";
+import { extractPath, forEachExpression } from "../../internals/tactASTUtil";
+import { AstStatement, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
+import { forEachStatement } from "@tact-lang/compiler/dist/grammar/iterators";
 
 /**
  * A detector that analyzes loop conditions and control flow to ensure loops have proper termination criteria.
@@ -53,18 +51,18 @@ import {
 export class UnboundLoops extends Detector {
   check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
     // TODO: Extract method for this shared logic
-    const souffleCtx = new Context<ASTRef>(this.id);
+    const souffleCtx = new Context<SrcInfo>(this.id);
     this.addDecls(souffleCtx);
     this.addRules(souffleCtx);
     this.addConstantConstraints(cu, souffleCtx);
     this.addConstraints(cu, souffleCtx);
 
     const executor = ctx.config.soufflePath
-      ? new Executor<ASTRef>({
+      ? new Executor<SrcInfo>({
           inputDir: ctx.config.soufflePath,
           outputDir: ctx.config.soufflePath,
         })
-      : new Executor<ASTRef>();
+      : new Executor<SrcInfo>();
     const result = executor.executeSync(souffleCtx);
     if (!result.success) {
       throw new Error(
@@ -88,7 +86,7 @@ export class UnboundLoops extends Detector {
     return warnings;
   }
 
-  private addDecls(ctx: Context<ASTRef>): void {
+  private addDecls(ctx: Context<SrcInfo>): void {
     ctx.add(Relation.from("constDef", [["var", FactType.Symbol]], undefined));
     ctx.add(
       Relation.from(
@@ -145,7 +143,7 @@ export class UnboundLoops extends Detector {
     );
   }
 
-  private addRules(ctx: Context<ASTRef>): void {
+  private addRules(ctx: Context<SrcInfo>): void {
     // unbound(var, loopId, func) :-
     //   varDef(var, func),
     //   loopDef(loopId, func),
@@ -173,10 +171,10 @@ export class UnboundLoops extends Detector {
    */
   private addConstantConstraints(
     cu: CompilationUnit,
-    ctx: Context<ASTRef>,
+    ctx: Context<SrcInfo>,
   ): void {
     for (const c of cu.ast.getConstants({ includeStdlib: true })) {
-      ctx.addFact("constDef", Fact.from([c.name], c.ref));
+      ctx.addFact("constDef", Fact.from([c.name.text], c.loc));
     }
   }
 
@@ -185,14 +183,14 @@ export class UnboundLoops extends Detector {
    * @param cu The compilation unit containing the CFGs and AST information.
    * @param ctx The Souffle program to which the facts are added.
    */
-  private addConstraints(cu: CompilationUnit, ctx: Context<ASTRef>): void {
-    cu.forEachCFG(cu.ast, (cfg: CFG, _: Node, stmt: ASTStatement) => {
+  private addConstraints(cu: CompilationUnit, ctx: Context<SrcInfo>): void {
+    cu.forEachCFG(cu.ast, (cfg: CFG, _: Node, stmt: AstStatement) => {
       if (cfg.origin === "stdlib") {
         return;
       }
       const funName = cfg.name;
       if (stmt.kind === "statement_let") {
-        ctx.addFact("varDef", Fact.from([stmt.name, funName], stmt.ref));
+        ctx.addFact("varDef", Fact.from([stmt.name.text, funName], stmt.loc));
         return;
       }
       if (
@@ -201,17 +199,17 @@ export class UnboundLoops extends Detector {
         stmt.kind === "statement_until"
       ) {
         const loopId = stmt.id;
-        const usedInCond: Set<string> = new Set(); // names of variables used in this condition
-        ctx.addFact("loopDef", Fact.from([loopId, funName], stmt.ref));
+        const usedInCond: Set<string> = new Set(); // variables used in the condition
+        ctx.addFact("loopDef", Fact.from([loopId, funName], stmt.loc));
         const condition =
           stmt.kind === "statement_repeat" ? stmt.iterations : stmt.condition;
         forEachExpression(condition, (expr) => {
           if (expr.kind === "id") {
-            const varName = expr.value;
+            const varName = expr.text;
             usedInCond.add(varName);
             ctx.addFact(
               "loopCondDef",
-              Fact.from([varName, loopId, funName], expr.ref),
+              Fact.from([varName, loopId, funName], expr.loc),
             );
           }
         });
@@ -222,23 +220,20 @@ export class UnboundLoops extends Detector {
           ) {
             ctx.addFact(
               "loopVarUse",
-              Fact.from(
-                [s.path.map((p) => p.name).join("."), loopId, funName],
-                s.ref,
-              ),
+              Fact.from([extractPath(s.path), loopId, funName], s.loc),
             );
           } else if (s.kind === "statement_expression") {
             const callExpr = s.expression;
             if (
-              callExpr.kind === "op_call" ||
-              callExpr.kind === "op_static_call"
+              callExpr.kind === "method_call" ||
+              callExpr.kind === "static_call"
             ) {
               callExpr.args.forEach((a) => {
                 forEachExpression(a, (expr) => {
-                  if (expr.kind === "id" && usedInCond.has(expr.value)) {
+                  if (expr.kind === "id" && usedInCond.has(expr.text)) {
                     ctx.addFact(
                       "loopVarUse",
-                      Fact.from([expr.value, loopId, funName], s.ref),
+                      Fact.from([expr.text, loopId, funName], s.loc),
                     );
                   }
                 });
