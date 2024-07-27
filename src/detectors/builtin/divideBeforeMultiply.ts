@@ -1,11 +1,4 @@
 import {
-  ASTStatement,
-  ASTRef,
-  ASTNode,
-  ASTExpression,
-  ASTOpBinary,
-} from "@tact-lang/compiler/dist/grammar/ast";
-import {
   Context,
   Fact,
   FactType,
@@ -25,10 +18,17 @@ import {
   Severity,
 } from "../../internals/errors";
 import {
-  forEachExpression,
-  foldExpressions,
+  AstStatement,
+  AstNode,
+  AstExpression,
+  AstOpBinary,
+  SrcInfo,
+} from "@tact-lang/compiler/dist/grammar/ast";
+import { forEachExpression } from "../../internals/tactASTUtil";
+import {
   forEachStatement,
-} from "../../internals/tactASTUtil";
+  foldExpressions,
+} from "@tact-lang/compiler/dist/grammar/iterators";
 
 /**
  * A detector that identifies and corrects instances of division before multiplication to
@@ -61,17 +61,17 @@ import {
 export class DivideBeforeMultiply extends Detector {
   check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
     // TODO: Extract method for this shared logic
-    const souffleCtx = new Context<ASTRef>(this.id);
+    const souffleCtx = new Context<SrcInfo>(this.id);
     this.addDecls(souffleCtx);
     this.addRules(souffleCtx);
     this.addConstraints(cu, souffleCtx);
 
     const executor = ctx.config.soufflePath
-      ? new Executor<ASTRef>({
+      ? new Executor<SrcInfo>({
           inputDir: ctx.config.soufflePath,
           outputDir: ctx.config.soufflePath,
         })
-      : new Executor<ASTRef>();
+      : new Executor<SrcInfo>();
     const result = executor.executeSync(souffleCtx);
     if (!result.success) {
       throw new Error(
@@ -110,7 +110,7 @@ export class DivideBeforeMultiply extends Detector {
     return warnings;
   }
 
-  private addDecls(ctx: Context<ASTRef>): void {
+  private addDecls(ctx: Context<SrcInfo>): void {
     // Division expression definition.
     ctx.add(
       Relation.from(
@@ -238,7 +238,7 @@ export class DivideBeforeMultiply extends Detector {
     );
   }
 
-  private addRules(ctx: Context<ASTRef>): void {
+  private addRules(ctx: Context<SrcInfo>): void {
     // Base case: direct tainting with division. For example:
     // ```
     // let a: Int = 10 / 3;
@@ -322,7 +322,7 @@ export class DivideBeforeMultiply extends Detector {
   /**
    * Iterates for each binary operation within the node.
    */
-  private forEachBinop(node: ASTNode, callback: (expr: ASTOpBinary) => void) {
+  private forEachBinop(node: AstNode, callback: (expr: AstOpBinary) => void) {
     forEachExpression(node, (expr) => {
       if (expr.kind === "op_binary") {
         callback(expr);
@@ -333,10 +333,10 @@ export class DivideBeforeMultiply extends Detector {
   /**
    * Collects all the identifiers used within the node.
    */
-  private collectIdentifiers(node: ASTNode): string[] {
-    const isId = (acc: string[], expr: ASTExpression): string[] => {
+  private collectIdentifiers(node: AstNode): string[] {
+    const isId = (acc: string[], expr: AstExpression): string[] => {
       if (expr.kind === "id") {
-        acc.push(expr.value);
+        acc.push(expr.text);
       }
       return acc;
     };
@@ -348,8 +348,8 @@ export class DivideBeforeMultiply extends Detector {
    * @param cu The compilation unit containing the CFGs and AST information.
    * @param ctx The Souffle program to which the facts are added.
    */
-  private addConstraints(cu: CompilationUnit, ctx: Context<ASTRef>): void {
-    cu.forEachCFG(cu.ast, (cfg: CFG, _: Node, stmt: ASTStatement) => {
+  private addConstraints(cu: CompilationUnit, ctx: Context<SrcInfo>): void {
+    cu.forEachCFG(cu.ast, (cfg: CFG, _: Node, stmt: AstStatement) => {
       if (cfg.origin === "stdlib") {
         return;
       }
@@ -357,12 +357,12 @@ export class DivideBeforeMultiply extends Detector {
       // Collect information about variables definitions and tainted divisions in initializers
       forEachStatement(stmt, (s) => {
         if (s.kind === "statement_let") {
-          const varName = s.name;
-          ctx.addFact("varDef", Fact.from([varName, funName], s.ref));
+          const varName = s.name.text;
+          ctx.addFact("varDef", Fact.from([varName, funName], s.loc));
           this.collectIdentifiers(s.expression).forEach((rhsName) => {
             ctx.addFact(
               "varAssign",
-              Fact.from([varName, rhsName, funName], s.ref),
+              Fact.from([varName, rhsName, funName], s.loc),
             );
           });
           // Collect taints in the initializers, e.g.: `a = 10 / 3`
@@ -371,7 +371,7 @@ export class DivideBeforeMultiply extends Detector {
               const divId = binopExpr.id;
               ctx.addFact(
                 "varTaintedWithDiv",
-                Fact.from([varName, divId, funName], binopExpr.ref),
+                Fact.from([varName, divId, funName], binopExpr.loc),
               );
             }
           });
@@ -382,7 +382,7 @@ export class DivideBeforeMultiply extends Detector {
         if (binopExpr.op === "/") {
           ctx.addFact(
             "divDef",
-            Fact.from([binopExpr.id, funName], binopExpr.ref),
+            Fact.from([binopExpr.id, funName], binopExpr.loc),
           );
         }
         if (binopExpr.op === "*") {
@@ -390,20 +390,20 @@ export class DivideBeforeMultiply extends Detector {
           this.collectIdentifiers(binopExpr).forEach((usedVar) => {
             ctx.addFact(
               "varUsedInMul",
-              Fact.from([mulId, usedVar, funName], binopExpr.ref),
+              Fact.from([mulId, usedVar, funName], binopExpr.loc),
             );
           });
-          const processBinop = (binOpExpr: ASTOpBinary) => {
+          const processBinop = (binOpExpr: AstOpBinary) => {
             if (binOpExpr.op === "/") {
               const divId = binOpExpr.id;
               ctx.addFact(
                 "divUsedInMul",
-                Fact.from([mulId, divId, funName], binOpExpr.ref),
+                Fact.from([mulId, divId, funName], binOpExpr.loc),
               );
               this.collectIdentifiers(binOpExpr).forEach((usedVar) => {
                 ctx.addFact(
                   "varTaintedWithDiv",
-                  Fact.from([usedVar, divId, funName], binOpExpr.ref),
+                  Fact.from([usedVar, divId, funName], binOpExpr.loc),
                 );
               });
             }

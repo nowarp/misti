@@ -1,4 +1,4 @@
-import { ASTRef } from "@tact-lang/compiler/dist/grammar/ast";
+import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import * as path from "path";
 
 export enum LogLevel {
@@ -40,27 +40,27 @@ export class Logger {
    * @param msg The content of the log message.
    * @param ref An optional source location.
    */
-  protected log(level: LogLevel, msg: string, ref?: ASTRef): void {
+  protected log(level: LogLevel, msg: string, ref?: SrcInfo): void {
     const logFunction = this.logFunctions.get(level);
     if (logFunction) {
       logFunction(`${this.formatPosition(ref)}\n${msg}`);
     }
   }
 
-  debug(msg: string, ref?: ASTRef) {
+  debug(msg: string, ref?: SrcInfo) {
     this.log(LogLevel.DEBUG, msg, ref);
   }
-  info(msg: string, ref?: ASTRef) {
+  info(msg: string, ref?: SrcInfo) {
     this.log(LogLevel.INFO, msg, ref);
   }
-  warn(msg: string, ref?: ASTRef) {
+  warn(msg: string, ref?: SrcInfo) {
     this.log(LogLevel.WARN, msg, ref);
   }
-  error(msg: string, ref?: ASTRef) {
+  error(msg: string, ref?: SrcInfo) {
     this.log(LogLevel.ERROR, msg, ref);
   }
 
-  private formatPosition(ref?: ASTRef): string {
+  private formatPosition(ref?: SrcInfo): string {
     if (!ref || !ref.file) {
       return "";
     }

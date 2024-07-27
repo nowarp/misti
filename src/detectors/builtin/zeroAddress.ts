@@ -1,23 +1,23 @@
 import { Detector } from "../detector";
 import { MistiContext } from "../../internals/context";
 import { CompilationUnit } from "../../internals/ir";
-import { foldExpressions } from "../../internals/tactASTUtil";
 import {
   createError,
   makeDocURL,
   MistiTactError,
   Severity,
 } from "../../internals/errors";
-import { ASTExpression } from "@tact-lang/compiler/dist/grammar/ast";
+import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
+import { foldExpressions } from "@tact-lang/compiler/dist/grammar/iterators";
 
 function findZeroAddress(
   ctx: MistiContext,
   acc: MistiTactError[],
-  expr: ASTExpression,
+  expr: AstExpression,
 ): MistiTactError[] {
-  if (expr.kind === "op_static_call") {
+  if (expr.kind === "static_call") {
     if (
-      expr.name === "newAddress" &&
+      expr.function.text === "newAddress" &&
       expr.args.length === 2 &&
       expr.args[1].kind === "number" &&
       expr.args[1].value === 0n
@@ -27,7 +27,7 @@ function findZeroAddress(
           ctx,
           "Using Zero Address",
           Severity.MEDIUM,
-          expr.args[1].ref,
+          expr.args[1].loc,
           {
             docURL: makeDocURL("zeroAddress"),
             suggestion: "Consider changing code to avoid using it",

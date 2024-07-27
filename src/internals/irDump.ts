@@ -1,4 +1,4 @@
-import { ASTStatement } from "@tact-lang/compiler/dist/grammar/ast";
+import { AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
 import { CompilationUnit, CFG, Node } from "./ir";
 
 import JSONbig from "json-bigint";
@@ -45,7 +45,7 @@ export class GraphvizDumper {
    */
   private static connectFunctionCalls(cu: CompilationUnit): string {
     let output = "";
-    cu.forEachCFG(cu.ast, (cfg: CFG, node: Node, _: ASTStatement) => {
+    cu.forEachCFG(cu.ast, (cfg: CFG, node: Node, _: AstStatement) => {
       if (node.kind.kind === "call") {
         node.kind.callees.forEach((calleeIdx) => {
           if (cfg.getNode(calleeIdx)) {

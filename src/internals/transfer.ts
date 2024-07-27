@@ -1,4 +1,4 @@
-import { ASTStatement } from "@tact-lang/compiler/dist/grammar/ast";
+import { AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
 import { Node } from "./ir";
 
 /**
@@ -17,5 +17,5 @@ export interface Transfer<State> {
    * @param inState The dataflow state prior to the execution of `node`.
    * @returns The updated dataflow state post node execution.
    */
-  transfer(inState: State, node: Node, stmt: ASTStatement): State;
+  transfer(inState: State, node: Node, stmt: AstStatement): State;
 }

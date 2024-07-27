@@ -1,7 +1,7 @@
 import {
-  ASTStatement,
-  ASTRef,
-  ASTExpression,
+  AstStatement,
+  SrcInfo,
+  AstExpression,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { Detector } from "../detector";
 import { MistiContext } from "../../internals/context";
@@ -22,7 +22,7 @@ import {
   Severity,
   makeDocURL,
 } from "../../internals/errors";
-import { forEachExpression } from "../../internals/tactASTUtil";
+import { extractPath, forEachExpression } from "../../internals/tactASTUtil";
 
 /**
  * A detector that identifies read-only variables and fields.
@@ -52,17 +52,17 @@ import { forEachExpression } from "../../internals/tactASTUtil";
  */
 export class ReadOnlyVariables extends Detector {
   check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
-    const program = new Context<ASTRef>(this.id);
+    const program = new Context<SrcInfo>(this.id);
     this.addDecls(program);
     this.addRules(program);
     this.addConstraints(cu, program);
 
     const executor = ctx.config.soufflePath
-      ? new Executor<ASTRef>({
+      ? new Executor<SrcInfo>({
           inputDir: ctx.config.soufflePath,
           outputDir: ctx.config.soufflePath,
         })
-      : new Executor<ASTRef>();
+      : new Executor<SrcInfo>();
     const result = executor.executeSync(program);
     if (!result.success) {
       throw new Error(
@@ -93,7 +93,7 @@ export class ReadOnlyVariables extends Detector {
    * Adds declarations to the Souffle program to represent the properties of variables.
    * @param ctx The Souffle program where the relations are to be added.
    */
-  addDecls(ctx: Context<ASTRef>) {
+  addDecls(ctx: Context<SrcInfo>) {
     ctx.add(
       Relation.from(
         "varDecl",
@@ -141,29 +141,32 @@ export class ReadOnlyVariables extends Detector {
    * @param cu The compilation unit containing the CFGs and AST information.
    * @param ctx The Souffle program to which the facts are added.
    */
-  addConstraints(cu: CompilationUnit, ctx: Context<ASTRef>) {
-    const addUses = (funName: string, node: ASTStatement | ASTExpression) => {
-      forEachExpression(node, (expr: ASTExpression) => {
+  addConstraints(cu: CompilationUnit, ctx: Context<SrcInfo>) {
+    const addUses = (funName: string, node: AstStatement | AstExpression) => {
+      forEachExpression(node, (expr: AstExpression) => {
         if (expr.kind === "id") {
-          ctx.addFact("varUse", Fact.from([expr.value, funName], expr.ref));
+          ctx.addFact("varUse", Fact.from([expr.text, funName], expr.loc));
         }
       });
     };
-    cu.forEachCFG(cu.ast, (cfg: CFG, _: Node, stmt: ASTStatement) => {
+    cu.forEachCFG(cu.ast, (cfg: CFG, _: Node, stmt: AstStatement) => {
       if (cfg.origin === "stdlib") {
         return;
       }
       const funName = cfg.name;
       switch (stmt.kind) {
         case "statement_let":
-          ctx.addFact("varDecl", Fact.from([stmt.name, funName], stmt.ref));
+          ctx.addFact(
+            "varDecl",
+            Fact.from([stmt.name.text, funName], stmt.loc),
+          );
           addUses(funName, stmt.expression);
           break;
         case "statement_assign":
         case "statement_augmentedassign":
           ctx.addFact(
             "varAssign",
-            Fact.from([stmt.path[0].name, funName], stmt.ref),
+            Fact.from([extractPath(stmt.path), funName], stmt.loc),
           );
           addUses(funName, stmt.expression);
           break;
@@ -174,7 +177,7 @@ export class ReadOnlyVariables extends Detector {
     });
   }
 
-  addRules(ctx: Context<ASTRef>) {
+  addRules(ctx: Context<SrcInfo>) {
     // readOnly(var, func) :-
     //     varDecl(var, func),
     //     !varAssign(var, func),
