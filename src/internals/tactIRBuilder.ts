@@ -1,15 +1,29 @@
+import {
+  ProjectName,
+  CompilationUnit,
+  FunctionKind,
+  TactASTStore,
+  NodeIdx,
+  ContractName,
+  Edge,
+  CFGIdx,
+  ContractIdx,
+  NodeKind,
+  Node,
+  FunctionName,
+  CFG,
+  Contract,
+} from "./ir";
 import { MistiContext } from "./context";
-import { CompilerContext } from "@tact-lang/compiler/dist/context";
-import { getRawAST } from "@tact-lang/compiler/dist/grammar/store";
-import { createNodeFileSystem } from "@tact-lang/compiler/dist/vfs/createNodeFileSystem";
-import { precompile } from "@tact-lang/compiler/dist/pipeline/precompile";
 import { TactException, InternalException } from "./exceptions";
 import {
   Config as TactConfig,
   parseConfig,
 } from "@tact-lang/compiler/dist/config/parseConfig";
-import path from "path";
-import fs from "fs";
+import { CompilerContext } from "@tact-lang/compiler/dist/context";
+import { getRawAST } from "@tact-lang/compiler/dist/grammar/store";
+import { createNodeFileSystem } from "@tact-lang/compiler/dist/vfs/createNodeFileSystem";
+import { precompile } from "@tact-lang/compiler/dist/pipeline/precompile";
 import {
   AstStatement,
   SrcInfo,
@@ -29,25 +43,8 @@ import {
   isSelfId,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { AstStore } from "@tact-lang/compiler/dist/grammar/store";
-
-import JSONbig from "json-bigint";
-
-import {
-  ProjectName,
-  CompilationUnit,
-  FunctionKind,
-  TactASTStore,
-  NodeIdx,
-  ContractName,
-  Edge,
-  CFGIdx,
-  ContractIdx,
-  NodeKind,
-  Node,
-  FunctionName,
-  CFG,
-  Contract,
-} from "./ir";
+import path from "path";
+import fs from "fs";
 
 /**
  * Generates a unique name used to identify receive functions in CFG.
