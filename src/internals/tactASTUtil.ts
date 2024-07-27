@@ -1,3 +1,4 @@
+import { InternalException } from "./exceptions";
 import {
   AstNode,
   AstExpression,
@@ -8,8 +9,10 @@ import {
 export function extractPath(path: AstExpression): string {
   const result = tryExtractPath(path);
   if (result === null) {
-    // TODO: Drop a specific internal error
-    throw new Error("Impossible");
+    throw InternalException.make("Impossible path", {
+      loc: path.loc,
+      node: path,
+    });
   }
   return result.map((v) => v.text).join(".");
 }
@@ -62,7 +65,7 @@ export function forEachExpression(
         // Primitives and non-composite expressions don't require further traversal
         break;
       default:
-        throw new Error("Unsupported expression");
+        throw InternalException.make("Unsupported expression");
     }
   }
 
@@ -105,7 +108,7 @@ export function forEachExpression(
         stmt.catchStatements.forEach(traverseStatement);
         break;
       default:
-        throw new Error("Unsupported statement");
+        throw InternalException.make("Unsupported statement", { node: stmt });
     }
   }
 
@@ -179,7 +182,7 @@ export function forEachExpression(
         // Do nothing
         break;
       default:
-        throw new Error("Unsupported node");
+        throw InternalException.make("Unsupported node", { node });
     }
   }
 

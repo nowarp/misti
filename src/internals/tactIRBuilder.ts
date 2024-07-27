@@ -3,6 +3,7 @@ import { CompilerContext } from "@tact-lang/compiler/dist/context";
 import { getRawAST } from "@tact-lang/compiler/dist/grammar/store";
 import { createNodeFileSystem } from "@tact-lang/compiler/dist/vfs/createNodeFileSystem";
 import { precompile } from "@tact-lang/compiler/dist/pipeline/precompile";
+import { TactException, InternalException } from "./exceptions";
 import {
   Config as TactConfig,
   parseConfig,
@@ -68,7 +69,9 @@ function generateReceiveName(receive: AstReceiver): string {
     case "external-comment":
       return `receive_external_comment_${receive.id}_${receive.selector.comment.value}`;
     default:
-      throw new Error("Unsupported receive selector type");
+      throw InternalException.make("Unsupported receive selector type", {
+        node: receive,
+      });
   }
 }
 
@@ -174,9 +177,9 @@ export class AstMapper {
         this.processContract(type);
         break;
       default:
-        throw new Error(
-          `Unsupported AST type declaration: ${JSONbig.stringify(type, null, 2)}`,
-        );
+        throw InternalException.make("Unsupported AST type declaration", {
+          node: type,
+        });
     }
   }
 
@@ -197,7 +200,9 @@ export class AstMapper {
           this.contractConstants.add(decl.id);
           break;
         default:
-          throw new Error(`Unsupported contract declaration: ${decl}`);
+          throw InternalException.make("Unsupported contract declaration", {
+            node: decl,
+          });
       }
     }
   }
@@ -233,9 +238,7 @@ export class AstMapper {
         stmt.statements.forEach((s) => this.processStmt(s));
         break;
       default:
-        throw new Error(
-          `Unsupported statement: ${JSONbig.stringify(stmt, null, 2)}`,
-        );
+        throw InternalException.make("Unsupported statement", { node: stmt });
     }
   }
 }
@@ -533,9 +536,7 @@ export class TactIRBuilder {
       case "id":
         break;
       default:
-        throw new Error(
-          `Unsupported expression:${JSONbig.stringify(expr, null, 2)}`,
-        );
+        throw InternalException.make("Unsupported expression", { node: expr });
     }
     return parentCalls;
   }
@@ -715,7 +716,7 @@ export class TactIRBuilder {
         // No need to connect return statements to subsequent nodes
         lastNodeIdx = undefined; // This effectively ends the current flow
       } else {
-        throw new Error(`Unsupported statement: ${stmt}`);
+        throw InternalException.make("Unsupported statement", { node: stmt });
       }
     });
 
@@ -786,13 +787,7 @@ class TactConfigManager {
           acc.set(projectConfig.name, getRawAST(ctx));
           return acc;
         } catch (error: unknown) {
-          if (error instanceof Error) {
-            throw new Error(
-              `Tact Compiler Error: ${error.message}\nPlease report it to https://github.com/nowarp/misti/issues/new`,
-            );
-          } else {
-            throw error;
-          }
+          throw TactException.make(error);
         }
       },
       new Map<ProjectName, AstStore>(),
