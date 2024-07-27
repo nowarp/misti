@@ -1,17 +1,17 @@
 {
-  "projectName": "zero-address",
+  "projectName": "traits-1",
   "functions": [],
   "contracts": [
     {
-      "name": "SampleContract",
+      "name": "TestContract",
       "methods": [
         {
-          "name": "SampleContract.init_30130",
+          "name": "TestContract.getter",
           "cfg": {
             "nodes": [
               {
-                "id": 2966,
-                "stmtID": 30128,
+                "id": 2188,
+                "stmtID": 22180,
                 "srcEdges": [],
                 "dstEdges": []
               }

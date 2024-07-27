@@ -18,17 +18,17 @@ import {
   Severity,
 } from "../../internals/errors";
 import {
+  forEachExpression,
+  forEachStatement,
+  foldExpressions,
+} from "../../internals/tactASTUtil";
+import {
   AstStatement,
   AstNode,
   AstExpression,
   AstOpBinary,
   SrcInfo,
 } from "@tact-lang/compiler/dist/grammar/ast";
-import { forEachExpression } from "../../internals/tactASTUtil";
-import {
-  forEachStatement,
-  foldExpressions,
-} from "@tact-lang/compiler/dist/grammar/iterators";
 
 /**
  * A detector that identifies and corrects instances of division before multiplication to

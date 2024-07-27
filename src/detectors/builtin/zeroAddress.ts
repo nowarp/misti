@@ -7,8 +7,8 @@ import {
   MistiTactError,
   Severity,
 } from "../../internals/errors";
+import { foldExpressions } from "../../internals/tactASTUtil";
 import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
-import { foldExpressions } from "@tact-lang/compiler/dist/grammar/iterators";
 
 function findZeroAddress(
   ctx: MistiContext,
