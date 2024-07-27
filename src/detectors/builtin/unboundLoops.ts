@@ -17,9 +17,12 @@ import {
   Severity,
   makeDocURL,
 } from "../../internals/errors";
-import { extractPath, forEachExpression } from "../../internals/tactASTUtil";
+import {
+  extractPath,
+  forEachExpression,
+  forEachStatement,
+} from "../../internals/tactASTUtil";
 import { AstStatement, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
-import { forEachStatement } from "@tact-lang/compiler/dist/grammar/iterators";
 
 /**
  * A detector that analyzes loop conditions and control flow to ensure loops have proper termination criteria.

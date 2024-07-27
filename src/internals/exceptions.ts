@@ -3,6 +3,8 @@ import JSONbig from "json-bigint";
 
 const REPORT_TEXT =
   "Please report this output and the input sources to https://github.com/nowarp/misti/issues/new";
+const SEPARATOR =
+  "============================================================";
 
 export class TactException {
   private constructor() {}
@@ -11,9 +13,10 @@ export class TactException {
       return new Error(
         [
           "Internal Tact Compiler Error:",
+          SEPARATOR,
           error.message,
           error.stack,
-          "",
+          SEPARATOR,
           REPORT_TEXT,
         ].join("\n"),
       );
@@ -44,7 +47,7 @@ export class InternalException {
         msg,
         ...(node === undefined
           ? []
-          : [`AST node:\n${JSONbig.stringify(node, null, 2)}`]),
+          : [`${SEPARATOR}\nAST node:\n${JSONbig.stringify(node, null, 2)}`]),
         REPORT_TEXT,
       ].join("\n"),
     );
