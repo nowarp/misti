@@ -1,3 +1,4 @@
+import { InternalException } from "../exceptions";
 import { JoinSemilattice } from "../lattice";
 import {
   CFG,
@@ -79,7 +80,7 @@ export class WorklistSolver<State> implements Solver<State> {
 
       const stmt = this.cu.ast.getStatement(node.stmtID);
       if (stmt === undefined) {
-        throw new Error(
+        throw InternalException.make(
           `Cannot find statement #${node.stmtID} defined within node #${node.idx}`,
         );
       }

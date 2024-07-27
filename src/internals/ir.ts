@@ -1,3 +1,4 @@
+import { InternalException } from "./exceptions";
 import {
   SrcInfo,
   AstStatement,
@@ -78,7 +79,7 @@ export class TactASTStore {
       } else if (this.traits.has(id)) {
         acc.push(this.traits.get(id)!);
       } else {
-        throw new Error(`No entry found for ID: ${id}`);
+        throw InternalException.make(`No entry found for ID: ${id}`);
       }
       return acc;
     }, [] as AstNode[]);
@@ -608,7 +609,9 @@ export class CFG {
       if (astNode) {
         callback(astNode, cfgNode);
       } else {
-        throw new Error(`Cannot find a statement: #${cfgNode.stmtID}`);
+        throw InternalException.make(
+          `Cannot find a statement: #${cfgNode.stmtID}`,
+        );
       }
     });
   }
@@ -743,7 +746,7 @@ export class CompilationUnit {
 export function getPredecessors(cfg: CFG, node: Node): Node[] {
   const predecessors = cfg.getPredecessors(node.idx);
   if (predecessors === undefined) {
-    throw new Error(
+    throw InternalException.make(
       `Incorrect definition in the CFG: Node #${node.idx} has an undefined predecessor`,
     );
   }
@@ -756,7 +759,7 @@ export function getPredecessors(cfg: CFG, node: Node): Node[] {
 export function getSuccessors(cfg: CFG, node: Node): Node[] {
   const successors = cfg.getSuccessors(node.idx);
   if (successors === undefined) {
-    throw new Error(
+    throw InternalException.make(
       `Incorrect definition in the CFG: Node #${node.idx} has an undefined predecessor`,
     );
   }
