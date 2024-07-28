@@ -47,7 +47,7 @@ export class InternalException {
         msg,
         ...(node === undefined
           ? []
-          : [`${SEPARATOR}\nAST node:\n${JSONbig.stringify(node, null, 2)}`]),
+          : [`AST node:\n${JSONbig.stringify(node, null, 2)}`]),
         REPORT_TEXT,
       ].join("\n"),
     );
