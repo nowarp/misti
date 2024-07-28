@@ -1,6 +1,7 @@
-import { AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
 import { CompilationUnit, CFG, Node } from "./ir";
-
+import { InternalException } from "./exceptions";
+import { prettyPrint } from "./prettyPrinter";
+import { AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
 import JSONbig from "json-bigint";
 
 /**
@@ -17,20 +18,20 @@ export class GraphvizDumper {
    * @returns The Graphviz dot representation of the compilation unit.
    */
   public static dumpCU(cu: CompilationUnit, dumpStdlib: boolean): string {
-    let graph = `digraph ${cu.projectName} {\n`;
+    let graph = `digraph "${cu.projectName}" {\n`;
     graph += "    node [shape=box];\n";
     cu.functions.forEach((cfg) => {
       if (!dumpStdlib && cfg.origin == "stdlib") {
         return;
       }
-      graph += this.dumpCFG(cfg, cfg.name);
+      graph += this.dumpCFG(cu, cfg, cfg.name);
     });
     cu.contracts.forEach((contract) => {
       contract.methods.forEach((cfg) => {
         if (!dumpStdlib && cfg.origin == "stdlib") {
           return;
         }
-        graph += this.dumpCFG(cfg, `${contract.name}__${cfg.name}`);
+        graph += this.dumpCFG(cu, cfg, `${contract.name}__${cfg.name}`);
       });
     });
     graph += this.connectFunctionCalls(cu);
@@ -63,21 +64,61 @@ export class GraphvizDumper {
    * @param prefix A prefix to uniquely identify nodes across multiple CFGs.
    * @returns The Graphviz dot representation of the CFG.
    */
-  private static dumpCFG(cfg: CFG, prefix: string): string {
-    let output = `    subgraph cluster_${prefix} {\n`;
+  private static dumpCFG(
+    cu: CompilationUnit,
+    cfg: CFG,
+    prefix: string,
+  ): string {
+    let output = `    subgraph "cluster_${prefix}" {\n`;
     output += `        label="${prefix}";\n`;
     if (cfg.origin == "stdlib") {
       output += `        style=filled;\n`;
       output += `        color=lightgrey;\n`;
     }
-    cfg.nodes.forEach((node) => {
-      output += `        "${prefix}_${node.idx}" [label="Node ${node.idx}"];\n`;
+    cfg.forEachNode(cu.ast, (stmt, node) => {
+      output += `        "${prefix}_${node.idx}" [label="${this.ppSummary(stmt)}"];\n`;
     });
-    cfg.edges.forEach((edge) => {
+    cfg.forEachEdge((edge) => {
       output += `        "${prefix}_${edge.src}" -> "${prefix}_${edge.dst}";\n`;
     });
     output += "    }\n";
     return output;
+  }
+
+  /**
+   * Formats a summary of some statements defined within nodes in order to get more concise graphical representation.
+   */
+  private static ppSummary(stmt: AstStatement): string {
+    const removeTrailingSemicolon = (str: string): string =>
+      str.replace(/;$/, "");
+    const result = (() => {
+      switch (stmt.kind) {
+        case "statement_let":
+        case "statement_return":
+        case "statement_expression":
+        case "statement_assign":
+        case "statement_augmentedassign":
+          return prettyPrint(stmt);
+        case "statement_condition":
+          return `if (${prettyPrint(stmt.condition)})`;
+        case "statement_while":
+          return `while (${prettyPrint(stmt.condition)})`;
+        case "statement_until":
+          return `until (${prettyPrint(stmt.condition)})`;
+        case "statement_repeat":
+          return `repeat (${prettyPrint(stmt.iterations)})`;
+        case "statement_try":
+          return "try";
+        case "statement_try_catch":
+          return `try ... catch (${prettyPrint(stmt.catchName)})`;
+        case "statement_foreach":
+          return `foreach ((${prettyPrint(stmt.keyName)}, ${prettyPrint(stmt.valueName)}) of ${prettyPrint(stmt.map)})`;
+        default:
+          throw InternalException.make("Unsupported statement", { node: stmt });
+      }
+    })();
+
+    return removeTrailingSemicolon(result);
   }
 }
 
