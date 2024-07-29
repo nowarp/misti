@@ -8,7 +8,7 @@ const SEPARATOR =
   "============================================================";
 
 function generateReportText(reportFilePath: string): string {
-  return `Please report input sources to https://github.com/nowarp/misti/issues/new and include the file: ${reportFilePath}`;
+  return `The error report was saved to the file: ${reportFilePath}. Please help us publishing it and the input sources at: https://github.com/nowarp/misti/issues/new.`;
 }
 
 export class TactException {
