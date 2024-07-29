@@ -11,21 +11,33 @@ function generateReportText(reportFilePath: string): string {
   return `The error report was saved to the file: ${reportFilePath}. Please help us publishing it and the input sources at: https://github.com/nowarp/misti/issues/new.`;
 }
 
+/**
+ * Represents all the errors coming from the Tact compiler API.
+ */
 export class TactException {
   private constructor() {}
   static make(error: unknown): Error {
     if (!(error instanceof Error)) {
       throw error;
     }
+    const tactStack = error.stack;
+    // Display errors that should not be repored as issues.
+    if (this.isParserError(tactStack)) {
+      return new Error(`Syntax error: ${error.message}`);
+    }
+    if (this.isCompilationError(tactStack)) {
+      return new Error(`Compilation error: ${error.message}`);
+    }
+
+    // Display an error that should be reported to issues.
     const errorKind = "Internal Tact Compiler Error:";
     const fullMsg = [
       errorKind,
       SEPARATOR,
       error.message,
-      error.stack,
+      tactStack,
       SEPARATOR,
       getCmd(),
-      getCurrentStackTrace(),
     ].join("\n");
     const shortMsg = [errorKind, error.message].join("\n");
     // Dump full message to the file.
@@ -33,6 +45,20 @@ export class TactException {
     const reportText = generateReportText(reportFilePath);
     // Display short message to the user.
     return new Error([shortMsg, reportText].join("\n"));
+  }
+
+  /**
+   * Returns true iff `stack` represents a syntax error.
+   */
+  static isParserError(stack: string | undefined): boolean {
+    return stack !== undefined && stack.includes("at throwParseError");
+  }
+
+  /**
+   * Returns true iff `stack` represents a syntax error.
+   */
+  static isCompilationError(stack: string | undefined): boolean {
+    return stack !== undefined && stack.includes("at throwCompilationError");
   }
 }
 
