@@ -132,9 +132,10 @@ tags
 docs
 
 # Generated test artifacts
-test/contracts/*.config.json
-test/contracts/*.json
-test/contracts/*.dot
-test/contracts/*.actual.out
-!test/contracts/*.cfg.json
-!test/contracts/*.cfg.dot
+test/good/*.config.json
+test/good/*.json
+test/good/*.dot
+test/good/*.actual.out
+!test/good/*.cfg.json
+!test/good/*.cfg.dot
+test/bad/*.actual.out

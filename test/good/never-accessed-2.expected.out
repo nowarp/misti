@@ -1,4 +1,4 @@
-test/contracts/never-accessed-2.tact:3:5:
+test/good/never-accessed-2.tact:3:5:
   2 |     f1: Address;
 > 3 |     f2: Int as uint256 = 0;
           ^

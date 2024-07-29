@@ -2,7 +2,8 @@ import * as fs from "fs";
 import * as path from "path";
 import { expect } from "@jest/globals";
 
-export const CONTRACTS_DIR = path.resolve(__dirname, "contracts");
+export const GOOD_DIR = path.resolve(__dirname, "good");
+export const BAD_DIR = path.resolve(__dirname, "bad");
 
 /**
  * Provides a minimal TAP-like API.
@@ -37,11 +38,11 @@ export class TAP {
    */
   async compareOutputs(): Promise<void> {
     const actualPath = path.join(
-      CONTRACTS_DIR,
+      GOOD_DIR,
       `${this.contractName}.${this.actualSuffix}`,
     );
     const expectedPath = path.join(
-      CONTRACTS_DIR,
+      GOOD_DIR,
       `${this.contractName}.${this.expectedSuffix}`,
     );
     const [actual, expected] = await Promise.all([
@@ -56,11 +57,11 @@ export class TAP {
    */
   async bless(): Promise<void> {
     const actualPath = path.join(
-      CONTRACTS_DIR,
+      GOOD_DIR,
       `${this.contractName}.${this.actualSuffix}`,
     );
     const expectedPath = path.join(
-      CONTRACTS_DIR,
+      GOOD_DIR,
       `${this.contractName}.${this.expectedSuffix}`,
     );
     const actualOutput = await fs.promises.readFile(actualPath, "utf8");

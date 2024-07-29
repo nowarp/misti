@@ -1,4 +1,4 @@
-test/contracts/loops-4.tact:2:5:
+test/good/loops-4.tact:2:5:
   1 | fun test() {
 > 2 |     let m: map<Int, Int> = emptyMap();
           ^
