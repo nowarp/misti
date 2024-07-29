@@ -1,14 +1,13 @@
-import { Command } from "commander";
-import * as packageJson from "../package.json";
-
 import { run } from "./driver";
+import { MISTI_VERSION, TACT_VERSION } from "./version";
+import { Command } from "commander";
 
 const command = new Command();
 
 command
   .name("misti")
   .description("TON Static Analyzer")
-  .version(packageJson.version)
+  .version(`${MISTI_VERSION}\n\nSupported Tact version: ${TACT_VERSION}`)
   .arguments("<TACT_CONFIG_PATH|TACT_FILE_PATH>")
   .option("--dump-cfg <type>", "Dump CFG in format: 'json' or 'dot'", undefined)
   .option(
