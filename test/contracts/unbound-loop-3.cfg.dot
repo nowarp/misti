@@ -1,0 +1,14 @@
+digraph "unbound-loop-3" {
+    node [shape=box];
+    subgraph "cluster_test" {
+        label="test";
+        "test_141" [label="let a: Int = 20"];
+        "test_142" [label="while (a > 10)"];
+        "test_144" [label="a += 1"];
+        "test_147" [label="return a"];
+        "test_141" -> "test_142";
+        "test_142" -> "test_144";
+        "test_144" -> "test_142";
+        "test_142" -> "test_147";
+    }
+}

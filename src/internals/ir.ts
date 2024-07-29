@@ -600,7 +600,7 @@ export class CFG {
    * @param astStore The store containing the AST nodes.
    * @param callback The function to apply to each node.
    */
-  forEachNode(
+  public forEachNode(
     astStore: TactASTStore,
     callback: (stmt: AstStatement, cfgNode: Node) => void,
   ) {
@@ -620,7 +620,7 @@ export class CFG {
    * Iterates over all edges in a CFG, applying a callback to each edge.
    * @param callback The function to apply to each edge.
    */
-  forEachEdge(callback: (cfgEdge: Edge) => void) {
+  public forEachEdge(callback: (cfgEdge: Edge) => void) {
     this.edges.forEach((cfgEdge) => {
       callback(cfgEdge);
     });

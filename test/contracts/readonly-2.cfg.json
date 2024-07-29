@@ -6,42 +6,42 @@
       "cfg": {
         "nodes": [
           {
-            "id": 2034,
-            "stmtID": 20634,
+            "id": 141,
+            "stmtID": 49035,
             "srcEdges": [],
             "dstEdges": [
-              2036
+              143
             ]
           },
           {
-            "id": 2035,
-            "stmtID": 20638,
+            "id": 142,
+            "stmtID": 49039,
             "srcEdges": [
-              2036
+              143
             ],
             "dstEdges": [
-              2038
+              145
             ]
           },
           {
-            "id": 2037,
-            "stmtID": 20640,
+            "id": 144,
+            "stmtID": 49041,
             "srcEdges": [
-              2038
+              145
             ],
             "dstEdges": []
           }
         ],
         "edges": [
           {
-            "id": 2036,
-            "src": 2034,
-            "dst": 2035
+            "id": 143,
+            "src": 141,
+            "dst": 142
           },
           {
-            "id": 2038,
-            "src": 2035,
-            "dst": 2037
+            "id": 145,
+            "src": 142,
+            "dst": 144
           }
         ]
       }

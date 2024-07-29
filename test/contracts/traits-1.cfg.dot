@@ -1,0 +1,7 @@
+digraph "traits-1" {
+    node [shape=box];
+    subgraph "cluster_TestContract__getter" {
+        label="TestContract__getter";
+        "TestContract__getter_141" [label="return 0"];
+    }
+}
