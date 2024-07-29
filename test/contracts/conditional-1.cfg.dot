@@ -6,7 +6,7 @@ digraph "conditional-1" {
         "test_142" [label="if (a > 42)"];
         "test_144" [label="a = 23"];
         "test_146" [label="let b: Int = a + 1"];
-        "test_148" [label="return b"];
+        "test_148" [label="return b",style=filled,fillcolor="#66A7DB"];
         "test_141" -> "test_142";
         "test_142" -> "test_144";
         "test_144" -> "test_146";

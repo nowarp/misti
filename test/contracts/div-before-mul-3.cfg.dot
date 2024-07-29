@@ -7,7 +7,7 @@ digraph "div-before-mul-3" {
         "test_144" [label="let taintedWithA1: Int = 2 - a"];
         "test_146" [label="let taintedWithA2: Int = 55 + taintedWithA1"];
         "test_148" [label="let result: Int = taintedWithA2 * c"];
-        "test_150" [label="return result"];
+        "test_150" [label="return result",style=filled,fillcolor="#66A7DB"];
         "test_141" -> "test_142";
         "test_142" -> "test_144";
         "test_144" -> "test_146";

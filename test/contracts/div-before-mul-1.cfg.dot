@@ -6,7 +6,7 @@ digraph "div-before-mul-1" {
         "test_142" [label="let b: Int = 3"];
         "test_144" [label="let c: Int = 2"];
         "test_146" [label="let result: Int = a / b * c"];
-        "test_148" [label="return result"];
+        "test_148" [label="return result",style=filled,fillcolor="#66A7DB"];
         "test_141" -> "test_142";
         "test_142" -> "test_144";
         "test_144" -> "test_146";
