@@ -229,9 +229,8 @@ export class AstMapper {
         break;
       case "statement_while":
       case "statement_until":
-        stmt.statements.forEach((s) => this.processStmt(s));
-        break;
       case "statement_repeat":
+      case "statement_foreach":
         stmt.statements.forEach((s) => this.processStmt(s));
         break;
       default:
@@ -626,7 +625,8 @@ export class TactIRBuilder {
       } else if (
         stmt.kind == "statement_while" ||
         stmt.kind == "statement_until" ||
-        stmt.kind == "statement_repeat"
+        stmt.kind == "statement_repeat" ||
+        stmt.kind == "statement_foreach"
       ) {
         // Create an edge from the current node (loop condition) back to the start of the loop body,
         // and from the end of the loop body back to the current node to represent the loop's cycle.

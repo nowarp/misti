@@ -1,0 +1,10 @@
+digraph "loops-4" {
+    node [shape=box];
+    subgraph "cluster_test" {
+        label="test";
+        "test_141" [label="let m: map<Int, Int> = emptyMap()"];
+        "test_142" [label="foreach ((k, v) of m)"];
+        "test_141" -> "test_142";
+        "test_142" -> "test_142";
+    }
+}

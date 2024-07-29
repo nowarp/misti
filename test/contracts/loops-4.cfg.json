@@ -1,5 +1,5 @@
 {
-  "projectName": "unbound-loop-2",
+  "projectName": "loops-4",
   "functions": [
     {
       "name": "test",
@@ -7,7 +7,7 @@
         "nodes": [
           {
             "id": 141,
-            "stmtID": 61843,
+            "stmtID": 29445,
             "srcEdges": [],
             "dstEdges": [
               143
@@ -15,23 +15,14 @@
           },
           {
             "id": 142,
-            "stmtID": 61847,
+            "stmtID": 29449,
             "srcEdges": [
               143,
               144
             ],
             "dstEdges": [
-              144,
-              146
+              144
             ]
-          },
-          {
-            "id": 145,
-            "stmtID": 61849,
-            "srcEdges": [
-              146
-            ],
-            "dstEdges": []
           }
         ],
         "edges": [
@@ -44,11 +35,6 @@
             "id": 144,
             "src": 142,
             "dst": 142
-          },
-          {
-            "id": 146,
-            "src": 142,
-            "dst": 145
           }
         ]
       }
