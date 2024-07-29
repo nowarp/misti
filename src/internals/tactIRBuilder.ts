@@ -233,6 +233,13 @@ export class AstMapper {
       case "statement_foreach":
         stmt.statements.forEach((s) => this.processStmt(s));
         break;
+      case "statement_try":
+        stmt.statements.forEach((s) => this.processStmt(s));
+        break;
+      case "statement_try_catch":
+        stmt.statements.forEach((s) => this.processStmt(s));
+        stmt.catchStatements.forEach((s) => this.processStmt(s));
+        break;
       default:
         throw InternalException.make("Unsupported statement", { node: stmt });
     }
@@ -649,6 +656,41 @@ export class TactIRBuilder {
         }
         // Connect condition with the statement after loop.
         lastNodeIdxes = [newNode.idx];
+      } else if (
+        stmt.kind === "statement_try" ||
+        stmt.kind === "statement_try_catch"
+      ) {
+        // Process the try branch.
+        const [tryNodes, tryEdges] = this.processStatements(
+          stmt.statements,
+          nodes,
+          edges,
+          [newNode.idx],
+        );
+        nodes = tryNodes;
+        edges = tryEdges;
+        // Connect the last try block with statements after this `try` block or
+        // with `try` itself if it is empty.
+        lastNodeIdxes =
+          tryNodes.length > 0
+            ? [tryNodes[tryNodes.length - 1].idx]
+            : [newNode.idx];
+
+        // Handle the `catch` clause.
+        if (stmt.kind === "statement_try_catch") {
+          const [catchNodes, catchEdges] = this.processStatements(
+            stmt.catchStatements,
+            nodes,
+            edges,
+            [newNode.idx],
+          );
+          nodes = catchNodes;
+          edges = catchEdges;
+          // Catch block always terminates execution.
+          if (catchNodes.length > 0) {
+            tryNodes[tryNodes.length - 1].kind = { kind: "return" };
+          }
+        }
       } else if (stmt.kind === "statement_return") {
         // No need to connect return statements to subsequent nodes
         lastNodeIdxes = [];
