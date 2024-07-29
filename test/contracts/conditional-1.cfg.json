@@ -6,86 +6,72 @@
       "cfg": {
         "nodes": [
           {
-            "id": 150,
+            "id": 141,
             "stmtID": 1531,
             "srcEdges": [],
             "dstEdges": [
-              152
+              143
             ]
           },
           {
-            "id": 151,
+            "id": 142,
             "stmtID": 1538,
             "srcEdges": [
-              152
+              143
             ],
             "dstEdges": [
-              154,
-              158
+              145
             ]
           },
           {
-            "id": 153,
+            "id": 144,
             "stmtID": 1537,
             "srcEdges": [
-              154
+              145
             ],
             "dstEdges": [
-              156
+              147
             ]
           },
           {
-            "id": 155,
+            "id": 146,
             "stmtID": 1544,
             "srcEdges": [
-              156
-            ],
-            "dstEdges": []
-          },
-          {
-            "id": 157,
-            "stmtID": 1544,
-            "srcEdges": [
-              158
+              147
             ],
             "dstEdges": [
-              160
+              149
             ]
           },
           {
-            "id": 159,
+            "id": 148,
             "stmtID": 1546,
             "srcEdges": [
-              160
+              149
             ],
             "dstEdges": []
           }
         ],
         "edges": [
           {
-            "id": 152,
-            "src": 150,
-            "dst": 151
+            "id": 143,
+            "src": 141,
+            "dst": 142
           },
           {
-            "id": 154,
-            "src": 151,
-            "dst": 153
+            "id": 145,
+            "src": 142,
+            "dst": 144
           },
           {
-            "id": 156,
-            "src": 153,
-            "dst": 155
+            "id": 147,
+            "src": 144,
+            "dst": 146
           },
           {
-            "id": 158,
-            "src": 151,
-            "dst": 157
-          },
-          {
-            "id": 160,
-            "src": 157,
-            "dst": 159
+            "id": 149,
+            "src": 146,
+            "dst": 148
           }
         ]
       }

@@ -1,5 +1,5 @@
 {
-  "projectName": "linear-flow-1",
+  "projectName": "conditional-2",
   "functions": [
     {
       "name": "test",
@@ -7,7 +7,7 @@
         "nodes": [
           {
             "id": 141,
-            "stmtID": 17039,
+            "stmtID": 4627,
             "srcEdges": [],
             "dstEdges": [
               143
@@ -15,29 +15,41 @@
           },
           {
             "id": 142,
-            "stmtID": 17043,
+            "stmtID": 4637,
             "srcEdges": [
               143
             ],
             "dstEdges": [
-              145
+              145,
+              147
             ]
           },
           {
             "id": 144,
-            "stmtID": 17049,
+            "stmtID": 4633,
             "srcEdges": [
               145
             ],
             "dstEdges": [
-              147
+              149
             ]
           },
           {
             "id": 146,
-            "stmtID": 17051,
+            "stmtID": 4636,
             "srcEdges": [
               147
+            ],
+            "dstEdges": [
+              150
+            ]
+          },
+          {
+            "id": 148,
+            "stmtID": 4639,
+            "srcEdges": [
+              149,
+              150
             ],
             "dstEdges": []
           }
@@ -55,8 +67,18 @@
           },
           {
             "id": 147,
-            "src": 144,
+            "src": 142,
             "dst": 146
+          },
+          {
+            "id": 149,
+            "src": 144,
+            "dst": 148
+          },
+          {
+            "id": 150,
+            "src": 146,
+            "dst": 148
           }
         ]
       }

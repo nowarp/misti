@@ -134,5 +134,7 @@ docs
 # Generated test artifacts
 test/contracts/*.config.json
 test/contracts/*.json
+test/contracts/*.dot
 test/contracts/*.actual.out
 !test/contracts/*.cfg.json
+!test/contracts/*.cfg.dot

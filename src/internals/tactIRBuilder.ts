@@ -567,41 +567,25 @@ export class TactIRBuilder {
    * @param statements The array of AstStatement objects.
    * @param nodes An optional array of Node objects to which new nodes will be added.
    * @param edges An optional array of Edge objects to which new edges will be added.
-   * @param parentNodeIdx An optional NodeIdx representing the index of the node from which control flow enters the current sequence of statements.
+   * @param lastNodeIdxes An optional NodeIdx representing the index of the node from which control flow enters the current sequence of statements.
    * @returns A tuple containing the arrays of Node and Edge objects representing the CFG derived from the statements.
    */
   processStatements(
     statements: AstStatement[],
     nodes: Node[] = [],
     edges: Edge[] = [],
-    parentNodeIdx?: NodeIdx,
+    lastNodeIdxes: NodeIdx[] = [],
   ): [Node[], Edge[]] {
-    let lastNodeIdx: NodeIdx | undefined = parentNodeIdx;
-
-    statements.forEach((stmt, index) => {
+    statements.forEach((stmt, _index) => {
       const newNode = new Node(stmt.id, this.getNodeKind(stmt));
       nodes.push(newNode);
-
-      // For the first node, if there's a parent node, connect this node to the parent
-      if (index === 0 && parentNodeIdx !== undefined) {
-        const edgeToParent = new Edge(parentNodeIdx, newNode.idx);
-        edges.push(edgeToParent);
-        nodes
-          .find((node) => node.idx === parentNodeIdx)
-          ?.dstEdges.add(edgeToParent.idx);
-        newNode.srcEdges.add(edgeToParent.idx);
-      } else if (lastNodeIdx !== undefined) {
-        // Connect this node to the last node if it's not the first or has a specific parent node
-        const newEdge = new Edge(lastNodeIdx, newNode.idx);
-        edges.push(newEdge);
-        nodes
-          .find((node) => node.idx === lastNodeIdx)
-          ?.dstEdges.add(newEdge.idx);
-        newNode.srcEdges.add(newEdge.idx);
+      // If there's a parent node, connect this node to the parent
+      if (lastNodeIdxes !== undefined) {
+        lastNodeIdxes.forEach((idx) => {
+          const src = this.getParent(nodes, idx);
+          edges.push(this.addEdge(src, newNode));
+        });
       }
-
-      // Update the lastNodeIdx to the current node's index
-      lastNodeIdx = newNode.idx;
 
       if (
         stmt.kind == "statement_let" ||
@@ -609,62 +593,35 @@ export class TactIRBuilder {
         stmt.kind == "statement_assign" ||
         stmt.kind == "statement_augmentedassign"
       ) {
-        // Logic for linear flow statements
+        // Update the lastNodeIdx to the current node's index
+        lastNodeIdxes = [newNode.idx];
       } else if (stmt.kind === "statement_condition") {
         // Branching logic for trueStatements
         const [trueNodes, trueEdges] = this.processStatements(
           stmt.trueStatements,
           nodes,
           edges,
-          newNode.idx,
+          [newNode.idx],
         );
         nodes = trueNodes;
         edges = trueEdges;
-
         const trueEndNode = trueNodes[trueNodes.length - 1];
 
-        if (stmt.falseStatements) {
+        if (stmt.falseStatements !== null && stmt.falseStatements.length > 0) {
           // Branching logic for falseStatements
           const [falseNodes, falseEdges] = this.processStatements(
             stmt.falseStatements,
             nodes,
             edges,
-            newNode.idx,
+            [newNode.idx],
           );
           nodes = falseNodes;
           edges = falseEdges;
-
           const falseEndNode = falseNodes[falseNodes.length - 1];
-
-          const nextStmt = statements[index + 1];
-          if (nextStmt) {
-            const nextNode = new Node(nextStmt.id, this.getNodeKind(nextStmt));
-            nodes.push(nextNode);
-
-            const edgeToNextFromTrue = new Edge(trueEndNode.idx, nextNode.idx);
-            edges.push(edgeToNextFromTrue);
-            trueEndNode.dstEdges.add(edgeToNextFromTrue.idx);
-            nextNode.srcEdges.add(edgeToNextFromTrue.idx);
-
-            const edgeToNextFromFalse = new Edge(
-              falseEndNode.idx,
-              nextNode.idx,
-            );
-            edges.push(edgeToNextFromFalse);
-            falseEndNode.dstEdges.add(edgeToNextFromFalse.idx);
-            nextNode.srcEdges.add(edgeToNextFromFalse.idx);
-          }
+          lastNodeIdxes = [trueEndNode.idx, falseEndNode.idx];
         } else {
-          const nextStmt = statements[index + 1];
-          if (nextStmt) {
-            const nextNode = new Node(nextStmt.id, this.getNodeKind(nextStmt));
-            nodes.push(nextNode);
-
-            const edgeToNextFromTrue = new Edge(trueEndNode.idx, nextNode.idx);
-            edges.push(edgeToNextFromTrue);
-            trueEndNode.dstEdges.add(edgeToNextFromTrue.idx);
-            nextNode.srcEdges.add(edgeToNextFromTrue.idx);
-          }
+          // Connect the end of the true branch to the next statement
+          lastNodeIdxes = [trueEndNode.idx];
         }
       } else if (
         stmt.kind == "statement_while" ||
@@ -678,46 +635,46 @@ export class TactIRBuilder {
         // Process the statements within the loop body.
         const [loopNodes, loopEdges] = this.processStatements(
           stmt.statements,
-          [],
-          [],
-          newNode.idx, // Pass the loop condition node as the parent node to link back to.
+          nodes,
+          edges,
+          [newNode.idx],
         );
-
-        // Concatenate the loop nodes and edges with the main lists.
-        nodes = nodes.concat(loopNodes);
-        edges = edges.concat(loopEdges);
+        nodes = loopNodes;
+        edges = loopEdges;
 
         // Create an edge from the last node in the loop back to the condition to represent the loop's cycle.
         if (loopNodes.length > 0) {
-          const backEdge = new Edge(
-            loopNodes[loopNodes.length - 1].idx,
-            newNode.idx,
-          );
-          edges.push(backEdge);
-          loopNodes[loopNodes.length - 1].dstEdges.add(backEdge.idx);
-          newNode.srcEdges.add(backEdge.idx);
+          const lastNode = loopNodes[loopNodes.length - 1];
+          edges.push(this.addEdge(lastNode, newNode));
         }
-
-        const nextStmt = statements[index + 1];
-        if (nextStmt) {
-          const nextNode = new Node(nextStmt.id, this.getNodeKind(nextStmt));
-          nodes.push(nextNode);
-          const exitEdge = new Edge(newNode.idx, nextNode.idx);
-          edges.push(exitEdge);
-          newNode.dstEdges.add(exitEdge.idx);
-          nextNode.srcEdges.add(exitEdge.idx);
-        }
-
-        lastNodeIdx = undefined;
+        // Connect condition with the statement after loop.
+        lastNodeIdxes = [newNode.idx];
       } else if (stmt.kind === "statement_return") {
         // No need to connect return statements to subsequent nodes
-        lastNodeIdx = undefined; // This effectively ends the current flow
+        lastNodeIdxes = [];
       } else {
         throw InternalException.make("Unsupported statement", { node: stmt });
       }
     });
 
     return [nodes, edges];
+  }
+
+  private getParent(nodes: Node[], idx: NodeIdx): Node {
+    const node = nodes.find((node) => node.idx === idx);
+    if (node === undefined) {
+      throw InternalException.make(
+        `Cannot find node with index=${idx}. Available nodes: ${nodes.map((n) => n.idx)}`,
+      );
+    }
+    return node;
+  }
+
+  private addEdge(src: Node, dst: Node): Edge {
+    const edge = new Edge(src.idx, dst.idx);
+    src.dstEdges.add(edge.idx);
+    dst.srcEdges.add(edge.idx);
+    return edge;
   }
 }
 

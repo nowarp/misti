@@ -1,0 +1,17 @@
+digraph "div-before-mul-3" {
+    node [shape=box];
+    subgraph "cluster_test" {
+        label="test";
+        "test_141" [label="let a: Int = 10 / 3"];
+        "test_142" [label="let c: Int = 2"];
+        "test_144" [label="let taintedWithA1: Int = 2 - a"];
+        "test_146" [label="let taintedWithA2: Int = 55 + taintedWithA1"];
+        "test_148" [label="let result: Int = taintedWithA2 * c"];
+        "test_150" [label="return result"];
+        "test_141" -> "test_142";
+        "test_142" -> "test_144";
+        "test_144" -> "test_146";
+        "test_146" -> "test_148";
+        "test_148" -> "test_150";
+    }
+}

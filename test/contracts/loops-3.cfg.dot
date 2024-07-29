@@ -1,0 +1,18 @@
+digraph "loops-3" {
+    node [shape=box];
+    subgraph "cluster_test" {
+        label="test";
+        "test_141" [label="let sum: Int = 0"];
+        "test_142" [label="let i: Int = 0"];
+        "test_144" [label="repeat (10)"];
+        "test_146" [label="i = i + 1"];
+        "test_148" [label="sum = sum + i"];
+        "test_151" [label="return sum"];
+        "test_141" -> "test_142";
+        "test_142" -> "test_144";
+        "test_144" -> "test_146";
+        "test_146" -> "test_148";
+        "test_148" -> "test_144";
+        "test_144" -> "test_151";
+    }
+}

@@ -6,12 +6,12 @@
       "name": "FieldTest",
       "methods": [
         {
-          "name": "FieldTest.init_14095",
+          "name": "FieldTest.init_35939",
           "cfg": {
             "nodes": [
               {
-                "id": 1418,
-                "stmtID": 14086,
+                "id": 142,
+                "stmtID": 35930,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -24,8 +24,8 @@
           "cfg": {
             "nodes": [
               {
-                "id": 1419,
-                "stmtID": 14093,
+                "id": 143,
+                "stmtID": 35937,
                 "srcEdges": [],
                 "dstEdges": []
               }
