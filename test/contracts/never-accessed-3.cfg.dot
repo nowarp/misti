@@ -1,7 +1,7 @@
 digraph "never-accessed-3" {
     node [shape=box];
-    subgraph "cluster_FieldTest__init_40925" {
-        label="FieldTest__init_40925";
-        "FieldTest__init_40925_141" [label="self.f1 = sender()"];
+    subgraph "cluster_FieldTest__init_44003" {
+        label="FieldTest__init_44003";
+        "FieldTest__init_44003_141" [label="self.f1 = sender()"];
     }
 }
