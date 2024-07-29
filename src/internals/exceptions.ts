@@ -21,7 +21,7 @@ export class TactException {
       throw error;
     }
     const tactStack = error.stack;
-    // Display errors that should not be repored as issues.
+    // Display errors that should not be reported as issues.
     if (this.isParserError(tactStack)) {
       return new Error(`Syntax error: ${error.message}`);
     }
