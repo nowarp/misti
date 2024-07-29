@@ -17,6 +17,8 @@ export class TactException {
           error.message,
           error.stack,
           SEPARATOR,
+          `Misti Backtrace: ${getCurrentStackTrace()}`,
+          SEPARATOR,
           REPORT_TEXT,
         ].join("\n"),
       );
@@ -47,9 +49,24 @@ export class InternalException {
         msg,
         ...(node === undefined
           ? []
-          : [`AST node:\n${JSONbig.stringify(node, null, 2)}`]),
+          : [`${SEPARATOR}AST node:\n${JSONbig.stringify(node, null, 2)}`]),
+        SEPARATOR,
+        `Misti Backtrace: ${getCurrentStackTrace()}`,
+        SEPARATOR,
         REPORT_TEXT,
       ].join("\n"),
     );
+  }
+}
+
+function getCurrentStackTrace(): string {
+  try {
+    throw new Error();
+  } catch (error) {
+    if (error instanceof Error) {
+      return error.stack || "No stack trace available";
+    } else {
+      return "Unable to get stack trace";
+    }
   }
 }
