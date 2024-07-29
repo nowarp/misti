@@ -8,7 +8,7 @@ digraph "unbound-loop-4" {
         "test_142" [label="let a: Int = 20"];
         "test_143" [label="while (a > 10)"];
         "test_145" [label="fn(a)"];
-        "test_148" [label="return a"];
+        "test_148" [label="return a",style=filled,fillcolor="#66A7DB"];
         "test_142" -> "test_143";
         "test_143" -> "test_145";
         "test_145" -> "test_143";

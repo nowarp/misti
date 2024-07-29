@@ -7,7 +7,7 @@ digraph "loops-3" {
         "test_144" [label="repeat (10)"];
         "test_146" [label="i = i + 1"];
         "test_148" [label="sum = sum + i"];
-        "test_151" [label="return sum"];
+        "test_151" [label="return sum",style=filled,fillcolor="#66A7DB"];
         "test_141" -> "test_142";
         "test_142" -> "test_144";
         "test_144" -> "test_146";

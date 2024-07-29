@@ -7,7 +7,7 @@ digraph "readonly-1" {
         "test_144" [label="let c: Int = 24"];
         "test_146" [label="if (true)"];
         "test_148" [label="c = a + b"];
-        "test_150" [label="return c"];
+        "test_150" [label="return c",style=filled,fillcolor="#66A7DB"];
         "test_141" -> "test_142";
         "test_142" -> "test_144";
         "test_144" -> "test_146";

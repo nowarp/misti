@@ -6,7 +6,7 @@ digraph "conditional-2" {
         "test_142" [label="if (a > 42)"];
         "test_144" [label="a = 23"];
         "test_146" [label="a = 22"];
-        "test_148" [label="return a"];
+        "test_148" [label="return a",style=filled,fillcolor="#66A7DB"];
         "test_141" -> "test_142";
         "test_142" -> "test_144";
         "test_142" -> "test_146";

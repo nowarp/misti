@@ -76,7 +76,9 @@ export class GraphvizDumper {
       output += `        color=lightgrey;\n`;
     }
     cfg.forEachNode(cu.ast, (stmt, node) => {
-      output += `        "${prefix}_${node.idx}" [label="${this.ppSummary(stmt)}"];\n`;
+      const color =
+        node.kind.kind === "return" ? ',style=filled,fillcolor="#66A7DB"' : "";
+      output += `        "${prefix}_${node.idx}" [label="${this.ppSummary(stmt)}"${color}];\n`;
     });
     cfg.forEachEdge((edge) => {
       output += `        "${prefix}_${edge.src}" -> "${prefix}_${edge.dst}";\n`;
