@@ -178,7 +178,9 @@ export class Driver {
   checkCU(cu: CompilationUnit): MistiTactError[] {
     return this.detectors.reduce((foundErrors, detector) => {
       this.ctx.logger.debug(`Running ${detector.constructor.name}...`);
-      return foundErrors.concat(detector.check(this.ctx, cu));
+      const errors = foundErrors.concat(detector.check(this.ctx, cu));
+      this.ctx.logger.debug(`Finished ${detector.constructor.name}`);
+      return errors;
     }, [] as MistiTactError[]);
   }
 }
