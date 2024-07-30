@@ -66,9 +66,13 @@ export class InternalException {
   private constructor() {}
   static make(
     msg: string,
-    params: Partial<{ loc?: SrcInfo; node?: AstNode }> = {},
+    params: Partial<{
+      loc: SrcInfo;
+      node: AstNode;
+      generateReport: boolean;
+    }> = {},
   ): Error {
-    const { loc = undefined, node = undefined } = params;
+    const { loc = undefined, node = undefined, generateReport = true } = params;
     const locStr = this.makeLocationString(loc);
     const errorKind = `Internal Misti Error${locStr}:`;
     const fullMsg = [
@@ -82,6 +86,9 @@ export class InternalException {
       getCurrentStackTrace(),
     ].join("\n");
     const shortMsg = [errorKind, msg].join("\n");
+    if (!generateReport) {
+      return new Error(shortMsg);
+    }
     const reportFilePath = dumpReportFile(fullMsg, shortMsg);
     const reportText = generateReportText(reportFilePath);
     // Display short message to the user.
@@ -139,5 +146,19 @@ function dumpReportFile(
     return reportFile;
   } catch (error) {
     throw new Error(shortMsg);
+  }
+}
+
+/**
+ * Wraps the `try` clause adding an extra context to the exception text.
+ */
+export function tryMsg(callback: () => void, message: string) {
+  try {
+    callback();
+  } catch (err) {
+    if (!(err instanceof Error)) {
+      throw err;
+    }
+    throw new Error(`${message}: ${err.message}`);
   }
 }
