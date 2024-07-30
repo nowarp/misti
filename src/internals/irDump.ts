@@ -93,6 +93,8 @@ export class GraphvizDumper {
   private static ppSummary(stmt: AstStatement): string {
     const removeTrailingSemicolon = (str: string): string =>
       str.replace(/;$/, "");
+    const escapeDoubleQuotes = (str: string): string =>
+      str.replace(/"/g, '\\"');
     const result = (() => {
       switch (stmt.kind) {
         case "statement_let":
@@ -119,8 +121,7 @@ export class GraphvizDumper {
           throw InternalException.make("Unsupported statement", { node: stmt });
       }
     })();
-
-    return removeTrailingSemicolon(result);
+    return escapeDoubleQuotes(removeTrailingSemicolon(result));
   }
 }
 

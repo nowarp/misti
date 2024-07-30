@@ -1,0 +1,7 @@
+digraph "string-literals" {
+    node [shape=box];
+    subgraph "cluster_test" {
+        label="test";
+        "test_141" [label="require(true, \"Invalid value\")"];
+    }
+}

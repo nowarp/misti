@@ -1,0 +1,20 @@
+{
+  "projectName": "string-literals",
+  "functions": [
+    {
+      "name": "test",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 141,
+            "stmtID": 55191,
+            "srcEdges": [],
+            "dstEdges": []
+          }
+        ],
+        "edges": []
+      }
+    }
+  ],
+  "contracts": []
+}
