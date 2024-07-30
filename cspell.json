@@ -89,6 +89,7 @@
     "PUSHREF",
     "PUSHSLICE",
     "SETINDEXVARQ",
+    "nowarp",
     "Idxes"
   ],
   "flagWords": [],

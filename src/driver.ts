@@ -285,7 +285,7 @@ class SingleContractProjectManager {
     };
     tryMsg(
       () => fs.writeFileSync(configPath, JSON.stringify(config), "utf8"),
-      `Cannot create a default project configuraiton at ${configPath}`,
+      `Cannot create a default project configuration at ${configPath}`,
     );
     tryMsg(
       () =>
