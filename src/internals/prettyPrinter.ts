@@ -620,7 +620,6 @@ export class PrettyPrinter {
  * @param input The AST node to format.
  * @returns A string that represents the formatted AST node.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function prettyPrint(input: AstNode): string {
   const pp = new PrettyPrinter();
   switch (input.kind) {
