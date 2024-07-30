@@ -1,5 +1,6 @@
 import { MistiContext } from "./internals/context";
 import { Logger } from "./internals/logger";
+import { tryMsg } from "./internals/exceptions";
 import { createIR } from "./internals/tactIRBuilder";
 import { GraphvizDumper, JSONDumper } from "./internals/irDump";
 import { ProjectName, CompilationUnit } from "./internals/ir";
@@ -30,9 +31,15 @@ export class Driver {
     quiet?: boolean,
     mistiConfigPath?: string,
   ) {
+    const singleContract = tactPath.endsWith(".tact");
+    // Check if the input file exists.
+    if (!fs.existsSync(tactPath)) {
+      throw new Error(
+        `${singleContract ? "Contract" : "Project"} ${tactPath} is not available.`,
+      );
+    }
     // Tact internals expect as an input a configuration file. Thus we have to
     // create a dummy config for a single contract with default options.
-    const singleContract = tactPath.endsWith(".tact");
     this.tactConfigPath = singleContract
       ? SingleContractProjectManager.fromContractPath(tactPath).generate()
       : path.resolve(tactPath); // Tact supports absolute paths only
@@ -276,10 +283,17 @@ class SingleContractProjectManager {
         },
       ],
     };
-    fs.writeFileSync(configPath, JSON.stringify(config), "utf8");
-    fs.copyFileSync(
-      this.contractPath,
-      path.join(tempDir, relativeContractPath),
+    tryMsg(
+      () => fs.writeFileSync(configPath, JSON.stringify(config), "utf8"),
+      `Cannot create a default project configuraiton at ${configPath}`,
+    );
+    tryMsg(
+      () =>
+        fs.copyFileSync(
+          this.contractPath,
+          path.join(tempDir, relativeContractPath),
+        ),
+      `Cannot access the ${this.contractPath} contact`,
     );
     return configPath;
   }
