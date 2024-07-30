@@ -1,0 +1,8 @@
+test/good/never-accessed-5.tact:2:19:
+  1 | fun test() {
+> 2 |     while(true) { let a: Int = 0; }
+                        ^
+  3 | }
+Read-only variable
+Help: Consider creating a constant instead
+See: https://nowarp.github.io/docs/misti/docs/detectors/ReadOnlyVariables

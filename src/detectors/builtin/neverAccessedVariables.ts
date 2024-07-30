@@ -1,4 +1,5 @@
 import { WorklistSolver } from "../../internals/solver/";
+import { Interval as RawInterval } from "ohm-js";
 import { Transfer } from "../../internals/transfer";
 import { Detector } from "../detector";
 import { JoinSemilattice } from "../../internals/lattice";
@@ -20,13 +21,81 @@ import {
 
 type FieldName = string;
 type ConstantName = string;
+type VariableName = string;
+
+type SrcInfoPair = [VariableName, SrcInfo];
 
 interface VariableState {
-  declared: Set<[string, SrcInfo]>;
+  declared: DeclSet;
   // The variable identifier was accessed in any expression
-  accessed: Set<string>;
+  accessed: Set<VariableName>;
   // The variable value was reassigned
-  written: Set<string>;
+  written: Set<VariableName>;
+}
+
+/**
+ * Set containing information about the declared variables.
+ * We need this, since SrcInfo objects cannot be trivially compared.
+ */
+class DeclSet {
+  private items: SrcInfoPair[];
+
+  constructor(pairs?: SrcInfoPair[]) {
+    this.items = [];
+    if (pairs) {
+      pairs.forEach((pair) => this.add(pair));
+    }
+  }
+
+  add(item: SrcInfoPair) {
+    if (!this.has(item)) {
+      this.items.push(item);
+    }
+  }
+
+  has(item: SrcInfoPair): boolean {
+    return this.items.some((existingItem) =>
+      this.equals(existingItem[1], item[1]),
+    );
+  }
+
+  delete(item: SrcInfoPair): boolean {
+    const index = this.items.findIndex((existingItem) =>
+      this.equals(existingItem[1], item[1]),
+    );
+    if (index !== -1) {
+      this.items.splice(index, 1);
+      return true;
+    }
+    return false;
+  }
+
+  extract(): SrcInfoPair[] {
+    return this.items.slice();
+  }
+
+  private equals(srcInfo1: SrcInfo, srcInfo2: SrcInfo): boolean {
+    return (
+      srcInfo1.file === srcInfo2.file &&
+      srcInfo1.contents === srcInfo2.contents &&
+      this.compareIntervals(srcInfo1.interval, srcInfo2.interval) &&
+      srcInfo1.origin === srcInfo2.origin
+    );
+  }
+
+  private compareIntervals(
+    interval1: RawInterval,
+    interval2: RawInterval,
+  ): boolean {
+    return (
+      interval1.sourceString === interval2.sourceString &&
+      interval1.startIdx === interval2.startIdx &&
+      interval1.endIdx === interval2.endIdx &&
+      interval1.contents === interval2.contents
+    );
+  }
+
+  // Other necessary set methods (size, clear, etc.)
 }
 
 /**
@@ -34,11 +103,14 @@ interface VariableState {
  */
 class VariableUsageLattice implements JoinSemilattice<VariableState> {
   bottom(): VariableState {
-    return { declared: new Set(), accessed: new Set(), written: new Set() };
+    return { declared: new DeclSet(), accessed: new Set(), written: new Set() };
   }
 
   join(a: VariableState, b: VariableState): VariableState {
-    const declared = new Set([...a.declared, ...b.declared]);
+    const declared = new DeclSet([
+      ...a.declared.extract(),
+      ...b.declared.extract(),
+    ]);
     const accessed = new Set([...a.accessed, ...b.accessed]);
     const written = new Set([...a.written, ...b.written]);
     return { declared, accessed, written };
@@ -46,7 +118,7 @@ class VariableUsageLattice implements JoinSemilattice<VariableState> {
 
   leq(a: VariableState, b: VariableState): boolean {
     return (
-      [...a.declared].every((x) => b.declared.has(x)) &&
+      [...a.declared.extract()].every((x) => b.declared.has(x)) &&
       [...a.accessed].every((x) => b.accessed.has(x)) &&
       [...a.written].every((x) => b.written.has(x))
     );
@@ -229,9 +301,9 @@ export class NeverAccessedVariables extends Detector {
         if (!cfg.getNode(nodeIdx)!.isExit()) {
           return;
         }
-        state.declared.forEach(([name, ref]) =>
-          declaredVariables.set(name, ref),
-        );
+        state.declared
+          .extract()
+          .forEach(([name, ref]) => declaredVariables.set(name, ref));
         state.accessed.forEach((name) => accessedVariables.add(name));
         state.written.forEach((name) => writtenVariables.add(name));
       });

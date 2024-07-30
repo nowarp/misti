@@ -1,5 +1,5 @@
 {
-  "projectName": "unbound-loop-1",
+  "projectName": "never-accessed-5",
   "functions": [
     {
       "name": "test",
@@ -7,31 +7,23 @@
         "nodes": [
           {
             "id": 141,
-            "stmtID": 74129,
-            "srcEdges": [],
+            "stmtID": 49014,
+            "srcEdges": [
+              144
+            ],
             "dstEdges": [
               143
             ]
           },
           {
             "id": 142,
-            "stmtID": 74133,
+            "stmtID": 49013,
             "srcEdges": [
-              143,
-              144
+              143
             ],
             "dstEdges": [
-              144,
-              146
+              144
             ]
-          },
-          {
-            "id": 145,
-            "stmtID": 74135,
-            "srcEdges": [
-              146
-            ],
-            "dstEdges": []
           }
         ],
         "edges": [
@@ -43,12 +35,7 @@
           {
             "id": 144,
             "src": 142,
-            "dst": 142
-          },
-          {
-            "id": 146,
-            "src": 142,
-            "dst": 145
+            "dst": 141
           }
         ]
       }
