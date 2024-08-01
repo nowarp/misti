@@ -1,13 +1,13 @@
 digraph "messages-1" {
     node [shape=box];
-    subgraph "cluster_A__receive_internal_comment_34250_increment" {
-        label="A__receive_internal_comment_34250_increment";
-        "A__receive_internal_comment_34250_increment_142" [label="self.val = self.val + 1"];
-        "A__receive_internal_comment_34250_increment_143" [label="self.reply(M{value: self.val}.toCell())"];
-        "A__receive_internal_comment_34250_increment_142" -> "A__receive_internal_comment_34250_increment_143";
+    subgraph "cluster_A__receive_internal_comment_1561_increment" {
+        label="A__receive_internal_comment_1561_increment";
+        "A__receive_internal_comment_1561_increment_142" [label="self.val = self.val + 1"];
+        "A__receive_internal_comment_1561_increment_143" [label="self.reply(M{value: self.val}.toCell())"];
+        "A__receive_internal_comment_1561_increment_142" -> "A__receive_internal_comment_1561_increment_143";
     }
-    subgraph "cluster_A__receive_internal_comment_34265_query" {
-        label="A__receive_internal_comment_34265_query";
-        "A__receive_internal_comment_34265_query_145" [label="self.reply(M{value: self.val}.toCell())"];
+    subgraph "cluster_A__receive_internal_comment_1576_query" {
+        label="A__receive_internal_comment_1576_query";
+        "A__receive_internal_comment_1576_query_145" [label="self.reply(M{value: self.val}.toCell())"];
     }
 }

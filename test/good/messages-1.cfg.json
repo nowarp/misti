@@ -6,12 +6,12 @@
       "name": "A",
       "methods": [
         {
-          "name": "A.receive_internal_comment_32551_increment",
+          "name": "A.receive_internal_comment_1561_increment",
           "cfg": {
             "nodes": [
               {
                 "id": 142,
-                "stmtID": 32537,
+                "stmtID": 1547,
                 "srcEdges": [],
                 "dstEdges": [
                   144
@@ -19,7 +19,7 @@
               },
               {
                 "id": 143,
-                "stmtID": 32550,
+                "stmtID": 1560,
                 "srcEdges": [
                   144
                 ],
@@ -36,12 +36,12 @@
           }
         },
         {
-          "name": "A.receive_internal_comment_32566_query",
+          "name": "A.receive_internal_comment_1576_query",
           "cfg": {
             "nodes": [
               {
                 "id": 145,
-                "stmtID": 32565,
+                "stmtID": 1575,
                 "srcEdges": [],
                 "dstEdges": []
               }

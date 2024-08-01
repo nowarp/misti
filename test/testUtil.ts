@@ -1,6 +1,8 @@
+import { IdxGenerator } from "../src/internals/ir";
+import { __DANGER_resetNodeId } from "@tact-lang/compiler/dist/grammar/ast";
+import { expect } from "@jest/globals";
 import * as fs from "fs";
 import * as path from "path";
-import { expect } from "@jest/globals";
 
 export const GOOD_DIR = path.resolve(__dirname, "good");
 export const BAD_DIR = path.resolve(__dirname, "bad");
@@ -83,4 +85,12 @@ export function processTactFiles(
   fs.readdirSync(directory)
     .filter((file) => file.endsWith(".tact"))
     .forEach(callback);
+}
+
+/***
+ * Resets IDs, making the names and IDs in the expected dump files consistent when adding new tests.
+ */
+export function resetIds(): void {
+      __DANGER_resetNodeId();
+      IdxGenerator.__reset();
 }

@@ -1,6 +1,6 @@
 import { exec } from "child_process";
 import { describe, it } from "@jest/globals";
-import { TAP, processTactFiles, GOOD_DIR } from "./testUtil";
+import { TAP, processTactFiles, GOOD_DIR, resetIds } from "./testUtil";
 import fs from "fs";
 import path from "path";
 
@@ -9,6 +9,7 @@ processTactFiles(GOOD_DIR, (file) => {
   const actualSuffix = "actual.out";
   describe(`Testing built-in detectors for ${contractName}`, () => {
     it(`should generate the expected warnings for ${contractName}`, async () => {
+      resetIds();
       // Run the driver and save results to the file.
       const outputFilePath = path.join(
         GOOD_DIR,
