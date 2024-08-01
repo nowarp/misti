@@ -280,6 +280,10 @@ export class TactASTStore {
     return this.getTrait(id) !== undefined;
   }
 
+  public findTrait(name: string): AstTrait | undefined {
+    return Array.from(this.traits.values()).find((t) => t.name.text === name);
+  }
+
   /**
    * Retrieves a statement by its ID.
    * @param id The unique identifier of the statement.
