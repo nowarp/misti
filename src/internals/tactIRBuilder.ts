@@ -736,20 +736,18 @@ class TactConfigManager {
    * @throws {Error} If the config file does not exist or cannot be parsed.
    * @returns The parsed TactConfig object.
    */
-  readTactConfig(): TactConfig {
+  private readTactConfig(): TactConfig {
     const resolvedPath = path.resolve(this.tactConfigPath);
-    let config: TactConfig;
     if (!fs.existsSync(resolvedPath)) {
       throw new Error(`Unable to find config file at ${resolvedPath}`);
     }
     try {
-      config = parseConfig(fs.readFileSync(resolvedPath, "utf8"));
+      return parseConfig(fs.readFileSync(resolvedPath, "utf8"));
     } catch (err) {
       throw new Error(
         `Unable to parse config file at ${resolvedPath}:\n${err}`,
       );
     }
-    return config;
   }
 
   /**
