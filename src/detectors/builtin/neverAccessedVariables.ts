@@ -239,8 +239,8 @@ export class NeverAccessedVariables extends Detector {
     cu: CompilationUnit,
     traitIds: AstId[],
     callback: (trait: AstTrait) => void,
+    visited: Set<number> = new Set<number>(),
   ): void {
-    // TODO: Recursively expand to support traits inheritance
     traitIds.forEach((traitId) => {
       const traitName = traitId.text;
       const trait = cu.ast.findTrait(traitName);
@@ -248,7 +248,14 @@ export class NeverAccessedVariables extends Detector {
         ctx.logger.error(`Cannot access trait ${traitName}`);
         return;
       }
+      if (visited.has(trait.id)) {
+        // Impossible case. Added to handle further regressions.
+        ctx.logger.error(`Trait #${trait.id} has inheritance cycle`);
+        return;
+      }
+      visited.add(trait.id);
       callback(trait);
+      this.forEachTrait(ctx, cu, trait.traits, callback, visited);
     });
   }
 

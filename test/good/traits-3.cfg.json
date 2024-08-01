@@ -1,0 +1,25 @@
+{
+  "projectName": "traits-3",
+  "functions": [],
+  "contracts": [
+    {
+      "name": "TestContract",
+      "methods": [
+        {
+          "name": "TestContract.test",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 141,
+                "stmtID": 1554,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        }
+      ]
+    }
+  ]
+}
