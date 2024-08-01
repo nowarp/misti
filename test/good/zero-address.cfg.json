@@ -6,12 +6,12 @@
       "name": "SampleContract",
       "methods": [
         {
-          "name": "SampleContract.init_86467",
+          "name": "SampleContract.init_1533",
           "cfg": {
             "nodes": [
               {
                 "id": 141,
-                "stmtID": 86465,
+                "stmtID": 1531,
                 "srcEdges": [],
                 "dstEdges": []
               }

@@ -1,13 +1,12 @@
 import { run } from "../src/driver";
-import { IdxGenerator } from "../src/internals/ir";
-import { TAP, processTactFiles, GOOD_DIR } from "./testUtil";
+import { TAP, processTactFiles, GOOD_DIR, resetIds } from "./testUtil";
 import path from "path";
 
 processTactFiles(GOOD_DIR, (file) => {
   const contractName = file.replace(".tact", "");
   describe(`Testing CFG dump for ${contractName}`, () => {
     it(`should produce correct CFG JSON output for ${contractName}`, async () => {
-      IdxGenerator.__reset();
+      resetIds();
       await run(path.join(GOOD_DIR, file), {
         dumpCfg: "json",
         dumpCfgStdlib: false,
@@ -17,7 +16,7 @@ processTactFiles(GOOD_DIR, (file) => {
       await TAP.from(contractName, "json", "cfg.json").run();
     });
     it(`should produce correct CFG DOT output for ${contractName}`, async () => {
-      IdxGenerator.__reset();
+      resetIds();
       await run(path.join(GOOD_DIR, file), {
         dumpCfg: "dot",
         dumpCfgStdlib: false,
