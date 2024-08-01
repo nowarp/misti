@@ -48,14 +48,14 @@ export class TactException {
   }
 
   /**
-   * Returns true iff `stack` represents a syntax error.
+   * Returns true if `stack` represents a syntax error.
    */
   static isParserError(stack: string | undefined): boolean {
     return stack !== undefined && stack.includes("at throwParseError");
   }
 
   /**
-   * Returns true iff `stack` represents a syntax error.
+   * Returns true if `stack` represents a compilation error.
    */
   static isCompilationError(stack: string | undefined): boolean {
     return stack !== undefined && stack.includes("at throwCompilationError");
