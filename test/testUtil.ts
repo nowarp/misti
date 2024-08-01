@@ -91,6 +91,6 @@ export function processTactFiles(
  * Resets IDs, making the names and IDs in the expected dump files consistent when adding new tests.
  */
 export function resetIds(): void {
-      __DANGER_resetNodeId();
-      IdxGenerator.__reset();
+  __DANGER_resetNodeId();
+  IdxGenerator.__reset();
 }
