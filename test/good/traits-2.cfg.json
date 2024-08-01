@@ -1,0 +1,18 @@
+{
+  "projectName": "traits-2",
+  "functions": [],
+  "contracts": [
+    {
+      "name": "TestContract",
+      "methods": [
+        {
+          "name": "TestContract.test",
+          "cfg": {
+            "nodes": [],
+            "edges": []
+          }
+        }
+      ]
+    }
+  ]
+}

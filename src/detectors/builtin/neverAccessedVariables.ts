@@ -13,7 +13,10 @@ import {
 } from "../../internals/errors";
 import { extractPath, forEachExpression } from "../../internals/tactASTUtil";
 import {
+  AstNode,
   AstStatement,
+  AstId,
+  AstTrait,
   AstExpression,
   SrcInfo,
   isSelfId,
@@ -94,8 +97,6 @@ class DeclSet {
       interval1.contents === interval2.contents
     );
   }
-
-  // Other necessary set methods (size, clear, etc.)
 }
 
 /**
@@ -198,8 +199,8 @@ export class NeverAccessedVariables extends Detector {
   }
 
   checkFields(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
-    const defined = this.collectDefinedFields(cu);
-    const used = this.collectUsedFields(cu);
+    const defined = this.collectDefinedFields(ctx, cu);
+    const used = this.collectUsedFields(ctx, cu);
     return Array.from(
       new Set([...defined].filter(([name, _ref]) => !used.has(name))),
     ).map(([_name, ref]) =>
@@ -210,19 +211,52 @@ export class NeverAccessedVariables extends Detector {
     );
   }
 
-  collectDefinedFields(cu: CompilationUnit): Set<[FieldName, SrcInfo]> {
+  private collectDefinedFields(
+    ctx: MistiContext,
+    cu: CompilationUnit,
+  ): Set<[FieldName, SrcInfo]> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const getFields = (declarations: any[]) =>
+      declarations
+        .filter((decl) => decl.kind === "field_decl")
+        .map((decl) => [decl.name.text, decl.loc] as [FieldName, SrcInfo]);
     return Array.from(cu.ast.getContracts()).reduce((acc, contract) => {
-      contract.declarations.forEach((decl) => {
-        if (decl.kind === "field_decl") {
-          acc.add([decl.name.text, decl.loc]);
-        }
+      const contractFields = getFields(contract.declarations);
+      acc = new Set([...acc, ...contractFields]);
+      this.forEachTrait(ctx, cu, contract.traits, (trait) => {
+        const traitFields = getFields(trait.declarations);
+        acc = new Set([...acc, ...traitFields]);
       });
       return acc;
     }, new Set<[FieldName, SrcInfo]>());
   }
 
-  collectUsedFields(cu: CompilationUnit): Set<FieldName> {
-    return Array.from(cu.ast.getFunctions()).reduce((acc, fun) => {
+  /**
+   * Executes `callback` for each trait available within the compilation unit `cu`.
+   */
+  private forEachTrait(
+    ctx: MistiContext,
+    cu: CompilationUnit,
+    traitIds: AstId[],
+    callback: (trait: AstTrait) => void,
+  ): void {
+    // TODO: Recursively expand to support traits inheritance
+    traitIds.forEach((traitId) => {
+      const traitName = traitId.text;
+      const trait = cu.ast.findTrait(traitName);
+      if (trait === undefined) {
+        ctx.logger.error(`Cannot access trait ${traitName}`);
+        return;
+      }
+      callback(trait);
+    });
+  }
+
+  private collectUsedFields(
+    ctx: MistiContext,
+    cu: CompilationUnit,
+  ): Set<FieldName> {
+    const processExpressions = (fun: AstNode, acc: Set<FieldName>) => {
       forEachExpression(fun, (expr) => {
         if (
           expr.kind === "field_access" &&
@@ -231,6 +265,26 @@ export class NeverAccessedVariables extends Detector {
         ) {
           acc.add(expr.field.text);
         }
+      });
+      return acc;
+    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const processDeclarations = (declarations: any[], acc: Set<FieldName>) => {
+      declarations.forEach((decl) => {
+        if (
+          decl.kind === "function_def" ||
+          decl.kind === "receiver" ||
+          decl.kind === "contract_init"
+        ) {
+          acc = processExpressions(decl, acc);
+        }
+      });
+      return acc;
+    };
+    return Array.from(cu.ast.getContracts()).reduce((acc, contract) => {
+      acc = processDeclarations(contract.declarations, acc);
+      this.forEachTrait(ctx, cu, contract.traits, (trait) => {
+        acc = processDeclarations(trait.declarations, acc);
       });
       return acc;
     }, new Set<FieldName>());
