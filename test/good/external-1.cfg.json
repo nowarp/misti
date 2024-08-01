@@ -1,0 +1,18 @@
+{
+  "projectName": "external-1",
+  "functions": [],
+  "contracts": [
+    {
+      "name": "Test",
+      "methods": [
+        {
+          "name": "Test.receive_external_fallback_17035",
+          "cfg": {
+            "nodes": [],
+            "edges": []
+          }
+        }
+      ]
+    }
+  ]
+}

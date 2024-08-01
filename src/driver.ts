@@ -281,7 +281,9 @@ class SingleContractProjectManager {
           name: contractName,
           path: relativeContractPath,
           output: `./output`,
-          options: {},
+          options: {
+            external: true,
+          },
         },
       ],
     };
