@@ -11,12 +11,14 @@ export const BAD_DIR = path.resolve(__dirname, "bad");
  * Provides a minimal TAP-like API.
  */
 export class TAP {
-  constructor(
+  private constructor(
     private filePath: string,
     private actualSuffix: string,
     private expectedSuffix: string,
   ) {}
-
+  /**
+   * @param filePath Absolute path to the tested file without an extension.
+   */
   static from(
     filePath: string,
     actualSuffix: string,
@@ -52,14 +54,8 @@ export class TAP {
    * Saves TAP outputs as expected results.
    */
   async bless(): Promise<void> {
-    const actualPath = path.join(
-      GOOD_DIR,
-      `${this.filePath}.${this.actualSuffix}`,
-    );
-    const expectedPath = path.join(
-      GOOD_DIR,
-      `${this.filePath}.${this.expectedSuffix}`,
-    );
+    const actualPath = `${this.filePath}.${this.actualSuffix}`;
+    const expectedPath = `${this.filePath}.${this.expectedSuffix}`;
     const actualOutput = await fs.promises.readFile(actualPath, "utf8");
     await fs.promises.writeFile(expectedPath, actualOutput);
   }

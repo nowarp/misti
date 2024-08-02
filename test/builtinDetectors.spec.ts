@@ -12,6 +12,7 @@ import fs from "fs";
 import path from "path";
 
 /**
+ * Runs a test for a single contract or a Tact project.
  * @param filePath Absolute path to input file for Misti.
  * @param nameBase Path base to create expected/actual files.
  * @param testName Name of the test to display.
@@ -22,10 +23,7 @@ const runTestForFile = (
   testName: string,
 ) => {
   const actualSuffix = "actual.out";
-  const outputFilePath = path.join(
-    path.dirname(filePath),
-    `${testName}.${actualSuffix}`,
-  );
+  const outputFilePath = `${nameBase}.${actualSuffix}`;
 
   describe(`Testing built-in detectors for ${testName}`, () => {
     it(`should generate the expected warnings for ${testName}`, async () => {
@@ -52,12 +50,12 @@ const runTestForFile = (
 processTactFiles(GOOD_DIR, (file) => {
   const contractName = file.replace(".tact", "");
   const contractPath = path.join(GOOD_DIR, file);
-  const nameBase = path.join(GOOD_DIR, file);
-  runTestForFile(contractPath, nameBase.slice(0, -5), contractName);
+  runTestForFile(contractPath, contractName, contractName);
 });
 
 processTactProjects(GOOD_DIR, (projectDir) => {
   const projectName = path.basename(projectDir);
   const projectConfigPath = path.join(projectDir, TACT_CONFIG_NAME);
-  runTestForFile(projectConfigPath, projectConfigPath, projectName);
+  const nameBase = path.join(projectDir, projectName);
+  runTestForFile(projectConfigPath, nameBase, projectName);
 });
