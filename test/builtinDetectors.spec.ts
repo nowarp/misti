@@ -50,7 +50,8 @@ const runTestForFile = (
 processTactFiles(GOOD_DIR, (file) => {
   const contractName = file.replace(".tact", "");
   const contractPath = path.join(GOOD_DIR, file);
-  runTestForFile(contractPath, contractName, contractName);
+  const nameBase = path.join(GOOD_DIR, contractName);
+  runTestForFile(contractPath, nameBase, contractName);
 });
 
 processTactProjects(GOOD_DIR, (projectDir) => {
