@@ -90,7 +90,8 @@
     "PUSHSLICE",
     "SETINDEXVARQ",
     "nowarp",
-    "Idxes"
+    "Idxes",
+    "dentry"
   ],
   "flagWords": [],
   "ignorePaths": [

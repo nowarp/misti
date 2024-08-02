@@ -11,18 +11,20 @@ export const BAD_DIR = path.resolve(__dirname, "bad");
  * Provides a minimal TAP-like API.
  */
 export class TAP {
-  constructor(
-    private contractName: string,
+  private constructor(
+    private filePath: string,
     private actualSuffix: string,
     private expectedSuffix: string,
   ) {}
-
+  /**
+   * @param filePath Absolute path to the tested file without an extension.
+   */
   static from(
-    contractName: string,
+    filePath: string,
     actualSuffix: string,
     expectedSuffix: string,
   ): TAP {
-    return new TAP(contractName, actualSuffix, expectedSuffix);
+    return new TAP(filePath, actualSuffix, expectedSuffix);
   }
 
   async run(): Promise<void> {
@@ -39,14 +41,8 @@ export class TAP {
    * Compares outputs after running the command.
    */
   async compareOutputs(): Promise<void> {
-    const actualPath = path.join(
-      GOOD_DIR,
-      `${this.contractName}.${this.actualSuffix}`,
-    );
-    const expectedPath = path.join(
-      GOOD_DIR,
-      `${this.contractName}.${this.expectedSuffix}`,
-    );
+    const actualPath = `${this.filePath}.${this.actualSuffix}`;
+    const expectedPath = `${this.filePath}.${this.expectedSuffix}`;
     const [actual, expected] = await Promise.all([
       fs.promises.readFile(actualPath, "utf8"),
       fs.promises.readFile(expectedPath, "utf8"),
@@ -58,14 +54,8 @@ export class TAP {
    * Saves TAP outputs as expected results.
    */
   async bless(): Promise<void> {
-    const actualPath = path.join(
-      GOOD_DIR,
-      `${this.contractName}.${this.actualSuffix}`,
-    );
-    const expectedPath = path.join(
-      GOOD_DIR,
-      `${this.contractName}.${this.expectedSuffix}`,
-    );
+    const actualPath = `${this.filePath}.${this.actualSuffix}`;
+    const expectedPath = `${this.filePath}.${this.expectedSuffix}`;
     const actualOutput = await fs.promises.readFile(actualPath, "utf8");
     await fs.promises.writeFile(expectedPath, actualOutput);
   }
@@ -84,6 +74,26 @@ export function processTactFiles(
 ): void {
   fs.readdirSync(directory)
     .filter((file) => file.endsWith(".tact"))
+    .forEach(callback);
+}
+
+/**
+ * Name of the Tact configuration file used in the test projects.
+ */
+export const TACT_CONFIG_NAME = "tact.config.json";
+
+/**
+ * Runs `callback` on each directory in the contracts directory that contains a
+ * `config.tact.json` file.
+ */
+export function processTactProjects(
+  directory: string,
+  callback: (file: string) => void,
+): void {
+  fs.readdirSync(directory, { withFileTypes: true })
+    .filter((dentry) => dentry.isDirectory())
+    .map((dentry) => path.join(directory, dentry.name))
+    .filter((dir) => fs.existsSync(path.join(dir, TACT_CONFIG_NAME)))
     .forEach(callback);
 }
 
