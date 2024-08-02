@@ -21,7 +21,10 @@ export type ProjectName = string;
 export type EntryOrigin = "user" | "stdlib";
 
 /**
- * Provides storage and access to various AST components of a Tact project.
+ * Provides access to AST elements defined within a single Tact project.
+ *
+ * The generated AST entries includes all the dependent elements, including imported
+ * code which is included in the project AST in C/C++ style.
  */
 export class TactASTStore {
   /**
