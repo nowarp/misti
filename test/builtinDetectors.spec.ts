@@ -1,21 +1,37 @@
 import { exec } from "child_process";
 import { describe, it } from "@jest/globals";
-import { TAP, processTactFiles, GOOD_DIR, resetIds } from "./testUtil";
+import {
+  TAP,
+  processTactFiles,
+  processTactProjects,
+  GOOD_DIR,
+  TACT_CONFIG_NAME,
+  resetIds,
+} from "./testUtil";
 import fs from "fs";
 import path from "path";
 
-processTactFiles(GOOD_DIR, (file) => {
-  const contractName = file.replace(".tact", "");
+/**
+ * @param filePath Absolute path to input file for Misti.
+ * @param nameBase Path base to create expected/actual files.
+ * @param testName Name of the test to display.
+ */
+const runTestForFile = (
+  filePath: string,
+  nameBase: string,
+  testName: string,
+) => {
   const actualSuffix = "actual.out";
-  describe(`Testing built-in detectors for ${contractName}`, () => {
-    it(`should generate the expected warnings for ${contractName}`, async () => {
+  const outputFilePath = path.join(
+    path.dirname(filePath),
+    `${testName}.${actualSuffix}`,
+  );
+
+  describe(`Testing built-in detectors for ${testName}`, () => {
+    it(`should generate the expected warnings for ${testName}`, async () => {
       resetIds();
       // Run the driver and save results to the file.
-      const outputFilePath = path.join(
-        GOOD_DIR,
-        `${contractName}.${actualSuffix}`,
-      );
-      const runCommand = `node dist/src/main.js ${path.join(GOOD_DIR, file)}`;
+      const runCommand = `node dist/src/main.js ${filePath}`;
       await new Promise((resolve, reject) => {
         exec(runCommand, (error, stdout, stderr) => {
           const out = stdout.trim() + stderr.trim();
@@ -28,7 +44,20 @@ processTactFiles(GOOD_DIR, (file) => {
         });
       });
 
-      await TAP.from(contractName, actualSuffix, "expected.out").run();
+      await TAP.from(nameBase, actualSuffix, "expected.out").run();
     }, 30000);
   });
+};
+
+processTactFiles(GOOD_DIR, (file) => {
+  const contractName = file.replace(".tact", "");
+  const contractPath = path.join(GOOD_DIR, file);
+  const nameBase = path.join(GOOD_DIR, file);
+  runTestForFile(contractPath, nameBase.slice(0, -5), contractName);
+});
+
+processTactProjects(GOOD_DIR, (projectDir) => {
+  const projectName = path.basename(projectDir);
+  const projectConfigPath = path.join(projectDir, TACT_CONFIG_NAME);
+  runTestForFile(projectConfigPath, projectConfigPath, projectName);
 });

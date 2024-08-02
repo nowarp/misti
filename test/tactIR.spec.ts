@@ -4,26 +4,27 @@ import path from "path";
 
 processTactFiles(GOOD_DIR, (file) => {
   const contractName = file.replace(".tact", "");
+  const filePath = path.join(GOOD_DIR, file);
   describe(`Testing CFG dump for ${contractName}`, () => {
     it(`should produce correct CFG JSON output for ${contractName}`, async () => {
       resetIds();
-      await run(path.join(GOOD_DIR, file), {
+      await run(filePath, {
         dumpCfg: "json",
         dumpCfgStdlib: false,
         dumpCfgOutput: GOOD_DIR,
         quiet: true,
       });
-      await TAP.from(contractName, "json", "cfg.json").run();
+      await TAP.from(filePath, "json", "cfg.json").run();
     });
     it(`should produce correct CFG DOT output for ${contractName}`, async () => {
       resetIds();
-      await run(path.join(GOOD_DIR, file), {
+      await run(filePath, {
         dumpCfg: "dot",
         dumpCfgStdlib: false,
         dumpCfgOutput: GOOD_DIR,
         quiet: true,
       });
-      await TAP.from(contractName, "dot", "cfg.dot").run();
+      await TAP.from(filePath, "dot", "cfg.dot").run();
     });
   });
 });
