@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/schema#",
   "$id": "http://raw.githubusercontent.com/nowarp/misti/master/configSchema.json",
   "title": "Misti configuration schema",
-  "description": "JSON Schema for mistiConfig.json",
+  "description": "JSON Schema for misti.config.json",
   "type": "object",
   "required": [
     "detectors"
@@ -40,6 +40,11 @@
     "soufflePath": {
       "type": "string",
       "description": "Directory to save generated Soufflé files. If not set, a temporary directory will be used.",
+      "optional": true
+    },
+    "tactStdlibPath": {
+      "type": "string",
+      "description": "Path to Tact standard library. If not set, the default stdlib from the actual Tact setup will be used.",
       "optional": true
     },
     "verbosity": {

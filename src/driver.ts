@@ -27,6 +27,7 @@ export class Driver {
     dumpCFGStdlib?: boolean,
     dumpCFGOutput?: string,
     soufflePath?: string,
+    tactStdlibPath?: string,
     verbose?: boolean,
     quiet?: boolean,
     mistiConfigPath?: string,
@@ -46,6 +47,7 @@ export class Driver {
     this.ctx = new MistiContext({
       mistiConfigPath,
       soufflePath,
+      tactStdlibPath,
       verbose,
       quiet,
       singleContractPath: singleContract ? tactPath : undefined,
@@ -69,6 +71,7 @@ export class Driver {
       options.dumpCfgStdlib,
       options.dumpCfgOutput,
       options.soufflePath,
+      options.tactStdlibPath,
       options.verbose,
       options.quiet,
       options.config,
@@ -291,6 +294,10 @@ interface CLIOptions {
    * stdout is used. If `undefined`, no dumps will be generated.
    */
   soufflePath?: string;
+  /***
+   * Path to Tact standard library. If not set, the default stdlib from the actual Tact setup will be used.
+   */
+  tactStdlibPath?: string;
   /** Add additional stdout output. */
   verbose?: boolean;
   /** Suppress driver's output. */
@@ -322,6 +329,7 @@ export async function run(
     dumpCfgStdlib: false,
     dumpCfgOutput: DUMP_STDOUT_PATH,
     soufflePath: undefined,
+    tactStdlibPath: undefined,
     verbose: false,
     quiet: false,
     config: undefined,

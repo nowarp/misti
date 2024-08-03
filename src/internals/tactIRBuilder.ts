@@ -75,9 +75,9 @@ function generateReceiveName(receive: AstReceiver): string {
 }
 
 /**
- * A mandatory part of the file path to stdlib.
+ * A mandatory part of the file path to stdlib if using the default path.
  */
-const STDLIB_PATH_ELEMENTS = [
+const DEFAULT_STDLIB_PATH_ELEMENTS = [
   "node_modules",
   "@tact-lang",
   "compiler",
@@ -92,8 +92,13 @@ function hasSubdirs(filePath: string, subdirs: string[]): boolean {
   return subdirs.every((dir) => splitPath.includes(dir));
 }
 
-function definedInStdlib(loc: SrcInfo): boolean {
-  return loc.file !== null && hasSubdirs(loc.file, STDLIB_PATH_ELEMENTS);
+function definedInStdlib(ctx: MistiContext, loc: SrcInfo): boolean {
+  const stdlibPath = ctx.config.tactStdlibPath;
+  const pathElements =
+    stdlibPath === undefined
+      ? DEFAULT_STDLIB_PATH_ELEMENTS
+      : stdlibPath.split("/").filter((part) => part !== "");
+  return loc.file !== null && hasSubdirs(loc.file, pathElements);
 }
 
 /**
@@ -116,10 +121,13 @@ export class AstMapper {
   private traits = new Map<number, AstTrait>();
   private statements = new Map<number, AstStatement>();
 
-  constructor(private ast: AstStore) {
+  constructor(
+    private ctx: MistiContext,
+    private ast: AstStore,
+  ) {
     this.ast.functions.forEach((func) => {
       this.programEntries.add(func.id);
-      if (definedInStdlib(func.loc)) {
+      if (definedInStdlib(this.ctx, func.loc)) {
         this.stdlibIds.add(func.id);
       }
       if (func.kind == "function_def") {
@@ -129,7 +137,7 @@ export class AstMapper {
       }
     });
     this.ast.constants.forEach((constant) => {
-      if (definedInStdlib(constant.loc)) {
+      if (definedInStdlib(this.ctx, constant.loc)) {
         this.stdlibIds.add(constant.id);
       }
       this.programEntries.add(constant.id);
@@ -296,7 +304,7 @@ export class TactIRBuilder {
     const contracts = this.createContracts();
     return new CompilationUnit(
       this.projectName,
-      new AstMapper(this.ast).getASTStore(),
+      new AstMapper(this.ctx, this.ast).getASTStore(),
       functions,
       contracts,
     );
@@ -791,11 +799,9 @@ class TactConfigManager {
     );
     // This adjustment is needed to get an actual path to stdlib distributed within the tact package.
     const distPathPrefix = __dirname.includes("/dist/") ? "../../.." : "../..";
-    const stdlibPath = path.resolve(
-      __dirname,
-      distPathPrefix,
-      ...STDLIB_PATH_ELEMENTS,
-    );
+    const stdlibPath =
+      this.ctx.config.tactStdlibPath ??
+      path.resolve(__dirname, distPathPrefix, ...DEFAULT_STDLIB_PATH_ELEMENTS);
     const stdlib = createNodeFileSystem(stdlibPath, false);
     return this.config.projects.reduce(
       (acc: Map<ProjectName, AstStore>, projectConfig: ConfigProject) => {

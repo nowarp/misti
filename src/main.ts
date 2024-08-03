@@ -25,6 +25,11 @@ command
     "Directory to save generated Soufflé files. If not set, a temporary directory will be used.",
     undefined,
   )
+  .option(
+    "--tact-stdlib-path <path>",
+    "Path to Tact standard library. If not set, the default stdlib from the actual Tact setup will be used.",
+    undefined,
+  )
   .option("--verbose", "Enable verbose output.", false)
   .option("--quiet", "Suppress output.", false)
   .option("--config <path>", "Path to Misti configuration file")
