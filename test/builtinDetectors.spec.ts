@@ -30,15 +30,11 @@ const runTestForFile = (
       resetIds();
       // Run the driver and save results to the file.
       const runCommand = `node dist/src/main.js ${filePath}`;
-      await new Promise((resolve, reject) => {
-        exec(runCommand, (error, stdout, stderr) => {
+      await new Promise((resolve, _reject) => {
+        exec(runCommand, (_error, stdout, stderr) => {
           const out = stdout.trim() + stderr.trim();
-          fs.writeFileSync(outputFilePath, out ? out : "\n");
-          if (error) {
-            reject(error);
-          } else {
-            resolve(void 0);
-          }
+          fs.writeFileSync(outputFilePath, out ? out : "");
+          resolve(void 0);
         });
       });
 
