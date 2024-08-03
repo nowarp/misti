@@ -43,7 +43,7 @@ export class Logger {
   protected log(level: LogLevel, msg: string, ref?: SrcInfo): void {
     const logFunction = this.logFunctions.get(level);
     if (logFunction) {
-      logFunction(`${this.formatPosition(ref)}\n${msg}`);
+      logFunction(`${this.formatPosition(ref)}${msg}`);
     }
   }
 
@@ -66,7 +66,7 @@ export class Logger {
     }
     const relativeFilePath = path.relative(process.cwd(), ref.file);
     const lc = ref.interval.getLineAndColumn();
-    return `${relativeFilePath}: ${lc}`;
+    return `${relativeFilePath}: ${lc}\n`;
   }
 }
 
