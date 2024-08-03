@@ -28,8 +28,14 @@ command
   .option("--verbose", "Enable verbose output.", false)
   .option("--quiet", "Suppress output.", false)
   .option("--config <path>", "Path to Misti configuration file")
-  .action((PROJECT_CONFIG_OR_FILE_PATH, options) => {
-    run(PROJECT_CONFIG_OR_FILE_PATH, options);
+  .action(async (PROJECT_CONFIG_OR_FILE_PATH, options) => {
+    try {
+      const result = await run(PROJECT_CONFIG_OR_FILE_PATH, options);
+      process.exit(result ? 1 : 0);
+    } catch (error) {
+      console.error("An error occurred:", error);
+      process.exit(1);
+    }
   });
 command.option("--help", "Display help for command", () => {
   command.help();
