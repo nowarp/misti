@@ -4,7 +4,9 @@ import {
   AstExpression,
   AstStatement,
   tryExtractPath,
+  SrcInfo,
 } from "@tact-lang/compiler/dist/grammar/ast";
+import { Interval as RawInterval } from "ohm-js";
 
 export function extractPath(path: AstExpression): string {
   const result = tryExtractPath(path);
@@ -639,4 +641,67 @@ export function foldStatements<T>(
   }
 
   return traverseNode(acc, node);
+}
+
+/**
+ * Set containing information about the locations with some additional information.
+ * We need this, since `SrcInfo` objects cannot be trivially compared.
+ */
+export class SrcInfoSet<T> {
+  private items: [T, SrcInfo][];
+
+  constructor(pairs?: [T, SrcInfo][]) {
+    this.items = [];
+    if (pairs) {
+      pairs.forEach((pair) => this.add(pair));
+    }
+  }
+
+  add(item: [T, SrcInfo]) {
+    if (!this.has(item)) {
+      this.items.push(item);
+    }
+  }
+
+  has(item: [T, SrcInfo]): boolean {
+    return this.items.some((existingItem) =>
+      this.equals(existingItem[1], item[1]),
+    );
+  }
+
+  delete(item: [T, SrcInfo]): boolean {
+    const index = this.items.findIndex((existingItem) =>
+      this.equals(existingItem[1], item[1]),
+    );
+    if (index !== -1) {
+      this.items.splice(index, 1);
+      return true;
+    }
+    return false;
+  }
+
+  extract(): [T, SrcInfo][] {
+    return this.items.slice();
+  }
+
+  private equals(srcInfo1: SrcInfo, srcInfo2: SrcInfo): boolean {
+    return (
+      srcInfo1.file === srcInfo2.file &&
+      srcInfo1.contents === srcInfo2.contents &&
+      this.compareIntervals(srcInfo1.interval, srcInfo2.interval) &&
+      srcInfo1.origin === srcInfo2.origin
+    );
+  }
+
+  private compareIntervals(
+    interval1: RawInterval,
+    interval2: RawInterval,
+  ): boolean {
+    return (
+      interval1.sourceString === interval2.sourceString &&
+      interval1.startIdx === interval2.startIdx &&
+      interval1.endIdx === interval2.endIdx &&
+      interval1.contents === interval2.contents
+    );
+  }
 }

@@ -1,17 +1,15 @@
 import { WorklistSolver } from "../../internals/solver/";
-import { Interval as RawInterval } from "ohm-js";
 import { Transfer } from "../../internals/transfer";
-import { Detector } from "../detector";
+import { Detector, WarningsBehavior } from "../detector";
 import { JoinSemilattice } from "../../internals/lattice";
 import { MistiContext } from "../../internals/context";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
+import { MistiTactError, Severity, makeDocURL } from "../../internals/errors";
 import {
-  createError,
-  MistiTactError,
-  Severity,
-  makeDocURL,
-} from "../../internals/errors";
-import { extractPath, forEachExpression } from "../../internals/tactASTUtil";
+  extractPath,
+  SrcInfoSet,
+  forEachExpression,
+} from "../../internals/tactASTUtil";
 import {
   AstNode,
   AstStatement,
@@ -26,10 +24,8 @@ type FieldName = string;
 type ConstantName = string;
 type VariableName = string;
 
-type SrcInfoPair = [VariableName, SrcInfo];
-
 interface VariableState {
-  declared: DeclSet;
+  declared: SrcInfoSet<string>;
   // The variable identifier was accessed in any expression
   accessed: Set<VariableName>;
   // The variable value was reassigned
@@ -37,78 +33,19 @@ interface VariableState {
 }
 
 /**
- * Set containing information about the declared variables.
- * We need this, since SrcInfo objects cannot be trivially compared.
- */
-class DeclSet {
-  private items: SrcInfoPair[];
-
-  constructor(pairs?: SrcInfoPair[]) {
-    this.items = [];
-    if (pairs) {
-      pairs.forEach((pair) => this.add(pair));
-    }
-  }
-
-  add(item: SrcInfoPair) {
-    if (!this.has(item)) {
-      this.items.push(item);
-    }
-  }
-
-  has(item: SrcInfoPair): boolean {
-    return this.items.some((existingItem) =>
-      this.equals(existingItem[1], item[1]),
-    );
-  }
-
-  delete(item: SrcInfoPair): boolean {
-    const index = this.items.findIndex((existingItem) =>
-      this.equals(existingItem[1], item[1]),
-    );
-    if (index !== -1) {
-      this.items.splice(index, 1);
-      return true;
-    }
-    return false;
-  }
-
-  extract(): SrcInfoPair[] {
-    return this.items.slice();
-  }
-
-  private equals(srcInfo1: SrcInfo, srcInfo2: SrcInfo): boolean {
-    return (
-      srcInfo1.file === srcInfo2.file &&
-      srcInfo1.contents === srcInfo2.contents &&
-      this.compareIntervals(srcInfo1.interval, srcInfo2.interval) &&
-      srcInfo1.origin === srcInfo2.origin
-    );
-  }
-
-  private compareIntervals(
-    interval1: RawInterval,
-    interval2: RawInterval,
-  ): boolean {
-    return (
-      interval1.sourceString === interval2.sourceString &&
-      interval1.startIdx === interval2.startIdx &&
-      interval1.endIdx === interval2.endIdx &&
-      interval1.contents === interval2.contents
-    );
-  }
-}
-
-/**
  * A powerset lattice that keeps state of local variables within control flow.
  */
 class VariableUsageLattice implements JoinSemilattice<VariableState> {
   bottom(): VariableState {
-    return { declared: new DeclSet(), accessed: new Set(), written: new Set() };
+    return {
+      declared: new SrcInfoSet<string>(),
+      accessed: new Set(),
+      written: new Set(),
+    };
   }
 
   join(a: VariableState, b: VariableState): VariableState {
-    const declared = new DeclSet([
+    const declared = new SrcInfoSet<string>([
       ...a.declared.extract(),
       ...b.declared.extract(),
     ]);
@@ -198,16 +135,29 @@ export class NeverAccessedVariables extends Detector {
     ];
   }
 
+  get shareImportedWarnings(): WarningsBehavior {
+    // Never accessed constants/fields from imported files will be reported iff
+    // they are reported in each of the projects (CompilationUnit).
+    return "intersect";
+  }
+
   checkFields(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
     const defined = this.collectDefinedFields(ctx, cu);
     const used = this.collectUsedFields(ctx, cu);
     return Array.from(
       new Set([...defined].filter(([name, _ref]) => !used.has(name))),
     ).map(([_name, ref]) =>
-      createError(ctx, "Field is never used", Severity.MEDIUM, ref, {
-        docURL: makeDocURL(this.id),
-        suggestion: "Consider creating a constant instead of field",
-      }),
+      MistiTactError.make(
+        ctx,
+        this.id,
+        "Field is never used",
+        Severity.MEDIUM,
+        ref,
+        {
+          docURL: makeDocURL(this.id),
+          suggestion: "Consider creating a constant instead of field",
+        },
+      ),
     );
   }
 
@@ -307,10 +257,17 @@ export class NeverAccessedVariables extends Detector {
         ),
       ),
     ).map(([_name, ref]) =>
-      createError(ctx, "Constant is never used", Severity.MEDIUM, ref, {
-        docURL: makeDocURL(this.id),
-        suggestion: "Consider removing the constant",
-      }),
+      MistiTactError.make(
+        ctx,
+        this.id,
+        "Constant is never used",
+        Severity.MEDIUM,
+        ref,
+        {
+          docURL: makeDocURL(this.id),
+          suggestion: "Consider removing the constant",
+        },
+      ),
     );
   }
 
@@ -378,8 +335,9 @@ export class NeverAccessedVariables extends Detector {
             ? "The variable value should be accessed"
             : "Consider removing the variable";
           errors.push(
-            createError(
+            MistiTactError.make(
               ctx,
+              this.id,
               msg,
               Severity.MEDIUM,
               declaredVariables.get(name)!,

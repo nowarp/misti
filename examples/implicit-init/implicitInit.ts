@@ -1,11 +1,7 @@
 import { Detector } from "../../src/detectors/detector";
 import { MistiContext } from "../../src/internals/context";
 import { CompilationUnit } from "../../src/internals/ir";
-import {
-  createError,
-  MistiTactError,
-  Severity,
-} from "../../src/internals/errors";
+import { MistiTactError, Severity } from "../../src/internals/errors";
 
 /**
  * An example of a custom detector that showcases the usage of the detector API.
@@ -16,9 +12,10 @@ export class ImplicitInit extends Detector {
   check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
     return Array.from(cu.contracts).reduce((foundErrors, [_, contract]) => {
       if (!cu.findMethodCFGByName(contract.name, "init")) {
-        const err = createError(
+        const err = MistiTactError.make(
           ctx,
-          `contract ${contract.name} doesn't define an init function`,
+          this.id,
+          `Contract ${contract.name} doesn't define an init function`,
           Severity.INFO,
           contract.ref,
         );

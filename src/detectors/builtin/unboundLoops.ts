@@ -11,12 +11,7 @@ import {
 import { Detector } from "../detector";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
 import { MistiContext } from "../../internals/context";
-import {
-  createError,
-  MistiTactError,
-  Severity,
-  makeDocURL,
-} from "../../internals/errors";
+import { MistiTactError, Severity, makeDocURL } from "../../internals/errors";
 import {
   extractPath,
   forEachExpression,
@@ -77,13 +72,20 @@ export class UnboundLoops extends Detector {
       if (fact.data === undefined) {
         throw new Error(`AST position for fact ${fact} is not available`);
       }
-      return createError(ctx, "Unbounded Loop", Severity.MEDIUM, fact.data, {
-        docURL: makeDocURL(this.id),
-        suggestion:
-          "Consider changing the variable within the loop to ensure it terminates",
-        extraDescription:
-          "The condition variable doesn't change within the loop",
-      });
+      return MistiTactError.make(
+        ctx,
+        this.id,
+        "Unbounded Loop",
+        Severity.MEDIUM,
+        fact.data,
+        {
+          docURL: makeDocURL(this.id),
+          suggestion:
+            "Consider changing the variable within the loop to ensure it terminates",
+          extraDescription:
+            "The condition variable doesn't change within the loop",
+        },
+      );
     });
 
     return warnings;
