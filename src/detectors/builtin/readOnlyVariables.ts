@@ -3,7 +3,7 @@ import {
   SrcInfo,
   AstExpression,
 } from "@tact-lang/compiler/dist/grammar/ast";
-import { Detector } from "../detector";
+import { Detector, WarningsBehavior } from "../detector";
 import { MistiContext } from "../../internals/context";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
 import {
@@ -16,12 +16,7 @@ import {
   makeRuleBody,
   makeAtom,
 } from "../../internals/souffle";
-import {
-  createError,
-  MistiTactError,
-  Severity,
-  makeDocURL,
-} from "../../internals/errors";
+import { MistiTactError, Severity, makeDocURL } from "../../internals/errors";
 import { extractPath, forEachExpression } from "../../internals/tactASTUtil";
 
 /**
@@ -51,6 +46,12 @@ import { extractPath, forEachExpression } from "../../internals/tactASTUtil";
  * ```
  */
 export class ReadOnlyVariables extends Detector {
+  get shareImportedWarnings(): WarningsBehavior {
+    // Read-only constants/fields from imported files will be reported iff they
+    // are reported in each of the projects (CompilationUnit).
+    return "intersect";
+  }
+
   check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
     const program = new Context<SrcInfo>(this.id);
     this.addDecls(program);
@@ -74,8 +75,9 @@ export class ReadOnlyVariables extends Detector {
       if (fact.data === undefined) {
         throw new Error(`AST position for fact ${fact} is not available`);
       }
-      return createError(
+      return MistiTactError.make(
         ctx,
+        this.id,
         "Read-only variable",
         Severity.MEDIUM,
         fact.data,

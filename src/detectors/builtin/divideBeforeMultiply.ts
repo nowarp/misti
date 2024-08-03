@@ -11,12 +11,7 @@ import {
 import { Detector } from "../detector";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
 import { MistiContext } from "../../internals/context";
-import {
-  createError,
-  makeDocURL,
-  MistiTactError,
-  Severity,
-} from "../../internals/errors";
+import { makeDocURL, MistiTactError, Severity } from "../../internals/errors";
 import {
   forEachExpression,
   forEachStatement,
@@ -90,8 +85,9 @@ export class DivideBeforeMultiply extends Detector {
           return acc;
         }
         reportedDivIds.add(divId);
-        const err = createError(
+        const err = MistiTactError.make(
           ctx,
+          this.id,
           "Divide Before Multiply",
           Severity.HIGH,
           fact.data,
