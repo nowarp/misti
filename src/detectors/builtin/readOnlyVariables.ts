@@ -179,7 +179,7 @@ export class ReadOnlyVariables extends Detector {
         case "statement_let":
           ctx.addFact(
             "varDecl",
-            Fact.from([stmt.name.text, funName], stmt.loc),
+            Fact.from([stmt.name.text, funName], stmt.name.loc),
           );
           track(funName, stmt.expression, "skip");
           break;
