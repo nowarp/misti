@@ -252,7 +252,9 @@ export class Driver {
    * @param error The error object to report.
    */
   reportError(error: MistiTactError) {
-    this.ctx.logger.error(`${error.message}`);
+    this.ctx.logger.error(
+      `${error.message}${error.message.endsWith("\n") ? "" : "\n"}`,
+    );
   }
 
   /**
