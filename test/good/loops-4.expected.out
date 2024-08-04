@@ -1,8 +1,0 @@
-test/good/loops-4.tact:2:5:
-  1 | fun test() {
-> 2 |     let m: map<Int, Int> = emptyMap();
-          ^
-  3 |     foreach (k, v in m) {
-Read-only variable
-Help: Consider creating a constant instead
-See: https://nowarp.github.io/docs/misti/docs/detectors/ReadOnlyVariables

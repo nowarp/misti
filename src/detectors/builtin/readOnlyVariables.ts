@@ -182,16 +182,16 @@ export class ReadOnlyVariables extends Detector {
   addRules(ctx: Context<SrcInfo>) {
     // readOnly(var, func) :-
     //     varDecl(var, func),
+    //     varUse(var, func).
     //     !varAssign(var, func),
-    //     !varUse(var, func).
     ctx.add(
       Rule.from(
         [makeAtom("readOnly", ["var", "func"])],
         makeRuleBody(makeAtom("varDecl", ["var", "func"])),
+        makeRuleBody(makeAtom("varUse", ["var", "func"])),
         makeRuleBody(makeAtom("varAssign", ["var", "func"]), {
           negated: true,
         }),
-        makeRuleBody(makeAtom("varUse", ["var", "func"]), { negated: true }),
       ),
     );
   }

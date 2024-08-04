@@ -1,5 +1,5 @@
-fun test1(): Int {
-    let a: Int = 20;
-    let b: Int = 22;
-    return b;
+fun test() {
+    let a: Int = 10; // warning: read-only variable
+    repeat (a) { /* do nothing */ }
+    repeat (a) { /* ... */ }
 }

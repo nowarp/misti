@@ -1,0 +1,8 @@
+test/good/div-before-mul-2.tact:5:3:
+  4 |   let c: Int = 2;
+> 5 |   let result: Int = a * c / b; // ok: Multiplication before division
+        ^
+  6 |   return result;
+Read-only variable
+Help: Consider creating a constant instead
+See: https://nowarp.github.io/docs/misti/docs/detectors/ReadOnlyVariables

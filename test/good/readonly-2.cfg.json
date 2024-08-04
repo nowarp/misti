@@ -2,12 +2,12 @@
   "projectName": "readonly-2",
   "functions": [
     {
-      "name": "test1",
+      "name": "test",
       "cfg": {
         "nodes": [
           {
             "id": 141,
-            "stmtID": 1531,
+            "stmtID": 1530,
             "srcEdges": [],
             "dstEdges": [
               143
@@ -15,21 +15,26 @@
           },
           {
             "id": 142,
-            "stmtID": 1535,
+            "stmtID": 1532,
             "srcEdges": [
-              143
+              143,
+              144
             ],
             "dstEdges": [
-              145
+              144,
+              146
             ]
           },
           {
-            "id": 144,
-            "stmtID": 1537,
+            "id": 145,
+            "stmtID": 1534,
             "srcEdges": [
-              145
+              146,
+              147
             ],
-            "dstEdges": []
+            "dstEdges": [
+              147
+            ]
           }
         ],
         "edges": [
@@ -39,9 +44,19 @@
             "dst": 142
           },
           {
-            "id": 145,
+            "id": 144,
             "src": 142,
-            "dst": 144
+            "dst": 142
+          },
+          {
+            "id": 146,
+            "src": 142,
+            "dst": 145
+          },
+          {
+            "id": 147,
+            "src": 145,
+            "dst": 145
           }
         ]
       }

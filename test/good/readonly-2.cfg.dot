@@ -1,11 +1,13 @@
 digraph "readonly-2" {
     node [shape=box];
-    subgraph "cluster_test1" {
-        label="test1";
-        "test1_141" [label="let a: Int = 20"];
-        "test1_142" [label="let b: Int = 22"];
-        "test1_144" [label="return b",style=filled,fillcolor="#66A7DB"];
-        "test1_141" -> "test1_142";
-        "test1_142" -> "test1_144";
+    subgraph "cluster_test" {
+        label="test";
+        "test_141" [label="let a: Int = 10"];
+        "test_142" [label="repeat (a)"];
+        "test_145" [label="repeat (a)"];
+        "test_141" -> "test_142";
+        "test_142" -> "test_142";
+        "test_142" -> "test_145";
+        "test_145" -> "test_145";
     }
 }

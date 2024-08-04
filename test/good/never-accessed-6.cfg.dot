@@ -1,0 +1,17 @@
+digraph "never-accessed-6" {
+    node [shape=box];
+    subgraph "cluster_test" {
+        label="test";
+        "test_141" [label="let a: Int = 20"];
+        "test_142" [label="let b: Int = 22"];
+        "test_144" [label="let c: Int = 24"];
+        "test_146" [label="if (true)"];
+        "test_148" [label="c = a + b"];
+        "test_150" [label="return c",style=filled,fillcolor="#66A7DB"];
+        "test_141" -> "test_142";
+        "test_142" -> "test_144";
+        "test_144" -> "test_146";
+        "test_146" -> "test_148";
+        "test_148" -> "test_150";
+    }
+}

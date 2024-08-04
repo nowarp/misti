@@ -1,16 +1,16 @@
 test/good/readonly-2.tact:2:5:
-  1 | fun test1(): Int {
-> 2 |     let a: Int = 20;
+  1 | fun test() {
+> 2 |     let a: Int = 10; // warning: read-only variable
           ^
-  3 |     let b: Int = 22;
+  3 |     repeat (a) { /* do nothing */ }
 Read-only variable
 Help: Consider creating a constant instead
 See: https://nowarp.github.io/docs/misti/docs/detectors/ReadOnlyVariables
-test/good/readonly-2.tact:2:5:
-  1 | fun test1(): Int {
-> 2 |     let a: Int = 20;
-          ^
-  3 |     let b: Int = 22;
-Variable is never accessed
-Help: Consider removing the variable
-See: https://nowarp.github.io/docs/misti/docs/detectors/NeverAccessedVariables
+test/good/readonly-2.tact:4:13:
+  3 |     repeat (a) { /* do nothing */ }
+> 4 |     repeat (a) { /* ... */ }
+                  ^
+  5 | }
+Unbounded Loop: The condition variable doesn't change within the loop
+Help: Consider changing the variable within the loop to ensure it terminates
+See: https://nowarp.github.io/docs/misti/docs/detectors/UnboundLoops
