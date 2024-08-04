@@ -222,7 +222,6 @@ export class Driver {
           case "intersect":
             // The warning must be raised in all the projects.
             const projects = errorsMap.get(error.msg)!;
-            // console.log('projects', projects, 'all', new Set(allProjectNames), 'these', new Set(projects));
             if (
               new Set(allProjectNames).size === new Set(projects).size &&
               [...new Set(allProjectNames)].every((value) =>
