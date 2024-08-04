@@ -1,0 +1,17 @@
+test/good/unbound-loop-9.tact:2:9:
+  1 | fun test() {
+> 2 |     let i: Bool = false;
+              ^
+  3 |     while (i) {} // warning: unbound loop
+Read-only variable
+Help: Consider creating a constant instead
+See: https://nowarp.github.io/docs/misti/docs/detectors/ReadOnlyVariables
+
+test/good/unbound-loop-9.tact:3:12:
+  2 |     let i: Bool = false;
+> 3 |     while (i) {} // warning: unbound loop
+                 ^
+  4 | }
+Unbounded Loop: The condition variable doesn't change within the loop
+Help: Consider changing the variable within the loop to ensure it terminates
+See: https://nowarp.github.io/docs/misti/docs/detectors/UnboundLoops

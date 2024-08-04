@@ -16,7 +16,12 @@ import {
   forEachExpression,
   forEachStatement,
 } from "../../internals/tactASTUtil";
-import { AstStatement, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
+import {
+  AstStatement,
+  SrcInfo,
+  AstId,
+  isValue,
+} from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
  * A detector that analyzes loop conditions and control flow to ensure loops have proper termination criteria.
@@ -184,16 +189,37 @@ export class UnboundLoops extends Detector {
         const loopId = stmt.id;
         const usedInCond: Set<string> = new Set(); // variables used in the condition
         ctx.addFact("loopDef", Fact.from([loopId, funName], stmt.loc));
-        forEachExpression(stmt.condition, (expr) => {
-          if (expr.kind === "id") {
-            const varName = expr.text;
-            usedInCond.add(varName);
-            ctx.addFact(
-              "loopCondDef",
-              Fact.from([varName, loopId, funName], expr.loc),
-            );
-          }
-        });
+        const add = (id: AstId) => {
+          usedInCond.add(id.text);
+          ctx.addFact(
+            "loopCondDef",
+            Fact.from([id.text, loopId, funName], id.loc),
+          );
+        };
+        const cond = stmt.condition;
+        // TODO: This could be improved using the constant evaluator when
+        // available in the compiler API: #71
+        if (cond.kind === "id") {
+          // e.g.: while(a)
+          add(cond);
+        } else if (cond.kind === "op_unary" && cond.operand.kind === "id") {
+          // e.g.: while(!a)
+          add(cond.operand);
+        } else if (
+          cond.kind === "op_binary" &&
+          cond.left.kind === "id" &&
+          isValue(cond.right)
+        ) {
+          // e.g.: while(a < 10)
+          add(cond.left);
+        } else if (
+          cond.kind === "op_binary" &&
+          cond.right.kind === "id" &&
+          isValue(cond.left)
+        ) {
+          // e.g.: while(10 > a)
+          add(cond.right);
+        }
         forEachStatement(stmt, (s) => {
           if (
             s.kind === "statement_assign" ||

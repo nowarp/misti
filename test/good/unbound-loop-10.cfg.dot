@@ -1,0 +1,10 @@
+digraph "unbound-loop-10" {
+    node [shape=box];
+    subgraph "cluster_test" {
+        label="test";
+        "test_141" [label="let i: Bool = true"];
+        "test_142" [label="while (!i)"];
+        "test_141" -> "test_142";
+        "test_142" -> "test_142";
+    }
+}

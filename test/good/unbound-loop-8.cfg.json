@@ -1,0 +1,44 @@
+{
+  "projectName": "unbound-loop-8",
+  "functions": [
+    {
+      "name": "test",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 141,
+            "stmtID": 1530,
+            "srcEdges": [],
+            "dstEdges": [
+              143
+            ]
+          },
+          {
+            "id": 142,
+            "stmtID": 1534,
+            "srcEdges": [
+              143,
+              144
+            ],
+            "dstEdges": [
+              144
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "id": 143,
+            "src": 141,
+            "dst": 142
+          },
+          {
+            "id": 144,
+            "src": 142,
+            "dst": 142
+          }
+        ]
+      }
+    }
+  ],
+  "contracts": []
+}

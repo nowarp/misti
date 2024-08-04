@@ -1,0 +1,14 @@
+digraph "unbound-loop-6" {
+    node [shape=box];
+    subgraph "cluster_Test__receive_internal_comment_1554_test" {
+        label="Test__receive_internal_comment_1554_test";
+        "Test__receive_internal_comment_1554_test_141" [label="let s: S = S{a: 1}"];
+        "Test__receive_internal_comment_1554_test_142" [label="let i: Int = 0"];
+        "Test__receive_internal_comment_1554_test_144" [label="while (i < s.a)"];
+        "Test__receive_internal_comment_1554_test_146" [label="i += 1"];
+        "Test__receive_internal_comment_1554_test_141" -> "Test__receive_internal_comment_1554_test_142";
+        "Test__receive_internal_comment_1554_test_142" -> "Test__receive_internal_comment_1554_test_144";
+        "Test__receive_internal_comment_1554_test_144" -> "Test__receive_internal_comment_1554_test_146";
+        "Test__receive_internal_comment_1554_test_146" -> "Test__receive_internal_comment_1554_test_144";
+    }
+}
