@@ -3,7 +3,6 @@ import {
   Fact,
   FactType,
   Relation,
-  Executor,
   makeAtom,
   makeRuleBody,
   Rule,
