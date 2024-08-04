@@ -1,6 +1,13 @@
 import { MistiContext } from "../internals/context";
 import { CompilationUnit } from "../internals/ir";
 import { MistiTactError } from "../internals/errors";
+import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
+import {
+  Context as SouffleContext,
+  Fact,
+  FactValue,
+  Executor,
+} from "../internals/souffle";
 
 export type WarningsBehavior = "union" | "intersect";
 
@@ -33,6 +40,35 @@ export abstract class Detector {
    */
   public get shareImportedWarnings(): WarningsBehavior {
     return "union";
+  }
+
+  /**
+   * Executes Souffle program for this detector converting output facts to warnings.
+   * @param program Souffle context with all the declarations, rules and facts added.
+   * @param callback A function that creates warnings from output facts.
+   */
+  protected executeSouffle(
+    ctx: MistiContext,
+    program: SouffleContext<SrcInfo>,
+    callback: (fact: Fact<FactValue, SrcInfo>) => MistiTactError,
+  ) {
+    const executor = ctx.config.soufflePath
+      ? new Executor<SrcInfo>({
+          inputDir: ctx.config.soufflePath,
+          outputDir: ctx.config.soufflePath,
+        })
+      : new Executor<SrcInfo>();
+    const result = executor.executeSync(program);
+    if (!result.success) {
+      throw new Error(
+        `Error executing Soufflé for ${this.id}:\n${result.stderr}`,
+      );
+    }
+    return Array.from(result.results.entries.values()).flatMap((facts) => {
+      return facts.map((fact) => {
+        return callback(fact);
+      });
+    });
   }
 
   /**

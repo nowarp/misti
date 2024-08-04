@@ -190,9 +190,9 @@ type RawSouffleOutput = string[][];
  * annotations added to the executed `Context`.
  */
 export class ParsedSouffleOutput<FactData> {
-  public entries: Map<RelationName, Fact<FactValue, FactData>>;
+  public entries: Map<RelationName, Fact<FactValue, FactData>[]>;
 
-  private constructor(entries: Map<RelationName, Fact<FactValue, FactData>>) {
+  private constructor(entries: Map<RelationName, Fact<FactValue, FactData>[]>) {
     this.entries = entries;
   }
 
@@ -204,7 +204,7 @@ export class ParsedSouffleOutput<FactData> {
     ctx: Context<FactData>,
     rawOut: Map<RelationName, RawSouffleOutput>,
   ): ParsedSouffleOutput<FactData> {
-    const entries = new Map<RelationName, Fact<FactValue, FactData>>();
+    const entries = new Map<RelationName, Fact<FactValue, FactData>[]>();
     for (const [relationName, allFactValues] of rawOut.entries()) {
       const relation = ctx.getRelation(relationName);
       if (relation === undefined) {
@@ -218,7 +218,12 @@ export class ParsedSouffleOutput<FactData> {
         if (fact === undefined) {
           throw new Error(`Cannot find fact with values: ${typedFactValues}`);
         }
-        entries.set(relationName, fact);
+        let facts = entries.get(relationName);
+        if (facts === undefined) {
+          facts = [];
+        }
+        facts.push(fact);
+        entries.set(relationName, facts);
       }
     }
     return new ParsedSouffleOutput(entries);

@@ -55,55 +55,27 @@ import {
  */
 export class DivideBeforeMultiply extends Detector {
   check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
-    // TODO: Extract method for this shared logic
-    const souffleCtx = new Context<SrcInfo>(this.id);
-    this.addDecls(souffleCtx);
-    this.addRules(souffleCtx);
-    this.addConstraints(cu, souffleCtx);
-
-    const executor = ctx.config.soufflePath
-      ? new Executor<SrcInfo>({
-          inputDir: ctx.config.soufflePath,
-          outputDir: ctx.config.soufflePath,
-        })
-      : new Executor<SrcInfo>();
-    const result = executor.executeSync(souffleCtx);
-    if (!result.success) {
-      throw new Error(
-        `Error executing Soufflé for ${this.id}:\n${result.stderr}`,
+    const program = new Context<SrcInfo>(this.id);
+    this.addDecls(program);
+    this.addRules(program);
+    this.addConstraints(cu, program);
+    return this.executeSouffle(ctx, program, (fact) => {
+      if (fact.data === undefined) {
+        throw new Error(`AST position for fact ${fact} is not available`);
+      }
+      return MistiTactError.make(
+        ctx,
+        this.id,
+        "Divide Before Multiply",
+        Severity.HIGH,
+        fact.data,
+        {
+          docURL: makeDocURL(this.id),
+          suggestion:
+            "Consider rearranging the operations: division should follow multiplication",
+        },
       );
-    }
-
-    const reportedDivIds = new Set<number>();
-    const warnings = Array.from(result.results.entries.values()).reduce(
-      (acc, fact) => {
-        if (fact.data === undefined) {
-          throw new Error(`AST position for fact ${fact} is not available`);
-        }
-        const divId = fact.values[1] as number;
-        if (reportedDivIds.has(divId)) {
-          return acc;
-        }
-        reportedDivIds.add(divId);
-        const err = MistiTactError.make(
-          ctx,
-          this.id,
-          "Divide Before Multiply",
-          Severity.HIGH,
-          fact.data,
-          {
-            docURL: makeDocURL(this.id),
-            suggestion:
-              "Consider rearranging the operations: division should follow multiplication",
-          },
-        );
-        acc.push(err);
-        return acc;
-      },
-      [] as MistiTactError[],
-    );
-
-    return warnings;
+    });
   }
 
   private addDecls(ctx: Context<SrcInfo>): void {

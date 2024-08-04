@@ -6,6 +6,7 @@ test/good/readonly-2.tact:2:5:
 Read-only variable
 Help: Consider creating a constant instead
 See: https://nowarp.github.io/docs/misti/docs/detectors/ReadOnlyVariables
+
 test/good/readonly-2.tact:3:13:
   2 |     let a: Int = 10; // warning: read-only variable
 > 3 |     repeat (a) { /* do nothing */ }
@@ -14,6 +15,7 @@ test/good/readonly-2.tact:3:13:
 Unbounded Loop: The condition variable doesn't change within the loop
 Help: Consider changing the variable within the loop to ensure it terminates
 See: https://nowarp.github.io/docs/misti/docs/detectors/UnboundLoops
+
 test/good/readonly-2.tact:4:13:
   3 |     repeat (a) { /* do nothing */ }
 > 4 |     repeat (a) { /* ... */ }

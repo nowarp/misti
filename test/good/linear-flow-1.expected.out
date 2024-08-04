@@ -1,6 +1,24 @@
+test/good/linear-flow-1.tact:2:5:
+  1 | fun test(): Int {
+> 2 |     let a: Int = 20; // read-only variable
+          ^
+  3 |     let b: Int = 22; // read-only variable
+Read-only variable
+Help: Consider creating a constant instead
+See: https://nowarp.github.io/docs/misti/docs/detectors/ReadOnlyVariables
+
+test/good/linear-flow-1.tact:3:5:
+  2 |     let a: Int = 20; // read-only variable
+> 3 |     let b: Int = 22; // read-only variable
+          ^
+  4 |     let c: Int = a + b; // read-only variable
+Read-only variable
+Help: Consider creating a constant instead
+See: https://nowarp.github.io/docs/misti/docs/detectors/ReadOnlyVariables
+
 test/good/linear-flow-1.tact:4:5:
-  3 |     let b: Int = 22;
-> 4 |     let c: Int = a + b;
+  3 |     let b: Int = 22; // read-only variable
+> 4 |     let c: Int = a + b; // read-only variable
           ^
   5 |     return c;
 Read-only variable

@@ -6,6 +6,7 @@ test/good/unbound-loop-2.tact:2:5:
 Read-only variable
 Help: Consider creating a constant instead
 See: https://nowarp.github.io/docs/misti/docs/detectors/ReadOnlyVariables
+
 test/good/unbound-loop-2.tact:4:14:
   3 |     do  { // error: a is not changing within the loop
 > 4 |     } until (a > 10);

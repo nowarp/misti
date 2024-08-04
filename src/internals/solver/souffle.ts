@@ -127,7 +127,7 @@ export class SouffleSolver<State> implements Solver<State> {
    * Converts the souffle execution results to the solver results as required by the class interface.
    */
   private createSouffleResults(
-    _souffleResults: Fact<FactValue, SrcInfo>[],
+    _souffleResults: Fact<FactValue, SrcInfo>[][],
   ): SolverResults<State> {
     throw new Error("NYI");
   }

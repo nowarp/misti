@@ -11,7 +11,6 @@ import {
   Fact,
   FactType,
   Relation,
-  Executor,
   Rule,
   makeRuleBody,
   makeAtom,
@@ -57,21 +56,7 @@ export class ReadOnlyVariables extends Detector {
     this.addDecls(program);
     this.addRules(program);
     this.addConstraints(cu, program);
-
-    const executor = ctx.config.soufflePath
-      ? new Executor<SrcInfo>({
-          inputDir: ctx.config.soufflePath,
-          outputDir: ctx.config.soufflePath,
-        })
-      : new Executor<SrcInfo>();
-    const result = executor.executeSync(program);
-    if (!result.success) {
-      throw new Error(
-        `Error executing Soufflé for ${this.id}:\n${result.stderr}`,
-      );
-    }
-
-    const warnings = Array.from(result.results.entries.values()).map((fact) => {
+    return this.executeSouffle(ctx, program, (fact) => {
       if (fact.data === undefined) {
         throw new Error(`AST position for fact ${fact} is not available`);
       }
@@ -87,8 +72,6 @@ export class ReadOnlyVariables extends Detector {
         },
       );
     });
-
-    return warnings;
   }
 
   /**

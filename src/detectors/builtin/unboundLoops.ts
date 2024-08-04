@@ -48,27 +48,12 @@ import { AstStatement, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
  */
 export class UnboundLoops extends Detector {
   check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
-    // TODO: Extract method for this shared logic
-    const souffleCtx = new Context<SrcInfo>(this.id);
-    this.addDecls(souffleCtx);
-    this.addRules(souffleCtx);
-    this.addConstantConstraints(cu, souffleCtx);
-    this.addConstraints(cu, souffleCtx);
-
-    const executor = ctx.config.soufflePath
-      ? new Executor<SrcInfo>({
-          inputDir: ctx.config.soufflePath,
-          outputDir: ctx.config.soufflePath,
-        })
-      : new Executor<SrcInfo>();
-    const result = executor.executeSync(souffleCtx);
-    if (!result.success) {
-      throw new Error(
-        `Error executing Soufflé for ${this.id}:\n${result.stderr}`,
-      );
-    }
-
-    const warnings = Array.from(result.results.entries.values()).map((fact) => {
+    const program = new Context<SrcInfo>(this.id);
+    this.addDecls(program);
+    this.addRules(program);
+    this.addConstantConstraints(cu, program);
+    this.addConstraints(cu, program);
+    return this.executeSouffle(ctx, program, (fact) => {
       if (fact.data === undefined) {
         throw new Error(`AST position for fact ${fact} is not available`);
       }
@@ -87,8 +72,6 @@ export class UnboundLoops extends Detector {
         },
       );
     });
-
-    return warnings;
   }
 
   private addDecls(ctx: Context<SrcInfo>): void {
