@@ -1,0 +1,8 @@
+test/good/readonly-4.tact:2:5:
+  1 | fun test() {
+> 2 |     let a: Int = 10; // warning: read-only variable
+          ^
+  3 |     if (a == 42) { /* do nothing */ }
+Read-only variable
+Help: Consider creating a constant instead
+See: https://nowarp.github.io/docs/misti/docs/detectors/ReadOnlyVariables

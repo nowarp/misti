@@ -1,8 +1,0 @@
-test/good/conditional-1.tact:6:5:
-  5 |     }
-> 6 |     let b: Int = a + 1;
-          ^
-  7 |     return b;
-Read-only variable
-Help: Consider creating a constant instead
-See: https://nowarp.github.io/docs/misti/docs/detectors/ReadOnlyVariables

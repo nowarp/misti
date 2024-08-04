@@ -140,12 +140,32 @@ export class ReadOnlyVariables extends Detector {
       }
       const funName = cfg.name;
       switch (stmt.kind) {
+        // XXX: Track uses only from conditions and loops.
+        //
+        // This is done to make the detector less noisy, since until version 1.6.0
+        // there are no local constant variables in Tact. This means that the user
+        // *wants* to create local read-only let bindings just to name things, and
+        // that's the expected code style.
+        //
+        // See:
+        // * https://github.com/nowarp/misti/issues/69
+        // * https://github.com/tact-lang/tact/issues/643
+        case "statement_condition":
+        case "statement_while":
+        case "statement_until":
+          addUses(funName, stmt.condition);
+          break;
+        case "statement_repeat":
+          addUses(funName, stmt.iterations);
+          break;
+
         case "statement_let":
           ctx.addFact(
             "varDecl",
             Fact.from([stmt.name.text, funName], stmt.loc),
           );
-          addUses(funName, stmt.expression);
+          // Uncomment when #69 is resolved:
+          // addUses(funName, stmt.expression);
           break;
         case "statement_assign":
         case "statement_augmentedassign":
@@ -153,10 +173,12 @@ export class ReadOnlyVariables extends Detector {
             "varAssign",
             Fact.from([extractPath(stmt.path), funName], stmt.loc),
           );
-          addUses(funName, stmt.expression);
+          // Uncomment when #69 is resolved:
+          // addUses(funName, stmt.expression);
           break;
         default:
-          addUses(funName, stmt);
+          // Uncomment when #69 is resolved:
+          // addUses(funName, stmt);
           break;
       }
     });

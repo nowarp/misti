@@ -1,0 +1,9 @@
+digraph "readonly-4" {
+    node [shape=box];
+    subgraph "cluster_test" {
+        label="test";
+        "test_141" [label="let a: Int = 10"];
+        "test_142" [label="if (a == 42)"];
+        "test_141" -> "test_142";
+    }
+}
