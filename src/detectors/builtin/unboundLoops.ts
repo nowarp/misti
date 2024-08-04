@@ -180,17 +180,11 @@ export class UnboundLoops extends Detector {
         ctx.addFact("varDef", Fact.from([stmt.name.text, funName], stmt.loc));
         return;
       }
-      if (
-        stmt.kind === "statement_while" ||
-        stmt.kind === "statement_repeat" ||
-        stmt.kind === "statement_until"
-      ) {
+      if (stmt.kind === "statement_while" || stmt.kind === "statement_until") {
         const loopId = stmt.id;
         const usedInCond: Set<string> = new Set(); // variables used in the condition
         ctx.addFact("loopDef", Fact.from([loopId, funName], stmt.loc));
-        const condition =
-          stmt.kind === "statement_repeat" ? stmt.iterations : stmt.condition;
-        forEachExpression(condition, (expr) => {
+        forEachExpression(stmt.condition, (expr) => {
           if (expr.kind === "id") {
             const varName = expr.text;
             usedInCond.add(varName);
