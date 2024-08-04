@@ -109,6 +109,17 @@ export class ReadOnlyVariables extends Detector {
         undefined,
       ),
     );
+    // XXX: Remove when #69 is implemented.
+    ctx.add(
+      Relation.from(
+        "skip",
+        [
+          ["var", FactType.Symbol],
+          ["func", FactType.Symbol],
+        ],
+        undefined,
+      ),
+    );
     ctx.add(
       Relation.from(
         "readOnly",
@@ -127,10 +138,14 @@ export class ReadOnlyVariables extends Detector {
    * @param ctx The Souffle program to which the facts are added.
    */
   addConstraints(cu: CompilationUnit, ctx: Context<SrcInfo>) {
-    const addUses = (funName: string, node: AstStatement | AstExpression) => {
+    const track = (
+      funName: string,
+      node: AstStatement | AstExpression,
+      factName: string,
+    ) => {
       forEachExpression(node, (expr: AstExpression) => {
         if (expr.kind === "id") {
-          ctx.addFact("varUse", Fact.from([expr.text, funName], expr.loc));
+          ctx.addFact(factName, Fact.from([expr.text, funName], expr.loc));
         }
       });
     };
@@ -153,19 +168,20 @@ export class ReadOnlyVariables extends Detector {
         case "statement_condition":
         case "statement_while":
         case "statement_until":
-          addUses(funName, stmt.condition);
+          track(funName, stmt.condition, "varUse");
           break;
         case "statement_repeat":
-          addUses(funName, stmt.iterations);
+          track(funName, stmt.iterations, "varUse");
           break;
 
+        // XXX: When the variable appears in any other case, it won't be reported.
+        // This will changed fixed when #69 is implemented.
         case "statement_let":
           ctx.addFact(
             "varDecl",
             Fact.from([stmt.name.text, funName], stmt.loc),
           );
-          // Uncomment when #69 is resolved:
-          // addUses(funName, stmt.expression);
+          track(funName, stmt.expression, "skip");
           break;
         case "statement_assign":
         case "statement_augmentedassign":
@@ -173,12 +189,10 @@ export class ReadOnlyVariables extends Detector {
             "varAssign",
             Fact.from([extractPath(stmt.path), funName], stmt.loc),
           );
-          // Uncomment when #69 is resolved:
-          // addUses(funName, stmt.expression);
+          track(funName, stmt.expression, "skip");
           break;
         default:
-          // Uncomment when #69 is resolved:
-          // addUses(funName, stmt);
+          track(funName, stmt, "skip");
           break;
       }
     });
@@ -187,14 +201,18 @@ export class ReadOnlyVariables extends Detector {
   addRules(ctx: Context<SrcInfo>) {
     // readOnly(var, func) :-
     //     varDecl(var, func),
-    //     varUse(var, func).
+    //     varUse(var, func),
     //     !varAssign(var, func),
+    //     !skip(var, func).
     ctx.add(
       Rule.from(
         [makeAtom("readOnly", ["var", "func"])],
         makeRuleBody(makeAtom("varDecl", ["var", "func"])),
         makeRuleBody(makeAtom("varUse", ["var", "func"])),
         makeRuleBody(makeAtom("varAssign", ["var", "func"]), {
+          negated: true,
+        }),
+        makeRuleBody(makeAtom("skip", ["var", "func"]), {
           negated: true,
         }),
       ),

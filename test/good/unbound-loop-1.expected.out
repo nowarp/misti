@@ -1,12 +1,3 @@
-test/good/unbound-loop-1.tact:2:5:
-  1 | fun test(): Int {
-> 2 |     let a: Int = 20; // read-only variable
-          ^
-  3 |     while (a > 10) { // error: a is not changing within the loop
-Read-only variable
-Help: Consider creating a constant instead
-See: https://nowarp.github.io/docs/misti/docs/detectors/ReadOnlyVariables
-
 test/good/unbound-loop-1.tact:3:12:
   2 |     let a: Int = 20; // read-only variable
 > 3 |     while (a > 10) { // error: a is not changing within the loop
