@@ -270,7 +270,7 @@ export class Driver {
         );
         const errors = detector.check(this.ctx, cu);
         this.ctx.logger.debug(
-          `${cu.projectName}: Finished ${detector.constructor.name} (${errors.length} errors found)`,
+          `${cu.projectName}: Finished ${detector.constructor.name} `,
         );
         return errors;
       })
