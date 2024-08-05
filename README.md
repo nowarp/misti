@@ -3,7 +3,7 @@ Misti is a static analysis tool designed for smart contracts on the [TON blockch
 
 **Language Support:**
 - [Tact](https://tact-lang.org/) 1.4.1 is supported.
-- Support for [FunC](https://docs.ton.org/develop/func/overview) is planned.
+- Support for [FunC](https://docs.ton.org/develop/func/overview) [is planned](https://github.com/nowarp/misti/issues/56).
 
 ## Getting Started
 1. Install Soufflé according to [the official installation instruction](https://souffle-lang.github.io/install).
