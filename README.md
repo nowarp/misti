@@ -27,3 +27,6 @@ npx misti test/projects/simple/tactConfig.json
 ## Documentation
 * [Misti Documentation](https://nowarp.github.io/docs/misti/) provides a detailed overview of the built-in detectors, the architecture of the analyzer, and developer documentation.
 * [Misti API Reference](https://nowarp.github.io/docs/misti/api) is useful if you are going to contribute or create your own detectors to streamline your audit.
+
+## Community
+* [Misti Discussion Group](https://t.me/misti_dev)
