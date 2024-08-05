@@ -2,14 +2,10 @@ import * as packageJson from "../package.json";
 
 export const MISTI_VERSION = packageJson.version;
 
-/** The supported version of Tact. */
+const removeCaret = (version: string): string =>
+  version.startsWith("^") ? version.substring(1) : version;
+
+/** The supported version of the Tact compiler. */
 export const TACT_VERSION = removeCaret(
   packageJson.dependencies["@tact-lang/compiler"],
 );
-
-function removeCaret(version: string): string {
-  if (version.startsWith("^")) {
-    return version.substring(1);
-  }
-  return version;
-}
