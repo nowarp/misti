@@ -42,8 +42,13 @@ command
       process.exit(1);
     }
   });
+
 command.option("--help", "Display help for command", () => {
   command.help();
 });
+
+if (!process.argv.slice(2).length) {
+  command.help();  // Display help if no arguments are provided
+}
 
 command.parse(process.argv);
