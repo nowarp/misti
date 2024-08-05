@@ -48,7 +48,7 @@ command.option("--help", "Display help for command", () => {
 });
 
 if (!process.argv.slice(2).length) {
-  command.help();  // Display help if no arguments are provided
+  command.help(); // Display help if no arguments are provided
 }
 
 command.parse(process.argv);
