@@ -5,4 +5,4 @@ test/good/unbound-loop-6.tact:7:13:
   8 |             a: 1,
 Read-only variable
 Help: Consider creating a constant instead
-See: https://nowarp.github.io/docs/misti/docs/detectors/ReadOnlyVariables
+See: https://nowarp.github.io/tools/misti/docs/detectors/ReadOnlyVariables

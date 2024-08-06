@@ -5,4 +5,4 @@ test/good/imports-2/constants.tact:3:1:
   4 | 
 Constant is never used
 Help: Consider removing the constant
-See: https://nowarp.github.io/docs/misti/docs/detectors/NeverAccessedVariables
+See: https://nowarp.github.io/tools/misti/docs/detectors/NeverAccessedVariables
