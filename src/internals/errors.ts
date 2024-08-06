@@ -17,7 +17,7 @@ export enum Severity {
  * Base URL to detectors documentation.
  */
 export const BASE_DOC_URL =
-  "https://nowarp.github.io/docs/misti/docs/detectors";
+  "https://nowarp.github.io/tools/misti/docs/detectors";
 
 /**
  * Error instance that refers to a specific place in a Tact contract.
