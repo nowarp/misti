@@ -162,6 +162,7 @@ export class Driver {
       allWarnings,
     );
     const reported = new Set<string>();
+    let reportedIdx = 0;
     filteredWarnings.forEach((detectorsMap) => {
       const projectWarnings: MistiTactError[] = Array.from(
         detectorsMap.values(),
@@ -169,7 +170,8 @@ export class Driver {
       projectWarnings.sort((a, b) => b.severity - a.severity);
       projectWarnings.forEach((err) => {
         if (!reported.has(err.msg)) {
-          this.reportError(err);
+          const isLastWarning = reportedIdx === filteredWarnings.size - 1;
+          this.reportError(err, !isLastWarning);
           reported.add(err.msg);
         }
       });
@@ -251,9 +253,9 @@ export class Driver {
    * Logs a error using the logger.
    * @param error The error object to report.
    */
-  reportError(error: MistiTactError) {
+  reportError(error: MistiTactError, addNewline: boolean) {
     this.ctx.logger.error(
-      `${error.message}${error.message.endsWith("\n") ? "" : "\n"}`,
+      `${error.message}${addNewline && !error.message.endsWith("\n") ? "\n" : ""}`,
     );
   }
 
