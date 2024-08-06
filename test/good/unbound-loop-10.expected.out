@@ -6,6 +6,7 @@ test/good/unbound-loop-10.tact:2:9:
 Read-only variable
 Help: Consider creating a constant instead
 See: https://nowarp.github.io/docs/misti/docs/detectors/ReadOnlyVariables
+
 test/good/unbound-loop-10.tact:3:13:
   2 |     let i: Bool = true;
 > 3 |     while (!i) {} // warning: unbound loop

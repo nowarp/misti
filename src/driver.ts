@@ -162,21 +162,26 @@ export class Driver {
       allWarnings,
     );
     const reported = new Set<string>();
-    let reportedIdx = 0;
-    filteredWarnings.forEach((detectorsMap) => {
+    const collectedErrors: MistiTactError[] = Array.from(
+      filteredWarnings.values(),
+    ).reduce((acc: MistiTactError[], detectorsMap) => {
       const projectWarnings: MistiTactError[] = Array.from(
         detectorsMap.values(),
       ).flat();
       projectWarnings.sort((a, b) => b.severity - a.severity);
       projectWarnings.forEach((err) => {
         if (!reported.has(err.msg)) {
-          const isLastWarning = reportedIdx === filteredWarnings.size - 1;
-          this.reportError(err, !isLastWarning);
+          acc.push(err);
           reported.add(err.msg);
         }
       });
+      return acc;
+    }, []);
+    collectedErrors.forEach((err, index) => {
+      const isLastWarning = index === collectedErrors.length - 1;
+      this.reportError(err, !isLastWarning);
     });
-    return filteredWarnings.size > 0;
+    return collectedErrors.length > 0;
   }
 
   /**
