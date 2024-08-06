@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Fixed
+- The npm postinstall script tries to build a contract project after running `yarn add @nowarp/misti`.
 
 ## [0.1.0] - 2024-08-06
 ### Added

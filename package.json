@@ -19,8 +19,7 @@
     "docs": "yarn typedoc --out docs/api --entryPointStrategy expand src",
     "test-all": "yarn test && yarn lint && yarn fmt && yarn spell",
     "misti": "ts-node src/main.ts",
-    "release": "release-it",
-    "postinstall": "yarn build"
+    "release": "release-it"
   },
   "files": [
     "dist/**/*",
