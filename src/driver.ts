@@ -151,7 +151,7 @@ export class Driver {
   /**
    * Dumps the Misti config in use to stdout.
    */
-  private async executeConfigDump(spaces: number = 2) {
+  private executeConfigDump(spaces: number = 2) {
     const mistiConfig = JSON.stringify(this.ctx.config, null, spaces);
     console.log(mistiConfig);
   }
@@ -166,7 +166,7 @@ export class Driver {
       this.tactConfigPath,
     );
     if (this.dumpCFG !== undefined) {
-      this.executeCFGDump(cus);
+      await this.executeCFGDump(cus);
       return false;
     }
     if (this.dumpConfig === true) {
