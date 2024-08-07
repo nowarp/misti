@@ -19,6 +19,7 @@ export class Driver {
   private dumpCFG?: "json" | "dot" = undefined;
   private dumpCFGStdlib: boolean;
   private dumpCFGOutput: string;
+  private dumpConfig: boolean;
   private tactConfigPath: string;
 
   private constructor(
@@ -26,6 +27,7 @@ export class Driver {
     dumpCFG?: "json" | "dot",
     dumpCFGStdlib?: boolean,
     dumpCFGOutput?: string,
+    dumpConfig?: boolean,
     soufflePath?: string,
     tactStdlibPath?: string,
     verbose?: boolean,
@@ -55,6 +57,7 @@ export class Driver {
     this.dumpCFG = dumpCFG;
     this.dumpCFGStdlib = dumpCFGStdlib ? dumpCFGStdlib : false;
     this.dumpCFGOutput = dumpCFGOutput ? dumpCFGOutput : DUMP_STDOUT_PATH;
+    this.dumpConfig = dumpConfig === undefined ? false : dumpConfig;
   }
 
   /**
@@ -70,6 +73,7 @@ export class Driver {
       options.dumpCfg,
       options.dumpCfgStdlib,
       options.dumpCfgOutput,
+      options.dumpConfig,
       options.soufflePath,
       options.tactStdlibPath,
       options.verbose,
@@ -121,6 +125,38 @@ export class Driver {
   }
 
   /**
+   * Dumps the Control Flow Graph (CFG) to stdout.
+   */
+  private async executeCFGDump(cus: Map<ProjectName, CompilationUnit>) {
+    const promises = Array.from(cus.entries()).reduce((acc, [name, cu]) => {
+      const dump =
+        this.dumpCFG === "dot"
+          ? GraphvizDumper.dumpCU(cu, this.dumpCFGStdlib)
+          : JSONDumper.dumpCU(cu, this.dumpCFGStdlib);
+      if (this.dumpCFGOutput === DUMP_STDOUT_PATH) {
+        console.log(dump);
+      } else {
+        const filename =
+          this.dumpCFG === "dot" ? `${name}.dot` : `${name}.json`;
+        const filepath = path.join(this.dumpCFGOutput, filename);
+        const promise = fs.promises.writeFile(filepath, dump, "utf8");
+        this.ctx.logger.debug(`CFG dump will be saved at ${filepath}`);
+        acc.push(promise);
+      }
+      return acc;
+    }, [] as Promise<void>[]);
+    await Promise.all(promises);
+  }
+
+  /**
+   * Dumps the Misti config in use to stdout.
+   */
+  private async executeConfigDump(spaces: number = 2) {
+    const mistiConfig = JSON.stringify(this.ctx.config, null, spaces);
+    console.log(mistiConfig);
+  }
+
+  /**
    * Executes checks on all compilation units and reports found errors sorted by severity.
    * @returns True if any errors were found, otherwise false.
    */
@@ -130,26 +166,14 @@ export class Driver {
       this.tactConfigPath,
     );
     if (this.dumpCFG !== undefined) {
-      const promises = Array.from(cus.entries()).reduce((acc, [name, cu]) => {
-        const dump =
-          this.dumpCFG === "dot"
-            ? GraphvizDumper.dumpCU(cu, this.dumpCFGStdlib)
-            : JSONDumper.dumpCU(cu, this.dumpCFGStdlib);
-        if (this.dumpCFGOutput === DUMP_STDOUT_PATH) {
-          console.log(dump);
-        } else {
-          const filename =
-            this.dumpCFG === "dot" ? `${name}.dot` : `${name}.json`;
-          const filepath = path.join(this.dumpCFGOutput, filename);
-          const promise = fs.promises.writeFile(filepath, dump, "utf8");
-          this.ctx.logger.debug(`CFG dump will be saved at ${filepath}`);
-          acc.push(promise);
-        }
-        return acc;
-      }, [] as Promise<void>[]);
-      await Promise.all(promises);
+      this.executeCFGDump(cus);
       return false;
     }
+    if (this.dumpConfig === true) {
+      this.executeConfigDump();
+      return false;
+    }
+
     const allWarnings = Array.from(cus.entries()).reduce(
       (acc, [projectName, cu]) => {
         acc.set(projectName, this.checkCU(cu));
@@ -297,6 +321,9 @@ interface CLIOptions {
   dumpCfgStdlib?: boolean;
   /** Path where to save CFG dumps. If equals to DUMP_STDOUT_PATH, the stdout is used. */
   dumpCfgOutput?: string;
+  /** Dump the used Misti JSON configuration file. If no custom configuration
+   * available, dumps the default config. */
+  dumpConfig: boolean;
   /**
    * Specifies path to save generated Soufflé files. If equals to DUMP_STDOUT_PATH, the
    * stdout is used. If `undefined`, no dumps will be generated.
@@ -336,6 +363,7 @@ export async function run(
     dumpCfg: undefined,
     dumpCfgStdlib: false,
     dumpCfgOutput: DUMP_STDOUT_PATH,
+    dumpConfig: false,
     soufflePath: undefined,
     tactStdlibPath: undefined,
     verbose: false,

@@ -21,6 +21,11 @@ command
     "-",
   )
   .option(
+    "--dump-config",
+    "Dump the used Misti JSON configuration file. If no custom configuration available, dumps the default config.",
+    false,
+  )
+  .option(
     "--souffle-path <path>",
     "Directory to save generated Soufflé files. If not set, a temporary directory will be used.",
     undefined,
