@@ -323,7 +323,7 @@ interface CLIOptions {
   dumpCfgOutput?: string;
   /** Dump the used Misti JSON configuration file. If no custom configuration
    * available, dumps the default config. */
-  dumpConfig: boolean;
+  dumpConfig?: boolean;
   /**
    * Specifies path to save generated Soufflé files. If equals to DUMP_STDOUT_PATH, the
    * stdout is used. If `undefined`, no dumps will be generated.
@@ -363,7 +363,7 @@ export async function run(
     dumpCfg: undefined,
     dumpCfgStdlib: false,
     dumpCfgOutput: DUMP_STDOUT_PATH,
-    dumpConfig: false,
+    dumpConfig: undefined,
     soufflePath: undefined,
     tactStdlibPath: undefined,
     verbose: false,
