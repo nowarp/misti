@@ -433,9 +433,9 @@ export type NodeKind =
    */
   | { kind: "call"; callees: Set<CFGIdx> }
   /**
-   * Represents a return node that effectively terminates the execution of the current control flow.
+   * Represents an exit node that effectively terminates the execution of the current control flow.
    */
-  | { kind: "return" };
+  | { kind: "exit" };
 
 /**
  * Represents a node in a Control Flow Graph (CFG), corresponding to a single statement in the source code.
@@ -461,7 +461,7 @@ export class Node {
    * Returns true iff this basic block terminates control flow.
    */
   public isExit(): boolean {
-    return this.kind.kind === "return";
+    return this.kind.kind === "exit";
   }
 }
 

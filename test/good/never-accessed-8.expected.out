@@ -1,0 +1,8 @@
+test/good/never-accessed-8.tact:3:9:
+  2 |     receive() {
+> 3 |         let test: Int = 123; // should be reported
+              ^
+  4 |     }
+Variable is never accessed
+Help: Consider removing the variable
+See: https://nowarp.github.io/tools/misti/docs/detectors/NeverAccessedVariables
