@@ -76,8 +76,7 @@ export class GraphvizDumper {
       output += `        color=lightgrey;\n`;
     }
     cfg.forEachNode(cu.ast, (stmt, node) => {
-      const color =
-        node.kind.kind === "return" ? ',style=filled,fillcolor="#66A7DB"' : "";
+      const color = node.isExit() ? ',style=filled,fillcolor="#66A7DB"' : "";
       output += `        "${prefix}_${node.idx}" [label="${this.ppSummary(stmt)}"${color}];\n`;
     });
     cfg.forEachEdge((edge) => {

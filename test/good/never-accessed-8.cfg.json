@@ -1,0 +1,25 @@
+{
+  "projectName": "never-accessed-8",
+  "functions": [],
+  "contracts": [
+    {
+      "name": "TestContract",
+      "methods": [
+        {
+          "name": "TestContract.receive_internal_fallback_1531",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 141,
+                "stmtID": 1530,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        }
+      ]
+    }
+  ]
+}

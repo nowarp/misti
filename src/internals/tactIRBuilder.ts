@@ -466,6 +466,7 @@ export class TactIRBuilder {
   ): CFG {
     const [nodes, edges] =
       statements === null ? [[], []] : this.processStatements(statements);
+    this.markExitNodes(nodes);
     return new CFG(name, kind, origin, nodes, edges, ref, idx);
   }
 
@@ -560,7 +561,7 @@ export class TactIRBuilder {
   getNodeKind(stmt: AstStatement): NodeKind {
     switch (stmt.kind) {
       case "statement_return":
-        return { kind: "return" };
+        return { kind: "exit" };
       case "statement_let":
       case "statement_expression":
       case "statement_assign":
@@ -698,7 +699,7 @@ export class TactIRBuilder {
           edges = catchEdges;
           // Catch block always terminates execution.
           if (catchNodes.length > 0) {
-            tryNodes[tryNodes.length - 1].kind = { kind: "return" };
+            tryNodes[tryNodes.length - 1].kind = { kind: "exit" };
           }
         }
       } else if (stmt.kind === "statement_return") {
@@ -710,6 +711,20 @@ export class TactIRBuilder {
     });
 
     return [nodes, edges];
+  }
+
+  /**
+   * Marks nodes without successors as Exit kind.
+   * @param nodes The array of Node objects.
+   * @param edges The array of Edge objects.
+   */
+  private markExitNodes(nodes: Node[]): void {
+    const nodeHasSuccessors = (node: Node): boolean => node.dstEdges.size > 0;
+    nodes.forEach((node) => {
+      if (!nodeHasSuccessors(node)) {
+        node.kind = { kind: "exit" };
+      }
+    });
   }
 
   private getParent(nodes: Node[], idx: NodeIdx): Node {
