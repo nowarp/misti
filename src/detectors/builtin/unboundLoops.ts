@@ -9,7 +9,6 @@ import {
 } from "../../internals/souffle";
 import { Detector } from "../detector";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
-import { MistiContext } from "../../internals/context";
 import { MistiTactError, Severity, makeDocURL } from "../../internals/errors";
 import {
   extractPath,
@@ -51,30 +50,23 @@ import {
  * ```
  */
 export class UnboundLoops extends Detector {
-  check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
+  check(cu: CompilationUnit): MistiTactError[] {
     const program = new Context<SrcInfo>(this.id);
     this.addDecls(program);
     this.addRules(program);
     this.addConstantConstraints(cu, program);
     this.addConstraints(cu, program);
-    return this.executeSouffle(ctx, program, (fact) => {
+    return this.executeSouffle(program, (fact) => {
       if (fact.data === undefined) {
         throw new Error(`AST position for fact ${fact} is not available`);
       }
-      return MistiTactError.make(
-        ctx,
-        this.id,
-        "Unbounded Loop",
-        Severity.MEDIUM,
-        fact.data,
-        {
-          docURL: makeDocURL(this.id),
-          suggestion:
-            "Consider changing the variable within the loop to ensure it terminates",
-          extraDescription:
-            "The condition variable doesn't change within the loop",
-        },
-      );
+      return this.makeError("Unbounded Loop", Severity.MEDIUM, fact.data, {
+        docURL: makeDocURL(this.id),
+        suggestion:
+          "Consider changing the variable within the loop to ensure it terminates",
+        extraDescription:
+          "The condition variable doesn't change within the loop",
+      });
     });
   }
 

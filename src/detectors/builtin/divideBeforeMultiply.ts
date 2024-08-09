@@ -9,7 +9,6 @@ import {
 } from "../../internals/souffle";
 import { Detector } from "../detector";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
-import { MistiContext } from "../../internals/context";
 import { makeDocURL, MistiTactError, Severity } from "../../internals/errors";
 import {
   forEachExpression,
@@ -53,18 +52,16 @@ import {
  * ```
  */
 export class DivideBeforeMultiply extends Detector {
-  check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
+  check(cu: CompilationUnit): MistiTactError[] {
     const program = new Context<SrcInfo>(this.id);
     this.addDecls(program);
     this.addRules(program);
     this.addConstraints(cu, program);
-    return this.executeSouffle(ctx, program, (fact) => {
+    return this.executeSouffle(program, (fact) => {
       if (fact.data === undefined) {
         throw new Error(`AST position for fact ${fact} is not available`);
       }
-      return MistiTactError.make(
-        ctx,
-        this.id,
+      return this.makeError(
         "Divide Before Multiply",
         Severity.HIGH,
         fact.data,

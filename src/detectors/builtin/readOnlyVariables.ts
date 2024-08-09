@@ -4,7 +4,6 @@ import {
   AstExpression,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { Detector, WarningsBehavior } from "../detector";
-import { MistiContext } from "../../internals/context";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
 import {
   Context,
@@ -51,29 +50,22 @@ export class ReadOnlyVariables extends Detector {
     return "intersect";
   }
 
-  check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
+  check(cu: CompilationUnit): MistiTactError[] {
     const program = new Context<SrcInfo>(this.id);
     this.addDecls(program);
     this.addRules(program);
     this.addConstraints(cu, program);
-    return this.executeSouffle(ctx, program, (fact) => {
+    return this.executeSouffle(program, (fact) => {
       if (fact.data === undefined) {
         throw new Error(`AST position for fact ${fact} is not available`);
       }
-      if (this.skipUnused(ctx, fact.data.contents)) {
+      if (this.skipUnused(fact.data.contents)) {
         return undefined;
       }
-      return MistiTactError.make(
-        ctx,
-        this.id,
-        "Read-only variable",
-        Severity.MEDIUM,
-        fact.data,
-        {
-          docURL: makeDocURL(this.id),
-          suggestion: "Consider creating a constant instead",
-        },
-      );
+      return this.makeError("Read-only variable", Severity.MEDIUM, fact.data, {
+        docURL: makeDocURL(this.id),
+        suggestion: "Consider creating a constant instead",
+      });
     });
   }
 

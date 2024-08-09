@@ -1,6 +1,6 @@
 import { MistiContext } from "../internals/context";
 import { CompilationUnit } from "../internals/ir";
-import { MistiTactError } from "../internals/errors";
+import { MistiTactError, Severity } from "../internals/errors";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import {
   Context as SouffleContext,
@@ -17,6 +17,8 @@ export type DetectorName = string;
  * Abstract base class for a detector module, providing an interface for defining various types of detectors.
  */
 export abstract class Detector {
+  constructor(readonly ctx: MistiContext) {}
+
   /**
    * Gets the short identifier of the detector, used in analyzer warnings.
    * @returns The unique identifier of the detector.
@@ -48,14 +50,13 @@ export abstract class Detector {
    * @param callback A function that creates warnings from output facts.
    */
   protected executeSouffle(
-    ctx: MistiContext,
     program: SouffleContext<SrcInfo>,
     callback: (fact: Fact<FactValue, SrcInfo>) => MistiTactError | undefined,
   ): MistiTactError[] {
-    const executor = ctx.config.soufflePath
+    const executor = this.ctx.config.soufflePath
       ? new Executor<SrcInfo>({
-          inputDir: ctx.config.soufflePath,
-          outputDir: ctx.config.soufflePath,
+          inputDir: this.ctx.config.soufflePath,
+          outputDir: this.ctx.config.soufflePath,
         })
       : new Executor<SrcInfo>();
     const result = executor.executeSync(program);
@@ -82,18 +83,41 @@ export abstract class Detector {
 
   /**
    * Executes the detector's logic to check for issues within the provided compilation unit.
-   * @param ctx Misti context.
    * @param cu The compilation unit to be analyzed.
    * @returns List of errors has highlighted by this detector.
    */
-  abstract check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[];
+  abstract check(cu: CompilationUnit): MistiTactError[];
 
   /**
    * Returns `true` if the identifier with the given name should not be reported
    * by unused variables detectors.
    */
-  protected skipUnused(ctx: MistiContext, name: string): boolean {
-    return name.startsWith(ctx.config.unusedPrefix);
+  protected skipUnused(name: string): boolean {
+    return name.startsWith(this.ctx.config.unusedPrefix);
+  }
+
+  /**
+   * A wrapper method that creates Misti errors with additional context about
+   * the detector generated it.
+   */
+  protected makeError(
+    description: string,
+    severity: Severity,
+    loc: SrcInfo,
+    data: Partial<{
+      extraDescription: string;
+      docURL: string;
+      suggestion: string;
+    }> = {},
+  ): MistiTactError {
+    return MistiTactError.make(
+      this.ctx,
+      this.id,
+      description,
+      severity,
+      loc,
+      data,
+    );
   }
 }
 
@@ -101,25 +125,30 @@ export abstract class Detector {
  * A mapping of detector names to functions that load detector instances.
  * This allows for lazy loading of detectors, which may include importing necessary modules dynamically.
  */
-const BuiltInDetectors: Record<string, () => Promise<Detector>> = {
-  DivideBeforeMultiply: () =>
+const BuiltInDetectors: Record<
+  string,
+  (ctx: MistiContext) => Promise<Detector>
+> = {
+  DivideBeforeMultiply: (ctx: MistiContext) =>
     import("./builtin/divideBeforeMultiply").then(
-      (module) => new module.DivideBeforeMultiply(),
+      (module) => new module.DivideBeforeMultiply(ctx),
     ),
-  ReadOnlyVariables: () =>
+  ReadOnlyVariables: (ctx: MistiContext) =>
     import("./builtin/readOnlyVariables").then(
-      (module) => new module.ReadOnlyVariables(),
+      (module) => new module.ReadOnlyVariables(ctx),
     ),
-  NeverAccessedVariables: () =>
+  NeverAccessedVariables: (ctx: MistiContext) =>
     import("./builtin/neverAccessedVariables").then(
-      (module) => new module.NeverAccessedVariables(),
+      (module) => new module.NeverAccessedVariables(ctx),
     ),
-  UnboundLoops: () =>
+  UnboundLoops: (ctx: MistiContext) =>
     import("./builtin/unboundLoops").then(
-      (module) => new module.UnboundLoops(),
+      (module) => new module.UnboundLoops(ctx),
     ),
-  ZeroAddress: () =>
-    import("./builtin/zeroAddress").then((module) => new module.ZeroAddress()),
+  ZeroAddress: (ctx: MistiContext) =>
+    import("./builtin/zeroAddress").then(
+      (module) => new module.ZeroAddress(ctx),
+    ),
 };
 
 /**
@@ -141,7 +170,7 @@ export async function findBuiltInDetector(
     return undefined;
   }
   try {
-    return await detectorLoader();
+    return await detectorLoader(ctx);
   } catch (error) {
     ctx.logger.error(`Error loading built-in detector ${name}: ${error}`);
     return undefined;

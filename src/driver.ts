@@ -106,7 +106,7 @@ export class Driver {
               `Detector class ${config.className} not found in module ${config.modulePath}`,
             );
           }
-          return new DetectorClass() as Detector;
+          return new DetectorClass(this.ctx) as Detector;
         } else {
           // Attempt to find a built-in detector
           const detector = await findBuiltInDetector(
@@ -299,7 +299,7 @@ export class Driver {
         this.ctx.logger.debug(
           `${cu.projectName}: Running ${detector.constructor.name}`,
         );
-        const errors = detector.check(this.ctx, cu);
+        const errors = detector.check(cu);
         this.ctx.logger.debug(
           `${cu.projectName}: Finished ${detector.constructor.name} `,
         );

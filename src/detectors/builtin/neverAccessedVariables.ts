@@ -127,11 +127,11 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
  * ```
  */
 export class NeverAccessedVariables extends Detector {
-  check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
+  check(cu: CompilationUnit): MistiTactError[] {
     return [
-      ...this.checkFields(ctx, cu),
-      ...this.checkConstants(ctx, cu),
-      ...this.checkVariables(ctx, cu),
+      ...this.checkFields(cu),
+      ...this.checkConstants(cu),
+      ...this.checkVariables(cu),
     ];
   }
 
@@ -141,35 +141,25 @@ export class NeverAccessedVariables extends Detector {
     return "intersect";
   }
 
-  checkFields(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
-    const defined = this.collectDefinedFields(ctx, cu);
-    const used = this.collectUsedFields(ctx, cu);
+  checkFields(cu: CompilationUnit): MistiTactError[] {
+    const defined = this.collectDefinedFields(cu);
+    const used = this.collectUsedFields(cu);
     return Array.from(
       new Set([...defined].filter(([name, _ref]) => !used.has(name))),
     ).reduce((acc, [name, ref]) => {
-      if (this.skipUnused(ctx, name)) {
+      if (this.skipUnused(name)) {
         return acc;
       }
-      const err = MistiTactError.make(
-        ctx,
-        this.id,
-        "Field is never used",
-        Severity.MEDIUM,
-        ref,
-        {
-          docURL: makeDocURL(this.id),
-          suggestion: "Consider creating a constant instead of field",
-        },
-      );
+      const err = this.makeError("Field is never used", Severity.MEDIUM, ref, {
+        docURL: makeDocURL(this.id),
+        suggestion: "Consider creating a constant instead of field",
+      });
       acc.push(err);
       return acc;
     }, [] as MistiTactError[]);
   }
 
-  private collectDefinedFields(
-    ctx: MistiContext,
-    cu: CompilationUnit,
-  ): Set<[FieldName, SrcInfo]> {
+  private collectDefinedFields(cu: CompilationUnit): Set<[FieldName, SrcInfo]> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const getFields = (declarations: any[]) =>
       declarations
@@ -178,7 +168,7 @@ export class NeverAccessedVariables extends Detector {
     return Array.from(cu.ast.getContracts()).reduce((acc, contract) => {
       const contractFields = getFields(contract.declarations);
       acc = new Set([...acc, ...contractFields]);
-      this.forEachTrait(ctx, cu, contract.traits, (trait) => {
+      this.forEachTrait(this.ctx, cu, contract.traits, (trait) => {
         const traitFields = getFields(trait.declarations);
         acc = new Set([...acc, ...traitFields]);
       });
@@ -214,10 +204,7 @@ export class NeverAccessedVariables extends Detector {
     });
   }
 
-  private collectUsedFields(
-    ctx: MistiContext,
-    cu: CompilationUnit,
-  ): Set<FieldName> {
+  private collectUsedFields(cu: CompilationUnit): Set<FieldName> {
     const processExpressions = (fun: AstNode, acc: Set<FieldName>) => {
       forEachExpression(fun, (expr) => {
         if (
@@ -245,14 +232,14 @@ export class NeverAccessedVariables extends Detector {
     };
     return Array.from(cu.ast.getContracts()).reduce((acc, contract) => {
       acc = processDeclarations(contract.declarations, acc);
-      this.forEachTrait(ctx, cu, contract.traits, (trait) => {
+      this.forEachTrait(this.ctx, cu, contract.traits, (trait) => {
         acc = processDeclarations(trait.declarations, acc);
       });
       return acc;
     }, new Set<FieldName>());
   }
 
-  checkConstants(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
+  checkConstants(cu: CompilationUnit): MistiTactError[] {
     const definedConstants = this.collectDefinedConstants(cu);
     const usedConstants = this.collectUsedNames(cu);
     return Array.from(
@@ -262,12 +249,10 @@ export class NeverAccessedVariables extends Detector {
         ),
       ),
     ).reduce((acc, [name, ref]) => {
-      if (this.skipUnused(ctx, name)) {
+      if (this.skipUnused(name)) {
         return acc;
       }
-      const err = MistiTactError.make(
-        ctx,
-        this.id,
+      const err = this.makeError(
         "Constant is never used",
         Severity.MEDIUM,
         ref,
@@ -309,7 +294,7 @@ export class NeverAccessedVariables extends Detector {
    * Checks never accessed local variables in all the functions leveraging the
    * monotonic framework and the fixpoint dataflow solver.
    */
-  checkVariables(ctx: MistiContext, cu: CompilationUnit): MistiTactError[] {
+  checkVariables(cu: CompilationUnit): MistiTactError[] {
     const errors: MistiTactError[] = [];
     const traversedFunctions = new Set<string>();
     cu.forEachCFG(cu.ast, (cfg: CFG, _node: Node, _stmt: AstStatement) => {
@@ -337,7 +322,7 @@ export class NeverAccessedVariables extends Detector {
       });
       Array.from(declaredVariables.keys()).forEach((name) => {
         if (!accessedVariables.has(name)) {
-          if (this.skipUnused(ctx, name)) {
+          if (this.skipUnused(name)) {
             return;
           }
           const isWritten = writtenVariables.has(name);
@@ -348,17 +333,10 @@ export class NeverAccessedVariables extends Detector {
             ? "The variable value should be accessed"
             : "Consider removing the variable";
           errors.push(
-            MistiTactError.make(
-              ctx,
-              this.id,
-              msg,
-              Severity.MEDIUM,
-              declaredVariables.get(name)!,
-              {
-                docURL: makeDocURL(this.id),
-                suggestion,
-              },
-            ),
+            this.makeError(msg, Severity.MEDIUM, declaredVariables.get(name)!, {
+              docURL: makeDocURL(this.id),
+              suggestion,
+            }),
           );
         }
       });
