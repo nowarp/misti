@@ -60,6 +60,9 @@ export class ReadOnlyVariables extends Detector {
       if (fact.data === undefined) {
         throw new Error(`AST position for fact ${fact} is not available`);
       }
+      if (this.skipUnused(ctx, fact.data.contents)) {
+        return undefined;
+      }
       return MistiTactError.make(
         ctx,
         this.id,

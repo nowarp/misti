@@ -50,8 +50,8 @@ export abstract class Detector {
   protected executeSouffle(
     ctx: MistiContext,
     program: SouffleContext<SrcInfo>,
-    callback: (fact: Fact<FactValue, SrcInfo>) => MistiTactError,
-  ) {
+    callback: (fact: Fact<FactValue, SrcInfo>) => MistiTactError | undefined,
+  ): MistiTactError[] {
     const executor = ctx.config.soufflePath
       ? new Executor<SrcInfo>({
           inputDir: ctx.config.soufflePath,
@@ -64,11 +64,20 @@ export abstract class Detector {
         `Error executing Soufflé for ${this.id}:\n${result.stderr}`,
       );
     }
-    return Array.from(result.results.entries.values()).flatMap((facts) => {
-      return facts.map((fact) => {
-        return callback(fact);
-      });
-    });
+    return Array.from(result.results.entries.values()).reduce<MistiTactError[]>(
+      (acc, facts) => {
+        return acc.concat(
+          facts.reduce<MistiTactError[]>((innerAcc, fact) => {
+            const error = callback(fact);
+            if (error) {
+              innerAcc.push(error);
+            }
+            return innerAcc;
+          }, []),
+        );
+      },
+      [],
+    );
   }
 
   /**
@@ -78,6 +87,14 @@ export abstract class Detector {
    * @returns List of errors has highlighted by this detector.
    */
   abstract check(ctx: MistiContext, cu: CompilationUnit): MistiTactError[];
+
+  /**
+   * Returns `true` if the identifier with the given name should not be reported
+   * by unused variables detectors.
+   */
+  protected skipUnused(ctx: MistiContext, name: string): boolean {
+    return name.startsWith(ctx.config.unusedPrefix);
+  }
 }
 
 /**

@@ -18,6 +18,7 @@ const ConfigSchema = z.object({
   ignored_projects: z.array(z.string()).optional(),
   soufflePath: z.string().optional(),
   tactStdlibPath: z.string().optional(),
+  unusedPrefix: z.string().default("_"),
   verbosity: VerbositySchema.optional().default("default"),
 });
 
@@ -40,6 +41,7 @@ export class MistiConfig {
   public ignoredProjects: string[];
   public soufflePath?: string;
   public tactStdlibPath?: string;
+  public unusedPrefix: string;
   public verbosity: "quiet" | "debug" | "default";
 
   constructor(configPath?: string) {
@@ -64,6 +66,7 @@ export class MistiConfig {
         ignored_projects: [],
         soufflePath: undefined,
         tactStdlibPath: undefined,
+        unusedPrefix: "_",
         verbosity: "default",
       };
     }
@@ -72,6 +75,8 @@ export class MistiConfig {
       const parsedConfig = ConfigSchema.parse(configData);
       this.detectorsEnabled = parsedConfig.detectors;
       this.ignoredProjects = parsedConfig.ignored_projects || [];
+      this.tactStdlibPath = parsedConfig.tactStdlibPath;
+      this.unusedPrefix = parsedConfig.unusedPrefix;
       this.verbosity = parsedConfig.verbosity;
     } catch (err) {
       if (err instanceof z.ZodError) {

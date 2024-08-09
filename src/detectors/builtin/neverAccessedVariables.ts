@@ -146,8 +146,11 @@ export class NeverAccessedVariables extends Detector {
     const used = this.collectUsedFields(ctx, cu);
     return Array.from(
       new Set([...defined].filter(([name, _ref]) => !used.has(name))),
-    ).map(([_name, ref]) =>
-      MistiTactError.make(
+    ).reduce((acc, [name, ref]) => {
+      if (this.skipUnused(ctx, name)) {
+        return acc;
+      }
+      const err = MistiTactError.make(
         ctx,
         this.id,
         "Field is never used",
@@ -157,8 +160,10 @@ export class NeverAccessedVariables extends Detector {
           docURL: makeDocURL(this.id),
           suggestion: "Consider creating a constant instead of field",
         },
-      ),
-    );
+      );
+      acc.push(err);
+      return acc;
+    }, [] as MistiTactError[]);
   }
 
   private collectDefinedFields(
@@ -256,8 +261,11 @@ export class NeverAccessedVariables extends Detector {
           ([name, _ref]) => !usedConstants.has(name),
         ),
       ),
-    ).map(([_name, ref]) =>
-      MistiTactError.make(
+    ).reduce((acc, [name, ref]) => {
+      if (this.skipUnused(ctx, name)) {
+        return acc;
+      }
+      const err = MistiTactError.make(
         ctx,
         this.id,
         "Constant is never used",
@@ -267,8 +275,10 @@ export class NeverAccessedVariables extends Detector {
           docURL: makeDocURL(this.id),
           suggestion: "Consider removing the constant",
         },
-      ),
-    );
+      );
+      acc.push(err);
+      return acc;
+    }, [] as MistiTactError[]);
   }
 
   collectDefinedConstants(cu: CompilationUnit): Set<[ConstantName, SrcInfo]> {
@@ -327,6 +337,9 @@ export class NeverAccessedVariables extends Detector {
       });
       Array.from(declaredVariables.keys()).forEach((name) => {
         if (!accessedVariables.has(name)) {
+          if (this.skipUnused(ctx, name)) {
+            return;
+          }
           const isWritten = writtenVariables.has(name);
           const msg = isWritten
             ? "Write-only variable"
