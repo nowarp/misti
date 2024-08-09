@@ -63,13 +63,13 @@ export interface SouffleMapper {
  */
 export class SouffleSolver<State> implements Solver<State> {
   /**
-   * @param lintId An unique identifier of the lint leveraging this solver.
+   * @param detectorId An unique identifier of the detector using this solver.
    * @param cu Compilation unit under the analysis.
    * @param cfg CFG under the analysis.
    * @param mapper An object that defines the transfer operation for a node and its state.
    */
   constructor(
-    private readonly lintId: string,
+    private readonly detectorId: string,
     private readonly ctx: MistiContext,
     private readonly cu: CompilationUnit,
     private readonly cfg: CFG,
@@ -133,7 +133,7 @@ export class SouffleSolver<State> implements Solver<State> {
   }
 
   public solve(): SolverResults<State> {
-    const ctx: Context<SrcInfo> = new Context<SrcInfo>(this.lintId);
+    const ctx: Context<SrcInfo> = new Context<SrcInfo>(this.detectorId);
     this.addDataflowDecls(ctx);
     this.mapper.addDecls(ctx);
     this.mapper.addRules(ctx);
@@ -142,7 +142,7 @@ export class SouffleSolver<State> implements Solver<State> {
     const result = this.execute(ctx);
     if (!result.success) {
       throw new Error(
-        `Error executing Soufflé for ${this.lintId}: ${result.stderr}`,
+        `Error executing Soufflé for ${this.detectorId}: ${result.stderr}`,
       );
     }
     return this.createSouffleResults(

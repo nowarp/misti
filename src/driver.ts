@@ -312,7 +312,7 @@ export class Driver {
 const DUMP_STDOUT_PATH = "-";
 
 /**
- * CLI options for configuring the linter.
+ * CLI options for configuring the analyzer.
  */
 interface CLIOptions {
   /** Specifies the format for dumping CFG. If `undefined`, no dumps will be generated. */

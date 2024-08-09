@@ -119,7 +119,7 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
  * const MAX_SUPPLY: Int = 1000;
  *
  * fun mint(to: Address, amount: Int) {
- *   // OK: Fixed after the linter highlighted this warning
+ *   // OK: Fixed after the analyzer highlighted this warning
  *   require(totalSupply + amount <= MAX_SUPPLY, "Exceeds max supply");
  *   balances.set(to, balances.get(to)!! + amount);
  *   totalSupply += amount;

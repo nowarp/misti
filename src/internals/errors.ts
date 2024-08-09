@@ -45,7 +45,7 @@ export class MistiTactError extends Error {
    * @param loc Reference to the source code that includes file information and position data.
    * @param data Additional optional data for the error, including:
    * - `extraDescription`: More comprehensive description that clarifies the error in greater detail.
-   * - `docURL`: URL to the lint documentation.
+   * - `docURL`: URL to the detector documentation.
    * - `suggestion`: Suggested change in the source code.
    * @returns A new MistiTactError containing the error message and source code reference.
    */
