@@ -47,6 +47,11 @@
       "description": "Path to Tact standard library. If not set, the default stdlib from the actual Tact setup will be used.",
       "optional": true
     },
+    "unusedPrefix": {
+      "type": "string",
+      "description": "Identifiers starting with this prefix won't be reported as unused by built-in detectors.",
+      "default": "_"
+    },
     "verbosity": {
       "type": "string",
       "description": "Verbosity level of the logs output by the system.",

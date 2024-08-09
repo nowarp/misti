@@ -6,5 +6,6 @@
     }
   ],
   "ignored_projects": [],
+  "unusedPrefix": "_",
   "verbosity": "quiet"
 }
