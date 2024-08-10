@@ -7,6 +7,13 @@
   },
   "homepage": "https://nowarp.github.io/tools/misti/",
   "description": "TON Static Analyzer",
+  "keywords": [
+    "static analysis",
+    "souffle",
+    "ton",
+    "blockchain",
+    "smart-contracts"
+  ],
   "author": "Georgiy Komarov <jubnzv@gmail.com>",
   "license": "Apache-2.0",
   "scripts": {
