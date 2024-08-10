@@ -121,34 +121,51 @@ export abstract class Detector {
   }
 }
 
+// Define the structure of each detector entry in the BuiltInDetectors map.
+interface DetectorEntry {
+  loader: (ctx: MistiContext) => Promise<Detector>;
+  enabledByDefault: boolean;
+}
+
 /**
- * A mapping of detector names to functions that load detector instances.
- * This allows for lazy loading of detectors, which may include importing necessary modules dynamically.
+ * A mapping of detector names to their respective loader functions and default enablement status.
  */
-const BuiltInDetectors: Record<
-  string,
-  (ctx: MistiContext) => Promise<Detector>
-> = {
-  DivideBeforeMultiply: (ctx: MistiContext) =>
-    import("./builtin/divideBeforeMultiply").then(
-      (module) => new module.DivideBeforeMultiply(ctx),
-    ),
-  ReadOnlyVariables: (ctx: MistiContext) =>
-    import("./builtin/readOnlyVariables").then(
-      (module) => new module.ReadOnlyVariables(ctx),
-    ),
-  NeverAccessedVariables: (ctx: MistiContext) =>
-    import("./builtin/neverAccessedVariables").then(
-      (module) => new module.NeverAccessedVariables(ctx),
-    ),
-  UnboundLoops: (ctx: MistiContext) =>
-    import("./builtin/unboundLoops").then(
-      (module) => new module.UnboundLoops(ctx),
-    ),
-  ZeroAddress: (ctx: MistiContext) =>
-    import("./builtin/zeroAddress").then(
-      (module) => new module.ZeroAddress(ctx),
-    ),
+const BuiltInDetectors: Record<string, DetectorEntry> = {
+  DivideBeforeMultiply: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/divideBeforeMultiply").then(
+        (module) => new module.DivideBeforeMultiply(ctx),
+      ),
+    enabledByDefault: true,
+  },
+  ReadOnlyVariables: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/readOnlyVariables").then(
+        (module) => new module.ReadOnlyVariables(ctx),
+      ),
+    enabledByDefault: true,
+  },
+  NeverAccessedVariables: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/neverAccessedVariables").then(
+        (module) => new module.NeverAccessedVariables(ctx),
+      ),
+    enabledByDefault: true,
+  },
+  UnboundLoops: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/unboundLoops").then(
+        (module) => new module.UnboundLoops(ctx),
+      ),
+    enabledByDefault: true,
+  },
+  ZeroAddress: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/zeroAddress").then(
+        (module) => new module.ZeroAddress(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**
@@ -164,15 +181,25 @@ export async function findBuiltInDetector(
   ctx: MistiContext,
   name: string,
 ): Promise<Detector | undefined> {
-  const detectorLoader = BuiltInDetectors[name];
-  if (!detectorLoader) {
+  const detectorEntry = BuiltInDetectors[name];
+  if (!detectorEntry) {
     ctx.logger.warn(`Built-in detector ${name} not found.`);
     return undefined;
   }
   try {
-    return await detectorLoader(ctx);
+    return await detectorEntry.loader(ctx);
   } catch (error) {
     ctx.logger.error(`Error loading built-in detector ${name}: ${error}`);
     return undefined;
   }
+}
+
+/**
+ * Returns a list of detector names that are enabled by default.
+ * @returns An array of strings representing the names of enabled detectors.
+ */
+export function getEnabledDetectors(): string[] {
+  return Object.keys(BuiltInDetectors).filter(
+    (name) => BuiltInDetectors[name].enabledByDefault,
+  );
 }

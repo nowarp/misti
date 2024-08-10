@@ -1,5 +1,6 @@
 import { z } from "zod";
 import * as fs from "fs";
+import { getEnabledDetectors } from "../detectors/detector";
 
 interface DetectorConfig {
   modulePath?: string; // Optional for built-in detectors
@@ -22,16 +23,9 @@ const ConfigSchema = z.object({
   verbosity: VerbositySchema.optional().default("default"),
 });
 
-/**
- * Built-in detectors enabled by default, if no user configuration is provided.
- */
-export const BUILTIN_DETECTORS: DetectorConfig[] = [
-  { className: "DivideBeforeMultiply" },
-  { className: "ReadOnlyVariables" },
-  { className: "NeverAccessedVariables" },
-  { className: "UnboundLoops" },
-  { className: "ZeroAddress" },
-];
+function createBuiltinDetectorsConfig(): DetectorConfig[] {
+  return getEnabledDetectors().map((name) => ({ className: name }));
+}
 
 /**
  * Represents content of the Misti configuration file (misti.config.json).
@@ -62,7 +56,7 @@ export class MistiConfig {
     } else {
       // Use default detectors if no config file is provided
       configData = {
-        detectors: BUILTIN_DETECTORS,
+        detectors: createBuiltinDetectorsConfig(),
         ignored_projects: [],
         soufflePath: undefined,
         tactStdlibPath: undefined,
