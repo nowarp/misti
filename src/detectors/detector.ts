@@ -166,6 +166,13 @@ const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  ConstantAddress: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/constantAddress").then(
+        (module) => new module.ConstantAddress(ctx),
+      ),
+    enabledByDefault: false,
+  },
 };
 
 /**
@@ -192,6 +199,14 @@ export async function findBuiltInDetector(
     ctx.logger.error(`Error loading built-in detector ${name}: ${error}`);
     return undefined;
   }
+}
+
+/**
+ * Returns a list of all the available built-in detectors.
+ * @returns An array of strings representing the names of detectors.
+ */
+export function getAllDetectors(): string[] {
+  return Object.keys(BuiltInDetectors);
 }
 
 /**
