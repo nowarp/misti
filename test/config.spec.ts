@@ -19,7 +19,7 @@ describe("Config class", () => {
 
   it("should load and parse config file correctly", () => {
     (fs.readFileSync as jest.Mock).mockReturnValue(MOCK_CONFIG_CONTENT);
-    const configInstance = new MistiConfig(MOCK_CONFIG_PATH);
+    const configInstance = new MistiConfig({ configPath: MOCK_CONFIG_PATH });
     expect(configInstance.detectorsEnabled).toEqual([
       { className: "ReadOnlyVariables" },
       { className: "ZeroAddress" },
@@ -31,7 +31,7 @@ describe("Config class", () => {
     (fs.readFileSync as jest.Mock).mockImplementation(() => {
       throw new Error("Failed to read file");
     });
-    expect(() => new MistiConfig(MOCK_CONFIG_PATH)).toThrow(
+    expect(() => new MistiConfig({ configPath: MOCK_CONFIG_PATH })).toThrow(
       "Failed to read file",
     );
   });

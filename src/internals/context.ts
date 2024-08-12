@@ -18,6 +18,7 @@ export class MistiContext {
    *   - tactStdlibPath: Non-default path to Tact stdlib.
    *   - verbose: CLI option to force verbose output.
    *   - quiet: CLI option to forcefully suppress output.
+   *   - quiet: CLI option to forcefully activate all the available built-in detectors.
    *   - singleContractPath: Contains path to a single contract if executed without project configuration.
    */
   constructor(
@@ -27,6 +28,7 @@ export class MistiContext {
       tactStdlibPath?: string;
       verbose?: boolean;
       quiet?: boolean;
+      allDetectors?: boolean;
       singleContractPath?: string;
     }> = {},
   ) {
@@ -36,10 +38,14 @@ export class MistiContext {
       tactStdlibPath = undefined,
       verbose = false,
       quiet = false,
+      allDetectors = false,
       singleContractPath: singleContractPath,
     } = params;
     this.singleContractPath = singleContractPath;
-    this.config = new MistiConfig(mistiConfigPath);
+    this.config = new MistiConfig({
+      allDetectors,
+      configPath: mistiConfigPath,
+    });
 
     // Prioritize CLI options to configuration file values
     if (soufflePath !== undefined) {
