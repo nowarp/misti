@@ -1,0 +1,25 @@
+{
+  "projectName": "constant-address-1",
+  "functions": [],
+  "contracts": [
+    {
+      "name": "Main",
+      "methods": [
+        {
+          "name": "Main.init_1538",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 141,
+                "stmtID": 1536,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        }
+      ]
+    }
+  ]
+}
