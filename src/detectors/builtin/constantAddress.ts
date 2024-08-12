@@ -1,6 +1,6 @@
 import { Detector } from "../detector";
 import { CompilationUnit } from "../../internals/ir";
-import { makeDocURL, MistiTactError, Severity } from "../../internals/errors";
+import { MistiTactError, Severity } from "../../internals/errors";
 import { foldExpressions } from "../../internals/tactASTUtil";
 import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
 
@@ -59,7 +59,6 @@ export class ConstantAddress extends Detector {
       ) {
         acc.push(
           this.makeError("Found Constant Address", Severity.INFO, expr.loc, {
-            docURL: makeDocURL("constantAddress"),
             suggestion:
               "Using hardcoded addresses can sometimes indicate poor contract design",
           }),

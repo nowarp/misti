@@ -4,7 +4,7 @@ import { Detector, WarningsBehavior } from "../detector";
 import { JoinSemilattice } from "../../internals/lattice";
 import { MistiContext } from "../../internals/context";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
-import { MistiTactError, Severity, makeDocURL } from "../../internals/errors";
+import { MistiTactError, Severity } from "../../internals/errors";
 import {
   extractPath,
   SrcInfoSet,
@@ -151,7 +151,6 @@ export class NeverAccessedVariables extends Detector {
         return acc;
       }
       const err = this.makeError("Field is never used", Severity.MEDIUM, ref, {
-        docURL: makeDocURL(this.id),
         suggestion: "Consider creating a constant instead of field",
       });
       acc.push(err);
@@ -257,7 +256,6 @@ export class NeverAccessedVariables extends Detector {
         Severity.MEDIUM,
         ref,
         {
-          docURL: makeDocURL(this.id),
           suggestion: "Consider removing the constant",
         },
       );
@@ -334,7 +332,6 @@ export class NeverAccessedVariables extends Detector {
             : "Consider removing the variable";
           errors.push(
             this.makeError(msg, Severity.MEDIUM, declaredVariables.get(name)!, {
-              docURL: makeDocURL(this.id),
               suggestion,
             }),
           );

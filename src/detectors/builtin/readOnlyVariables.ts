@@ -14,7 +14,7 @@ import {
   makeRuleBody,
   makeAtom,
 } from "../../internals/souffle";
-import { MistiTactError, Severity, makeDocURL } from "../../internals/errors";
+import { MistiTactError, Severity } from "../../internals/errors";
 import { extractPath, forEachExpression } from "../../internals/tactASTUtil";
 
 /**
@@ -63,7 +63,6 @@ export class ReadOnlyVariables extends Detector {
         return undefined;
       }
       return this.makeError("Read-only variable", Severity.MEDIUM, fact.data, {
-        docURL: makeDocURL(this.id),
         suggestion: "Consider creating a constant instead",
       });
     });
