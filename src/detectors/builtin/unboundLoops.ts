@@ -9,7 +9,7 @@ import {
 } from "../../internals/souffle";
 import { Detector } from "../detector";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
-import { MistiTactError, Severity, makeDocURL } from "../../internals/errors";
+import { MistiTactError, Severity } from "../../internals/errors";
 import {
   extractPath,
   forEachExpression,
@@ -61,7 +61,6 @@ export class UnboundLoops extends Detector {
         throw new Error(`AST position for fact ${fact} is not available`);
       }
       return this.makeError("Unbounded Loop", Severity.MEDIUM, fact.data, {
-        docURL: makeDocURL(this.id),
         suggestion:
           "Consider changing the variable within the loop to ensure it terminates",
         extraDescription:

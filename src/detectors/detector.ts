@@ -1,6 +1,6 @@
 import { MistiContext } from "../internals/context";
 import { CompilationUnit } from "../internals/ir";
-import { MistiTactError, Severity } from "../internals/errors";
+import { makeDocURL, MistiTactError, Severity } from "../internals/errors";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import {
   Context as SouffleContext,
@@ -106,18 +106,13 @@ export abstract class Detector {
     loc: SrcInfo,
     data: Partial<{
       extraDescription: string;
-      docURL: string;
       suggestion: string;
     }> = {},
   ): MistiTactError {
-    return MistiTactError.make(
-      this.ctx,
-      this.id,
-      description,
-      severity,
-      loc,
-      data,
-    );
+    return MistiTactError.make(this.ctx, this.id, description, severity, loc, {
+      ...data,
+      docURL: makeDocURL(this.id),
+    });
   }
 }
 

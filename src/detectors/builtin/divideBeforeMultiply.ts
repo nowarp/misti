@@ -9,7 +9,7 @@ import {
 } from "../../internals/souffle";
 import { Detector } from "../detector";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
-import { makeDocURL, MistiTactError, Severity } from "../../internals/errors";
+import { MistiTactError, Severity } from "../../internals/errors";
 import {
   forEachExpression,
   forEachStatement,
@@ -66,7 +66,6 @@ export class DivideBeforeMultiply extends Detector {
         Severity.HIGH,
         fact.data,
         {
-          docURL: makeDocURL(this.id),
           suggestion:
             "Consider rearranging the operations: division should follow multiplication",
         },

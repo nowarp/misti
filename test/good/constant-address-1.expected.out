@@ -5,4 +5,4 @@ test/good/constant-address-1.tact:5:18:
   6 |   }
 Found Constant Address
 Help: Using hardcoded addresses can sometimes indicate poor contract design
-See: https://nowarp.github.io/tools/misti/docs/detectors/constantAddress
+See: https://nowarp.github.io/tools/misti/docs/detectors/ConstantAddress

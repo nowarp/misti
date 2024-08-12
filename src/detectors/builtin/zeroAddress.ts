@@ -1,6 +1,6 @@
 import { Detector } from "../detector";
 import { CompilationUnit } from "../../internals/ir";
-import { makeDocURL, MistiTactError, Severity } from "../../internals/errors";
+import { MistiTactError, Severity } from "../../internals/errors";
 import { foldExpressions } from "../../internals/tactASTUtil";
 import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
 
@@ -69,7 +69,6 @@ export class ZeroAddress extends Detector {
             Severity.MEDIUM,
             expr.args[1].loc,
             {
-              docURL: makeDocURL("zeroAddress"),
               suggestion: "Consider changing code to avoid using it",
             },
           ),
