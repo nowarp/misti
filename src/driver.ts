@@ -32,6 +32,7 @@ export class Driver {
     tactStdlibPath?: string,
     verbose?: boolean,
     quiet?: boolean,
+    allDetectors?: boolean,
     mistiConfigPath?: string,
   ) {
     const singleContract = tactPath.endsWith(".tact");
@@ -52,6 +53,7 @@ export class Driver {
       tactStdlibPath,
       verbose,
       quiet,
+      allDetectors,
       singleContractPath: singleContract ? tactPath : undefined,
     });
     this.dumpCFG = dumpCFG;
@@ -78,6 +80,7 @@ export class Driver {
       options.tactStdlibPath,
       options.verbose,
       options.quiet,
+      options.allDetectors,
       options.config,
     );
     await driver.initializeDetectors();
@@ -337,6 +340,8 @@ interface CLIOptions {
   verbose?: boolean;
   /** Suppress driver's output. */
   quiet?: boolean;
+  /** Enable all the available built-in detectors no matter if they are enabled in config. */
+  allDetectors?: boolean;
   /** Optional path to the configuration file. If provided, the analyzer uses settings from this file. */
   config?: string;
 }
@@ -368,6 +373,7 @@ export async function run(
     tactStdlibPath: undefined,
     verbose: false,
     quiet: false,
+    allDetectors: false,
     config: undefined,
   },
 ): Promise<boolean> {

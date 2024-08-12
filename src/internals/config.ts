@@ -1,9 +1,9 @@
 import { z } from "zod";
 import * as fs from "fs";
-import { getEnabledDetectors } from "../detectors/detector";
+import { getEnabledDetectors, getAllDetectors } from "../detectors/detector";
 
 interface DetectorConfig {
-  modulePath?: string; // Optional for built-in detectors
+  modulePath?: string; // Used only for custom out-of-tree detectors
   className: string;
 }
 
@@ -23,10 +23,6 @@ const ConfigSchema = z.object({
   verbosity: VerbositySchema.optional().default("default"),
 });
 
-function createBuiltinDetectorsConfig(): DetectorConfig[] {
-  return getEnabledDetectors().map((name) => ({ className: name }));
-}
-
 /**
  * Represents content of the Misti configuration file (misti.config.json).
  */
@@ -38,7 +34,10 @@ export class MistiConfig {
   public unusedPrefix: string;
   public verbosity: "quiet" | "debug" | "default";
 
-  constructor(configPath?: string) {
+  constructor(
+    params: Partial<{ configPath?: string; allDetectors: boolean }> = {},
+  ) {
+    const { configPath = undefined, allDetectors = false } = params;
     let configData;
     if (configPath) {
       try {
@@ -56,7 +55,7 @@ export class MistiConfig {
     } else {
       // Use default detectors if no config file is provided
       configData = {
-        detectors: createBuiltinDetectorsConfig(),
+        detectors: this.createDetectorsConfig(allDetectors),
         ignored_projects: [],
         soufflePath: undefined,
         tactStdlibPath: undefined,
@@ -81,5 +80,11 @@ export class MistiConfig {
         throw err;
       }
     }
+  }
+
+  private createDetectorsConfig(allDetectors: boolean): DetectorConfig[] {
+    return (allDetectors ? getAllDetectors : getEnabledDetectors)().map(
+      (name) => ({ className: name }),
+    );
   }
 }

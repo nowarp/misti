@@ -37,6 +37,11 @@ command
   )
   .option("--verbose", "Enable verbose output.", false)
   .option("--quiet", "Suppress output.", false)
+  .option(
+    "--all-detectors",
+    "Enable all the available built-in detectors.",
+    false,
+  )
   .option("--config <path>", "Path to Misti configuration file")
   .action(async (PROJECT_CONFIG_OR_FILE_PATH, options) => {
     try {

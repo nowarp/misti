@@ -29,7 +29,7 @@ const runTestForFile = (
     it(`should generate the expected warnings for ${testName}`, async () => {
       resetIds();
       // Run the driver and save results to the file.
-      const runCommand = `node dist/src/main.js ${filePath}`;
+      const runCommand = `node dist/src/main.js --all-detectors ${filePath}`;
       await new Promise((resolve, _reject) => {
         exec(runCommand, (_error, stdout, stderr) => {
           const out = stdout.trim() + stderr.trim();
