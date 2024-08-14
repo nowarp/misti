@@ -1,5 +1,4 @@
-import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
-import * as path from "path";
+import { ILogger } from "@tact-lang/compiler/dist/logger";
 
 export enum LogLevel {
   DEBUG,
@@ -8,12 +7,14 @@ export enum LogLevel {
   ERROR,
 }
 
+type MessageType = string | Error;
+
 export type LogFunction = (message: string) => void;
 
 /**
  * Provides a customizable logging mechanism across different levels of verbosity.
  */
-export class Logger {
+export class Logger implements ILogger {
   private logFunctions: Map<LogLevel, LogFunction | undefined>;
 
   /**
@@ -40,33 +41,24 @@ export class Logger {
    * @param msg The content of the log message.
    * @param ref An optional source location.
    */
-  protected log(level: LogLevel, msg: string, ref?: SrcInfo): void {
+  protected log(level: LogLevel, msg: MessageType): void {
     const logFunction = this.logFunctions.get(level);
     if (logFunction) {
-      logFunction(`${this.formatPosition(ref)}${msg}`);
+      logFunction(`${msg}`);
     }
   }
 
-  debug(msg: string, ref?: SrcInfo) {
-    this.log(LogLevel.DEBUG, msg, ref);
+  debug(msg: MessageType): void {
+    this.log(LogLevel.DEBUG, msg);
   }
-  info(msg: string, ref?: SrcInfo) {
-    this.log(LogLevel.INFO, msg, ref);
+  info(msg: MessageType): void {
+    this.log(LogLevel.INFO, msg);
   }
-  warn(msg: string, ref?: SrcInfo) {
-    this.log(LogLevel.WARN, msg, ref);
+  warn(msg: MessageType): void {
+    this.log(LogLevel.WARN, msg);
   }
-  error(msg: string, ref?: SrcInfo) {
-    this.log(LogLevel.ERROR, msg, ref);
-  }
-
-  private formatPosition(ref?: SrcInfo): string {
-    if (!ref || !ref.file) {
-      return "";
-    }
-    const relativeFilePath = path.relative(process.cwd(), ref.file);
-    const lc = ref.interval.getLineAndColumn();
-    return `${relativeFilePath}: ${lc}\n`;
+  error(msg: MessageType): void {
+    this.log(LogLevel.ERROR, msg);
   }
 }
 

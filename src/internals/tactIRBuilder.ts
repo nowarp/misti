@@ -15,6 +15,7 @@ import {
   Contract,
 } from "./ir";
 import { MistiContext } from "./context";
+import { formatPosition } from "./tactASTUtil";
 import { TactException, InternalException } from "./exceptions";
 import {
   Config as TactConfig,
@@ -490,24 +491,21 @@ export class TactIRBuilder {
               parentCalls.add(methodIdx);
             } else {
               this.ctx.logger.warn(
-                `Calling an unknown contract method: ${expr.method.text}`,
-                expr.loc,
+                `${formatPosition(expr.loc)}Calling an unknown contract method: ${expr.method.text}`,
               );
             }
           } else {
             // TODO: This could be trivially implemented after introducing typed
             // AST in Tact: https://github.com/tact-lang/tact/issues/289.
             this.ctx.logger.debug(
-              `Accessing an unknown contract: ${expr.self.text}`,
-              expr.self.loc,
+              `${formatPosition(expr.self.loc)}Accessing an unknown contract: ${expr.self.text}`,
             );
           }
         } else {
           // TODO: This could be trivially implemented after introducing typed
           // AST in Tact: https://github.com/tact-lang/tact/issues/289.
           this.ctx.logger.debug(
-            `Unsupported contract method access: ${expr.self.kind}`,
-            expr.self.loc,
+            `${formatPosition(expr.self.loc)}Unsupported contract method access: ${expr.self.kind}`,
           );
         }
         expr.args.forEach((arg) => this.collectFunctionCalls(arg, parentCalls));

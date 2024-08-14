@@ -6,6 +6,7 @@ import {
   tryExtractPath,
   SrcInfo,
 } from "@tact-lang/compiler/dist/grammar/ast";
+import * as path from "path";
 import { Interval as RawInterval } from "ohm-js";
 
 export function extractPath(path: AstExpression): string {
@@ -641,6 +642,18 @@ export function foldStatements<T>(
   }
 
   return traverseNode(acc, node);
+}
+
+/**
+ * Creates a concise string representation of `SrcInfo`.
+ */
+export function formatPosition(ref?: SrcInfo): string {
+  if (!ref || !ref.file) {
+    return "";
+  }
+  const relativeFilePath = path.relative(process.cwd(), ref.file);
+  const lc = ref.interval.getLineAndColumn();
+  return `${relativeFilePath}: ${lc}\n`;
 }
 
 /**
