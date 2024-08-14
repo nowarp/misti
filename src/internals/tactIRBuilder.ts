@@ -22,7 +22,7 @@ import {
   ConfigProject,
   parseConfig,
 } from "@tact-lang/compiler/dist/config/parseConfig";
-import { featureEnable } from "@tact-lang/compiler/dist/config/features";
+import { enableFeatures } from "@tact-lang/compiler/dist/pipeline/build";
 import { CompilerContext } from "@tact-lang/compiler/dist/context";
 import { getRawAST } from "@tact-lang/compiler/dist/grammar/store";
 import { createNodeFileSystem } from "@tact-lang/compiler/dist/vfs/createNodeFileSystem";
@@ -754,33 +754,6 @@ class TactConfigManager {
   }
 
   /**
-   * Enables features in the Tact CompilerContext.
-   * TODO: Should be replaced with the Tact API function when #33 is implemented
-   */
-  private enableFeatures(
-    ctx: CompilerContext,
-    config: ConfigProject,
-  ): CompilerContext {
-    if (config.options === undefined) {
-      return ctx;
-    }
-    const features = [
-      { option: config.options.debug, name: "debug" },
-      { option: config.options.masterchain, name: "masterchain" },
-      { option: config.options.external, name: "external" },
-      { option: config.options.experimental?.inline, name: "inline" },
-      { option: config.options.ipfsAbiGetter, name: "ipfsAbiGetter" },
-      { option: config.options.interfacesGetter, name: "interfacesGetter" },
-    ];
-    return features.reduce((currentCtx, { option, name }) => {
-      if (option) {
-        return featureEnable(currentCtx, name);
-      }
-      return currentCtx;
-    }, ctx);
-  }
-
-  /**
    * Reads the Tact configuration file from the specified path, parses it, and returns
    * the TactConfig object.
    * @throws {Error} If the config file does not exist or cannot be parsed.
@@ -821,7 +794,7 @@ class TactConfigManager {
         this.ctx.logger.debug(`Parsing project ${projectConfig.name} ...`);
         try {
           let ctx = new CompilerContext({ shared: {} });
-          ctx = this.enableFeatures(ctx, projectConfig);
+          ctx = enableFeatures(ctx, this.ctx.logger, projectConfig);
           ctx = precompile(ctx, project, stdlib, projectConfig.path);
           acc.set(projectConfig.name, getRawAST(ctx));
           return acc;
