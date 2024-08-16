@@ -1218,10 +1218,10 @@
   dependencies:
     defer-to-connect "^2.0.1"
 
-"@tact-lang/compiler@^1.4.2":
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/@tact-lang/compiler/-/compiler-1.4.2.tgz#3d7d489afa979a3b0f7f672d09dab8aeab8231b9"
-  integrity sha512-vgXHCClLhedZ3BlrzEkX70QUWWcBjNyW3YBgfvOm0oj6g3WNrFv6W2z0hca/ZlCdwUqUwKz4lHuPCJdl201fgA==
+"@tact-lang/compiler@^1.4.3":
+  version "1.4.3"
+  resolved "https://registry.yarnpkg.com/@tact-lang/compiler/-/compiler-1.4.3.tgz#a253a37567c94d469e23c2ed5e51236a4ccd67cb"
+  integrity sha512-8hmMm7gX/dGKxRRkE7EGg6ZKToQTaEfq/i3NXRuuGDwGvp0WpWgfmkz2I4gmK3NDgkQT4r2iaYlFHOf/6OdOZg==
   dependencies:
     "@tact-lang/opcode" "^0.0.16"
     "@ton/core" "0.56.3"
