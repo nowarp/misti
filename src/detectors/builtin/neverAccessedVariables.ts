@@ -4,7 +4,7 @@ import { Detector, WarningsBehavior } from "../detector";
 import { JoinSemilattice } from "../../internals/lattice";
 import { MistiContext } from "../../internals/context";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
-import { MistiTactError, Severity } from "../../internals/errors";
+import { MistiTactWarning, Severity } from "../../internals/errors";
 import {
   extractPath,
   SrcInfoSet,
@@ -127,7 +127,7 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
  * ```
  */
 export class NeverAccessedVariables extends Detector {
-  check(cu: CompilationUnit): MistiTactError[] {
+  check(cu: CompilationUnit): MistiTactWarning[] {
     return [
       ...this.checkFields(cu),
       ...this.checkConstants(cu),
@@ -141,7 +141,7 @@ export class NeverAccessedVariables extends Detector {
     return "intersect";
   }
 
-  checkFields(cu: CompilationUnit): MistiTactError[] {
+  checkFields(cu: CompilationUnit): MistiTactWarning[] {
     const defined = this.collectDefinedFields(cu);
     const used = this.collectUsedFields(cu);
     return Array.from(
@@ -155,7 +155,7 @@ export class NeverAccessedVariables extends Detector {
       });
       acc.push(err);
       return acc;
-    }, [] as MistiTactError[]);
+    }, [] as MistiTactWarning[]);
   }
 
   private collectDefinedFields(cu: CompilationUnit): Set<[FieldName, SrcInfo]> {
@@ -238,7 +238,7 @@ export class NeverAccessedVariables extends Detector {
     }, new Set<FieldName>());
   }
 
-  checkConstants(cu: CompilationUnit): MistiTactError[] {
+  checkConstants(cu: CompilationUnit): MistiTactWarning[] {
     const definedConstants = this.collectDefinedConstants(cu);
     const usedConstants = this.collectUsedNames(cu);
     return Array.from(
@@ -261,7 +261,7 @@ export class NeverAccessedVariables extends Detector {
       );
       acc.push(err);
       return acc;
-    }, [] as MistiTactError[]);
+    }, [] as MistiTactWarning[]);
   }
 
   collectDefinedConstants(cu: CompilationUnit): Set<[ConstantName, SrcInfo]> {
@@ -292,8 +292,8 @@ export class NeverAccessedVariables extends Detector {
    * Checks never accessed local variables in all the functions leveraging the
    * monotonic framework and the fixpoint dataflow solver.
    */
-  checkVariables(cu: CompilationUnit): MistiTactError[] {
-    const errors: MistiTactError[] = [];
+  checkVariables(cu: CompilationUnit): MistiTactWarning[] {
+    const errors: MistiTactWarning[] = [];
     const traversedFunctions = new Set<string>();
     cu.forEachCFG(cu.ast, (cfg: CFG, _node: Node, _stmt: AstStatement) => {
       if (cfg.origin === "stdlib" || traversedFunctions.has(cfg.name)) {

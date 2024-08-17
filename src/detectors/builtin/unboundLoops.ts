@@ -9,7 +9,7 @@ import {
 } from "../../internals/souffle";
 import { Detector } from "../detector";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
-import { MistiTactError, Severity } from "../../internals/errors";
+import { MistiTactWarning, Severity } from "../../internals/errors";
 import {
   extractPath,
   forEachExpression,
@@ -50,7 +50,7 @@ import {
  * ```
  */
 export class UnboundLoops extends Detector {
-  check(cu: CompilationUnit): MistiTactError[] {
+  check(cu: CompilationUnit): MistiTactWarning[] {
     const program = new Context<SrcInfo>(this.id);
     this.addDecls(program);
     this.addRules(program);

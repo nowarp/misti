@@ -20,11 +20,11 @@ export const BASE_DOC_URL =
   "https://nowarp.github.io/tools/misti/docs/detectors";
 
 /**
- * Error instance that refers to a specific place in a Tact contract.
+ * Misti warning that highlights a specific place in a Tact contract.
  */
-export class MistiTactError extends Error {
+export class MistiTactWarning extends Error {
   /**
-   * @param detectorId Unique identifier of the detector raised that error.
+   * @param detectorId Unique identifier of the detector raised that warning.
    */
   constructor(
     public readonly detectorId: string,
@@ -37,17 +37,17 @@ export class MistiTactError extends Error {
   }
 
   /**
-   * Constructs an error object with a description and the source code location.
+   * Constructs a warning object with a description and the source code location.
    *
-   * @param description Descriptive text of the error.
+   * @param description Descriptive text of the warning.
    * @param detectorId Unique identifier of the detector.
    * @param severity Severity of the finding.
    * @param loc Reference to the source code that includes file information and position data.
-   * @param data Additional optional data for the error, including:
-   * - `extraDescription`: More comprehensive description that clarifies the error in greater detail.
+   * @param data Additional optional data for the warning, including:
+   * - `extraDescription`: More comprehensive description that clarifies the warning in greater detail.
    * - `docURL`: URL to the detector documentation.
    * - `suggestion`: Suggested change in the source code.
-   * @returns A new MistiTactError containing the error message and source code reference.
+   * @returns A new MistiTactError containing the warning message and source code reference.
    */
   public static make(
     ctx: MistiContext,
@@ -60,7 +60,7 @@ export class MistiTactError extends Error {
       docURL: string;
       suggestion: string;
     }> = {},
-  ): MistiTactError {
+  ): MistiTactWarning {
     const {
       extraDescription = undefined,
       docURL = undefined,
@@ -95,7 +95,7 @@ export class MistiTactError extends Error {
       suggestionStr,
       docURLStr,
     ].join("");
-    return new MistiTactError(detectorId, msg, loc, severity);
+    return new MistiTactWarning(detectorId, msg, loc, severity);
   }
 }
 

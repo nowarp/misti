@@ -14,7 +14,7 @@ import {
   makeRuleBody,
   makeAtom,
 } from "../../internals/souffle";
-import { MistiTactError, Severity } from "../../internals/errors";
+import { MistiTactWarning, Severity } from "../../internals/errors";
 import { extractPath, forEachExpression } from "../../internals/tactASTUtil";
 
 /**
@@ -50,7 +50,7 @@ export class ReadOnlyVariables extends Detector {
     return "intersect";
   }
 
-  check(cu: CompilationUnit): MistiTactError[] {
+  check(cu: CompilationUnit): MistiTactWarning[] {
     const program = new Context<SrcInfo>(this.id);
     this.addDecls(program);
     this.addRules(program);

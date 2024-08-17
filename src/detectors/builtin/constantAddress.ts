@@ -1,6 +1,6 @@
 import { Detector } from "../detector";
 import { CompilationUnit } from "../../internals/ir";
-import { MistiTactError, Severity } from "../../internals/errors";
+import { MistiTactWarning, Severity } from "../../internals/errors";
 import { foldExpressions } from "../../internals/tactASTUtil";
 import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
 
@@ -37,20 +37,20 @@ import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
  * ```
  */
 export class ConstantAddress extends Detector {
-  check(cu: CompilationUnit): MistiTactError[] {
+  check(cu: CompilationUnit): MistiTactWarning[] {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(
-        foldExpressions(node, [] as MistiTactError[], (acc, expr) => {
+        foldExpressions(node, [] as MistiTactWarning[], (acc, expr) => {
           return this.findConstantAddress(acc, expr);
         }),
       );
-    }, [] as MistiTactError[]);
+    }, [] as MistiTactWarning[]);
   }
 
   private findConstantAddress(
-    acc: MistiTactError[],
+    acc: MistiTactWarning[],
     expr: AstExpression,
-  ): MistiTactError[] {
+  ): MistiTactWarning[] {
     if (expr.kind === "static_call") {
       if (
         expr.function.text === "address" &&

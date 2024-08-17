@@ -1,6 +1,6 @@
 import { MistiContext } from "../internals/context";
 import { CompilationUnit } from "../internals/ir";
-import { makeDocURL, MistiTactError, Severity } from "../internals/errors";
+import { makeDocURL, MistiTactWarning, Severity } from "../internals/errors";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import {
   Context as SouffleContext,
@@ -51,8 +51,8 @@ export abstract class Detector {
    */
   protected executeSouffle(
     program: SouffleContext<SrcInfo>,
-    callback: (fact: Fact<FactValue, SrcInfo>) => MistiTactError | undefined,
-  ): MistiTactError[] {
+    callback: (fact: Fact<FactValue, SrcInfo>) => MistiTactWarning | undefined,
+  ): MistiTactWarning[] {
     const executor = this.ctx.config.soufflePath
       ? new Executor<SrcInfo>({
           inputDir: this.ctx.config.soufflePath,
@@ -65,20 +65,19 @@ export abstract class Detector {
         `Error executing Soufflé for ${this.id}:\n${result.stderr}`,
       );
     }
-    return Array.from(result.results.entries.values()).reduce<MistiTactError[]>(
-      (acc, facts) => {
-        return acc.concat(
-          facts.reduce<MistiTactError[]>((innerAcc, fact) => {
-            const error = callback(fact);
-            if (error) {
-              innerAcc.push(error);
-            }
-            return innerAcc;
-          }, []),
-        );
-      },
-      [],
-    );
+    return Array.from(result.results.entries.values()).reduce<
+      MistiTactWarning[]
+    >((acc, facts) => {
+      return acc.concat(
+        facts.reduce<MistiTactWarning[]>((innerAcc, fact) => {
+          const error = callback(fact);
+          if (error) {
+            innerAcc.push(error);
+          }
+          return innerAcc;
+        }, []),
+      );
+    }, []);
   }
 
   /**
@@ -86,7 +85,7 @@ export abstract class Detector {
    * @param cu The compilation unit to be analyzed.
    * @returns List of errors has highlighted by this detector.
    */
-  abstract check(cu: CompilationUnit): MistiTactError[];
+  abstract check(cu: CompilationUnit): MistiTactWarning[];
 
   /**
    * Returns `true` if the identifier with the given name should not be reported
@@ -108,11 +107,18 @@ export abstract class Detector {
       extraDescription: string;
       suggestion: string;
     }> = {},
-  ): MistiTactError {
-    return MistiTactError.make(this.ctx, this.id, description, severity, loc, {
-      ...data,
-      docURL: makeDocURL(this.id),
-    });
+  ): MistiTactWarning {
+    return MistiTactWarning.make(
+      this.ctx,
+      this.id,
+      description,
+      severity,
+      loc,
+      {
+        ...data,
+        docURL: makeDocURL(this.id),
+      },
+    );
   }
 }
 
