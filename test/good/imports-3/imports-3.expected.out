@@ -1,0 +1,8 @@
+test/good/imports-3/constants.tact:2:1:
+  1 | const SOMETHING: Int = 123;
+> 2 | const SOMETHING_UNUSED: Int = 456;
+      ^
+  3 | 
+Constant is never used
+Help: Consider removing the constant
+See: https://nowarp.github.io/tools/misti/docs/detectors/NeverAccessedVariables

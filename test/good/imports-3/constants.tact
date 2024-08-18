@@ -1,0 +1,2 @@
+const SOMETHING: Int = 123;
+const SOMETHING_UNUSED: Int = 456;

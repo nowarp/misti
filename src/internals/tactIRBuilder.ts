@@ -179,7 +179,7 @@ export class AstMapper {
         this.messages.set(type.id, type);
         break;
       case "trait":
-        this.traits.set(type.id, type);
+        this.processTrait(type);
         break;
       case "contract":
         this.processContract(type);
@@ -188,6 +188,32 @@ export class AstMapper {
         throw InternalException.make("Unsupported AST type declaration", {
           node: type,
         });
+    }
+  }
+
+  private processTrait(trait: AstTrait): void {
+    this.traits.set(trait.id, trait);
+    for (const decl of trait.declarations) {
+      switch (decl.kind) {
+        case "field_decl":
+          // Do nothing, as they are accessible through trait definitions
+          break;
+        case "function_def":
+        case "receiver":
+          this.processFunction(decl);
+          break;
+        case "constant_def":
+          this.constants.set(decl.id, decl);
+          this.contractConstants.add(decl.id);
+          break;
+        case "constant_decl":
+        case "function_decl":
+          break;
+        default:
+          throw InternalException.make("Unsupported trait declaration", {
+            node: decl,
+          });
+      }
     }
   }
 
