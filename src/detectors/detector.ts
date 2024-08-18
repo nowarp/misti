@@ -174,6 +174,13 @@ const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: false,
   },
+  BranchDuplicate: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/branchDuplicate").then(
+        (module) => new module.BranchDuplicate(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**
