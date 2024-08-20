@@ -195,6 +195,13 @@ const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  PreferAugmentedAssign: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/preferAugmentedAssign").then(
+        (module) => new module.PreferAugmentedAssign(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**

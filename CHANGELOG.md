@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `BranchDuplicate` detector: Issue [#87](https://github.com/nowarp/misti/issues/87)
 - `DumpIsUsed` detector: Issue [#100](https://github.com/nowarp/misti/issues/100)
 - `FieldDoubleInit` detector: Issue [#97](https://github.com/nowarp/misti/issues/97)
+- `PreferAugmentedAssign` detector: Issue [#78](https://github.com/nowarp/misti/issues/78)
 - An API to execute Misti from a string list of arguments
 - `--dump-config` CLI flag that dumps the Misti configuration file in use: PR [#79](https://github.com/nowarp/misti/pull/79)
 - Naming convention to skip unused identifiers: PR [#82](https://github.com/nowarp/misti/pull/82)
