@@ -181,6 +181,13 @@ const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  DumpIsUsed: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/dumpIsUsed").then(
+        (module) => new module.DumpIsUsed(ctx),
+      ),
+    enabledByDefault: false,
+  },
 };
 
 /**

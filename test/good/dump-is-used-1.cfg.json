@@ -1,0 +1,20 @@
+{
+  "projectName": "dump-is-used-1",
+  "functions": [
+    {
+      "name": "test",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 141,
+            "stmtID": 1530,
+            "srcEdges": [],
+            "dstEdges": []
+          }
+        ],
+        "edges": []
+      }
+    }
+  ],
+  "contracts": []
+}

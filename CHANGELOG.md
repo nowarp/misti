@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `ConstantAddress` detector: PR [#90](https://github.com/nowarp/misti/pull/90)
 - `BranchDuplicate` detector: Issue [#87](https://github.com/nowarp/misti/issues/87)
+- `DumpIsUsed` detector: Issue [#100](https://github.com/nowarp/misti/issues/100)
 - An API to execute Misti from a string list of arguments
 - `--dump-config` CLI flag that dumps the Misti configuration file in use: PR [#79](https://github.com/nowarp/misti/pull/79)
 - Naming convention to skip unused identifiers: PR [#82](https://github.com/nowarp/misti/pull/82)
