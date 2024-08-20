@@ -188,6 +188,13 @@ const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: false,
   },
+  FieldDoubleInit: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/fieldDoubleInit").then(
+        (module) => new module.FieldDoubleInit(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**

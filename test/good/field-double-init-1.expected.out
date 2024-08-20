@@ -1,0 +1,8 @@
+test/good/field-double-init-1.tact:4:9:
+  3 |     init(x: Int) {
+> 4 |         self.a = x; // Should be highlighted
+              ^
+  5 |     }
+Field Initialized Twice
+Help: Consider initializing the field only in its declaration or in the `init` function
+See: https://nowarp.github.io/tools/misti/docs/detectors/FieldDoubleInit

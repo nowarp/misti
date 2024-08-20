@@ -1,0 +1,39 @@
+{
+  "projectName": "field-double-init-2",
+  "functions": [],
+  "contracts": [
+    {
+      "name": "Test",
+      "methods": [
+        {
+          "name": "Test.init_1550",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 142,
+                "stmtID": 1541,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        },
+        {
+          "name": "Test.getB",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 143,
+                "stmtID": 1548,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        }
+      ]
+    }
+  ]
+}
