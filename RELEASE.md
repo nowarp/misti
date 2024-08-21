@@ -1,7 +1,6 @@
 # Misti release checklist template
 
 - [ ] Bump Misti version in [`package.json`](./package.json)
-- [ ] Bump supported Tact version in [`README.md`](./README.md)
 - [ ] Release new Misti version
   - [ ] Run: `yarn release -- --dry-run` to ensure everything works as expected
   - [ ] Run: `yarn release --` and follow the instructions
