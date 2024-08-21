@@ -1,6 +1,6 @@
 fun test(): Int {
     let a: Int = 20;
-    if (true) { // error: write-only variable
+    if (true) { // Bad: write-only variable
         a = 42;
     }
     return 42;

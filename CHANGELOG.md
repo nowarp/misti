@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - IRBuilder: Save trait definitions: PR [#95](https://github.com/nowarp/misti/pull/95)
+- `neverAccessedVariables` does not report write-only variables: Issue [#101](https://github.com/nowarp/misti/pull/95)
 
 ## [0.1.2] - 2024-08-06
 

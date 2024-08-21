@@ -1,6 +1,7 @@
 import { WorklistSolver } from "../../internals/solver/";
 import { Transfer } from "../../internals/transfer";
 import { Detector, WarningsBehavior } from "../detector";
+import { InternalException } from "../../internals/exceptions";
 import { JoinSemilattice } from "../../internals/lattice";
 import { MistiContext } from "../../internals/context";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
@@ -74,24 +75,70 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
       accessed: inState.accessed,
       written: inState.written,
     };
-    const processExpressions = (node: AstStatement | AstExpression) => {
+    this.processStatements(outState, stmt);
+    return outState;
+  }
+
+  private processStatements(outState: VariableState, stmt: AstStatement): void {
+    const trackAccess = (node: AstStatement | AstExpression) => {
       forEachExpression(node, (expr) => {
         if (expr.kind === "id") {
           outState.accessed.add(expr.text);
         }
       });
     };
-    if (stmt.kind === "statement_let") {
-      outState.declared.add([stmt.name.text, stmt.loc]);
-      processExpressions(stmt.expression);
-    } else if (stmt.kind === "statement_assign") {
-      const name = extractPath(stmt.path);
-      outState.written.add(name);
-      processExpressions(stmt.expression);
-    } else {
-      processExpressions(stmt);
+    switch (stmt.kind) {
+      case "statement_let":
+        outState.declared.add([stmt.name.text, stmt.loc]);
+        trackAccess(stmt.expression);
+        break;
+      case "statement_return":
+        if (stmt.expression) trackAccess(stmt.expression);
+        break;
+      case "statement_expression":
+        trackAccess(stmt.expression);
+        break;
+      case "statement_assign":
+      case "statement_augmentedassign":
+        const name = extractPath(stmt.path);
+        outState.written.add(name);
+        trackAccess(stmt.expression);
+        break;
+      case "statement_condition":
+        trackAccess(stmt.condition);
+        stmt.trueStatements.forEach((s) => this.processStatements(outState, s));
+        if (stmt.falseStatements !== null)
+          stmt.falseStatements.forEach((s) =>
+            this.processStatements(outState, s),
+          );
+        if (stmt.elseif !== null) this.processStatements(outState, stmt.elseif);
+        break;
+      case "statement_while":
+      case "statement_until":
+        trackAccess(stmt.condition);
+        stmt.statements.forEach((s) => this.processStatements(outState, s));
+        break;
+      case "statement_repeat":
+        trackAccess(stmt.iterations);
+        stmt.statements.forEach((s) => this.processStatements(outState, s));
+        break;
+      case "statement_try":
+        stmt.statements.forEach((s) => this.processStatements(outState, s));
+        break;
+      case "statement_try_catch":
+        stmt.statements.forEach((s) => this.processStatements(outState, s));
+        stmt.catchStatements.forEach((s) =>
+          this.processStatements(outState, s),
+        );
+        break;
+      case "statement_foreach":
+        stmt.statements.forEach((s) => this.processStatements(outState, s));
+        break;
+      default:
+        throw InternalException.make(`Unsupported statement`, {
+          node: stmt,
+        });
     }
-    return outState;
   }
 }
 
@@ -319,11 +366,12 @@ export class NeverAccessedVariables extends Detector {
         state.written.forEach((name) => writtenVariables.add(name));
       });
       Array.from(declaredVariables.keys()).forEach((name) => {
-        if (!accessedVariables.has(name)) {
-          if (this.skipUnused(name)) {
-            return;
-          }
-          const isWritten = writtenVariables.has(name);
+        if (this.skipUnused(name)) {
+          return;
+        }
+        const isWritten = writtenVariables.has(name);
+        const isAccessed = accessedVariables.has(name);
+        if (!isAccessed) {
           const msg = isWritten
             ? "Write-only variable"
             : "Variable is never accessed";
