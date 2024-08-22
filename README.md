@@ -24,9 +24,10 @@ npx misti test/projects/simple/tactConfig.json
 * **Streamline Development:** Integrate Misti into your CI/CD pipeline to ensure continuous code quality checks.
 * **Custom Detectors:** Create custom detectors to solve specific problems in your code or to provide a thorough security review if you are an auditor.
 
-## Documentation
+## Resources
 * [Misti Documentation](https://nowarp.github.io/docs/misti/) provides a detailed overview of the built-in detectors, the architecture of the analyzer, and developer documentation.
 * [Misti API Reference](https://nowarp.github.io/docs/misti/api) is useful if you are going to contribute or create your own detectors to streamline your audit.
+* [Misti Blueprint Plugin](https://github.com/nowarp/blueprint-misti) is a plugin for the Blueprint Framework that simplifies your workflow with Misti.
 
 ## Community
 * [Misti Discussion Group](https://t.me/misti_dev)
