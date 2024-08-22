@@ -15,7 +15,7 @@ processTactFiles(GOOD_DIR, (file) => {
         dumpCfgOutput: GOOD_DIR,
         quiet: true,
       });
-      runner.run();
+      await runner.run();
       await TAP.from(nameBase, "json", "cfg.json").run();
     });
     it(`should produce correct CFG DOT output for ${contractName}`, async () => {
@@ -26,7 +26,7 @@ processTactFiles(GOOD_DIR, (file) => {
         dumpCfgOutput: GOOD_DIR,
         quiet: true,
       });
-      runner.run();
+      await runner.run();
       await TAP.from(nameBase, "dot", "cfg.dot").run();
     });
   });
