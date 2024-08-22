@@ -78,12 +78,28 @@ function generateReceiveName(receive: AstReceiver): string {
 /**
  * A mandatory part of the file path to stdlib if using the default path.
  */
-const DEFAULT_STDLIB_PATH_ELEMENTS = [
+export const DEFAULT_STDLIB_PATH_ELEMENTS = [
   "node_modules",
   "@tact-lang",
   "compiler",
   "stdlib",
 ];
+
+/**
+ * Returns path to Tact stdlib defined in the `node_modules`.
+ *
+ * This adjustment is needed to get an actual path to stdlib distributed within the tact package.
+ */
+export function setTactStdlibPath(nodeModulesPath: string = "../..") {
+  const distPathPrefix = __dirname.includes("/dist/")
+    ? path.join("..", nodeModulesPath)
+    : nodeModulesPath;
+  return path.resolve(
+    __dirname,
+    distPathPrefix,
+    ...DEFAULT_STDLIB_PATH_ELEMENTS,
+  );
+}
 
 /**
  * Checks if there are subdirectories present in the absolute path.
@@ -809,11 +825,7 @@ class TactConfigManager {
       path.dirname(this.tactConfigPath),
       false,
     );
-    // This adjustment is needed to get an actual path to stdlib distributed within the tact package.
-    const distPathPrefix = __dirname.includes("/dist/") ? "../../.." : "../..";
-    const stdlibPath =
-      this.ctx.config.tactStdlibPath ??
-      path.resolve(__dirname, distPathPrefix, ...DEFAULT_STDLIB_PATH_ELEMENTS);
+    const stdlibPath = this.ctx.config.tactStdlibPath ?? setTactStdlibPath();
     const stdlib = createNodeFileSystem(stdlibPath, false);
     return this.config.projects.reduce(
       (acc: Map<ProjectName, AstStore>, projectConfig: ConfigProject) => {
