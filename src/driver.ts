@@ -10,6 +10,22 @@ import { Detector, findBuiltInDetector } from "./detectors/detector";
 import path from "path";
 import fs from "fs";
 
+export interface MistiResult {
+  /**
+   * Number of errors reported.
+   */
+  errorsFound: number;
+  /**
+   * A string representing the output of Misti. It could be an error report or the requested
+   * information, e.g., the results of executing internal tools.
+   */
+  output?: string;
+  /**
+   * Error output when Misti cannot complete the requested operation.
+   */
+  error?: string;
+}
+
 /**
  * Manages the initialization and execution of detectors for analyzing compilation units.
  */
@@ -128,16 +144,19 @@ export class Driver {
   }
 
   /**
-   * Dumps the Control Flow Graph (CFG) to stdout.
+   * Collects output of the Control Flow Graph (CFG) dump functions.
    */
-  private async executeCFGDump(cus: Map<ProjectName, CompilationUnit>) {
+  private async getCFGDump(
+    cus: Map<ProjectName, CompilationUnit>,
+  ): Promise<string> {
+    const results: string[] = [];
     const promises = Array.from(cus.entries()).reduce((acc, [name, cu]) => {
       const dump =
         this.dumpCFG === "dot"
           ? GraphvizDumper.dumpCU(cu, this.dumpCFGStdlib)
           : JSONDumper.dumpCU(cu, this.dumpCFGStdlib);
       if (this.dumpCFGOutput === DUMP_STDOUT_PATH) {
-        console.log(dump);
+        results.push(dump);
       } else {
         const filename =
           this.dumpCFG === "dot" ? `${name}.dot` : `${name}.json`;
@@ -149,32 +168,32 @@ export class Driver {
       return acc;
     }, [] as Promise<void>[]);
     await Promise.all(promises);
+    return results.join("\n");
   }
 
   /**
-   * Dumps the Misti config in use to stdout.
+   * Returns a string representing the Misti config in use.
    */
-  private executeConfigDump(spaces: number = 2) {
-    const mistiConfig = JSON.stringify(this.ctx.config, null, spaces);
-    console.log(mistiConfig);
+  private getConfigDump(spaces: number = 2): string {
+    return JSON.stringify(this.ctx.config, null, spaces);
   }
 
   /**
    * Executes checks on all compilation units and reports found errors sorted by severity.
    * @returns True if any errors were found, otherwise false.
    */
-  public async execute(): Promise<boolean> {
+  public async execute(): Promise<MistiResult> {
     const cus: Map<ProjectName, CompilationUnit> = createIR(
       this.ctx,
       this.tactConfigPath,
     );
     if (this.dumpCFG !== undefined) {
-      await this.executeCFGDump(cus);
-      return false;
+      const output = await this.getCFGDump(cus);
+      return { errorsFound: 0, output };
     }
     if (this.dumpConfig === true) {
-      this.executeConfigDump();
-      return false;
+      const output = this.getConfigDump();
+      return { errorsFound: 0, output };
     }
 
     const allWarnings = Array.from(cus.entries()).reduce(
@@ -204,11 +223,15 @@ export class Driver {
       });
       return acc;
     }, []);
-    collectedErrors.forEach((err, index) => {
+    const formattedErrors = collectedErrors.reduce((acc, err, index) => {
       const isLastWarning = index === collectedErrors.length - 1;
-      this.reportError(err, !isLastWarning);
-    });
-    return collectedErrors.length > 0;
+      acc.push(this.formatWarning(err, !isLastWarning));
+      return acc;
+    }, [] as string[]);
+    return {
+      errorsFound: formattedErrors.length,
+      output: formattedErrors.join("\n"),
+    };
   }
 
   /**
@@ -282,13 +305,10 @@ export class Driver {
   }
 
   /**
-   * Logs a error using the logger.
-   * @param error The error object to report.
+   * Returns string representation of the warning.
    */
-  reportError(error: MistiTactWarning, addNewline: boolean) {
-    this.ctx.logger.error(
-      `${error.message}${addNewline && !error.message.endsWith("\n") ? "\n" : ""}`,
-    );
+  private formatWarning(error: MistiTactWarning, addNewline: boolean): string {
+    return `${error.message}${addNewline && !error.message.endsWith("\n") ? "\n" : ""}`;
   }
 
   /**
@@ -347,50 +367,86 @@ interface CLIOptions {
 }
 
 /**
- * Check CLI options for ambiguities.
- * @throws If Misti cannot be executed with the given options
+ * Provides an API to manage the driver instance and store the execution result.
  */
-function checkCLIOptions(options: CLIOptions) {
-  if (options.verbose === true && options.quiet === true) {
-    throw new Error(`Please choose only one option: --verbose or --quiet`);
-  }
-}
+export class Runner {
+  private constructor(
+    private readonly driver: Driver,
+    private result: MistiResult | undefined = undefined,
+  ) {}
 
-/**
- * Entry point of code analysis.
- * @param tactPath Path to Tact project configuration or to a single Tact contract.
- * @param options CLI options.
- * @return true if detected any problems.
- */
-export async function run(
-  tactPath: string,
-  options: CLIOptions = {
-    dumpCfg: undefined,
-    dumpCfgStdlib: false,
-    dumpCfgOutput: DUMP_STDOUT_PATH,
-    dumpConfig: undefined,
-    soufflePath: undefined,
-    tactStdlibPath: undefined,
-    verbose: false,
-    quiet: false,
-    allDetectors: false,
-    config: undefined,
-  },
-): Promise<boolean> {
-  try {
-    checkCLIOptions(options);
+  /**
+   * @param tactPath Path to Tact project configuration or to a single Tact contract.
+   * @param options CLI options.
+   */
+  public static async make(
+    tactPath: string,
+    options: CLIOptions = {
+      dumpCfg: undefined,
+      dumpCfgStdlib: false,
+      dumpCfgOutput: DUMP_STDOUT_PATH,
+      dumpConfig: undefined,
+      soufflePath: undefined,
+      tactStdlibPath: undefined,
+      verbose: false,
+      quiet: false,
+      allDetectors: false,
+      config: undefined,
+    },
+  ): Promise<Runner> {
+    this.checkCLIOptions(options);
     const driver = await Driver.create(tactPath, options);
-    return await driver.execute();
-  } catch (err) {
-    if (err instanceof Error) {
-      const logger = new Logger();
-      logger.error(err.message);
-      if (err.stack !== undefined && process.env.MISTI_TRACE === "1") {
-        logger.error(err.stack);
+    return new Runner(driver);
+  }
+
+  /**
+   * Entry point of code analysis. Saves MistiResult to an object accessible in `this.getResult()`.
+   */
+  public async run(): Promise<void> {
+    try {
+      this.result = await this.driver.execute();
+    } catch (err) {
+      const result = [] as string[];
+      if (err instanceof Error) {
+        result.push(err.message);
+        if (err.stack !== undefined && process.env.MISTI_TRACE === "1") {
+          result.push(err.stack);
+        }
+      } else {
+        result.push(`${err}`);
       }
-      return true;
+      const error = result.join("\n");
+      new Logger().error(error);
+      this.result = { errorsFound: 0, error };
+    }
+  }
+
+  /**
+   * Returns the result of the execution.
+   * @throws If the runner hasn't been executed.
+   */
+  public getResult(): MistiResult {
+    if (this.result !== undefined) {
+      return this.result;
     } else {
-      throw err;
+      throw new Error("Runner hasn't been executed");
+    }
+  }
+
+  /**
+   * Returns the driver object in use.
+   */
+  public getDriver(): Driver {
+    return this.driver;
+  }
+
+  /**
+   * Check CLI options for ambiguities.
+   * @throws If Misti cannot be executed with the given options
+   */
+  private static checkCLIOptions(options: CLIOptions) {
+    if (options.verbose === true && options.quiet === true) {
+      throw new Error(`Please choose only one option: --verbose or --quiet`);
     }
   }
 }

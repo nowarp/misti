@@ -1,4 +1,3 @@
-import { exec } from "child_process";
 import { describe, it } from "@jest/globals";
 import {
   TAP,
@@ -7,6 +6,7 @@ import {
   GOOD_DIR,
   TACT_CONFIG_NAME,
   resetIds,
+  executeMisti,
 } from "./testUtil";
 import fs from "fs";
 import path from "path";
@@ -17,31 +17,18 @@ import path from "path";
  * @param nameBase Path base to create expected/actual files.
  * @param testName Name of the test to display.
  */
-const runTestForFile = (
-  filePath: string,
-  nameBase: string,
-  testName: string,
-) => {
+function runTestForFile(filePath: string, nameBase: string, testName: string) {
   const actualSuffix = "actual.out";
   const outputFilePath = `${nameBase}.${actualSuffix}`;
-
   describe(`Testing built-in detectors for ${testName}`, () => {
     it(`should generate the expected warnings for ${testName}`, async () => {
       resetIds();
-      // Run the driver and save results to the file.
-      const runCommand = `node dist/src/main.js --all-detectors ${filePath}`;
-      await new Promise((resolve, _reject) => {
-        exec(runCommand, (_error, stdout, stderr) => {
-          const out = stdout.trim() + stderr.trim();
-          fs.writeFileSync(outputFilePath, out ? out : "");
-          resolve(void 0);
-        });
-      });
-
+      const output = await executeMisti(["--all-detectors", filePath]);
+      fs.writeFileSync(outputFilePath, output);
       await TAP.from(nameBase, actualSuffix, "expected.out").run();
     }, 30000);
   });
-};
+}
 
 processTactFiles(GOOD_DIR, (file) => {
   const contractName = file.replace(".tact", "");

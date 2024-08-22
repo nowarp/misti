@@ -1,6 +1,7 @@
 import { IdxGenerator } from "../src/internals/ir";
 import { __DANGER_resetNodeId } from "@tact-lang/compiler/dist/grammar/ast";
 import { expect } from "@jest/globals";
+import { runMistiCommand } from "../src/cli";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -103,4 +104,12 @@ export function processTactProjects(
 export function resetIds(): void {
   __DANGER_resetNodeId();
   IdxGenerator.__reset();
+}
+
+/**
+ * Executes Misti with the given options capturing output.
+ */
+export async function executeMisti(args: string[]): Promise<string> {
+  const result = await runMistiCommand(args);
+  return result.output ?? "";
 }

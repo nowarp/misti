@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+- Improve internal Misti driver API used in tests and `blueprint-misti`
 
 ### Fixed
 

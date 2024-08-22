@@ -1,6 +1,11 @@
-import { run } from "./driver";
+import { Runner, MistiResult } from "./driver";
 import { MISTI_VERSION, TACT_VERSION } from "./version";
 import { Command } from "commander";
+
+/**
+ * A runner object used for this execution.
+ */
+let RUNNER: Runner | undefined = undefined;
 
 /**
  * Creates and configures the Misti CLI command.
@@ -54,11 +59,10 @@ export function createMistiCommand(): Command {
     .option("--config <path>", "Path to Misti configuration file")
     .action(async (PROJECT_CONFIG_OR_FILE_PATH, options) => {
       try {
-        const result = await run(PROJECT_CONFIG_OR_FILE_PATH, options);
-        process.exit(result ? 1 : 0);
+        RUNNER = await Runner.make(PROJECT_CONFIG_OR_FILE_PATH, options);
+        await RUNNER.run();
       } catch (error) {
-        console.error("An error occurred:", error);
-        process.exit(1);
+        throw new Error(`An error occurred: ${error}`);
       }
     });
   return command;
@@ -68,12 +72,24 @@ export function createMistiCommand(): Command {
  * Runs the Misti CLI command with the provided arguments.
  * @param The list of arguments to pass to the CLI command.
  */
-export function runMistiCommand(args: string[]) {
+export async function runMistiCommand(args: string[]): Promise<MistiResult> {
   const command = createMistiCommand();
-
   if (args.length === 0) {
     command.help();
+    throw new Error("No arguments provided. Help displayed.");
   } else {
-    command.parse(args, { from: "user" });
+    await command.parseAsync(args, { from: "user" });
+    return RUNNER!.getResult();
+  }
+}
+
+/** Reports errors found by Misti. */
+export function report(result: MistiResult) {
+  if (RUNNER === undefined) {
+    throw new Error("Misti hasn't been executed");
+  }
+  if (result.output !== undefined) {
+    // Use the configured logger to report the found errors
+    RUNNER.getDriver().ctx.logger.error(result.output);
   }
 }

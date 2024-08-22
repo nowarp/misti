@@ -1,3 +1,9 @@
-import { runMistiCommand } from "./cli";
-const args = process.argv.slice(2);
-runMistiCommand(args);
+import { report, runMistiCommand } from "./cli";
+
+async function main() {
+  const args = process.argv.slice(2);
+  const result = await runMistiCommand(args);
+  report(result);
+}
+
+main();
