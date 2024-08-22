@@ -15,7 +15,7 @@
   - [ ] Run: `yarn build && yarn deploy` from the `nowarp.github.io` directory
 - [ ] Add the `Unreleased` section in [CHANGELOG.md](./CHANGELOG.md):
 ```
-## Unreleased
+## [Unreleased]
 
 ### Added
 
