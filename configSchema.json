@@ -30,7 +30,7 @@
         "additionalProperties": false
       }
     },
-    "ignored_projects": {
+    "ignoredProjects": {
       "type": "array",
       "description": "List of Tact projects that will be ignored by the analyzer",
       "items": {

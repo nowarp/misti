@@ -16,7 +16,7 @@ const VerbositySchema = z.enum(["quiet", "debug", "default"]);
 
 const ConfigSchema = z.object({
   detectors: z.array(DetectorConfigSchema),
-  ignored_projects: z.array(z.string()).optional(),
+  ignoredProjects: z.array(z.string()).optional(),
   soufflePath: z.string().optional(),
   tactStdlibPath: z.string().optional(),
   unusedPrefix: z.string().default("_"),
@@ -27,7 +27,7 @@ const ConfigSchema = z.object({
  * Represents content of the Misti configuration file (misti.config.json).
  */
 export class MistiConfig {
-  public detectorsEnabled: DetectorConfig[];
+  public detectors: DetectorConfig[];
   public ignoredProjects: string[];
   public soufflePath?: string;
   public tactStdlibPath?: string;
@@ -56,7 +56,7 @@ export class MistiConfig {
       // Use default detectors if no config file is provided
       configData = {
         detectors: this.createDetectorsConfig(allDetectors),
-        ignored_projects: [],
+        ignoredProjects: [],
         soufflePath: undefined,
         tactStdlibPath: undefined,
         unusedPrefix: "_",
@@ -66,8 +66,8 @@ export class MistiConfig {
 
     try {
       const parsedConfig = ConfigSchema.parse(configData);
-      this.detectorsEnabled = parsedConfig.detectors;
-      this.ignoredProjects = parsedConfig.ignored_projects || [];
+      this.detectors = parsedConfig.detectors;
+      this.ignoredProjects = parsedConfig.ignoredProjects || [];
       this.tactStdlibPath = parsedConfig.tactStdlibPath;
       this.unusedPrefix = parsedConfig.unusedPrefix;
       this.verbosity = parsedConfig.verbosity;

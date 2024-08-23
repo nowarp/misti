@@ -108,37 +108,32 @@ export class Driver {
    * @throws Error if a detector class cannot be found in the specified module or as a built-in.
    */
   async initializeDetectors(): Promise<void> {
-    const detectorPromises = this.ctx.config.detectorsEnabled.map(
-      async (config) => {
-        if (config.modulePath) {
-          // Dynamic import for external detectors
-          let module;
-          try {
-            module = await import(config.modulePath);
-          } catch (error) {
-            console.error(`Failed to import module: ${config.modulePath}`);
-            console.error(error);
-          }
-          const DetectorClass = module[config.className];
-          if (!DetectorClass) {
-            throw new Error(
-              `Detector class ${config.className} not found in module ${config.modulePath}`,
-            );
-          }
-          return new DetectorClass(this.ctx) as Detector;
-        } else {
-          // Attempt to find a built-in detector
-          const detector = await findBuiltInDetector(
-            this.ctx,
-            config.className,
-          );
-          if (!detector) {
-            throw new Error(`Built-in detector ${config.className} not found`);
-          }
-          return detector;
+    const detectorPromises = this.ctx.config.detectors.map(async (config) => {
+      if (config.modulePath) {
+        // Dynamic import for external detectors
+        let module;
+        try {
+          module = await import(config.modulePath);
+        } catch (error) {
+          console.error(`Failed to import module: ${config.modulePath}`);
+          console.error(error);
         }
-      },
-    );
+        const DetectorClass = module[config.className];
+        if (!DetectorClass) {
+          throw new Error(
+            `Detector class ${config.className} not found in module ${config.modulePath}`,
+          );
+        }
+        return new DetectorClass(this.ctx) as Detector;
+      } else {
+        // Attempt to find a built-in detector
+        const detector = await findBuiltInDetector(this.ctx, config.className);
+        if (!detector) {
+          throw new Error(`Built-in detector ${config.className} not found`);
+        }
+        return detector;
+      }
+    });
     // Wait for all detectors to be initialized
     this.detectors = await Promise.all(detectorPromises);
   }

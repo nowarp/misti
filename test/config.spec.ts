@@ -10,7 +10,7 @@ describe("Config class", () => {
       { className: "ReadOnlyVariables" },
       { className: "ZeroAddress" },
     ],
-    ignored_projects: ["ignoredProject"],
+    ignoredProjects: ["ignoredProject"],
   });
 
   beforeEach(() => {
@@ -20,7 +20,7 @@ describe("Config class", () => {
   it("should load and parse config file correctly", () => {
     (fs.readFileSync as jest.Mock).mockReturnValue(MOCK_CONFIG_CONTENT);
     const configInstance = new MistiConfig({ configPath: MOCK_CONFIG_PATH });
-    expect(configInstance.detectorsEnabled).toEqual([
+    expect(configInstance.detectors).toEqual([
       { className: "ReadOnlyVariables" },
       { className: "ZeroAddress" },
     ]);

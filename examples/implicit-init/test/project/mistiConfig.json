@@ -5,7 +5,7 @@
       "className": "ImplicitInit"
     }
   ],
-  "ignored_projects": [],
+  "ignoredProjects": [],
   "unusedPrefix": "_",
   "verbosity": "quiet"
 }
