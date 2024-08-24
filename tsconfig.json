@@ -19,7 +19,6 @@
   ],
   "exclude": [
     "**/**.bind.ts",
-    "src/test/features/output/**/*",
-    "src/detectors/templates/"
+    "src/test/features/output/**/*"
   ]
 }

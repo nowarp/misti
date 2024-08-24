@@ -3,7 +3,7 @@ import path from "path";
 
 export const TEMPLATE_PATH = path.join(
   __dirname,
-  "detectors/templates/simple.ts",
+  "detectors/templates/simple.ts.template",
 );
 
 const capitalize = (s: string): string =>
