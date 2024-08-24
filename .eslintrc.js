@@ -6,6 +6,7 @@ module.exports = {
   extends: [
     "plugin:@typescript-eslint/recommended",
   ],
+  ignorePatterns: ["src/detectors/templates"],
   plugins: [
     "@typescript-eslint",
   ],

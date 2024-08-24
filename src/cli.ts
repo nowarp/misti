@@ -1,6 +1,7 @@
 import { Runner, MistiResult } from "./driver";
 import { MISTI_VERSION, TACT_VERSION } from "./version";
 import { Command } from "commander";
+import { createDetector } from "./createDetector";
 
 /**
  * A runner object used for this execution.
@@ -18,7 +19,7 @@ export function createMistiCommand(): Command {
     .name("misti")
     .description("TON Static Analyzer")
     .version(`${MISTI_VERSION}\n\nSupported Tact version: ${TACT_VERSION}`)
-    .arguments("<TACT_CONFIG_PATH|TACT_FILE_PATH>")
+    .arguments("[TACT_CONFIG_PATH|TACT_FILE_PATH]")
     .option(
       "--dump-cfg <type>",
       "Dump CFG in format: 'json' or 'dot'",
@@ -57,7 +58,21 @@ export function createMistiCommand(): Command {
       false,
     )
     .option("--config <path>", "Path to Misti configuration file")
+    .option(
+      "--new-detector <path>",
+      "Creates a new custom detector.",
+      undefined,
+    )
     .action(async (PROJECT_CONFIG_OR_FILE_PATH, options) => {
+      if (options.newDetector) {
+        createDetector(options.newDetector);
+        return;
+      }
+
+      if (!PROJECT_CONFIG_OR_FILE_PATH) {
+        throw new Error("`<TACT_CONFIG_PATH|TACT_FILE_PATH>` is required");
+      }
+
       try {
         RUNNER = await Runner.make(PROJECT_CONFIG_OR_FILE_PATH, options);
         await RUNNER.run();
@@ -65,6 +80,7 @@ export function createMistiCommand(): Command {
         throw new Error(`An error occurred: ${error}`);
       }
     });
+
   return command;
 }
 
@@ -72,23 +88,26 @@ export function createMistiCommand(): Command {
  * Runs the Misti CLI command with the provided arguments.
  * @param The list of arguments to pass to the CLI command.
  */
-export async function runMistiCommand(args: string[]): Promise<MistiResult> {
+export async function runMistiCommand(
+  args: string[],
+): Promise<MistiResult | undefined> {
   const command = createMistiCommand();
   if (args.length === 0) {
     command.help();
     throw new Error("No arguments provided. Help displayed.");
   } else {
     await command.parseAsync(args, { from: "user" });
-    return RUNNER!.getResult();
+    return RUNNER === undefined ? undefined : RUNNER!.getResult();
   }
 }
 
 /** Reports errors found by Misti. */
-export function report(result: MistiResult) {
-  if (RUNNER === undefined) {
-    throw new Error("Misti hasn't been executed");
-  }
-  if (result.output !== undefined) {
+export function report(result?: MistiResult) {
+  if (
+    RUNNER !== undefined &&
+    result !== undefined &&
+    result.output !== undefined
+  ) {
     // Use the configured logger to report the found errors
     RUNNER.getDriver().ctx.logger.error(result.output);
   }

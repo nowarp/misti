@@ -111,5 +111,5 @@ export function resetIds(): void {
  */
 export async function executeMisti(args: string[]): Promise<string> {
   const result = await runMistiCommand(args);
-  return result.output ?? "";
+  return result?.output ?? "";
 }
