@@ -36,7 +36,13 @@ export async function createDetector(params: {
       capitalize(params.className),
     );
     await fs.outputFile(filepath, content);
-    console.log(`Created ${filepath}`);
+    console.log(
+      [
+        `Created ${filepath}\n`,
+        "Now you can add your detector to the configuration file and execute it. ",
+        "See: https://nowarp.github.io/tools/misti/docs/hacking/custom-detector.",
+      ].join(""),
+    );
     return true;
   } catch (error) {
     console.error("Error creating detector:", error);
