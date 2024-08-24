@@ -59,13 +59,13 @@ export function createMistiCommand(): Command {
     )
     .option("--config <path>", "Path to Misti configuration file")
     .option(
-      "--new-detector <name>",
+      "--new-detector <path>",
       "Creates a new custom detector.",
       undefined,
     )
     .action(async (PROJECT_CONFIG_OR_FILE_PATH, options) => {
       if (options.newDetector) {
-        createDetector({ className: options.newDetector });
+        createDetector(options.newDetector);
         return;
       }
 
