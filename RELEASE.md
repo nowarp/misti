@@ -7,7 +7,6 @@
 - [ ] Prepare [documentation](https://github.com/nowarp/nowarp.github.io/):
   - [ ] Update the supported Tact version in the introduction page
   - [ ] Check whether `configuration.md` is updated according to `configSchema.json`
-  - [ ] Check whether `detectors.md` and `sidebars.ts` are updated according to added detectors
   - [ ] Check if examples are updated according to API changes
   - [ ] Ensure that funding information is actual
   - [ ] Run: `yarn spell && yarn build` from the `nowarp.github.io` directory to ensure there are no errors
