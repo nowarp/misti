@@ -52,6 +52,10 @@ export async function createDetector(nameOrPath: string): Promise<boolean> {
     return false;
   }
   const filepath = path.join(dir, `${detectorName}.ts`);
+  if (await fs.pathExists(filepath)) {
+    console.error(`File already exists at ${filepath}`);
+    return false;
+  }
   try {
     const templateContent = await fs.readFile(TEMPLATE_PATH, "utf8");
     const content = templateContent.replace(
