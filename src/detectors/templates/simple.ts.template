@@ -1,6 +1,6 @@
 import { Detector } from "@nowarp/misti/dist/detectors/detector";
 import { CompilationUnit } from "@nowarp/misti/dist/internals/ir";
-import { MistiTactWarning } from "@nowarp/misti/dist/internals/errors";
+import { MistiTactWarning } from "@nowarp/misti/dist/internals/warnings";
 
 /**
  * __ClassName__ identifies some kind of issues in Tact contracts.

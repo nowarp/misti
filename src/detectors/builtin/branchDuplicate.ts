@@ -1,6 +1,6 @@
 import { Detector } from "../detector";
 import { CompilationUnit } from "../../internals/ir";
-import { MistiTactWarning, Severity } from "../../internals/errors";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { foldExpressions, foldStatements } from "../../internals/tactASTUtil";
 import {
   AstExpression,
@@ -139,7 +139,7 @@ export class BranchDuplicate extends Detector {
   }
 
   private createWarning(loc: SrcInfo): MistiTactWarning {
-    return this.makeError(
+    return this.makeWarning(
       "Duplicated code in conditional branches detected",
       Severity.HIGH,
       loc,

@@ -1,6 +1,6 @@
 import { Detector } from "../detector";
 import { CompilationUnit } from "../../internals/ir";
-import { MistiTactWarning, Severity } from "../../internals/errors";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
 import {
   AstContract,
   AstContractInit,
@@ -74,10 +74,15 @@ export class FieldDoubleInit extends Detector {
         initializedInDecl.has(stmt.path.field.text)
       ) {
         acc.push(
-          this.makeError("Field Initialized Twice", Severity.MEDIUM, stmt.loc, {
-            suggestion:
-              "Consider initializing the field only in its declaration or in the `init` function",
-          }),
+          this.makeWarning(
+            "Field Initialized Twice",
+            Severity.MEDIUM,
+            stmt.loc,
+            {
+              suggestion:
+                "Consider initializing the field only in its declaration or in the `init` function",
+            },
+          ),
         );
       }
       return acc;

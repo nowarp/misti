@@ -9,7 +9,7 @@ import {
 } from "../../internals/souffle";
 import { Detector } from "../detector";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
-import { MistiTactWarning, Severity } from "../../internals/errors";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
 import {
   forEachExpression,
   forEachStatement,
@@ -61,7 +61,7 @@ export class DivideBeforeMultiply extends Detector {
       if (fact.data === undefined) {
         throw new Error(`AST position for fact ${fact} is not available`);
       }
-      return this.makeError(
+      return this.makeWarning(
         "Divide Before Multiply",
         Severity.HIGH,
         fact.data,

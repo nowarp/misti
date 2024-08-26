@@ -1,6 +1,6 @@
 import { Detector } from "../detector";
 import { CompilationUnit } from "../../internals/ir";
-import { MistiTactWarning, Severity } from "../../internals/errors";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { foldExpressions } from "../../internals/tactASTUtil";
 import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
 
@@ -49,7 +49,7 @@ export class DumpIsUsed extends Detector {
   ): MistiTactWarning[] {
     if (expr.kind === "static_call" && expr.function.text === "dump") {
       acc.push(
-        this.makeError("Found Dump Usage", Severity.INFO, expr.loc, {
+        this.makeWarning("Found Dump Usage", Severity.INFO, expr.loc, {
           suggestion:
             "Using `dump` in production code can sometimes indicate complex code that requires additional review",
         }),

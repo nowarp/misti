@@ -15,6 +15,6 @@ describe("ImplicitInit Detector Tests", () => {
     expect(driver.detectors[0].id).toBe("ImplicitInit");
 
     const result = await driver.execute();
-    expect(result.errorsFound).toBe(1);
+    expect(result.warningsFound).toBe(1);
   });
 });

@@ -1,6 +1,6 @@
 import { MistiContext } from "../internals/context";
 import { CompilationUnit } from "../internals/ir";
-import { makeDocURL, MistiTactWarning, Severity } from "../internals/errors";
+import { makeDocURL, MistiTactWarning, Severity } from "../internals/warnings";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import {
   Context as SouffleContext,
@@ -70,9 +70,9 @@ export abstract class Detector {
     >((acc, facts) => {
       return acc.concat(
         facts.reduce<MistiTactWarning[]>((innerAcc, fact) => {
-          const error = callback(fact);
-          if (error) {
-            innerAcc.push(error);
+          const warning = callback(fact);
+          if (warning) {
+            innerAcc.push(warning);
           }
           return innerAcc;
         }, []),
@@ -83,7 +83,7 @@ export abstract class Detector {
   /**
    * Executes the detector's logic to check for issues within the provided compilation unit.
    * @param cu The compilation unit to be analyzed.
-   * @returns List of errors has highlighted by this detector.
+   * @returns List of warnings has highlighted by this detector.
    */
   abstract check(cu: CompilationUnit): MistiTactWarning[];
 
@@ -96,10 +96,10 @@ export abstract class Detector {
   }
 
   /**
-   * A wrapper method that creates Misti errors with additional context about
+   * A wrapper method that creates Misti warnings with additional context about
    * the detector generated it.
    */
-  protected makeError(
+  protected makeWarning(
     description: string,
     severity: Severity,
     loc: SrcInfo,

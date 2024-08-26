@@ -14,7 +14,7 @@ import {
   makeRuleBody,
   makeAtom,
 } from "../../internals/souffle";
-import { MistiTactWarning, Severity } from "../../internals/errors";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { extractPath, forEachExpression } from "../../internals/tactASTUtil";
 
 /**
@@ -62,9 +62,14 @@ export class ReadOnlyVariables extends Detector {
       if (this.skipUnused(fact.data.contents)) {
         return undefined;
       }
-      return this.makeError("Read-only variable", Severity.MEDIUM, fact.data, {
-        suggestion: "Consider creating a constant instead",
-      });
+      return this.makeWarning(
+        "Read-only variable",
+        Severity.MEDIUM,
+        fact.data,
+        {
+          suggestion: "Consider creating a constant instead",
+        },
+      );
     });
   }
 

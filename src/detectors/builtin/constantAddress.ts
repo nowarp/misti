@@ -1,6 +1,6 @@
 import { Detector } from "../detector";
 import { CompilationUnit } from "../../internals/ir";
-import { MistiTactWarning, Severity } from "../../internals/errors";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { foldExpressions } from "../../internals/tactASTUtil";
 import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
 
@@ -58,7 +58,7 @@ export class ConstantAddress extends Detector {
         expr.args[0].kind === "string"
       ) {
         acc.push(
-          this.makeError("Found Constant Address", Severity.INFO, expr.loc, {
+          this.makeWarning("Found Constant Address", Severity.INFO, expr.loc, {
             suggestion:
               "Using hardcoded addresses can sometimes indicate poor contract design",
           }),

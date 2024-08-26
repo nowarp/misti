@@ -1,6 +1,6 @@
 import { Detector } from "../detector";
 import { CompilationUnit } from "../../internals/ir";
-import { MistiTactWarning, Severity } from "../../internals/errors";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { foldStatements } from "../../internals/tactASTUtil";
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 import {
@@ -85,9 +85,14 @@ export class PreferAugmentedAssign extends Detector {
         : prettyPrint(stmt.expression.left);
       const suggestedChange = `${prettyPrint(stmt.path)} ${stmt.expression.op}= ${suggestedRhs}`;
       acc.push(
-        this.makeError("Prefer Augmented Assignment", Severity.LOW, stmt.loc, {
-          suggestion: `Consider using augmented assignment instead: ${suggestedChange}`,
-        }),
+        this.makeWarning(
+          "Prefer Augmented Assignment",
+          Severity.LOW,
+          stmt.loc,
+          {
+            suggestion: `Consider using augmented assignment instead: ${suggestedChange}`,
+          },
+        ),
       );
     }
     return acc;

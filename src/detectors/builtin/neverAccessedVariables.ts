@@ -5,7 +5,7 @@ import { InternalException } from "../../internals/exceptions";
 import { JoinSemilattice } from "../../internals/lattice";
 import { MistiContext } from "../../internals/context";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
-import { MistiTactWarning, Severity } from "../../internals/errors";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
 import {
   extractPath,
   SrcInfoSet,
@@ -197,9 +197,14 @@ export class NeverAccessedVariables extends Detector {
       if (this.skipUnused(name)) {
         return acc;
       }
-      const err = this.makeError("Field is never used", Severity.MEDIUM, ref, {
-        suggestion: "Consider creating a constant instead of field",
-      });
+      const err = this.makeWarning(
+        "Field is never used",
+        Severity.MEDIUM,
+        ref,
+        {
+          suggestion: "Consider creating a constant instead of field",
+        },
+      );
       acc.push(err);
       return acc;
     }, [] as MistiTactWarning[]);
@@ -298,7 +303,7 @@ export class NeverAccessedVariables extends Detector {
       if (this.skipUnused(name)) {
         return acc;
       }
-      const err = this.makeError(
+      const err = this.makeWarning(
         "Constant is never used",
         Severity.MEDIUM,
         ref,
@@ -379,9 +384,14 @@ export class NeverAccessedVariables extends Detector {
             ? "The variable value should be accessed"
             : "Consider removing the variable";
           errors.push(
-            this.makeError(msg, Severity.MEDIUM, declaredVariables.get(name)!, {
-              suggestion,
-            }),
+            this.makeWarning(
+              msg,
+              Severity.MEDIUM,
+              declaredVariables.get(name)!,
+              {
+                suggestion,
+              },
+            ),
           );
         }
       });

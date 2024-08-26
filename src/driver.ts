@@ -4,7 +4,7 @@ import { tryMsg, InternalException } from "./internals/exceptions";
 import { createIR } from "./internals/tactIRBuilder";
 import { GraphvizDumper, JSONDumper } from "./internals/irDump";
 import { ProjectName, CompilationUnit } from "./internals/ir";
-import { MistiTactWarning } from "./internals/errors";
+import { MistiTactWarning } from "./internals/warnings";
 import { Detector, findBuiltInDetector } from "./detectors/detector";
 
 import path from "path";
@@ -12,12 +12,12 @@ import fs from "fs";
 
 export interface MistiResult {
   /**
-   * Number of errors reported.
+   * Number of warnings reported.
    */
-  errorsFound: number;
+  warningsFound: number;
   /**
-   * A string representing the output of Misti. It could be an error report or the requested
-   * information, e.g., the results of executing internal tools.
+   * A string representing the output of Misti. It could be an warning report or
+   * the requested information, e.g., the results of executing internal tools.
    */
   output?: string;
   /**
@@ -174,8 +174,8 @@ export class Driver {
   }
 
   /**
-   * Executes checks on all compilation units and reports found errors sorted by severity.
-   * @returns True if any errors were found, otherwise false.
+   * Executes checks on all compilation units and reports found warnings sorted by severity.
+   * @returns True if any warnings were found, otherwise false.
    */
   public async execute(): Promise<MistiResult> {
     const cus: Map<ProjectName, CompilationUnit> = createIR(
@@ -184,11 +184,11 @@ export class Driver {
     );
     if (this.dumpCFG !== undefined) {
       const output = await this.getCFGDump(cus);
-      return { errorsFound: 0, output };
+      return { warningsFound: 0, output };
     }
     if (this.dumpConfig === true) {
       const output = this.getConfigDump();
-      return { errorsFound: 0, output };
+      return { warningsFound: 0, output };
     }
 
     const allWarnings = Array.from(cus.entries()).reduce(
@@ -203,7 +203,7 @@ export class Driver {
       allWarnings,
     );
     const reported = new Set<string>();
-    const collectedErrors: MistiTactWarning[] = Array.from(
+    const collectedWarnings: MistiTactWarning[] = Array.from(
       filteredWarnings.values(),
     ).reduce((acc: MistiTactWarning[], detectorsMap) => {
       const projectWarnings: MistiTactWarning[] = Array.from(
@@ -218,14 +218,14 @@ export class Driver {
       });
       return acc;
     }, []);
-    const formattedErrors = collectedErrors.reduce((acc, err, index) => {
-      const isLastWarning = index === collectedErrors.length - 1;
+    const formattedWarnings = collectedWarnings.reduce((acc, err, index) => {
+      const isLastWarning = index === collectedWarnings.length - 1;
       acc.push(this.formatWarning(err, !isLastWarning));
       return acc;
     }, [] as string[]);
     return {
-      errorsFound: formattedErrors.length,
-      output: formattedErrors.join("\n"),
+      warningsFound: formattedWarnings.length,
+      output: formattedWarnings.join("\n"),
     };
   }
 
@@ -253,39 +253,39 @@ export class Driver {
     }
 
     // A mapping from warning messages to projects it has been reported.
-    const errorsMap = new Map<string, ProjectName[]>();
-    allWarnings.forEach((errors, projectName) => {
-      errors.forEach((error) => {
-        if (!errorsMap.has(error.msg)) {
-          errorsMap.set(error.msg, []);
+    const warningsMap = new Map<string, ProjectName[]>();
+    allWarnings.forEach((warnings, projectName) => {
+      warnings.forEach((warning) => {
+        if (!warningsMap.has(warning.msg)) {
+          warningsMap.set(warning.msg, []);
         }
-        errorsMap.get(error.msg)!.push(projectName);
+        warningsMap.get(warning.msg)!.push(projectName);
       });
     });
 
     const filteredWarnings: Map<ProjectName, MistiTactWarning[]> = new Map();
-    for (const [projectName, errors] of allWarnings) {
-      const projectErrors: MistiTactWarning[] = [];
-      for (const error of errors) {
+    for (const [projectName, warnings] of allWarnings) {
+      const projectWarnings: MistiTactWarning[] = [];
+      for (const warn of warnings) {
         const behavior = this.findDetector(
-          error.detectorId,
+          warn.detectorId,
         ).shareImportedWarnings;
         switch (behavior) {
           case "intersect":
             // The warning must be raised in all the projects.
-            const projects = errorsMap.get(error.msg)!;
+            const projects = warningsMap.get(warn.msg)!;
             if (
               new Set(allProjectNames).size === new Set(projects).size &&
               [...new Set(allProjectNames)].every((value) =>
                 new Set(projects).has(value),
               )
             ) {
-              projectErrors.push(error);
+              projectWarnings.push(warn);
             }
             break;
           case "union":
             // Add everything
-            projectErrors.push(error);
+            projectWarnings.push(warn);
             break;
           default:
             throw InternalException.make(
@@ -293,7 +293,7 @@ export class Driver {
             );
         }
       }
-      filteredWarnings.set(projectName, projectErrors);
+      filteredWarnings.set(projectName, projectWarnings);
     }
 
     return filteredWarnings;
@@ -302,14 +302,14 @@ export class Driver {
   /**
    * Returns string representation of the warning.
    */
-  private formatWarning(error: MistiTactWarning, addNewline: boolean): string {
-    return `${error.message}${addNewline && !error.message.endsWith("\n") ? "\n" : ""}`;
+  private formatWarning(warn: MistiTactWarning, addNewline: boolean): string {
+    return `${warn.msg}${addNewline && !warn.msg.endsWith("\n") ? "\n" : ""}`;
   }
 
   /**
-   * Executes all detectors on a given compilation unit and collects any errors found.
+   * Executes all detectors on a given compilation unit and collects any warnings found.
    * @param cu The compilation unit to check.
-   * @returns Errors generated by each of detectors.
+   * @returns Warnings generated by each of detectors.
    */
   private checkCU(cu: CompilationUnit): MistiTactWarning[] {
     return this.detectors
@@ -317,11 +317,11 @@ export class Driver {
         this.ctx.logger.debug(
           `${cu.projectName}: Running ${detector.constructor.name}`,
         );
-        const errors = detector.check(cu);
+        const warnings = detector.check(cu);
         this.ctx.logger.debug(
           `${cu.projectName}: Finished ${detector.constructor.name} `,
         );
-        return errors;
+        return warnings;
       })
       .flat();
   }
@@ -412,7 +412,7 @@ export class Runner {
       }
       const error = result.join("\n");
       new Logger().error(error);
-      this.result = { errorsFound: 0, error };
+      this.result = { warningsFound: 0, error };
     }
   }
 

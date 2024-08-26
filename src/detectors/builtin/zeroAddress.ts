@@ -1,6 +1,6 @@
 import { Detector } from "../detector";
 import { CompilationUnit } from "../../internals/ir";
-import { MistiTactWarning, Severity } from "../../internals/errors";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { foldExpressions } from "../../internals/tactASTUtil";
 import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
 
@@ -64,7 +64,7 @@ export class ZeroAddress extends Detector {
         expr.args[1].value === 0n
       ) {
         acc.push(
-          this.makeError(
+          this.makeWarning(
             "Using Zero Address",
             Severity.MEDIUM,
             expr.args[1].loc,

@@ -9,7 +9,7 @@ import {
 } from "../../internals/souffle";
 import { Detector } from "../detector";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
-import { MistiTactWarning, Severity } from "../../internals/errors";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
 import {
   extractPath,
   forEachExpression,
@@ -60,7 +60,7 @@ export class UnboundLoops extends Detector {
       if (fact.data === undefined) {
         throw new Error(`AST position for fact ${fact} is not available`);
       }
-      return this.makeError("Unbounded Loop", Severity.MEDIUM, fact.data, {
+      return this.makeWarning("Unbounded Loop", Severity.MEDIUM, fact.data, {
         suggestion:
           "Consider changing the variable within the loop to ensure it terminates",
         extraDescription:

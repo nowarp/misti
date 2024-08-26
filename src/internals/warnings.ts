@@ -22,7 +22,7 @@ export const BASE_DOC_URL =
 /**
  * Misti warning that highlights a specific place in a Tact contract.
  */
-export class MistiTactWarning extends Error {
+export class MistiTactWarning {
   /**
    * @param detectorId Unique identifier of the detector raised that warning.
    */
@@ -32,7 +32,6 @@ export class MistiTactWarning extends Error {
     public readonly loc: SrcInfo,
     public readonly severity: Severity,
   ) {
-    super(msg);
     this.loc = loc;
   }
 
@@ -47,7 +46,7 @@ export class MistiTactWarning extends Error {
    * - `extraDescription`: More comprehensive description that clarifies the warning in greater detail.
    * - `docURL`: URL to the detector documentation.
    * - `suggestion`: Suggested change in the source code.
-   * @returns A new MistiTactError containing the warning message and source code reference.
+   * @returns A new MistiTactWarning containing the warning message and source code reference.
    */
   public static make(
     ctx: MistiContext,
