@@ -101,6 +101,14 @@ export async function runMistiCommand(
   }
 }
 
+/**
+ * Executes Misti with the given options capturing output.
+ */
+export async function executeMisti(args: string[]): Promise<string> {
+  const result = await runMistiCommand(args);
+  return result?.output ?? "";
+}
+
 /** Reports errors found by Misti. */
 export function report(result?: MistiResult) {
   if (

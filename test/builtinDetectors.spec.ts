@@ -6,8 +6,8 @@ import {
   GOOD_DIR,
   TACT_CONFIG_NAME,
   resetIds,
-  executeMisti,
 } from "./testUtil";
+import { executeMisti } from "../src/cli";
 import fs from "fs";
 import path from "path";
 

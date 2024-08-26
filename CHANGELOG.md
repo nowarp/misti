@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Benchmark for `executeMisti --all-detectors`
 - Public API to handle Tact stdlib paths
 - Detector templates and the `--new-detector` CLI option: PR [#105](https://github.com/nowarp/misti/pull/105)
 - A script to generate detectors documentation: `./scripts/generateDetectorDocs.ts`
