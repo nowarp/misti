@@ -40,6 +40,8 @@ jobs:
 
     - name: Check broken links
       uses: lycheeverse/lychee-action@v1
+      with:
+        args: --no-output
 
     - name: Spellcheck code base
       run: |
