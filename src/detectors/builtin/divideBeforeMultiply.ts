@@ -7,7 +7,7 @@ import {
   makeRuleBody,
   Rule,
 } from "../../internals/souffle";
-import { Detector } from "../detector";
+import { SouffleDetector } from "../detector";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import {
@@ -51,7 +51,7 @@ import {
  * let result: Int = a * c / b;
  * ```
  */
-export class DivideBeforeMultiply extends Detector {
+export class DivideBeforeMultiply extends SouffleDetector {
   check(cu: CompilationUnit): MistiTactWarning[] {
     const program = new Context<SrcInfo>(this.id);
     this.addDecls(program);

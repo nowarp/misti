@@ -3,7 +3,7 @@ import {
   SrcInfo,
   AstExpression,
 } from "@tact-lang/compiler/dist/grammar/ast";
-import { Detector, WarningsBehavior } from "../detector";
+import { SouffleDetector, WarningsBehavior } from "../detector";
 import { CompilationUnit, Node, CFG } from "../../internals/ir";
 import {
   Context,
@@ -43,7 +43,7 @@ import { extractPath, forEachExpression } from "../../internals/tactASTUtil";
  * }
  * ```
  */
-export class ReadOnlyVariables extends Detector {
+export class ReadOnlyVariables extends SouffleDetector {
   get shareImportedWarnings(): WarningsBehavior {
     // Read-only constants/fields from imported files will be reported iff they
     // are reported in each of the projects (CompilationUnit).

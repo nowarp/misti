@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Allow running Misti without Souffle installation: Issue [#45](https://github.com/nowarp/misti/issues/45)
 - `--souffle-binary` CLI option
 - Benchmark for `executeMisti --all-detectors`
 - Public API to handle Tact stdlib paths

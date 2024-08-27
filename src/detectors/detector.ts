@@ -45,39 +45,10 @@ export abstract class Detector {
   }
 
   /**
-   * Executes Souffle program for this detector converting output facts to warnings.
-   * @param program Souffle context with all the declarations, rules and facts added.
-   * @param callback A function that creates warnings from output facts.
+   * Checks whether this detector needs Soufflé to be executed.
    */
-  protected executeSouffle(
-    program: SouffleContext<SrcInfo>,
-    callback: (fact: Fact<FactValue, SrcInfo>) => MistiTactWarning | undefined,
-  ): MistiTactWarning[] {
-    const executor = this.ctx.config.soufflePath
-      ? new Executor<SrcInfo>({
-          inputDir: this.ctx.config.soufflePath,
-          outputDir: this.ctx.config.soufflePath,
-        })
-      : new Executor<SrcInfo>();
-    const result = executor.executeSync(program);
-    if (!result.success) {
-      throw new Error(
-        `Error executing Soufflé for ${this.id}:\n${result.stderr}`,
-      );
-    }
-    return Array.from(result.results.entries.values()).reduce<
-      MistiTactWarning[]
-    >((acc, facts) => {
-      return acc.concat(
-        facts.reduce<MistiTactWarning[]>((innerAcc, fact) => {
-          const warning = callback(fact);
-          if (warning) {
-            innerAcc.push(warning);
-          }
-          return innerAcc;
-        }, []),
-      );
-    }, []);
+  public get usesSouffle(): boolean {
+    return this instanceof SouffleDetector;
   }
 
   /**
@@ -119,6 +90,44 @@ export abstract class Detector {
         docURL: makeDocURL(this.id),
       },
     );
+  }
+}
+
+export abstract class SouffleDetector extends Detector {
+  /**
+   * Executes Souffle program for this detector converting output facts to warnings.
+   * @param program Souffle context with all the declarations, rules and facts added.
+   * @param callback A function that creates warnings from output facts.
+   */
+  protected executeSouffle(
+    program: SouffleContext<SrcInfo>,
+    callback: (fact: Fact<FactValue, SrcInfo>) => MistiTactWarning | undefined,
+  ): MistiTactWarning[] {
+    const executor = this.ctx.config.soufflePath
+      ? new Executor<SrcInfo>({
+          inputDir: this.ctx.config.soufflePath,
+          outputDir: this.ctx.config.soufflePath,
+        })
+      : new Executor<SrcInfo>();
+    const result = executor.executeSync(program);
+    if (!result.success) {
+      throw new Error(
+        `Error executing Soufflé for ${this.id}:\n${result.stderr}`,
+      );
+    }
+    return Array.from(result.results.entries.values()).reduce<
+      MistiTactWarning[]
+    >((acc, facts) => {
+      return acc.concat(
+        facts.reduce<MistiTactWarning[]>((innerAcc, fact) => {
+          const warning = callback(fact);
+          if (warning) {
+            innerAcc.push(warning);
+          }
+          return innerAcc;
+        }, []),
+      );
+    }, []);
   }
 }
 
