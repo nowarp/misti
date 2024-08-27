@@ -7,6 +7,8 @@ import { MistiConfig } from "./config";
 export class MistiContext {
   logger: Logger;
   config: MistiConfig;
+  /** Indicates whether a Souffle binary is available. */
+  readonly souffleAvailable: boolean;
   /** Path to a single Tact contract if executed without project config. */
   readonly singleContractPath: string | undefined;
 
@@ -20,6 +22,7 @@ export class MistiContext {
    *   - quiet: CLI option to forcefully suppress output.
    *   - quiet: CLI option to forcefully activate all the available built-in detectors.
    *   - singleContractPath: Contains path to a single contract if executed without project configuration.
+   *   - souffleAvailable: Indicates whether a Souffle binary is available..
    */
   constructor(
     params: Partial<{
@@ -30,6 +33,7 @@ export class MistiContext {
       quiet?: boolean;
       allDetectors?: boolean;
       singleContractPath?: string;
+      souffleAvailable?: boolean;
     }> = {},
   ) {
     const {
@@ -40,8 +44,10 @@ export class MistiContext {
       quiet = false,
       allDetectors = false,
       singleContractPath: singleContractPath,
+      souffleAvailable = false,
     } = params;
     this.singleContractPath = singleContractPath;
+    this.souffleAvailable = souffleAvailable;
     this.config = new MistiConfig({
       allDetectors,
       configPath: mistiConfigPath,

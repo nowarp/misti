@@ -6,7 +6,7 @@ import { GraphvizDumper, JSONDumper } from "./internals/irDump";
 import { ProjectName, CompilationUnit } from "./internals/ir";
 import { MistiTactWarning } from "./internals/warnings";
 import { Detector, findBuiltInDetector } from "./detectors/detector";
-
+import { execSync } from "child_process";
 import path from "path";
 import fs from "fs";
 
@@ -44,6 +44,7 @@ export class Driver {
     dumpCFGStdlib?: boolean,
     dumpCFGOutput?: string,
     dumpConfig?: boolean,
+    souffleBinary?: string,
     soufflePath?: string,
     tactStdlibPath?: string,
     verbose?: boolean,
@@ -63,6 +64,7 @@ export class Driver {
     this.tactConfigPath = singleContract
       ? SingleContractProjectManager.fromContractPath(tactPath).generate()
       : path.resolve(tactPath); // Tact supports absolute paths only
+    // Detect if there is valid Souffle installation.
     this.ctx = new MistiContext({
       mistiConfigPath,
       soufflePath,
@@ -71,6 +73,9 @@ export class Driver {
       quiet,
       allDetectors,
       singleContractPath: singleContract ? tactPath : undefined,
+      souffleAvailable: this.checkSouffleInstallation(
+        souffleBinary ?? "souffle",
+      ),
     });
     this.dumpCFG = dumpCFG;
     this.dumpCFGStdlib = dumpCFGStdlib ? dumpCFGStdlib : false;
@@ -92,6 +97,7 @@ export class Driver {
       options.dumpCfgStdlib,
       options.dumpCfgOutput,
       options.dumpConfig,
+      options.souffleBinary,
       options.soufflePath,
       options.tactStdlibPath,
       options.verbose,
@@ -101,6 +107,18 @@ export class Driver {
     );
     await driver.initializeDetectors();
     return driver;
+  }
+
+  /**
+   * Checks whether the Souffle binary is available.
+   */
+  private checkSouffleInstallation(souffleBinary: string): boolean {
+    try {
+      execSync(`${souffleBinary} --version`);
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   /**
@@ -347,6 +365,8 @@ interface CLIOptions {
    * stdout is used. If `undefined`, no dumps will be generated.
    */
   soufflePath?: string;
+  /** Path to Souffle binary. */
+  souffleBinary?: string;
   /***
    * Path to Tact standard library. If not set, the default stdlib from the actual Tact setup will be used.
    */
@@ -381,6 +401,7 @@ export class Runner {
       dumpCfgStdlib: false,
       dumpCfgOutput: DUMP_STDOUT_PATH,
       dumpConfig: undefined,
+      souffleBinary: undefined,
       soufflePath: undefined,
       tactStdlibPath: undefined,
       verbose: false,
