@@ -38,6 +38,9 @@ jobs:
         sudo apt update
         sudo apt install souffle
 
+    - name: Check broken links
+      uses: lycheeverse/lychee-action@v1
+
     - name: Spellcheck code base
       run: |
         yarn spell
