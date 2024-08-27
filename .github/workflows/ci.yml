@@ -42,6 +42,7 @@ jobs:
       uses: lycheeverse/lychee-action@v1
       with:
         args: --no-output
+        fail: true
 
     - name: Spellcheck code base
       run: |
