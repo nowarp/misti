@@ -156,7 +156,11 @@ export class Driver {
         // Dynamic import for external detectors
         let module;
         try {
-          module = await import(config.modulePath);
+          const absolutePath = path.resolve(config.modulePath);
+          const relativePath = path.relative(__dirname, absolutePath);
+          module = await import(
+            relativePath.replace(path.extname(relativePath), "")
+          );
         } catch (error) {
           console.error(`Failed to import module: ${config.modulePath}`);
           console.error(error);

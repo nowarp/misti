@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Adjust option names in Config and JSONSchema
+- Paths to custom detectors: Fix support for absolute paths and allow developers to specify the `.ts` extension to ensure it works exactly as described in the documentation: https://nowarp.github.io/tools/misti/docs/next/hacking/custom-detector/
 
 ## [0.2.2] - 2024-08-22
 
