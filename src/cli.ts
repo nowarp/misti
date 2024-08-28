@@ -58,8 +58,30 @@ export function createMistiCommand(): Command {
     .option("--verbose", "Enable verbose output.", false)
     .option("--quiet", "Suppress output.", false)
     .option(
+      "--detectors <name|path:name>",
+      [
+        "A comma-separated list of detectors to enable.",
+        "If set, these detectors will override those specified in the configuration file.",
+        "Format: `<name>` for built-in detectors (e.g., `ReadOnlyVariables`), and `<path:name>` for custom detectors (e.g., `./examples/implicit-init/implicitInit.ts:ImplicitInit`).",
+      ].join(" "),
+      (value) => {
+        const detectors = value
+          .split(",")
+          .filter((detector) => detector.trim() !== "");
+        if (detectors.length === 0) {
+          throw new Error(
+            "The --detectors option requires a non-empty list of detector names.",
+          );
+        }
+        return detectors;
+      },
+    )
+    .option(
       "--all-detectors",
-      "Enable all the available built-in detectors.",
+      [
+        "Enable all the available built-in detectors.",
+        "If set, this option will override those detectors specified in the configuration file.",
+      ].join(" "),
       false,
     )
     .option("--config <path>", "Path to Misti configuration file")

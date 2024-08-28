@@ -49,6 +49,7 @@ export class Driver {
     tactStdlibPath?: string,
     verbose?: boolean,
     quiet?: boolean,
+    detectors?: string[],
     allDetectors?: boolean,
     mistiConfigPath?: string,
   ) {
@@ -71,6 +72,7 @@ export class Driver {
       tactStdlibPath,
       verbose,
       quiet,
+      detectors,
       allDetectors,
       singleContractPath: singleContract ? tactPath : undefined,
       souffleAvailable: this.checkSouffleInstallation(
@@ -102,6 +104,7 @@ export class Driver {
       options.tactStdlibPath,
       options.verbose,
       options.quiet,
+      options.detectors,
       options.allDetectors,
       options.config,
     );
@@ -183,6 +186,9 @@ export class Driver {
     });
     // Wait for all detectors to be initialized
     this.detectors = await Promise.all(detectorPromises);
+    this.ctx.logger.debug(
+      `Enabled detectors (${this.detectors.length}): ${this.detectors.map((d) => d.id).join(", ")}`,
+    );
   }
 
   /**
@@ -404,6 +410,8 @@ interface CLIOptions {
   verbose?: boolean;
   /** Suppress driver's output. */
   quiet?: boolean;
+  /** Detectors to run that will override those specified in the configuration file if set. */
+  detectors?: string[];
   /** Enable all the available built-in detectors no matter if they are enabled in config. */
   allDetectors?: boolean;
   /** Optional path to the configuration file. If provided, the analyzer uses settings from this file. */
@@ -435,6 +443,7 @@ export class Runner {
       tactStdlibPath: undefined,
       verbose: false,
       quiet: false,
+      detectors: undefined,
       allDetectors: false,
       config: undefined,
     },
@@ -492,6 +501,11 @@ export class Runner {
   private static checkCLIOptions(options: CLIOptions) {
     if (options.verbose === true && options.quiet === true) {
       throw new Error(`Please choose only one option: --verbose or --quiet`);
+    }
+    if (options.allDetectors === true && options.detectors !== undefined) {
+      throw new Error(
+        `--detectors and --all-detectors cannot be used simultaneously`,
+      );
     }
   }
 }

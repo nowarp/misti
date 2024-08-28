@@ -35,9 +35,17 @@ export class MistiConfig {
   public verbosity: "quiet" | "debug" | "default";
 
   constructor(
-    params: Partial<{ configPath?: string; allDetectors: boolean }> = {},
+    params: Partial<{
+      configPath?: string;
+      detectors?: string[];
+      allDetectors: boolean;
+    }> = {},
   ) {
-    const { configPath = undefined, allDetectors = false } = params;
+    const {
+      configPath = undefined,
+      detectors = undefined,
+      allDetectors = false,
+    } = params;
     let configData;
     if (configPath) {
       try {
@@ -52,10 +60,17 @@ export class MistiConfig {
           throw err;
         }
       }
+      // Override detectors if `--detectors` is set
+      if (detectors !== undefined) {
+        configData = {
+          ...configData,
+          detectors: this.createDetectorConfigs(detectors, allDetectors),
+        };
+      }
     } else {
       // Use default detectors if no config file is provided
       configData = {
-        detectors: this.createDetectorsConfig(allDetectors),
+        detectors: this.createDetectorConfigs(detectors, allDetectors),
         ignoredProjects: [],
         soufflePath: undefined,
         tactStdlibPath: undefined,
@@ -82,7 +97,28 @@ export class MistiConfig {
     }
   }
 
-  private createDetectorsConfig(allDetectors: boolean): DetectorConfig[] {
+  private createDetectorConfigs(
+    detectors: string[] | undefined,
+    allDetectors: boolean,
+  ): DetectorConfig[] {
+    if (detectors !== undefined) {
+      const builtinDetectors = new Set(getAllDetectors());
+      return detectors.reduce<DetectorConfig[]>((acc, detector) => {
+        if (builtinDetectors.has(detector)) {
+          acc.push({ className: detector });
+        } else {
+          const parts = detector.split(":");
+          if (parts.length !== 2) {
+            throw new Error(
+              `Cannot find built-in or custom detector: ${detector}`,
+            );
+          }
+          const [modulePath, className] = parts;
+          acc.push({ className, modulePath });
+        }
+        return acc;
+      }, []);
+    }
     return (allDetectors ? getAllDetectors : getEnabledDetectors)().map(
       (name) => ({ className: name }),
     );

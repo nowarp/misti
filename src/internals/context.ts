@@ -21,6 +21,8 @@ export class MistiContext {
    *   - verbose: CLI option to force verbose output.
    *   - quiet: CLI option to forcefully suppress output.
    *   - quiet: CLI option to forcefully activate all the available built-in detectors.
+   *   - detectors: Detectors to run that will override those specified in the configuration file if set.
+   *   - allDetectors: Enable all the available built-in detectors no matter if they are enabled in config.
    *   - singleContractPath: Contains path to a single contract if executed without project configuration.
    *   - souffleAvailable: Indicates whether a Souffle binary is available..
    */
@@ -31,6 +33,7 @@ export class MistiContext {
       tactStdlibPath?: string;
       verbose?: boolean;
       quiet?: boolean;
+      detectors?: string[];
       allDetectors?: boolean;
       singleContractPath?: string;
       souffleAvailable?: boolean;
@@ -42,6 +45,7 @@ export class MistiContext {
       tactStdlibPath = undefined,
       verbose = false,
       quiet = false,
+      detectors = undefined,
       allDetectors = false,
       singleContractPath: singleContractPath,
       souffleAvailable = false,
@@ -49,6 +53,7 @@ export class MistiContext {
     this.singleContractPath = singleContractPath;
     this.souffleAvailable = souffleAvailable;
     this.config = new MistiConfig({
+      detectors,
       allDetectors,
       configPath: mistiConfigPath,
     });
