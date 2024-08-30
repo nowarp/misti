@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Allow running Misti without Souffle installation: Issue [#45](https://github.com/nowarp/misti/issues/45)
 - `--souffle-binary` CLI option
-- Benchmark for `executeMisti --all-detectors`
+- Benchmarks for executing detectors. Use e.g. `yarn benchmark ./test/good/sample-jetton.tact`.
 - Public API to handle Tact stdlib paths
 - Detector templates and the `--new-detector` CLI option: PR [#105](https://github.com/nowarp/misti/pull/105)
 - A script to generate detectors documentation: `./scripts/generateDetectorDocs.ts`
