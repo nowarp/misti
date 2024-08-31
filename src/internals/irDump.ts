@@ -1,4 +1,4 @@
-import { CompilationUnit, CFG, Node } from "./ir";
+import { CompilationUnit, CFG, BasicBlock } from "./ir";
 import { InternalException } from "./exceptions";
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 import { AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
@@ -46,11 +46,11 @@ export class GraphvizDumper {
    */
   private static connectFunctionCalls(cu: CompilationUnit): string {
     let output = "";
-    cu.forEachCFG(cu.ast, (cfg: CFG, node: Node, _: AstStatement) => {
-      if (node.kind.kind === "call") {
-        node.kind.callees.forEach((calleeIdx) => {
-          if (cfg.getNode(calleeIdx)) {
-            output += `"${node.idx}" -> "${calleeIdx}";\n`;
+    cu.forEachCFG(cu.ast, (cfg: CFG, bb: BasicBlock, _: AstStatement) => {
+      if (bb.kind.kind === "call") {
+        bb.kind.callees.forEach((calleeIdx) => {
+          if (cfg.getBasicBlock(calleeIdx)) {
+            output += `"${bb.idx}" -> "${calleeIdx}";\n`;
           }
         });
       }
@@ -75,7 +75,7 @@ export class GraphvizDumper {
       output += `        style=filled;\n`;
       output += `        color=lightgrey;\n`;
     }
-    cfg.forEachNode(cu.ast, (stmt, node) => {
+    cfg.forEachBasicBlock(cu.ast, (stmt, node) => {
       const color = node.isExit() ? ',style=filled,fillcolor="#66A7DB"' : "";
       output += `        "${prefix}_${node.idx}" [label="${this.ppSummary(stmt)}"${color}];\n`;
     });

@@ -4,7 +4,7 @@ import {
   AstExpression,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { SouffleDetector, WarningsBehavior } from "../detector";
-import { CompilationUnit, Node, CFG } from "../../internals/ir";
+import { CompilationUnit, BasicBlock, CFG } from "../../internals/ir";
 import {
   Context,
   Fact,
@@ -148,7 +148,7 @@ export class ReadOnlyVariables extends SouffleDetector {
         }
       });
     };
-    cu.forEachCFG(cu.ast, (cfg: CFG, _: Node, stmt: AstStatement) => {
+    cu.forEachCFG(cu.ast, (cfg: CFG, _: BasicBlock, stmt: AstStatement) => {
       if (cfg.origin === "stdlib") {
         return;
       }
