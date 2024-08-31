@@ -8,7 +8,7 @@ import {
   Rule,
 } from "../../internals/souffle";
 import { SouffleDetector } from "../detector";
-import { CompilationUnit, Node, CFG } from "../../internals/ir";
+import { CompilationUnit, BasicBlock, CFG } from "../../internals/ir";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import {
   forEachExpression,
@@ -312,7 +312,7 @@ export class DivideBeforeMultiply extends SouffleDetector {
    * @param ctx The Souffle program to which the facts are added.
    */
   private addConstraints(cu: CompilationUnit, ctx: Context<SrcInfo>): void {
-    cu.forEachCFG(cu.ast, (cfg: CFG, _: Node, stmt: AstStatement) => {
+    cu.forEachCFG(cu.ast, (cfg: CFG, _: BasicBlock, stmt: AstStatement) => {
       if (cfg.origin === "stdlib") {
         return;
       }

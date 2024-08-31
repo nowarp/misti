@@ -4,7 +4,7 @@ import { SouffleDetector, WarningsBehavior } from "../detector";
 import { InternalException } from "../../internals/exceptions";
 import { JoinSemilattice } from "../../internals/lattice";
 import { MistiContext } from "../../internals/context";
-import { CompilationUnit, Node, CFG } from "../../internals/ir";
+import { CompilationUnit, BasicBlock, CFG } from "../../internals/ir";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import {
   extractPath,
@@ -67,7 +67,7 @@ class VariableUsageLattice implements JoinSemilattice<VariableState> {
 class NeverAccessedTransfer implements Transfer<VariableState> {
   public transfer(
     inState: VariableState,
-    _node: Node,
+    _node: BasicBlock,
     stmt: AstStatement,
   ): VariableState {
     const outState = {
@@ -347,55 +347,64 @@ export class NeverAccessedVariables extends SouffleDetector {
   checkVariables(cu: CompilationUnit): MistiTactWarning[] {
     const errors: MistiTactWarning[] = [];
     const traversedFunctions = new Set<string>();
-    cu.forEachCFG(cu.ast, (cfg: CFG, _node: Node, _stmt: AstStatement) => {
-      if (cfg.origin === "stdlib" || traversedFunctions.has(cfg.name)) {
-        return;
-      }
-      traversedFunctions.add(cfg.name);
-      const lattice = new VariableUsageLattice();
-      const transfer = new NeverAccessedTransfer();
-      const solver = new WorklistSolver(cu, cfg, transfer, lattice, "forward");
-      const results = solver.solve();
+    cu.forEachCFG(
+      cu.ast,
+      (cfg: CFG, _node: BasicBlock, _stmt: AstStatement) => {
+        if (cfg.origin === "stdlib" || traversedFunctions.has(cfg.name)) {
+          return;
+        }
+        traversedFunctions.add(cfg.name);
+        const lattice = new VariableUsageLattice();
+        const transfer = new NeverAccessedTransfer();
+        const solver = new WorklistSolver(
+          cu,
+          cfg,
+          transfer,
+          lattice,
+          "forward",
+        );
+        const results = solver.solve();
 
-      const declaredVariables = new Map<string, SrcInfo>();
-      const accessedVariables = new Set<string>();
-      const writtenVariables = new Set<string>();
-      results.getStates().forEach((state, nodeIdx) => {
-        if (!cfg.getNode(nodeIdx)!.isExit()) {
-          return;
-        }
-        state.declared
-          .extract()
-          .forEach(([name, ref]) => declaredVariables.set(name, ref));
-        state.accessed.forEach((name) => accessedVariables.add(name));
-        state.written.forEach((name) => writtenVariables.add(name));
-      });
-      Array.from(declaredVariables.keys()).forEach((name) => {
-        if (this.skipUnused(name)) {
-          return;
-        }
-        const isWritten = writtenVariables.has(name);
-        const isAccessed = accessedVariables.has(name);
-        if (!isAccessed) {
-          const msg = isWritten
-            ? "Write-only variable"
-            : "Variable is never accessed";
-          const suggestion = isWritten
-            ? "The variable value should be accessed"
-            : "Consider removing the variable";
-          errors.push(
-            this.makeWarning(
-              msg,
-              Severity.MEDIUM,
-              declaredVariables.get(name)!,
-              {
-                suggestion,
-              },
-            ),
-          );
-        }
-      });
-    });
+        const declaredVariables = new Map<string, SrcInfo>();
+        const accessedVariables = new Set<string>();
+        const writtenVariables = new Set<string>();
+        results.getStates().forEach((state, nodeIdx) => {
+          if (!cfg.getBasicBlock(nodeIdx)!.isExit()) {
+            return;
+          }
+          state.declared
+            .extract()
+            .forEach(([name, ref]) => declaredVariables.set(name, ref));
+          state.accessed.forEach((name) => accessedVariables.add(name));
+          state.written.forEach((name) => writtenVariables.add(name));
+        });
+        Array.from(declaredVariables.keys()).forEach((name) => {
+          if (this.skipUnused(name)) {
+            return;
+          }
+          const isWritten = writtenVariables.has(name);
+          const isAccessed = accessedVariables.has(name);
+          if (!isAccessed) {
+            const msg = isWritten
+              ? "Write-only variable"
+              : "Variable is never accessed";
+            const suggestion = isWritten
+              ? "The variable value should be accessed"
+              : "Consider removing the variable";
+            errors.push(
+              this.makeWarning(
+                msg,
+                Severity.MEDIUM,
+                declaredVariables.get(name)!,
+                {
+                  suggestion,
+                },
+              ),
+            );
+          }
+        });
+      },
+    );
 
     return errors;
   }

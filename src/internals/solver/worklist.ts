@@ -2,7 +2,7 @@ import { InternalException } from "../exceptions";
 import { JoinSemilattice } from "../lattice";
 import {
   CFG,
-  Node,
+  BasicBlock,
   CompilationUnit,
   getPredecessors,
   getSuccessors,
@@ -60,39 +60,39 @@ export class WorklistSolver<State> implements Solver<State> {
    */
   public findFixpoint(): SolverResults<State> {
     const results = new SolverResults<State>();
-    const worklist: Node[] = [...this.cfg.nodes];
+    const worklist: BasicBlock[] = [...this.cfg.nodes];
 
-    const nodes: Node[] = this.cfg.nodes;
-    nodes.forEach((node) => {
-      results.setState(node.idx, this.lattice.bottom());
+    const bbs: BasicBlock[] = this.cfg.nodes;
+    bbs.forEach((bb) => {
+      results.setState(bb.idx, this.lattice.bottom());
     });
 
     while (worklist.length > 0) {
-      const node = worklist.pop()!;
+      const bb = worklist.pop()!;
       const neighbors =
         this.kind === "forward"
-          ? getPredecessors(this.cfg, node)
-          : getSuccessors(this.cfg, node);
+          ? getPredecessors(this.cfg, bb)
+          : getSuccessors(this.cfg, bb);
 
       const inState = neighbors.reduce((acc, neighbor) => {
         return this.lattice.join(acc, results.getState(neighbor.idx)!);
       }, this.lattice.bottom());
 
-      const stmt = this.cu.ast.getStatement(node.stmtID);
+      const stmt = this.cu.ast.getStatement(bb.stmtID);
       if (stmt === undefined) {
         throw InternalException.make(
-          `Cannot find statement #${node.stmtID} defined within node #${node.idx}`,
+          `Cannot find statement #${bb.stmtID} defined within node #${bb.idx}`,
         );
       }
-      const outState = this.transfer.transfer(inState, node, stmt);
+      const outState = this.transfer.transfer(inState, bb, stmt);
 
-      if (!this.lattice.leq(outState, results.getState(node.idx)!)) {
-        results.setState(node.idx, outState);
+      if (!this.lattice.leq(outState, results.getState(bb.idx)!)) {
+        results.setState(bb.idx, outState);
         // Push predecessors or successors based on the analysis kind
         worklist.push(
           ...(this.kind === "forward"
-            ? getSuccessors(this.cfg, node)
-            : getPredecessors(this.cfg, node)),
+            ? getSuccessors(this.cfg, bb)
+            : getPredecessors(this.cfg, bb)),
         );
       }
     }

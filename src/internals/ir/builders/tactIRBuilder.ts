@@ -3,13 +3,13 @@ import {
   CompilationUnit,
   FunctionKind,
   TactASTStore,
-  NodeIdx,
+  BasicBlockIdx,
   ContractName,
   Edge,
   CFGIdx,
   ContractIdx,
-  NodeKind,
-  Node,
+  BasicBlockKind,
+  BasicBlock,
   FunctionName,
   CFG,
   Contract,
@@ -488,8 +488,8 @@ export class TactIRBuilder {
   }
 
   /**
-   * Generates nodes and edges for the CFG based on the statements within a given function or method.
-   * Each node represents a single statement, and edges represent control flow between statements.
+   * Generates basic blocks (BB) and edges for the CFG based on the statements within a given function or method.
+   * Each BB represents a single statement, and edges represent control flow between statements.
    *
    * @param idx Unique CFG identifier created on the function registration step.
    * @param name The name of the function or method being processed.
@@ -497,7 +497,7 @@ export class TactIRBuilder {
    * @param origin Indicates whether the function was defined in users code or in standard library.
    * @param statements An array of AstStatement from the AST of the function or method.
    * @param ref AST reference to the corresponding function or method.
-   * @returns A CFG instance populated with nodes and edges for the provided statements.
+   * @returns A CFG instance populated with BBs and edges for the provided statements.
    */
   private createCFGFromStatements(
     idx: CFGIdx,
@@ -507,10 +507,10 @@ export class TactIRBuilder {
     statements: AstStatement[] | null,
     ref: SrcInfo,
   ): CFG {
-    const [nodes, edges] =
+    const [bbs, edges] =
       statements === null ? [[], []] : this.processStatements(statements);
-    this.markExitNodes(nodes);
-    return new CFG(name, kind, origin, nodes, edges, ref, idx);
+    this.markExitBBs(bbs);
+    return new CFG(name, kind, origin, bbs, edges, ref, idx);
   }
 
   /**
@@ -598,7 +598,7 @@ export class TactIRBuilder {
   /**
    * Determines kind of the basic block while creating statements.
    */
-  getNodeKind(stmt: AstStatement): NodeKind {
+  getBBKind(stmt: AstStatement): BasicBlockKind {
     switch (stmt.kind) {
       case "statement_return":
         return { kind: "exit" };
@@ -622,25 +622,25 @@ export class TactIRBuilder {
    * Recursively processes an array of AST statements to generate nodes and edges for a CFG.
    *
    * @param statements The array of AstStatement objects.
-   * @param nodes An optional array of Node objects to which new nodes will be added.
+   * @param bbs An optional array of basic blocks to which new nodes will be added.
    * @param edges An optional array of Edge objects to which new edges will be added.
-   * @param lastNodeIdxes An optional NodeIdx representing the index of the node from which control flow enters the current sequence of statements.
-   * @returns A tuple containing the arrays of Node and Edge objects representing the CFG derived from the statements.
+   * @param lastBBIdxes An optional indices representing from which control flow enters the current sequence of statements.
+   * @returns A tuple containing the arrays of BasicBlock and Edge objects representing the CFG derived from the statements.
    */
   processStatements(
     statements: AstStatement[],
-    nodes: Node[] = [],
+    bbs: BasicBlock[] = [],
     edges: Edge[] = [],
-    lastNodeIdxes: NodeIdx[] = [],
-  ): [Node[], Edge[]] {
+    lastBBIdxes: BasicBlockIdx[] = [],
+  ): [BasicBlock[], Edge[]] {
     statements.forEach((stmt, _index) => {
-      const newNode = new Node(stmt.id, this.getNodeKind(stmt));
-      nodes.push(newNode);
+      const newBB = new BasicBlock(stmt.id, this.getBBKind(stmt));
+      bbs.push(newBB);
       // If there's a parent node, connect this node to the parent
-      if (lastNodeIdxes !== undefined) {
-        lastNodeIdxes.forEach((idx) => {
-          const src = this.getParent(nodes, idx);
-          edges.push(this.addEdge(src, newNode));
+      if (lastBBIdxes !== undefined) {
+        lastBBIdxes.forEach((idx) => {
+          const src = this.getParent(bbs, idx);
+          edges.push(this.addEdge(src, newBB));
         });
       }
 
@@ -650,35 +650,35 @@ export class TactIRBuilder {
         stmt.kind == "statement_assign" ||
         stmt.kind == "statement_augmentedassign"
       ) {
-        // Update the lastNodeIdx to the current node's index
-        lastNodeIdxes = [newNode.idx];
+        // Update the lastBBIdxes to the current basic block index
+        lastBBIdxes = [newBB.idx];
       } else if (stmt.kind === "statement_condition") {
         // Branching logic for trueStatements
-        const [trueNodes, trueEdges] = this.processStatements(
+        const [trueBBs, trueEdges] = this.processStatements(
           stmt.trueStatements,
-          nodes,
+          bbs,
           edges,
-          [newNode.idx],
+          [newBB.idx],
         );
-        nodes = trueNodes;
+        bbs = trueBBs;
         edges = trueEdges;
-        const trueEndNode = trueNodes[trueNodes.length - 1];
+        const trueEndBB = trueBBs[trueBBs.length - 1];
 
         if (stmt.falseStatements !== null && stmt.falseStatements.length > 0) {
           // Branching logic for falseStatements
-          const [falseNodes, falseEdges] = this.processStatements(
+          const [falseBBs, falseEdges] = this.processStatements(
             stmt.falseStatements,
-            nodes,
+            bbs,
             edges,
-            [newNode.idx],
+            [newBB.idx],
           );
-          nodes = falseNodes;
+          bbs = falseBBs;
           edges = falseEdges;
-          const falseEndNode = falseNodes[falseNodes.length - 1];
-          lastNodeIdxes = [trueEndNode.idx, falseEndNode.idx];
+          const falseEndBB = falseBBs[falseBBs.length - 1];
+          lastBBIdxes = [trueEndBB.idx, falseEndBB.idx];
         } else {
           // Connect the end of the true branch to the next statement
-          lastNodeIdxes = [trueEndNode.idx];
+          lastBBIdxes = [trueEndBB.idx];
         }
       } else if (
         stmt.kind == "statement_while" ||
@@ -686,98 +686,96 @@ export class TactIRBuilder {
         stmt.kind == "statement_repeat" ||
         stmt.kind == "statement_foreach"
       ) {
-        // Create an edge from the current node (loop condition) back to the start of the loop body,
-        // and from the end of the loop body back to the current node to represent the loop's cycle.
-        // Also, ensure the loop connects to the next node after the loop concludes.
+        // Create an edge from the current BB (loop condition) back to the start of the loop body,
+        // and from the end of the loop body back to the current BB to represent the loop's cycle.
+        // Also, ensure the loop connects to the next BB after the loop concludes.
 
         // Process the statements within the loop body.
-        const [loopNodes, loopEdges] = this.processStatements(
+        const [loopBBs, loopEdges] = this.processStatements(
           stmt.statements,
-          nodes,
+          bbs,
           edges,
-          [newNode.idx],
+          [newBB.idx],
         );
-        nodes = loopNodes;
+        bbs = loopBBs;
         edges = loopEdges;
 
-        // Create an edge from the last node in the loop back to the condition to represent the loop's cycle.
-        if (loopNodes.length > 0) {
-          const lastNode = loopNodes[loopNodes.length - 1];
-          edges.push(this.addEdge(lastNode, newNode));
+        // Create an edge from the last BB in the loop back to the condition to represent the loop's cycle.
+        if (loopBBs.length > 0) {
+          const lastBB = loopBBs[loopBBs.length - 1];
+          edges.push(this.addEdge(lastBB, newBB));
         }
         // Connect condition with the statement after loop.
-        lastNodeIdxes = [newNode.idx];
+        lastBBIdxes = [newBB.idx];
       } else if (
         stmt.kind === "statement_try" ||
         stmt.kind === "statement_try_catch"
       ) {
         // Process the try branch.
-        const [tryNodes, tryEdges] = this.processStatements(
+        const [tryBBs, tryEdges] = this.processStatements(
           stmt.statements,
-          nodes,
+          bbs,
           edges,
-          [newNode.idx],
+          [newBB.idx],
         );
-        nodes = tryNodes;
+        bbs = tryBBs;
         edges = tryEdges;
         // Connect the last try block with statements after this `try` block or
         // with `try` itself if it is empty.
-        lastNodeIdxes =
-          tryNodes.length > 0
-            ? [tryNodes[tryNodes.length - 1].idx]
-            : [newNode.idx];
+        lastBBIdxes =
+          tryBBs.length > 0 ? [tryBBs[tryBBs.length - 1].idx] : [newBB.idx];
 
         // Handle the `catch` clause.
         if (stmt.kind === "statement_try_catch") {
-          const [catchNodes, catchEdges] = this.processStatements(
+          const [catchBBs, catchEdges] = this.processStatements(
             stmt.catchStatements,
-            nodes,
+            bbs,
             edges,
-            [newNode.idx],
+            [newBB.idx],
           );
-          nodes = catchNodes;
+          bbs = catchBBs;
           edges = catchEdges;
           // Catch block always terminates execution.
-          if (catchNodes.length > 0) {
-            tryNodes[tryNodes.length - 1].kind = { kind: "exit" };
+          if (catchBBs.length > 0) {
+            tryBBs[tryBBs.length - 1].kind = { kind: "exit" };
           }
         }
       } else if (stmt.kind === "statement_return") {
-        // No need to connect return statements to subsequent nodes
-        lastNodeIdxes = [];
+        // No need to connect return statements to subsequent basic blocks
+        lastBBIdxes = [];
       } else {
         throw InternalException.make("Unsupported statement", { node: stmt });
       }
     });
 
-    return [nodes, edges];
+    return [bbs, edges];
   }
 
   /**
-   * Marks nodes without successors as Exit kind.
-   * @param nodes The array of Node objects.
+   * Marks basic blocks without successors as Exit kind.
+   * @param bbs The array of BasicBlock objects.
    * @param edges The array of Edge objects.
    */
-  private markExitNodes(nodes: Node[]): void {
-    const nodeHasSuccessors = (node: Node): boolean => node.dstEdges.size > 0;
-    nodes.forEach((node) => {
-      if (!nodeHasSuccessors(node)) {
-        node.kind = { kind: "exit" };
+  private markExitBBs(bbs: BasicBlock[]): void {
+    const bbHasSuccessors = (bb: BasicBlock): boolean => bb.dstEdges.size > 0;
+    bbs.forEach((bb) => {
+      if (!bbHasSuccessors(bb)) {
+        bb.kind = { kind: "exit" };
       }
     });
   }
 
-  private getParent(nodes: Node[], idx: NodeIdx): Node {
-    const node = nodes.find((node) => node.idx === idx);
-    if (node === undefined) {
+  private getParent(bbs: BasicBlock[], idx: BasicBlockIdx): BasicBlock {
+    const bb = bbs.find((bb) => bb.idx === idx);
+    if (bb === undefined) {
       throw InternalException.make(
-        `Cannot find node with index=${idx}. Available nodes: ${nodes.map((n) => n.idx)}`,
+        `Cannot find BB #${idx}. Available BBs: ${bbs.map((n) => n.idx)}`,
       );
     }
-    return node;
+    return bb;
   }
 
-  private addEdge(src: Node, dst: Node): Edge {
+  private addEdge(src: BasicBlock, dst: BasicBlock): Edge {
     const edge = new Edge(src.idx, dst.idx);
     src.dstEdges.add(edge.idx);
     dst.srcEdges.add(edge.idx);

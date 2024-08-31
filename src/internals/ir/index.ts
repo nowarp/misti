@@ -1,7 +1,7 @@
 export {
   Edge,
-  NodeKind,
-  Node,
+  BasicBlockKind,
+  BasicBlock,
   FunctionKind,
   CFG,
   Contract,

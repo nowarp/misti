@@ -1,12 +1,12 @@
 import {
-  NodeIdx,
+  BasicBlockIdx,
   ContractIdx,
   CFGIdx,
   FunctionName,
   ContractName,
   ProjectName,
 } from "./types";
-import { CFG, Contract, Node } from "./cfg";
+import { CFG, Contract, BasicBlock } from "./cfg";
 import { TactASTStore } from "./astStore";
 import { AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
 
@@ -33,7 +33,7 @@ export class CompilationUnit {
    * Looks for a CFG with a specific index.
    * @returns Found CFG or `undefined` if not found.
    */
-  public findCFGByIdx(idx: NodeIdx): CFG | undefined {
+  public findCFGByIdx(idx: BasicBlockIdx): CFG | undefined {
     const funCfg = this.functions.get(idx);
     if (funCfg) return funCfg;
     return Array.from(this.contracts.values())
@@ -76,11 +76,11 @@ export class CompilationUnit {
    */
   forEachCFG(
     astStore: TactASTStore,
-    callback: (cfg: CFG, node: Node, stmt: AstStatement) => void,
+    callback: (cfg: CFG, node: BasicBlock, stmt: AstStatement) => void,
   ) {
     // Iterate over all functions' CFGs
     this.functions.forEach((cfg, _) => {
-      cfg.forEachNode(astStore, (stmt, node) => {
+      cfg.forEachBasicBlock(astStore, (stmt, node) => {
         callback(cfg, node, stmt);
       });
     });
@@ -88,7 +88,7 @@ export class CompilationUnit {
     // Iterate over all contracts and their methods' CFGs
     this.contracts.forEach((contract) => {
       contract.methods.forEach((cfg, _) => {
-        cfg.forEachNode(astStore, (stmt, node) => {
+        cfg.forEachBasicBlock(astStore, (stmt, node) => {
           callback(cfg, node, stmt);
         });
       });

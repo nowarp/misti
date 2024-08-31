@@ -9,14 +9,14 @@ import {
 } from "../souffle/";
 import { MistiContext } from "../context";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
-import { CFG, NodeIdx, CompilationUnit } from "../ir";
+import { CFG, BasicBlockIdx, CompilationUnit } from "../ir";
 import { SolverResults } from "./results";
 import { Solver } from "./solver";
 
 /**
  * Basic block definition added in all the Souffle programs.
  */
-const BB_FACT = (idx: NodeIdx): string => `bb_${idx}`;
+const BB_FACT = (idx: BasicBlockIdx): string => `bb_${idx}`;
 
 /**
  * An interface for a specific dataflow problem used to generate a Soufflé program.
@@ -101,7 +101,7 @@ export class SouffleSolver<State> implements Solver<State> {
    * @param ctx The Souffle program where the relations are to be added.
    */
   private addDataflowFacts(ctx: Context<SrcInfo>): void {
-    this.cfg.forEachNode(this.cu.ast, (_stmt, node) => {
+    this.cfg.forEachBasicBlock(this.cu.ast, (_stmt, node) => {
       ctx.addFact("bb", Fact.from([BB_FACT(node.idx)]));
     });
     this.cfg.forEachEdge((edge) => {
