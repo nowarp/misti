@@ -6,7 +6,7 @@ import {
   Context as SouffleContext,
   Fact,
   FactValue,
-  Executor,
+  AsyncExecutor,
 } from "../internals/souffle";
 
 export type WarningsBehavior = "union" | "intersect";
@@ -56,7 +56,7 @@ export abstract class Detector {
    * @param cu The compilation unit to be analyzed.
    * @returns List of warnings has highlighted by this detector.
    */
-  abstract check(cu: CompilationUnit): MistiTactWarning[];
+  abstract check(cu: CompilationUnit): Promise<MistiTactWarning[]>;
 
   /**
    * Returns `true` if the identifier with the given name should not be reported
@@ -95,21 +95,30 @@ export abstract class Detector {
 
 export abstract class SouffleDetector extends Detector {
   /**
+   * Creates a Soufflé context with unique name.
+   *
+   * It should be used to avoid name clashes in the Soufflé directory when working with multiple projects.
+   */
+  protected createSouffleContext(cu: CompilationUnit): SouffleContext<SrcInfo> {
+    return new SouffleContext<SrcInfo>(`${this.id}_${cu.projectName}`);
+  }
+
+  /**
    * Executes Souffle program for this detector converting output facts to warnings.
    * @param program Souffle context with all the declarations, rules and facts added.
    * @param callback A function that creates warnings from output facts.
    */
-  protected executeSouffle(
+  protected async executeSouffle(
     program: SouffleContext<SrcInfo>,
     callback: (fact: Fact<FactValue, SrcInfo>) => MistiTactWarning | undefined,
-  ): MistiTactWarning[] {
+  ): Promise<MistiTactWarning[]> {
     const executor = this.ctx.config.soufflePath
-      ? new Executor<SrcInfo>({
+      ? new AsyncExecutor<SrcInfo>({
           inputDir: this.ctx.config.soufflePath,
           outputDir: this.ctx.config.soufflePath,
         })
-      : new Executor<SrcInfo>();
-    const result = executor.executeSync(program);
+      : new AsyncExecutor<SrcInfo>();
+    const result = await executor.execute(program);
     if (!result.success) {
       throw new Error(
         `Error executing Soufflé for ${this.id}:\n${result.stderr}`,

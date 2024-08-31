@@ -206,7 +206,8 @@ export class Context<FactData> {
    */
   public async dump(dir: string): Promise<void> {
     const programPath = path.join(dir, this.filename);
-    await fs.promises.writeFile(programPath, this.emit(), "utf8");
+    const data = this.emit();
+    await fs.promises.writeFile(programPath, data, "utf8");
   }
 
   /**

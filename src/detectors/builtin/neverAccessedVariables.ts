@@ -174,7 +174,7 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
  * ```
  */
 export class NeverAccessedVariables extends SouffleDetector {
-  check(cu: CompilationUnit): MistiTactWarning[] {
+  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return [
       ...this.checkFields(cu),
       ...this.checkConstants(cu),
