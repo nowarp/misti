@@ -1,4 +1,4 @@
-import { Context, RelationName, Fact, FactValue } from "..";
+import { SouffleContext, SouffleFact } from "..";
 import { Transform, TransformCallback } from "stream";
 import fs from "fs";
 
@@ -53,9 +53,9 @@ export function parseSpaceSeparatedValues(input: string): RawSouffleOutput {
  * annotations added to the executed `Context`.
  */
 export class ParsedSouffleOutput<FactData> {
-  public entries: Map<RelationName, Fact<FactValue, FactData>[]>;
+  public entries: Map<string, SouffleFact<FactData>[]>;
 
-  private constructor(entries: Map<RelationName, Fact<FactValue, FactData>[]>) {
+  private constructor(entries: Map<string, SouffleFact<FactData>[]>) {
     this.entries = entries;
   }
 
@@ -64,10 +64,10 @@ export class ParsedSouffleOutput<FactData> {
    * @throws If the given output cannot be unmarshalled using the given program.
    */
   static fromRaw<FactData>(
-    ctx: Context<FactData>,
-    rawOut: Map<RelationName, RawSouffleOutput>,
+    ctx: SouffleContext<FactData>,
+    rawOut: Map<string, RawSouffleOutput>,
   ): ParsedSouffleOutput<FactData> {
-    const entries = new Map<RelationName, Fact<FactValue, FactData>[]>();
+    const entries = new Map<string, SouffleFact<FactData>[]>();
     for (const [relationName, allFactValues] of rawOut.entries()) {
       const relation = ctx.getRelation(relationName);
       if (relation === undefined) {

@@ -1,46 +1,84 @@
-import path from "path";
-import fs from "fs";
+import {
+  SouffleRelation,
+  SouffleFact,
+  SouffleFactValue,
+  SouffleProgramEntry,
+  SouffleRule,
+  SouffleComment,
+  SouffleProgram,
+} from "./syntax";
+import { eqFactValues } from "./syntaxUtils";
+import { program, fact } from "./syntaxConstructors";
 
-import { RelationName, Relation, Fact, FactValue, Rule } from ".";
+type RelationName = string;
 
 /**
- * Manages multiple Soufflé relations.
+ * Program generation context that maps relations, facts, and rules, and generates
+ * a valid AST, suitable for pretty-printing and further processing by `souffle`.
  *
- * FactData is an optional annotation of facts that holds some information about their meanings.
- * For example, it could be used to map some program entities with generated Soufflé facts.
+ * `FactData` is an optional annotation of facts that holds some information about
+ * their meanings. For example, it could be used to map some program entities with
+ * generated Soufflé facts.
  */
-export class Context<FactData> {
+export class SouffleContext<FactData = undefined> {
+  /**
+   * Docstring-like comment introduced to the top level of the generated program.
+   */
+  private programComment: SouffleComment | undefined;
+
   /**
    * Holds facts mapped to their corresponding relation declarations.
    */
-  private facts = new Map<RelationName, Set<Fact<FactValue, FactData>>>();
+  private facts = new Map<RelationName, Set<SouffleFact<FactData>>>();
 
   /**
    * Holds declarations of relations.
    */
-  private relations = new Map<RelationName, Relation>();
+  private relations = new Map<RelationName, SouffleRelation>();
 
   /**
    * Soufflé rules defined in the program.
    */
-  private rules: Rule[] = [];
+  private rules: SouffleRule[] = [];
 
   /**
-   * @param name Unique name of this program.
+   * @param name Unique name of the generated program.
    */
-  constructor(private name: string) {}
+  constructor(
+    private name: string,
+    {
+      comment = undefined,
+    }: Partial<{ comment: SouffleComment | undefined }> = {},
+  ) {
+    this.programComment = comment;
+  }
 
-  /**
-   * Filename of the Soufflé file generated from this program.
-   */
+  /** Filename of the Soufflé file to be used for the generated program. */
   get filename(): string {
     return `${this.name}.dl`;
   }
 
   /**
+   * Generates Soufflé program based on the relations, rules and facts added to the context.
+   */
+  public generateProgram(): SouffleProgram<FactData> {
+    const relationsWithFacts = Array.from(this.relations.keys()).reduce(
+      (acc, relationName) => {
+        const decl = this.relations.get(relationName)!;
+        const facts =
+          this.facts.get(relationName) || new Set<SouffleFact<FactData>>();
+        return acc.concat([decl, ...facts]);
+      },
+      [] as SouffleProgramEntry<FactData>[],
+    );
+    const entries = [...relationsWithFacts, ...this.rules];
+    return program<FactData>(this.name, entries, this.programComment);
+  }
+
+  /**
    * Finds a rule which has the given name among its heads.
    */
-  public findRule(name: string): Rule | undefined {
+  public findRule(name: string): SouffleRule | undefined {
     return this.rules.find(
       (r) => r.heads.find((h) => h.name == name) !== undefined,
     );
@@ -49,7 +87,7 @@ export class Context<FactData> {
   /**
    * Finds a relation defined within the program.
    */
-  public getRelation(name: RelationName): Relation | undefined {
+  public getRelation(name: RelationName): SouffleRelation | undefined {
     return this.relations.get(name);
   }
 
@@ -57,9 +95,13 @@ export class Context<FactData> {
    * Finds the fact defined with the given values.
    * @returns FactData if found, `undefined` otherwise.
    */
-  public findFact(values: FactValue[]): Fact<FactValue, FactData> | undefined {
+  public findFact(
+    values: SouffleFactValue[],
+  ): SouffleFact<FactData> | undefined {
     for (const [_relationName, facts] of this.facts) {
-      const fact = Array.from(facts).find((fact) => fact.eqValues(values));
+      const fact = Array.from(facts).find((fact) =>
+        eqFactValues(fact.values, values),
+      );
       if (fact !== undefined) {
         return fact;
       }
@@ -86,10 +128,10 @@ export class Context<FactData> {
    * Adds new entities to the Soufflé program.
    * @throws If an entity is already defined.
    */
-  public add(entity: Relation | Rule) {
-    if (entity instanceof Relation) {
+  public add(entity: SouffleRelation | SouffleRule) {
+    if (entity.kind === "relation") {
       this.addRelation(entity);
-    } else if (entity instanceof Rule) {
+    } else if (entity.kind === "rule") {
       this.addRule(entity);
     } else {
       throw new Error(`Cannot add unsupported entity: ${entity}`);
@@ -100,7 +142,7 @@ export class Context<FactData> {
    * Adds a new relation to the Soufflé program.
    * @throws If a relation with the same name is already defined.
    */
-  private addRelation(relation: Relation) {
+  private addRelation(relation: SouffleRelation): void | never {
     if (this.relations.has(relation.name)) {
       throw new Error(`Relation ${relation.name} is already declared`);
     }
@@ -113,25 +155,27 @@ export class Context<FactData> {
    * @param fact Fact values to add.
    * @throws Error if the relation does not exist.
    */
-  public addFact<T extends FactValue>(
+  public addFact(
     name: RelationName,
-    fact: Fact<T, FactData>,
-  ) {
+    factValues: SouffleFactValue[],
+    data?: FactData,
+  ): void | never {
     const relation = this.relations.get(name);
     if (!relation) {
       throw new Error(`Unknown relation: ${name}`);
     }
 
     // Sanity check: compare number of arguments in the declaration and the actual ones.
-    if (fact.values.length !== relation.args.length) {
+    if (factValues.length !== relation.args.length) {
       throw new Error(
-        `Incorrect number of arguments for ${this.name}: got ${fact.values.length} expected ${relation.args.length}`,
+        `Incorrect number of arguments for ${this.name}: got ${factValues.length} expected ${relation.args.length}`,
       );
     }
 
+    const newFact = fact<FactData>(name, factValues, data);
     this.facts.set(
       name,
-      (this.facts.get(name) || new Set<Fact<FactValue, FactData>>()).add(fact),
+      (this.facts.get(name) || new Set<SouffleFact<FactData>>()).add(newFact),
     );
   }
 
@@ -140,7 +184,7 @@ export class Context<FactData> {
    * @param rule The rule to add to the program.
    * @throws Error if any head relation is not defined.
    */
-  private addRule(rule: Rule) {
+  private addRule(rule: SouffleRule) {
     const undefinedRelations = rule.heads
       .filter((head) => !this.relations.has(head.name))
       .map((head) => head.name);
@@ -150,72 +194,5 @@ export class Context<FactData> {
       );
     }
     this.rules.push(rule);
-  }
-
-  /**
-   * Outputs the facts of the relation in Soufflé Datalog syntax.
-   * @returns Datalog definition of the facts or `undefined` if there are no facts for that relation.
-   */
-  public emitFacts(name: RelationName): string | undefined {
-    const fact = this.facts.get(name);
-    if (fact === undefined) {
-      return undefined;
-    }
-    return Array.from(fact.values())
-      .reduce((result, entry) => {
-        const factFormatted = entry.values
-          .map((fact) => (typeof fact === "string" ? `"${fact}"` : fact))
-          .join(", ");
-        result.push(`${name}(${factFormatted}).`);
-        return result;
-      }, [] as string[])
-      .join("\n");
-  }
-
-  /**
-   * Outputs the defined relation declarations and facts as a Soufflé program.
-   */
-  private emitRelations(): string {
-    return Array.from(this.relations)
-      .reduce((result, [_name, relation]) => {
-        result.push(relation.emitDecl());
-        const facts = this.emitFacts(relation.name);
-        if (facts !== undefined) {
-          result.push(facts);
-          result.push(" ");
-        }
-        return result;
-      }, [] as string[])
-      .join("\n");
-  }
-
-  /**
-   * Outputs the defined rules as a Soufflé program.
-   */
-  private emitRules(): string {
-    return this.rules.map((rule) => rule.emit()).join("\n");
-  }
-
-  public emit(): string {
-    return `${this.emitRelations()}\n${this.emitRules()}`;
-  }
-
-  /**
-   * Asynchronously dumps the generated Soufflé program and facts to a single file within the specified directory.
-   * @param dir The directory where the Soufflé fact files should be written.
-   */
-  public async dump(dir: string): Promise<void> {
-    const programPath = path.join(dir, this.filename);
-    const data = this.emit();
-    await fs.promises.writeFile(programPath, data, "utf8");
-  }
-
-  /**
-   * Synchronously dumps the generated Soufflé program and facts to a single file within the specified directory.
-   * @param dir The directory where the Soufflé fact files should be written.
-   */
-  public dumpSync(dir: string): void {
-    const programPath = path.join(dir, this.filename);
-    fs.writeFileSync(programPath, this.emit(), "utf8");
   }
 }

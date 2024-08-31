@@ -1,4 +1,5 @@
-import { Context, RelationName } from "..";
+import { SouffleContext } from "..";
+import { SouffleEmitter } from "..";
 import {
   RawSouffleOutput,
   ParsedSouffleOutput,
@@ -33,19 +34,18 @@ export abstract class Executor<FactData> {
   protected inputDir: string;
   protected outputDir: string;
 
-  constructor(params: Partial<SouffleExecutorParams> = {}) {
-    const {
-      soufflePath = "souffle",
-      inputDir = "/tmp/misti/souffle",
-      outputDir = "/tmp/misti/souffle",
-    } = params;
+  constructor({
+    soufflePath = "souffle",
+    inputDir = "/tmp/misti/souffle",
+    outputDir = "/tmp/misti/souffle",
+  }: Partial<SouffleExecutorParams> = {}) {
     this.soufflePath = soufflePath;
     this.inputDir = inputDir;
     this.outputDir = outputDir;
   }
 
   public abstract execute(
-    ctx: Context<FactData>,
+    ctx: SouffleContext<FactData>,
   ):
     | SouffleExecutionResult<FactData>
     | Promise<SouffleExecutionResult<FactData>>;
@@ -53,7 +53,7 @@ export abstract class Executor<FactData> {
   /**
    * Produces a Soufflé command that returns output in the CSV format.
    */
-  protected makeSouffleCommand(ctx: Context<FactData>): string {
+  protected makeSouffleCommand(ctx: SouffleContext<FactData>): string {
     const inputDirPath = path.join(this.inputDir, ctx.filename);
     return `${this.soufflePath} -F${this.inputDir} -D${this.outputDir} ${inputDirPath}`;
   }
@@ -64,10 +64,12 @@ export class SyncExecutor<FactData> extends Executor<FactData> {
    * Executes the Datalog program using the Soufflé engine synchronously.
    * @returns `SouffleExecutionResult` which contains the status of execution.
    */
-  public execute(ctx: Context<FactData>): SouffleExecutionResult<FactData> {
+  public execute(
+    ctx: SouffleContext<FactData>,
+  ): SouffleExecutionResult<FactData> {
     try {
       fs.mkdirSync(this.inputDir, { recursive: true });
-      ctx.dumpSync(this.inputDir);
+      SouffleEmitter.make<FactData>(ctx).dumpSync(this.inputDir);
       const cmd = this.makeSouffleCommand(ctx);
       execSync(cmd, { stdio: ["ignore", "ignore", "pipe"] });
       const rawResults = ctx
@@ -76,7 +78,7 @@ export class SyncExecutor<FactData> extends Executor<FactData> {
           const filepath = path.join(this.outputDir, `${relationName}.csv`);
           acc.set(relationName, parseResultsSync(filepath));
           return acc;
-        }, new Map<RelationName, RawSouffleOutput>());
+        }, new Map<string, RawSouffleOutput>());
       const results = ParsedSouffleOutput.fromRaw(ctx, rawResults);
       return { success: true, results };
     } catch (error) {
@@ -91,10 +93,10 @@ export class AsyncExecutor<FactData> extends Executor<FactData> {
    * @returns `SouffleExecutionResult` which contains the status of execution.
    */
   public async execute(
-    ctx: Context<FactData>,
+    ctx: SouffleContext<FactData>,
   ): Promise<SouffleExecutionResult<FactData>> {
     await fs.promises.mkdir(this.inputDir, { recursive: true });
-    await ctx.dump(this.inputDir);
+    await SouffleEmitter.make<FactData>(ctx).dump(this.inputDir);
     const cmd = this.makeSouffleCommand(ctx);
     return new Promise((resolve, reject) => {
       exec(cmd, async (error, _stdout, stderr) => {
