@@ -20,4 +20,4 @@ export {
   makeBooleanConstraint,
 } from "./rule";
 export { Context } from "./context";
-export { Executor, SouffleExecutionResult } from "./executor";
+export * from "./executor/index";

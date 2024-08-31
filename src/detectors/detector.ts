@@ -6,7 +6,7 @@ import {
   Context as SouffleContext,
   Fact,
   FactValue,
-  Executor,
+  SyncExecutor,
 } from "../internals/souffle";
 
 export type WarningsBehavior = "union" | "intersect";
@@ -104,11 +104,11 @@ export abstract class SouffleDetector extends Detector {
     callback: (fact: Fact<FactValue, SrcInfo>) => MistiTactWarning | undefined,
   ): MistiTactWarning[] {
     const executor = this.ctx.config.soufflePath
-      ? new Executor<SrcInfo>({
+      ? new SyncExecutor<SrcInfo>({
           inputDir: this.ctx.config.soufflePath,
           outputDir: this.ctx.config.soufflePath,
         })
-      : new Executor<SrcInfo>();
+      : new SyncExecutor<SrcInfo>();
     const result = executor.executeSync(program);
     if (!result.success) {
       throw new Error(

@@ -5,7 +5,7 @@ import {
   Relation,
   SouffleExecutionResult,
   FactValue,
-  Executor,
+  SyncExecutor,
 } from "../souffle/";
 import { MistiContext } from "../context";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
@@ -114,11 +114,11 @@ export class SouffleSolver<State> implements Solver<State> {
    */
   private execute(ctx: Context<SrcInfo>): SouffleExecutionResult<SrcInfo> {
     const executor = this.ctx.config.soufflePath
-      ? new Executor<SrcInfo>({
+      ? new SyncExecutor<SrcInfo>({
           inputDir: this.ctx.config.soufflePath,
           outputDir: this.ctx.config.soufflePath,
         })
-      : new Executor<SrcInfo>();
+      : new SyncExecutor<SrcInfo>();
     return executor.executeSync(ctx);
   }
 
