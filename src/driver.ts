@@ -1,7 +1,7 @@
 import { MistiContext } from "./internals/context";
 import { Logger } from "./internals/logger";
 import { tryMsg, InternalException } from "./internals/exceptions";
-import { createIR } from "./internals/tactIRBuilder";
+import { createIR } from "./internals/ir/builders/tactIRBuilder";
 import { GraphvizDumper, JSONDumper } from "./internals/irDump";
 import { ProjectName, CompilationUnit } from "./internals/ir";
 import { MistiTactWarning } from "./internals/warnings";

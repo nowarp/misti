@@ -1,0 +1,298 @@
+import { InternalException } from "../exceptions";
+import { TactASTStore } from "./astStore";
+import {
+  NodeIdx,
+  EdgeIdx,
+  ContractIdx,
+  CFGIdx,
+  FunctionName,
+  ContractName,
+} from "./types";
+import { IdxGenerator } from "./indices";
+import { SrcInfo, AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
+
+export type EntryOrigin = "user" | "stdlib";
+
+/**
+ * Represents an edge in a Control Flow Graph (CFG), connecting two nodes.
+ * Each edge signifies a potential flow of control from one statement to another.
+ *
+ * @param src The index of the source node from which the control flow originates.
+ * @param dst The index of the destination node to which the control flow goes.
+ */
+export class Edge {
+  public idx: EdgeIdx;
+  constructor(
+    public src: NodeIdx,
+    public dst: NodeIdx,
+  ) {
+    this.idx = IdxGenerator.next();
+  }
+}
+
+/**
+ * Represents the kinds of basic blocks that can be present in a control flow graph (CFG).
+ */
+export type NodeKind =
+  /**
+   * Represents a regular control flow node with no special control behavior.
+   */
+  | { kind: "regular" }
+  /**
+   * Represents a node that contains function calls in its expressions.
+   * `callees` refers to unique indices of the callee within the CFG.
+   * Functions which definitions are not available in the current
+   * compilation unit are omitted.
+   */
+  | { kind: "call"; callees: Set<CFGIdx> }
+  /**
+   * Represents an exit node that effectively terminates the execution of the current control flow.
+   */
+  | { kind: "exit" };
+
+/**
+ * Represents a node in a Control Flow Graph (CFG), corresponding to a single statement in the source code.
+ * Nodes are connected by edges that represent the flow of control between statements.
+ *
+ * @param stmtID The unique identifier of the statement this node represents.
+ * @param kind Kind of the basic block representing ways it behave.
+ * @param srcEdges A set of indices for edges incoming to this node, representing control flows leading into this statement.
+ * @param dstEdges A set of indices for edges outgoing from this node, representing potential control flows out of this statement.
+ */
+export class Node {
+  public idx: NodeIdx;
+  constructor(
+    public stmtID: number,
+    public kind: NodeKind,
+    public srcEdges: Set<EdgeIdx> = new Set<EdgeIdx>(),
+    public dstEdges: Set<EdgeIdx> = new Set<EdgeIdx>(),
+  ) {
+    this.idx = IdxGenerator.next();
+  }
+
+  /**
+   * Returns true iff this basic block terminates control flow.
+   */
+  public isExit(): boolean {
+    return this.kind.kind === "exit";
+  }
+}
+
+/**
+ * Kind of a function that appear in CFG.
+ */
+export type FunctionKind = "function" | "method" | "receive";
+
+/**
+ * Describes the intraprocedural control flow graph (CFG) that corresponds to a function or method within the project.
+ */
+export class CFG {
+  /**
+   * The unique identifier of this CFG among the compilation unit it belongs to.
+   */
+  public idx: CFGIdx;
+
+  /**
+   * Map from unique node indices to nodes indices in the `this.nodes`.
+   */
+  private nodesMap: Map<NodeIdx, number>;
+
+  /**
+   * Map from unique node indices to nodes indices in the `this.edges`.
+   */
+  private edgesMap: Map<NodeIdx, number>;
+
+  /**
+   * Creates an instance of CFG.
+   * @param name The name of the function or method this CFG represents.
+   * @param kind Indicates whether this CFG represents a standalone function or a method or a receive method belonging to a contract.
+   * @param origin Indicates whether the function was defined in users code or in standard library.
+   * @param nodes Map of node indices to nodes in the CFG that come in the reverse order.
+   * @param edges Map of edge indices to edges in the CFG that come in the reverse order.
+   * @param ref AST reference that corresponds to the function definition.
+   * @param idx An optional unique index. If not set, a new one will be chosen automatically.
+   */
+  constructor(
+    public name: FunctionName,
+    public kind: FunctionKind,
+    public origin: EntryOrigin,
+    public nodes: Node[],
+    public edges: Edge[],
+    public ref: SrcInfo,
+    idx: CFGIdx | undefined = undefined,
+  ) {
+    this.idx = idx ? idx : IdxGenerator.next();
+    this.nodesMap = new Map();
+    this.initializeMapping(this.nodesMap, nodes);
+    this.edgesMap = new Map();
+    this.initializeMapping(this.edgesMap, edges);
+  }
+
+  private initializeMapping(
+    mapping: Map<NodeIdx | EdgeIdx, number>,
+    entries: Node[] | Edge[],
+  ): void {
+    entries.forEach((entry, arrayIdx) => {
+      mapping.set(entry.idx, arrayIdx);
+    });
+  }
+
+  /**
+   * Retrieves a Node from the CFG based on its unique index.
+   * @param idx The index of the node to retrieve.
+   * @returns The Node if found, otherwise undefined.
+   */
+  public getNode(idx: NodeIdx): Node | undefined {
+    const nodesIdx = this.nodesMap.get(idx);
+    if (nodesIdx === undefined) {
+      return undefined;
+    }
+    return this.nodes[nodesIdx];
+  }
+
+  /**
+   * Retrieves an Edge from the CFG based on its unique index.
+   * @param idx The index of the edge to retrieve.
+   * @returns The Edge if found, otherwise undefined.
+   */
+  public getEdge(idx: EdgeIdx): Edge | undefined {
+    const edgesIdx = this.edgesMap.get(idx);
+    if (edgesIdx === undefined) {
+      return undefined;
+    }
+    return this.edges[edgesIdx];
+  }
+
+  private traverseNodes(
+    edgeIdxs: Set<EdgeIdx>,
+    isSrc: boolean,
+  ): Node[] | undefined {
+    return Array.from(edgeIdxs).reduce(
+      (acc, srcIdx: NodeIdx) => {
+        if (acc === undefined) {
+          return undefined;
+        }
+        const edge = this.getEdge(srcIdx);
+        if (edge === undefined) {
+          return undefined;
+        }
+        const targetNode = this.getNode(isSrc ? edge.src : edge.dst);
+        if (targetNode === undefined) {
+          return undefined;
+        }
+        acc.push(targetNode);
+        return acc;
+      },
+      [] as Node[] | undefined,
+    );
+  }
+
+  /**
+   * Returns successors for the given node.
+   * @returns A list of predecessor nodes or `undefined` if any of the node indexes cannot be found in this CFG.
+   */
+  public getSuccessors(nodeIdx: NodeIdx): Node[] | undefined {
+    const node = this.getNode(nodeIdx);
+    if (node === undefined) {
+      return undefined;
+    }
+    return this.traverseNodes(node.dstEdges, false);
+  }
+
+  /**
+   * Returns predecessors for the given node.
+   * @returns A list of predecessor nodes or `undefined` if any of the node indexes cannot be found in this CFG.
+   */
+  public getPredecessors(nodeIdx: NodeIdx): Node[] | undefined {
+    const node = this.getNode(nodeIdx);
+    if (node === undefined) {
+      return undefined;
+    }
+    return this.traverseNodes(node.srcEdges, true);
+  }
+
+  /**
+   * Iterates over all nodes in a CFG, applying a callback to each node.
+   * The callback can perform any operation, such as analyzing or transforming the node.
+   * @param astStore The store containing the AST nodes.
+   * @param callback The function to apply to each node.
+   */
+  public forEachNode(
+    astStore: TactASTStore,
+    callback: (stmt: AstStatement, cfgNode: Node) => void,
+  ) {
+    this.nodes.forEach((cfgNode) => {
+      const astNode = astStore.getStatement(cfgNode.stmtID);
+      if (astNode) {
+        callback(astNode, cfgNode);
+      } else {
+        throw InternalException.make(
+          `Cannot find a statement: #${cfgNode.stmtID}`,
+        );
+      }
+    });
+  }
+
+  /**
+   * Iterates over all edges in a CFG, applying a callback to each edge.
+   * @param callback The function to apply to each edge.
+   */
+  public forEachEdge(callback: (cfgEdge: Edge) => void) {
+    this.edges.forEach((cfgEdge) => {
+      callback(cfgEdge);
+    });
+  }
+}
+
+/**
+ * Represents an entry for a contract in the compilation unit which
+ * encapsulates a collection of related methods and their configurations.
+ */
+export class Contract {
+  /**
+   * The unique identifier of this Contract among the compilation unit it belongs to.
+   */
+  public idx: ContractIdx;
+
+  /**
+   * Creates an instance of Contract.
+   * @param name The unique name identifying this contract within the project.
+   * @param methods A mapping of method ids to their CFGs.
+   * @param ref AST reference that corresponds to the contract definition.
+   * @param idx An optional unique index. If not set, a new one will be chosen automatically.
+   */
+  constructor(
+    public name: ContractName,
+    public methods: Map<CFGIdx, CFG>,
+    public ref: SrcInfo,
+    idx: ContractIdx | undefined = undefined,
+  ) {
+    this.idx = idx ? idx : IdxGenerator.next();
+  }
+}
+
+/**
+ * An utility function that extracts node's predecessors.
+ */
+export function getPredecessors(cfg: CFG, node: Node): Node[] {
+  const predecessors = cfg.getPredecessors(node.idx);
+  if (predecessors === undefined) {
+    throw InternalException.make(
+      `Incorrect definition in the CFG: Node #${node.idx} has an undefined predecessor`,
+    );
+  }
+  return predecessors;
+}
+
+/**
+ * An utility function that extracts node's successors.
+ */
+export function getSuccessors(cfg: CFG, node: Node): Node[] {
+  const successors = cfg.getSuccessors(node.idx);
+  if (successors === undefined) {
+    throw InternalException.make(
+      `Incorrect definition in the CFG: Node #${node.idx} has an undefined predecessor`,
+    );
+  }
+  return successors;
+}
