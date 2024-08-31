@@ -37,7 +37,7 @@ import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
  * ```
  */
 export class ConstantAddress extends Detector {
-  check(cu: CompilationUnit): MistiTactWarning[] {
+  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(
         foldExpressions(node, [] as MistiTactWarning[], (acc, expr) => {

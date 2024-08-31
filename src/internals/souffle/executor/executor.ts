@@ -28,7 +28,7 @@ export type SouffleExecutionResult<FactData> =
 /**
  * Manages the process of executing Soufflé and parsing its output.
  */
-abstract class Executor<FactData> {
+export abstract class Executor<FactData> {
   protected soufflePath: string;
   protected inputDir: string;
   protected outputDir: string;
@@ -44,6 +44,12 @@ abstract class Executor<FactData> {
     this.outputDir = outputDir;
   }
 
+  public abstract execute(
+    ctx: Context<FactData>,
+  ):
+    | SouffleExecutionResult<FactData>
+    | Promise<SouffleExecutionResult<FactData>>;
+
   /**
    * Produces a Soufflé command that returns output in the CSV format.
    */
@@ -58,7 +64,7 @@ export class SyncExecutor<FactData> extends Executor<FactData> {
    * Executes the Datalog program using the Soufflé engine synchronously.
    * @returns `SouffleExecutionResult` which contains the status of execution.
    */
-  public executeSync(ctx: Context<FactData>): SouffleExecutionResult<FactData> {
+  public execute(ctx: Context<FactData>): SouffleExecutionResult<FactData> {
     try {
       fs.mkdirSync(this.inputDir, { recursive: true });
       ctx.dumpSync(this.inputDir);
@@ -91,11 +97,12 @@ export class AsyncExecutor<FactData> extends Executor<FactData> {
     await ctx.dump(this.inputDir);
     const cmd = this.makeSouffleCommand(ctx);
     return new Promise((resolve, reject) => {
-      exec(cmd, async (error, _, stderr) => {
+      exec(cmd, async (error, _stdout, stderr) => {
         if (error) {
-          reject({ success: false, stderr: `${error}` });
-        } else if (stderr) {
-          reject({ success: false, stderr: `${stderr}` });
+          reject({
+            success: false,
+            stderr: stderr ? `${error}:\n${stderr}` : `${error}`,
+          });
         } else {
           try {
             const rawResults = await ctx

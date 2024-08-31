@@ -33,7 +33,7 @@ import {
  * ```
  */
 export class FieldDoubleInit extends Detector {
-  check(cu: CompilationUnit): MistiTactWarning[] {
+  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.ast.getContracts()).reduce(
       (acc, contract) => acc.concat(this.checkContract(contract)),
       [] as MistiTactWarning[],

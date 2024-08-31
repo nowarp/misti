@@ -52,12 +52,12 @@ import {
  * ```
  */
 export class DivideBeforeMultiply extends SouffleDetector {
-  check(cu: CompilationUnit): MistiTactWarning[] {
-    const program = new Context<SrcInfo>(this.id);
+  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+    const program = this.createSouffleContext(cu);
     this.addDecls(program);
     this.addRules(program);
     this.addConstraints(cu, program);
-    return this.executeSouffle(program, (fact) => {
+    return await this.executeSouffle(program, (fact) => {
       if (fact.data === undefined) {
         throw new Error(`AST position for fact ${fact} is not available`);
       }

@@ -119,7 +119,7 @@ export class SouffleSolver<State> implements Solver<State> {
           outputDir: this.ctx.config.soufflePath,
         })
       : new SyncExecutor<SrcInfo>();
-    return executor.executeSync(ctx);
+    return executor.execute(ctx);
   }
 
   /**

@@ -8,7 +8,7 @@ import { MistiTactWarning, Severity } from "../../src/internals/warnings";
  * It reports all the contracts that doesn't have an explicit implementation of the init function.
  */
 export class ImplicitInit extends Detector {
-  check(cu: CompilationUnit): MistiTactWarning[] {
+  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.contracts).reduce((foundErrors, [_, contract]) => {
       if (!cu.findMethodCFGByName(contract.name, "init")) {
         const err = this.makeWarning(

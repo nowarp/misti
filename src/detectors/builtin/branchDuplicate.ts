@@ -38,7 +38,7 @@ import { AstComparator } from "@tact-lang/compiler/dist/";
  * ```
  */
 export class BranchDuplicate extends Detector {
-  check(cu: CompilationUnit): MistiTactWarning[] {
+  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       const ternaryWarnings = foldExpressions(
         node,
