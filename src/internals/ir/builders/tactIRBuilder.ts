@@ -13,10 +13,10 @@ import {
   FunctionName,
   CFG,
   Contract,
-} from "./ir";
-import { MistiContext } from "./context";
-import { formatPosition } from "./tactASTUtil";
-import { TactException, InternalException } from "./exceptions";
+} from "..";
+import { MistiContext } from "../../context";
+import { formatPosition } from "../../tactASTUtil";
+import { TactException, InternalException } from "../../exceptions";
 import {
   Config as TactConfig,
   ConfigProject,
@@ -90,7 +90,7 @@ export const DEFAULT_STDLIB_PATH_ELEMENTS = [
  *
  * This adjustment is needed to get an actual path to stdlib distributed within the tact package.
  */
-export function setTactStdlibPath(nodeModulesPath: string = "../..") {
+export function setTactStdlibPath(nodeModulesPath: string = "../../../..") {
   const distPathPrefix = __dirname.includes("/dist/")
     ? path.join("..", nodeModulesPath)
     : nodeModulesPath;
