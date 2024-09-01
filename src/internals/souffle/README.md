@@ -49,5 +49,5 @@ console.log("Raw Soufflé output:\n", out.results);
 
 For the full example, see the source [here](./examples/simpleTypedVarPointsTo.ts).
 
-## Projects Using Library
+## Projects Using Souffle.js
 * [nowarp/misti](https://github.com/nowarp/misti) – Static analyzer for TON smart contracts
