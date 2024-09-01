@@ -45,18 +45,42 @@ export class SoufflePrettyPrinter<FactData = undefined> {
       return "";
     }
     return comment.style === "/*"
-      ? ["/**", ...comment.lines.map((line) => ` * ${line}`), "*/"].join("\n")
+      ? ["/**", ...comment.lines.map((line) => ` * ${line}`), " */"].join("\n")
       : comment.lines.map((line) => `// ${line}`).join("\n");
   }
 
   private ppProgram(program: SouffleProgram<FactData>): string {
-    return [
-      this.addComments && program.comment && this.ppComment(program.comment),
-      ...program.entries.map((e) => this.prettyPrint(e)),
-    ]
-      .filter((e) => e !== "")
-      .filter(Boolean)
-      .join("\n");
+    const programEntries: string[] = [];
+    let previousRelationName: string | null = null;
+
+    // Format body of the program
+    program.entries.forEach((entry, index) => {
+      const currentPrettyPrint = this.prettyPrint(entry);
+      if (entry.kind === "relation") {
+        if (index !== 0 && programEntries.length > 0) {
+          // Add a CR between different relations
+          programEntries.push("");
+        }
+        previousRelationName = entry.name;
+      } else if (
+        entry.kind === "fact" &&
+        entry.relationName === previousRelationName
+      ) {
+        // No CR needed if the fact belongs to the same relation
+      } else {
+        // Add a CR between other entries
+        programEntries.push("");
+        previousRelationName = null;
+      }
+      programEntries.push(currentPrettyPrint);
+    });
+
+    return (
+      (this.addComments && program.comment
+        ? [this.ppComment(program.comment) + "\n", ...programEntries]
+        : programEntries
+      ).join("\n") + "\n"
+    );
   }
 
   private ppFact(fact: SouffleFact<FactData>): string {
