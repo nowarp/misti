@@ -54,7 +54,7 @@ export function fact<D = undefined>(
 export function relation(
   name: string,
   args: [string, SouffleFactType][],
-  io: SouffleRelationIO | undefined,
+  io?: SouffleRelationIO,
   comment?: SouffleComment | CommentValue,
 ): SouffleRelation {
   return {

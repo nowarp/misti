@@ -77,45 +77,29 @@ export class ReadOnlyVariables extends SouffleDetector {
    */
   addDecls(ctx: SouffleContext<SrcInfo>) {
     ctx.add(
-      relation(
-        "varDecl",
-        [
-          ["var", "Symbol"],
-          ["func", "Symbol"],
-        ],
-        undefined,
-      ),
+      relation("varDecl", [
+        ["var", "Symbol"],
+        ["func", "Symbol"],
+      ]),
     );
     ctx.add(
-      relation(
-        "varAssign",
-        [
-          ["var", "Symbol"],
-          ["func", "Symbol"],
-        ],
-        undefined,
-      ),
+      relation("varAssign", [
+        ["var", "Symbol"],
+        ["func", "Symbol"],
+      ]),
     );
     ctx.add(
-      relation(
-        "varUse",
-        [
-          ["var", "Symbol"],
-          ["func", "Symbol"],
-        ],
-        undefined,
-      ),
+      relation("varUse", [
+        ["var", "Symbol"],
+        ["func", "Symbol"],
+      ]),
     );
     // XXX: Remove when #69 is implemented.
     ctx.add(
-      relation(
-        "skip",
-        [
-          ["var", "Symbol"],
-          ["func", "Symbol"],
-        ],
-        undefined,
-      ),
+      relation("skip", [
+        ["var", "Symbol"],
+        ["func", "Symbol"],
+      ]),
     );
     ctx.add(
       relation(

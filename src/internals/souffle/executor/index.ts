@@ -5,4 +5,4 @@ export {
   SouffleExecutionResult,
   SouffleExecutorParams,
 } from "./executor";
-export { ParsedSouffleOutput } from "./results";
+export { SouffleOutputStructured, SouffleOutputRaw } from "./results";

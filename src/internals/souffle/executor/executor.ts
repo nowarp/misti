@@ -1,8 +1,8 @@
 import { SouffleContext } from "..";
 import { SouffleEmitter } from "..";
 import {
-  RawSouffleOutput,
-  ParsedSouffleOutput,
+  SouffleOutputRaw,
+  SouffleOutputStructured,
   parseResults,
   parseResultsSync,
 } from "./results";
@@ -23,8 +23,19 @@ export interface SouffleExecutorParams {
  * Encapsulates results of the Soufflé execution.
  */
 export type SouffleExecutionResult<FactData> =
-  | { success: true; results: ParsedSouffleOutput<FactData> }
-  | { success: false; stderr: string };
+  /**
+   * The structured result which values are assigned to something meaningful with
+   * respect to `FactData`.
+   */
+  | { kind: "structured"; results: SouffleOutputStructured<FactData> }
+  /**
+   * It was not possible to further process the raw results.
+   */
+  | { kind: "raw"; results: Map<string, SouffleOutputRaw> }
+  /**
+   * An error occurred.
+   */
+  | { kind: "error"; stderr: string };
 
 /**
  * Manages the process of executing Soufflé and parsing its output.
@@ -80,11 +91,13 @@ export class SouffleSyncExecutor<FactData> extends SouffleExecutor<FactData> {
           const filepath = path.join(this.outputDir, `${relationName}.csv`);
           acc.set(relationName, parseResultsSync(filepath));
           return acc;
-        }, new Map<string, RawSouffleOutput>());
-      const results = ParsedSouffleOutput.fromRaw(ctx, rawResults);
-      return { success: true, results };
+        }, new Map<string, SouffleOutputRaw>());
+      const results = SouffleOutputStructured.fromRaw(ctx, rawResults);
+      return results !== undefined
+        ? { kind: "structured", results }
+        : { kind: "raw", results: rawResults };
     } catch (error) {
-      return { success: false, stderr: `${error}` };
+      return { kind: "error", stderr: `${error}` };
     }
   }
 }
@@ -106,7 +119,7 @@ export class SouffleAsyncExecutor<FactData> extends SouffleExecutor<FactData> {
       exec(cmd, async (error, _stdout, stderr) => {
         if (error) {
           reject({
-            success: false,
+            kind: "error",
             stderr: stderr ? `${error}:\n${stderr}` : `${error}`,
           });
         } else {
@@ -122,11 +135,15 @@ export class SouffleAsyncExecutor<FactData> extends SouffleExecutor<FactData> {
                 const rawResults = await parseResults(filepath);
                 acc.set(relationName, rawResults);
                 return acc;
-              }, Promise.resolve(new Map<string, RawSouffleOutput>()));
-            const results = ParsedSouffleOutput.fromRaw(ctx, rawResults);
-            resolve({ success: true, results });
+              }, Promise.resolve(new Map<string, SouffleOutputRaw>()));
+            const results = SouffleOutputStructured.fromRaw(ctx, rawResults);
+            resolve(
+              results !== undefined
+                ? { kind: "structured", results }
+                : { kind: "raw", results: rawResults },
+            );
           } catch (parseError) {
-            reject({ success: false, stderr: `${parseError}` });
+            reject({ kind: "error", stderr: `${parseError}` });
           }
         }
       });

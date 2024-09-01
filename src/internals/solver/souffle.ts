@@ -139,9 +139,9 @@ export class SouffleSolver<State> implements Solver<State> {
     this.addDataflowFacts(ctx);
     this.mapper.addConstraints(ctx);
     const result = this.execute(ctx);
-    if (!result.success) {
+    if (result.kind !== "structured") {
       throw new Error(
-        `Error executing Soufflé for ${this.detectorId}: ${result.stderr}`,
+        `Error executing Soufflé:\n${result.kind === "error" ? result.stderr : "Cannot unmarshall raw output:\n" + result.results}`,
       );
     }
     return this.createSouffleResults(

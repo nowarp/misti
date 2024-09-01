@@ -6,7 +6,7 @@ import fs from "fs";
  * Raw strings parsed from the Soufflé CSV-like output in the following format:
  * rule_name |-> [relation_name, fact_name]
  */
-export type RawSouffleOutput = string[][];
+export type SouffleOutputRaw = string[][];
 
 /**
  * Custom Transform Stream to parse space-separated values.
@@ -36,7 +36,7 @@ export class SpaceSeparatedParser extends Transform {
 /**
  * Parses CSV-like Soufflé output.
  */
-export function parseSpaceSeparatedValues(input: string): RawSouffleOutput {
+export function parseSpaceSeparatedValues(input: string): SouffleOutputRaw {
   return input
     .split("\n")
     .filter((line) => line.trim() !== "")
@@ -45,28 +45,24 @@ export function parseSpaceSeparatedValues(input: string): RawSouffleOutput {
       const strings = line.split(/\s+/);
       acc.push(strings);
       return acc;
-    }, [] as RawSouffleOutput);
+    }, [] as SouffleOutputRaw);
 }
 
 /**
  * Structured Soufflé output that contains information about facts with additional
  * annotations added to the executed `Context`.
  */
-export class ParsedSouffleOutput<FactData> {
-  public entries: Map<string, SouffleFact<FactData>[]>;
-
-  private constructor(entries: Map<string, SouffleFact<FactData>[]>) {
-    this.entries = entries;
-  }
+export class SouffleOutputStructured<FactData> {
+  private constructor(public entries: Map<string, SouffleFact<FactData>[]>) {}
 
   /**
-   * Generates a structured Soufflé output from raw CSV strings and the given Context.
-   * @throws If the given output cannot be unmarshalled using the given program.
+   * Generates a structured Soufflé output from raw CSV-like strings.
+   * @returns `undefined` if cannot unmarshall output.
    */
   static fromRaw<FactData>(
     ctx: SouffleContext<FactData>,
-    rawOut: Map<string, RawSouffleOutput>,
-  ): ParsedSouffleOutput<FactData> {
+    rawOut: Map<string, SouffleOutputRaw>,
+  ): SouffleOutputStructured<FactData> | undefined {
     const entries = new Map<string, SouffleFact<FactData>[]>();
     for (const [relationName, allFactValues] of rawOut.entries()) {
       const relation = ctx.getRelation(relationName);
@@ -79,7 +75,10 @@ export class ParsedSouffleOutput<FactData> {
         );
         const fact = ctx.findFact(typedFactValues);
         if (fact === undefined) {
-          throw new Error(`Cannot find fact with values: ${typedFactValues}`);
+          console.error(
+            `Cannot find ${relationName} fact with values: ${typedFactValues}`,
+          );
+          return undefined;
         }
         let facts = entries.get(relationName);
         if (facts === undefined) {
@@ -89,7 +88,7 @@ export class ParsedSouffleOutput<FactData> {
         entries.set(relationName, facts);
       }
     }
-    return new ParsedSouffleOutput(entries);
+    return new SouffleOutputStructured(entries);
   }
 }
 
@@ -100,9 +99,9 @@ export class ParsedSouffleOutput<FactData> {
  */
 export async function parseResults(
   filePath: string,
-): Promise<RawSouffleOutput> {
+): Promise<SouffleOutputRaw> {
   return new Promise((resolve, reject) => {
-    const results: RawSouffleOutput = [];
+    const results: SouffleOutputRaw = [];
     fs.createReadStream(filePath)
       .pipe(new SpaceSeparatedParser())
       .on("data", (data) => {
@@ -123,7 +122,7 @@ export async function parseResults(
  * @param filePath Path to the file to parse.
  * @returns `RawSouffleOutput` containing the parsed data.
  */
-export function parseResultsSync(filePath: string): RawSouffleOutput {
+export function parseResultsSync(filePath: string): SouffleOutputRaw {
   const data = fs.readFileSync(filePath, { encoding: "utf8" });
   return parseSpaceSeparatedValues(data);
 }
