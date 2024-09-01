@@ -15,6 +15,18 @@ import {
   SouffleAtom,
 } from "./syntax";
 
+type CommentValue = string | string[];
+function wrapComment(
+  value?: CommentValue | SouffleComment,
+): SouffleComment | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  const isComment =
+    typeof value === "object" && "kind" in value && value.kind === "comment";
+  return isComment ? value : comment(value as CommentValue);
+}
+
 export function comment(
   line: string | string[],
   style: "//" | "/*" = "//",
@@ -43,12 +55,12 @@ export function relation(
   name: string,
   args: [string, SouffleFactType][],
   io: SouffleRelationIO | undefined,
-  comment?: SouffleComment,
+  comment?: SouffleComment | CommentValue,
 ): SouffleRelation {
   return {
     kind: "relation",
     name,
-    comment,
+    comment: wrapComment(comment),
     args,
     io,
   };
@@ -117,25 +129,25 @@ export function body(
 export function rule(
   heads: SouffleAtom[],
   body: SouffleRuleBody[],
-  comment?: SouffleComment,
+  comment?: SouffleComment | CommentValue,
 ): SouffleRule {
   return {
     kind: "rule",
     heads,
     body,
-    comment,
+    comment: wrapComment(comment),
   };
 }
 
 export function program<D = undefined>(
   name: string,
   entries: SouffleProgramEntry<D>[],
-  comment?: SouffleComment,
+  comment?: SouffleComment | CommentValue,
 ): SouffleProgram<D> {
   return {
     kind: "program",
     name,
-    comment,
+    comment: wrapComment(comment),
     entries,
   };
 }

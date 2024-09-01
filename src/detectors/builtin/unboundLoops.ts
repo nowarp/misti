@@ -1,11 +1,9 @@
 import {
-  Context,
-  Fact,
-  FactType,
-  Relation,
-  Rule,
-  makeRuleBody,
-  makeAtom,
+  SouffleContext,
+  relation,
+  rule,
+  body,
+  atom,
 } from "../../internals/souffle";
 import { SouffleDetector } from "../detector";
 import { CompilationUnit, BasicBlock, CFG } from "../../internals/ir";
@@ -69,64 +67,64 @@ export class UnboundLoops extends SouffleDetector {
     });
   }
 
-  private addDecls(ctx: Context<SrcInfo>): void {
-    ctx.add(Relation.from("constDef", [["var", FactType.Symbol]], undefined));
+  private addDecls(ctx: SouffleContext<SrcInfo>): void {
+    ctx.add(relation("constDef", [["var", "Symbol"]], undefined));
     ctx.add(
-      Relation.from(
+      relation(
         "varDef",
         [
-          ["var", FactType.Symbol],
-          ["func", FactType.Symbol],
+          ["var", "Symbol"],
+          ["func", "Symbol"],
         ],
         undefined,
       ),
     );
     ctx.add(
-      Relation.from(
+      relation(
         "loopDef",
         [
-          ["loopId", FactType.Number],
-          ["func", FactType.Symbol],
+          ["loopId", "Number"],
+          ["func", "Symbol"],
         ],
         undefined,
       ),
     );
     ctx.add(
-      Relation.from(
+      relation(
         "loopCondDef",
         [
-          ["var", FactType.Symbol],
-          ["loopId", FactType.Number],
-          ["func", FactType.Symbol],
+          ["var", "Symbol"],
+          ["loopId", "Number"],
+          ["func", "Symbol"],
         ],
         undefined,
       ),
     );
     ctx.add(
-      Relation.from(
+      relation(
         "loopVarUse",
         [
-          ["var", FactType.Symbol],
-          ["loopId", FactType.Number],
-          ["func", FactType.Symbol],
+          ["var", "Symbol"],
+          ["loopId", "Number"],
+          ["func", "Symbol"],
         ],
         undefined,
       ),
     );
     ctx.add(
-      Relation.from(
+      relation(
         "unbound",
         [
-          ["var", FactType.Symbol],
-          ["loopId", FactType.Number],
-          ["func", FactType.Symbol],
+          ["var", "Symbol"],
+          ["loopId", "Number"],
+          ["func", "Symbol"],
         ],
         "output",
       ),
     );
   }
 
-  private addRules(ctx: Context<SrcInfo>): void {
+  private addRules(ctx: SouffleContext<SrcInfo>): void {
     // unbound(var, loopId, func) :-
     //   varDef(var, func),
     //   loopDef(loopId, func),
@@ -134,17 +132,19 @@ export class UnboundLoops extends SouffleDetector {
     //   !constDef(var)
     //   !loopVarUse(var, loopId, func).
     ctx.add(
-      Rule.from(
-        [makeAtom("unbound", ["var", "loopId", "func"])],
-        makeRuleBody(makeAtom("varDef", ["var", "func"])),
-        makeRuleBody(makeAtom("loopDef", ["loopId", "func"])),
-        makeRuleBody(makeAtom("loopCondDef", ["var", "loopId", "func"])),
-        makeRuleBody(makeAtom("constDef", ["var"]), {
-          negated: true,
-        }),
-        makeRuleBody(makeAtom("loopVarUse", ["var", "loopId", "func"]), {
-          negated: true,
-        }),
+      rule(
+        [atom("unbound", ["var", "loopId", "func"])],
+        [
+          body(atom("varDef", ["var", "func"])),
+          body(atom("loopDef", ["loopId", "func"])),
+          body(atom("loopCondDef", ["var", "loopId", "func"])),
+          body(atom("constDef", ["var"]), {
+            negated: true,
+          }),
+          body(atom("loopVarUse", ["var", "loopId", "func"]), {
+            negated: true,
+          }),
+        ],
       ),
     );
   }
@@ -154,10 +154,10 @@ export class UnboundLoops extends SouffleDetector {
    */
   private addConstantConstraints(
     cu: CompilationUnit,
-    ctx: Context<SrcInfo>,
+    ctx: SouffleContext<SrcInfo>,
   ): void {
     for (const c of cu.ast.getConstants({ includeStdlib: true })) {
-      ctx.addFact("constDef", Fact.from([c.name.text], c.loc));
+      ctx.addFact("constDef", [c.name.text], c.loc);
     }
   }
 
@@ -166,26 +166,26 @@ export class UnboundLoops extends SouffleDetector {
    * @param cu The compilation unit containing the CFGs and AST information.
    * @param ctx The Souffle program to which the facts are added.
    */
-  private addConstraints(cu: CompilationUnit, ctx: Context<SrcInfo>): void {
+  private addConstraints(
+    cu: CompilationUnit,
+    ctx: SouffleContext<SrcInfo>,
+  ): void {
     cu.forEachCFG(cu.ast, (cfg: CFG, _: BasicBlock, stmt: AstStatement) => {
       if (cfg.origin === "stdlib") {
         return;
       }
       const funName = cfg.name;
       if (stmt.kind === "statement_let") {
-        ctx.addFact("varDef", Fact.from([stmt.name.text, funName], stmt.loc));
+        ctx.addFact("varDef", [stmt.name.text, funName], stmt.loc);
         return;
       }
       if (stmt.kind === "statement_while" || stmt.kind === "statement_until") {
         const loopId = stmt.id;
         const usedInCond: Set<string> = new Set(); // variables used in the condition
-        ctx.addFact("loopDef", Fact.from([loopId, funName], stmt.loc));
+        ctx.addFact("loopDef", [loopId, funName], stmt.loc);
         const add = (id: AstId) => {
           usedInCond.add(id.text);
-          ctx.addFact(
-            "loopCondDef",
-            Fact.from([id.text, loopId, funName], id.loc),
-          );
+          ctx.addFact("loopCondDef", [id.text, loopId, funName], id.loc);
         };
         const cond = stmt.condition;
         // TODO: This could be improved using the constant evaluator when
@@ -218,7 +218,8 @@ export class UnboundLoops extends SouffleDetector {
           ) {
             ctx.addFact(
               "loopVarUse",
-              Fact.from([extractPath(s.path), loopId, funName], s.loc),
+              [extractPath(s.path), loopId, funName],
+              s.loc,
             );
           } else if (s.kind === "statement_expression") {
             const callExpr = s.expression;
@@ -231,7 +232,8 @@ export class UnboundLoops extends SouffleDetector {
                   if (expr.kind === "id" && usedInCond.has(expr.text)) {
                     ctx.addFact(
                       "loopVarUse",
-                      Fact.from([expr.text, loopId, funName], s.loc),
+                      [expr.text, loopId, funName],
+                      s.loc,
                     );
                   }
                 });

@@ -3,9 +3,8 @@ import { CompilationUnit } from "../internals/ir";
 import { makeDocURL, MistiTactWarning, Severity } from "../internals/warnings";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import {
-  Context as SouffleContext,
-  Fact,
-  FactValue,
+  SouffleContext,
+  SouffleFact,
   AsyncExecutor,
 } from "../internals/souffle";
 
@@ -110,7 +109,7 @@ export abstract class SouffleDetector extends Detector {
    */
   protected async executeSouffle(
     program: SouffleContext<SrcInfo>,
-    callback: (fact: Fact<FactValue, SrcInfo>) => MistiTactWarning | undefined,
+    callback: (fact: SouffleFact<SrcInfo>) => MistiTactWarning | undefined,
   ): Promise<MistiTactWarning[]> {
     const executor = this.ctx.config.soufflePath
       ? new AsyncExecutor<SrcInfo>({
