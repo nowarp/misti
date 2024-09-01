@@ -57,7 +57,7 @@ export class SouffleOutputStructured<FactData> {
 
   /**
    * Generates a structured Soufflé output from raw CSV-like strings.
-   * @returns `undefined` if cannot unmarshall output.
+   * @returns `undefined` if cannot unmarshal output.
    */
   static fromRaw<FactData>(
     ctx: SouffleContext<FactData>,

@@ -127,7 +127,7 @@ export abstract class SouffleDetector extends Detector {
     const result = await executor.execute(ctx);
     if (result.kind !== "structured") {
       throw new Error(
-        `Error executing Soufflé for ${this.id}:\n${result.kind === "error" ? result.stderr : "Cannot unmarshall raw output:\n" + result.results}`,
+        `Error executing Soufflé for ${this.id}:\n${result.kind === "error" ? result.stderr : "Cannot unmarshal raw output:\n" + result.results}`,
       );
     }
     return Array.from(result.results.entries.values()).reduce<

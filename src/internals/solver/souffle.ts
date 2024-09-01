@@ -141,7 +141,7 @@ export class SouffleSolver<State> implements Solver<State> {
     const result = this.execute(ctx);
     if (result.kind !== "structured") {
       throw new Error(
-        `Error executing Soufflé:\n${result.kind === "error" ? result.stderr : "Cannot unmarshall raw output:\n" + result.results}`,
+        `Error executing Soufflé:\n${result.kind === "error" ? result.stderr : "Cannot unmarshal raw output:\n" + result.results}`,
       );
     }
     return this.createSouffleResults(
