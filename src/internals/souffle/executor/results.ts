@@ -1,5 +1,6 @@
 import { SouffleContext, SouffleFact } from "..";
 import { Transform, TransformCallback } from "stream";
+import { SouffleUsageError } from "../errors";
 import fs from "fs";
 
 /**
@@ -67,7 +68,7 @@ export class SouffleOutputStructured<FactData> {
     for (const [relationName, allFactValues] of rawOut.entries()) {
       const relation = ctx.getRelation(relationName);
       if (relation === undefined) {
-        throw new Error(`Cannot find relation: ${relationName}`);
+        throw SouffleUsageError.make(`Cannot find relation: ${relationName}`);
       }
       for (const factValues of allFactValues) {
         const typedFactValues = factValues.map((v) =>

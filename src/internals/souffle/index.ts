@@ -28,4 +28,10 @@ export {
 } from "./syntaxConstructors";
 export { SouffleContext } from "./context";
 export { SouffleEmitter } from "./emitter";
+export {
+  SouffleError,
+  SouffleUsageError,
+  SouffleInternalError,
+  SouffleExecutionError,
+} from "./errors";
 export { SoufflePrettyPrinter } from "./prettyPrinter";

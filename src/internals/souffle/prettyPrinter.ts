@@ -9,6 +9,7 @@ import {
   SouffleRule,
   SouffleAtom,
 } from "./syntax";
+import { SouffleInternalError } from "./errors";
 
 /**
  * Pretty-prints Souffle entries.
@@ -36,7 +37,9 @@ export class SoufflePrettyPrinter<FactData = undefined> {
       case "atom":
         return this.ppAtom(node);
       default:
-        throw new Error(`Unsupported node: ${JSON.stringify(node)}`);
+        throw SouffleInternalError.make(
+          `Unsupported node: ${JSON.stringify(node)}`,
+        );
     }
   }
 

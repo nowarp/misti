@@ -7,6 +7,7 @@ import {
   SouffleComment,
   SouffleProgram,
 } from "./syntax";
+import { SouffleUsageError } from "./errors";
 import { ILogger, DefaultLogger } from "./logger";
 import { eqFactValues } from "./syntaxUtils";
 import { program, fact } from "./syntaxConstructors";
@@ -157,7 +158,7 @@ export class SouffleContext<FactData = undefined> {
     } else if (entity.kind === "rule") {
       this.addRule(entity);
     } else {
-      throw new Error(`Cannot add unsupported entity: ${entity}`);
+      throw SouffleUsageError.make(`Cannot add unsupported entity: ${entity}`);
     }
   }
 
@@ -167,7 +168,9 @@ export class SouffleContext<FactData = undefined> {
    */
   private addRelation(relation: SouffleRelation): void | never {
     if (this.relations.has(relation.name)) {
-      throw new Error(`Relation ${relation.name} is already declared`);
+      throw SouffleUsageError.make(
+        `Relation ${relation.name} is already declared`,
+      );
     }
     this.relations.set(relation.name, relation);
   }
@@ -185,12 +188,12 @@ export class SouffleContext<FactData = undefined> {
   ): void | never {
     const relation = this.relations.get(name);
     if (!relation) {
-      throw new Error(`Unknown relation: ${name}`);
+      throw SouffleUsageError.make(`Unknown relation: ${name}`);
     }
 
     // Sanity check: compare number of arguments in the declaration and the actual ones.
     if (factValues.length !== relation.args.length) {
-      throw new Error(
+      throw SouffleUsageError.make(
         `Incorrect number of arguments for ${this.name}: got ${factValues.length} expected ${relation.args.length}`,
       );
     }
@@ -212,7 +215,7 @@ export class SouffleContext<FactData = undefined> {
       .filter((head) => !this.relations.has(head.name))
       .map((head) => head.name);
     if (undefinedRelations.length > 0) {
-      throw new Error(
+      throw SouffleUsageError.make(
         `Undefined relations in the \`${rule}\` rule: ${undefinedRelations.join(", ")}\nPlease add them using \`addRelation\`.`,
       );
     }
