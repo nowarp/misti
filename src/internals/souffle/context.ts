@@ -7,6 +7,7 @@ import {
   SouffleComment,
   SouffleProgram,
 } from "./syntax";
+import { ILogger, DefaultLogger } from "./logger";
 import { eqFactValues } from "./syntaxUtils";
 import { program, fact } from "./syntaxConstructors";
 
@@ -33,6 +34,11 @@ export class SouffleContext<FactData = undefined> {
   public addComments: boolean;
 
   /**
+   * Logger used to report library messages.
+   */
+  public logger: ILogger;
+
+  /**
    * Holds facts mapped to their corresponding relation declarations.
    */
   private facts = new Map<RelationName, Set<SouffleFact<FactData>>>();
@@ -57,14 +63,17 @@ export class SouffleContext<FactData = undefined> {
     {
       comment = undefined,
       addComments = false,
+      logger = new DefaultLogger(),
     }: Partial<{
       comment: SouffleComment | undefined;
       addComments: boolean;
       formatWithSpacing: boolean;
+      logger: ILogger;
     }> = {},
   ) {
     this.programComment = comment;
     this.addComments = addComments;
+    this.logger = logger;
   }
 
   /** Filename of the Soufflé file to be used for the generated program. */

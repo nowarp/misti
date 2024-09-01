@@ -75,7 +75,7 @@ export class SouffleOutputStructured<FactData> {
         );
         const fact = ctx.findFact(typedFactValues);
         if (fact === undefined) {
-          console.error(
+          ctx.logger.warn(
             `Cannot find ${relationName} fact with values: ${typedFactValues}`,
           );
           return undefined;
@@ -111,8 +111,7 @@ export async function parseResults(
         resolve(results);
       })
       .on("error", (error) => {
-        console.error("Error reading CSV file:", error);
-        reject(error);
+        reject(`Error reading CSV file: ${error}`);
       });
   });
 }
