@@ -42,12 +42,12 @@ export function createMistiCommand(): Command {
     )
     .option(
       "--souffle-binary <path>",
-      "Path to Soufflé binary. Default value: `souffle`.",
+      "Path to Soufflé binary. Default: `souffle`.",
       undefined,
     )
     .option(
       "--souffle-path <path>",
-      "Directory to save generated Soufflé files. If not set, a temporary directory will be used.",
+      "Directory to save generated Soufflé files. If not set, a temporary directory will be used. Default: `/tmp/misti/souffle`",
       undefined,
     )
     .option(

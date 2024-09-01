@@ -30,7 +30,7 @@ const ConfigSchema = z.object({
 export class MistiConfig {
   public detectors: DetectorConfig[];
   public ignoredProjects: string[];
-  public soufflePath?: string;
+  public soufflePath: string = "/tmp/misti/souffle";
   public souffleVerbose?: boolean;
   public tactStdlibPath?: string;
   public unusedPrefix: string;
@@ -74,7 +74,7 @@ export class MistiConfig {
       configData = {
         detectors: this.createDetectorConfigs(detectors, allDetectors),
         ignoredProjects: [],
-        soufflePath: undefined,
+        soufflePath: "/tmp/misti/souffle",
         souffleVerbose: false,
         tactStdlibPath: undefined,
         unusedPrefix: "_",

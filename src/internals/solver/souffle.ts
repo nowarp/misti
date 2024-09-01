@@ -113,12 +113,10 @@ export class SouffleSolver<State> implements Solver<State> {
   private execute(
     ctx: SouffleContext<SrcInfo>,
   ): SouffleExecutionResult<SrcInfo> {
-    const executor = this.ctx.config.soufflePath
-      ? new SyncExecutor<SrcInfo>({
-          inputDir: this.ctx.config.soufflePath,
-          outputDir: this.ctx.config.soufflePath,
-        })
-      : new SyncExecutor<SrcInfo>();
+    const executor = new SyncExecutor<SrcInfo>({
+      inputDir: this.ctx.config.soufflePath,
+      outputDir: this.ctx.config.soufflePath,
+    });
     return executor.execute(ctx);
   }
 

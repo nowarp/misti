@@ -36,8 +36,8 @@ export abstract class Executor<FactData> {
 
   constructor({
     soufflePath = "souffle",
-    inputDir = "/tmp/misti/souffle",
-    outputDir = "/tmp/misti/souffle",
+    inputDir = "/tmp/souffle-js",
+    outputDir = "/tmp/souffle-js",
   }: Partial<SouffleExecutorParams> = {}) {
     this.soufflePath = soufflePath;
     this.inputDir = inputDir;

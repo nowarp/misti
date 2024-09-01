@@ -120,12 +120,10 @@ export abstract class SouffleDetector extends Detector {
     ctx: SouffleContext<SrcInfo>,
     callback: (fact: SouffleFact<SrcInfo>) => MistiTactWarning | undefined,
   ): Promise<MistiTactWarning[]> {
-    const executor = this.ctx.config.soufflePath
-      ? new AsyncExecutor<SrcInfo>({
-          inputDir: this.ctx.config.soufflePath,
-          outputDir: this.ctx.config.soufflePath,
-        })
-      : new AsyncExecutor<SrcInfo>();
+    const executor = new AsyncExecutor<SrcInfo>({
+      inputDir: this.ctx.config.soufflePath,
+      outputDir: this.ctx.config.soufflePath,
+    });
     const result = await executor.execute(ctx);
     if (!result.success) {
       throw new Error(
