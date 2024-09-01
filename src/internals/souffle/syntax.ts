@@ -1,9 +1,19 @@
+/**
+ * Comments in the source code.
+ * See: https://souffle-lang.github.io/program#comments
+ */
 export type SouffleComment = {
   kind: "comment";
   style: "//" | "/*";
   lines: string[];
 };
 
+/**
+ * Soufflé facts are always connected to relation declarations, which define their
+ * type. Thus, in most cases, you should use `SouffleContext.addFact` to introduce
+ * new facts bound to relations.
+ * See: https://souffle-lang.github.io/facts
+ */
 export type SouffleFact<FactData = undefined> = {
   kind: "fact";
   relationName: string;
@@ -13,6 +23,10 @@ export type SouffleFact<FactData = undefined> = {
 export type SouffleFactValue = string | number;
 export type SouffleFactType = "Symbol" | "Number" | "Unsigned" | "Float";
 
+/**
+ * Declaration of a Soufflé relation.
+ * See: https://souffle-lang.github.io/relations
+ */
 export type SouffleRelation = {
   kind: "relation";
   name: string;
@@ -70,6 +84,7 @@ export type SouffleRule = {
 
 /**
  * Soufflé program present in a single source file.
+ * See: https://souffle-lang.github.io/program
  */
 export type SouffleProgram<FactData = undefined> = {
   kind: "program";
