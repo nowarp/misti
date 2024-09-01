@@ -4,7 +4,7 @@ import { makeDocURL, MistiTactWarning, Severity } from "../internals/warnings";
 import {
   SouffleContext,
   SouffleFact,
-  AsyncExecutor,
+  SouffleAsyncExecutor,
   comment,
 } from "../internals/souffle";
 import { CommentValue } from "../internals/souffle/syntaxConstructors";
@@ -120,7 +120,7 @@ export abstract class SouffleDetector extends Detector {
     ctx: SouffleContext<SrcInfo>,
     callback: (fact: SouffleFact<SrcInfo>) => MistiTactWarning | undefined,
   ): Promise<MistiTactWarning[]> {
-    const executor = new AsyncExecutor<SrcInfo>({
+    const executor = new SouffleAsyncExecutor<SrcInfo>({
       inputDir: this.ctx.config.soufflePath,
       outputDir: this.ctx.config.soufflePath,
     });

@@ -2,7 +2,7 @@ import {
   SouffleContext,
   SouffleFact,
   SouffleExecutionResult,
-  SyncExecutor,
+  SouffleSyncExecutor,
   relation,
 } from "../souffle/";
 import { MistiContext } from "../context";
@@ -113,7 +113,7 @@ export class SouffleSolver<State> implements Solver<State> {
   private execute(
     ctx: SouffleContext<SrcInfo>,
   ): SouffleExecutionResult<SrcInfo> {
-    const executor = new SyncExecutor<SrcInfo>({
+    const executor = new SouffleSyncExecutor<SrcInfo>({
       inputDir: this.ctx.config.soufflePath,
       outputDir: this.ctx.config.soufflePath,
     });

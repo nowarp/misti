@@ -1,7 +1,7 @@
 export {
-  Executor,
-  SyncExecutor,
-  AsyncExecutor,
+  SouffleExecutor,
+  SouffleSyncExecutor,
+  SouffleAsyncExecutor,
   SouffleExecutionResult,
   SouffleExecutorParams,
 } from "./executor";

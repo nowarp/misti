@@ -29,7 +29,7 @@ export type SouffleExecutionResult<FactData> =
 /**
  * Manages the process of executing Soufflé and parsing its output.
  */
-export abstract class Executor<FactData> {
+export abstract class SouffleExecutor<FactData> {
   protected soufflePath: string;
   protected inputDir: string;
   protected outputDir: string;
@@ -59,7 +59,7 @@ export abstract class Executor<FactData> {
   }
 }
 
-export class SyncExecutor<FactData> extends Executor<FactData> {
+export class SouffleSyncExecutor<FactData> extends SouffleExecutor<FactData> {
   /**
    * Executes the Datalog program using the Soufflé engine synchronously.
    * @returns `SouffleExecutionResult` which contains the status of execution.
@@ -89,7 +89,7 @@ export class SyncExecutor<FactData> extends Executor<FactData> {
   }
 }
 
-export class AsyncExecutor<FactData> extends Executor<FactData> {
+export class SouffleAsyncExecutor<FactData> extends SouffleExecutor<FactData> {
   /**
    * Executes the Datalog program using the Soufflé engine.
    * @returns `SouffleExecutionResult` which contains the status of execution.
