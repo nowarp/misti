@@ -69,7 +69,9 @@ export class SyncExecutor<FactData> extends Executor<FactData> {
   ): SouffleExecutionResult<FactData> {
     try {
       fs.mkdirSync(this.inputDir, { recursive: true });
-      SouffleEmitter.make<FactData>(ctx).dumpSync(this.inputDir);
+      SouffleEmitter.make<FactData>(ctx, {
+        addComments: ctx.addComments,
+      }).dumpSync(this.inputDir);
       const cmd = this.makeSouffleCommand(ctx);
       execSync(cmd, { stdio: ["ignore", "ignore", "pipe"] });
       const rawResults = ctx
@@ -96,7 +98,9 @@ export class AsyncExecutor<FactData> extends Executor<FactData> {
     ctx: SouffleContext<FactData>,
   ): Promise<SouffleExecutionResult<FactData>> {
     await fs.promises.mkdir(this.inputDir, { recursive: true });
-    await SouffleEmitter.make<FactData>(ctx).dump(this.inputDir);
+    await SouffleEmitter.make<FactData>(ctx, {
+      addComments: ctx.addComments,
+    }).dump(this.inputDir);
     const cmd = this.makeSouffleCommand(ctx);
     return new Promise((resolve, reject) => {
       exec(cmd, async (error, _stdout, stderr) => {

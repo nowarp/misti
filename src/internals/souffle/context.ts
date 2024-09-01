@@ -27,6 +27,12 @@ export class SouffleContext<FactData = undefined> {
   private programComment: SouffleComment | undefined;
 
   /**
+   * Add generated comments to the output Soufflé program.
+   * Set to `false` to reduce the size of produced code.
+   */
+  public addComments: boolean;
+
+  /**
    * Holds facts mapped to their corresponding relation declarations.
    */
   private facts = new Map<RelationName, Set<SouffleFact<FactData>>>();
@@ -43,14 +49,22 @@ export class SouffleContext<FactData = undefined> {
 
   /**
    * @param name Unique name of the generated program.
+   * @param comment Docstring-like comment to be added on the top of the generated program.
+   * @param addComments Include comments to the generated program.
    */
   constructor(
     private name: string,
     {
       comment = undefined,
-    }: Partial<{ comment: SouffleComment | undefined }> = {},
+      addComments = false,
+    }: Partial<{
+      comment: SouffleComment | undefined;
+      addComments: boolean;
+      formatWithSpacing: boolean;
+    }> = {},
   ) {
     this.programComment = comment;
+    this.addComments = addComments;
   }
 
   /** Filename of the Soufflé file to be used for the generated program. */

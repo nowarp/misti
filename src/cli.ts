@@ -51,6 +51,11 @@ export function createMistiCommand(): Command {
       undefined,
     )
     .option(
+      "--souffle-verbose",
+      "If set, generates more readable Soufflé files instead of making the result source code smaller.",
+      undefined,
+    )
+    .option(
       "--tact-stdlib-path <path>",
       "Path to Tact standard library. If not set, the default stdlib from the actual Tact setup will be used.",
       undefined,

@@ -17,6 +17,7 @@ export class MistiContext {
    * @param params Contains various configuration options:
    *   - mistiConfigPath: Path to the Misti configuration file.
    *   - soufflePath: Directory to save Soufflé files.
+   *   - souffleVerbose: Generate more verbose Soufflé programs.
    *   - tactStdlibPath: Non-default path to Tact stdlib.
    *   - verbose: CLI option to force verbose output.
    *   - quiet: CLI option to forcefully suppress output.
@@ -30,6 +31,7 @@ export class MistiContext {
     params: Partial<{
       mistiConfigPath?: string;
       soufflePath?: string;
+      souffleVerbose?: boolean;
       tactStdlibPath?: string;
       verbose?: boolean;
       quiet?: boolean;
@@ -42,6 +44,7 @@ export class MistiContext {
     const {
       mistiConfigPath = undefined,
       soufflePath = undefined,
+      souffleVerbose = false,
       tactStdlibPath = undefined,
       verbose = false,
       quiet = false,
@@ -61,6 +64,9 @@ export class MistiContext {
     // Prioritize CLI options to configuration file values
     if (soufflePath !== undefined) {
       this.config.soufflePath = soufflePath;
+    }
+    if (souffleVerbose !== undefined) {
+      this.config.souffleVerbose = souffleVerbose;
     }
     if (tactStdlibPath !== undefined) {
       this.config.tactStdlibPath = tactStdlibPath;

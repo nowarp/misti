@@ -15,7 +15,7 @@ import {
   SouffleAtom,
 } from "./syntax";
 
-type CommentValue = string | string[];
+export type CommentValue = string | string[];
 function wrapComment(
   value?: CommentValue | SouffleComment,
 ): SouffleComment | undefined {
