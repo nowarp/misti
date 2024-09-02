@@ -6,13 +6,7 @@ import {
   forEachStatement,
   foldExpressions,
 } from "../../internals/tactASTUtil";
-import {
-  SouffleContext,
-  atom,
-  rule,
-  body,
-  relation,
-} from "@nowarp/souffle";
+import { SouffleContext, atom, rule, body, relation } from "@nowarp/souffle";
 import {
   AstStatement,
   AstNode,

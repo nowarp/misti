@@ -6,13 +6,7 @@ import {
   forEachExpression,
   forEachStatement,
 } from "../../internals/tactASTUtil";
-import {
-  SouffleContext,
-  relation,
-  rule,
-  body,
-  atom,
-} from "@nowarp/souffle";
+import { SouffleContext, relation, rule, body, atom } from "@nowarp/souffle";
 import {
   AstStatement,
   SrcInfo,

@@ -2,13 +2,7 @@ import { SouffleDetector, WarningsBehavior } from "../detector";
 import { CompilationUnit, BasicBlock, CFG } from "../../internals/ir";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { extractPath, forEachExpression } from "../../internals/tactASTUtil";
-import {
-  SouffleContext,
-  relation,
-  rule,
-  body,
-  atom,
-} from "@nowarp/souffle";
+import { SouffleContext, relation, rule, body, atom } from "@nowarp/souffle";
 import {
   AstStatement,
   SrcInfo,
