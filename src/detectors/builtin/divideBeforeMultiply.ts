@@ -1,12 +1,3 @@
-import {
-  Context,
-  Fact,
-  FactType,
-  Relation,
-  makeAtom,
-  makeRuleBody,
-  Rule,
-} from "../../internals/souffle";
 import { SouffleDetector } from "../detector";
 import { CompilationUnit, BasicBlock, CFG } from "../../internals/ir";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
@@ -15,6 +6,7 @@ import {
   forEachStatement,
   foldExpressions,
 } from "../../internals/tactASTUtil";
+import { SouffleContext, atom, rule, body, relation } from "@nowarp/souffle";
 import {
   AstStatement,
   AstNode,
@@ -73,211 +65,199 @@ export class DivideBeforeMultiply extends SouffleDetector {
     });
   }
 
-  private addDecls(ctx: Context<SrcInfo>): void {
-    // Division expression definition.
+  private addDecls(ctx: SouffleContext<SrcInfo>): void {
     ctx.add(
-      Relation.from(
+      relation(
         "divDef",
         [
-          ["divId", FactType.Number],
-          ["func", FactType.Symbol],
+          ["divId", "Number"],
+          ["func", "Symbol"],
         ],
         undefined,
+        "Division expression definition.",
       ),
     );
-    // Division expressions defined within the multiplication expression (both lhs or rhs).
     ctx.add(
-      Relation.from(
+      relation(
         "divUsedInMul",
         [
-          ["mulId", FactType.Number],
-          ["divId", FactType.Number],
-          ["func", FactType.Symbol],
+          ["mulId", "Number"],
+          ["divId", "Number"],
+          ["func", "Symbol"],
         ],
         undefined,
+        "Division expressions defined within the multiplication expression (both lhs or rhs).",
       ),
     );
-    // Local variable definition.
     ctx.add(
-      Relation.from(
+      relation(
         "varDef",
         [
-          ["var", FactType.Symbol],
-          ["func", FactType.Symbol],
+          ["var", "Symbol"],
+          ["func", "Symbol"],
         ],
         undefined,
+        "Local variable definition.",
       ),
     );
-    // Describes variables appearing in the division expression or assigning to
-    // a result of the division.
-    // Examples:
-    // * `10 / a` or `a / 10` will create a fact `varTaintedWithDiv(a, <id>)`
-    // * `let a: Int = 10 / 3;` will create a fact `varTaintedWithDiv(a, <id>)` as well
     ctx.add(
-      Relation.from(
+      relation(
         "varTaintedWithDiv",
         [
-          ["var", FactType.Symbol],
-          ["divId", FactType.Number],
-          ["func", FactType.Symbol],
+          ["var", "Symbol"],
+          ["divId", "Number"],
+          ["func", "Symbol"],
         ],
         undefined,
+        [
+          "Describes variables appearing in the division expression or assigning to a result of the division.",
+          "Examples:",
+          "* `10 / a` or `a / 10` will create a fact `varTaintedWithDiv(a, <id>)`",
+          "* `let a: Int = 10 / 3;` will create a fact `varTaintedWithDiv(a, <id>)` as well",
+        ],
       ),
     );
-    // Describes variables appearing in the multiply expression.
-    // For example: `a * 3` or `3 + (a * 4)` will create a fact `varUsedInMul(a, <id>)`.
     ctx.add(
-      Relation.from(
+      relation(
         "varUsedInMul",
         [
-          ["mulId", FactType.Number],
-          ["var", FactType.Symbol],
-          ["func", FactType.Symbol],
+          ["mulId", "Number"],
+          ["var", "Symbol"],
+          ["func", "Symbol"],
         ],
         undefined,
+        [
+          "Describes variables appearing in the multiply expression.",
+          "For example: `a * 3` or `3 + (a * 4)` will create a fact `varUsedInMul(a, <id>)`.",
+        ],
       ),
     );
-    // Variable assignment to any expression containing another variable used
-    // for taint propagation.
-    // For example: `a = (b + 42) - 2` will create a fact: `varAssign(a, b)`.
     ctx.add(
-      Relation.from(
+      relation(
         "varAssign",
         [
-          ["assigned", FactType.Symbol],
-          ["assignee", FactType.Symbol],
-          ["func", FactType.Symbol],
+          ["assigned", "Symbol"],
+          ["assignee", "Symbol"],
+          ["func", "Symbol"],
         ],
         undefined,
+        [
+          "Variable assignment to any expression containing another variable used for taint propagation.",
+          "For example: `a = (b + 42) - 2` will create a fact: `varAssign(a, b)`.",
+        ],
       ),
     );
-    // A declaration of the recursive rule that expresses the taint propagation
-    // for local variables involved in the division operation.
     ctx.add(
-      Relation.from(
+      relation(
         "taintedWithDiv",
         [
-          ["var", FactType.Symbol],
-          ["divId", FactType.Number],
-          ["func", FactType.Symbol],
+          ["var", "Symbol"],
+          ["divId", "Number"],
+          ["func", "Symbol"],
         ],
         undefined,
+        "Recursive rule that expresses taint propagation for local variables involved in the division operation.",
       ),
     );
-    // Main rule: simple case.
     ctx.add(
-      Relation.from(
+      relation(
         "divBeforeMul",
         [
-          ["divId", FactType.Number],
-          ["mulId", FactType.Number],
-          ["func", FactType.Symbol],
+          ["divId", "Number"],
+          ["mulId", "Number"],
+          ["func", "Symbol"],
         ],
         undefined,
+        "Main rule: simple case.",
       ),
     );
-    // Main rule: tainted case.
     ctx.add(
-      Relation.from(
+      relation(
         "taintedVarInMul",
         [
-          ["var", FactType.Symbol],
-          ["divId", FactType.Number],
-          ["func", FactType.Symbol],
+          ["var", "Symbol"],
+          ["divId", "Number"],
+          ["func", "Symbol"],
         ],
         undefined,
+        "Main rule: tainted case.",
       ),
     );
-    // Projection rule to refer the appropriate division operations in the output
     ctx.add(
-      Relation.from(
+      relation(
         "violated",
         [
-          ["divId", FactType.Number],
-          ["func", FactType.Symbol],
+          ["divId", "Number"],
+          ["func", "Symbol"],
         ],
         "output",
+        "Projection rule to refer the appropriate division operations in the output",
       ),
     );
   }
 
-  private addRules(ctx: Context<SrcInfo>): void {
-    // Base case: direct tainting with division. For example:
-    // ```
-    // let a: Int = 10 / 3;
-    // a * 5;
-    // ```
-    //
-    // taintedWithDiv(var, divId, func) :-
-    //   varDef(var, func),
-    //   divDef(divId, func),
-    //   varTaintedWithDiv(var, divId, func).
+  private addRules(ctx: SouffleContext<SrcInfo>): void {
     ctx.add(
-      Rule.from(
-        [makeAtom("taintedWithDiv", ["var", "divId", "func"])],
-        makeRuleBody(makeAtom("varDef", ["var", "func"])),
-        makeRuleBody(makeAtom("divDef", ["divId", "func"])),
-        makeRuleBody(makeAtom("varTaintedWithDiv", ["var", "divId", "func"])),
-      ),
-    );
-
-    // Indirect tainting through another tainted variable.
-    // taintedWithDiv(var, divId, func) :-
-    //   varDef(var, func),
-    //   varDef(intermediateVar, func),
-    //   varAssign(var, intermediateVar, func),
-    //   taintedWithDiv(intermediateVar, _, func).
-    ctx.add(
-      Rule.from(
-        [makeAtom("taintedWithDiv", ["var", "divId", "func"])],
-        makeRuleBody(makeAtom("varDef", ["var", "func"])),
-        makeRuleBody(makeAtom("varDef", ["intermediateVar", "func"])),
-        makeRuleBody(makeAtom("varAssign", ["var", "intermediateVar", "func"])),
-        makeRuleBody(
-          makeAtom("taintedWithDiv", ["intermediateVar", "divId", "func"]),
-        ),
-      ),
-    );
-
-    // Simple case: Division expression appears inside the multiply expression.
-    // divBeforeMul(mulId, divId, func) :-
-    //   divDef(divId, func),
-    //   divUsedInMul(mulId, divId, func).
-    ctx.add(
-      Rule.from(
-        [makeAtom("divBeforeMul", ["mulId", "divId", "func"])],
-        makeRuleBody(makeAtom("divDef", ["divId", "func"])),
-        makeRuleBody(makeAtom("divUsedInMul", ["mulId", "divId", "func"])),
-      ),
-    );
-
-    // Tainted case: Using a variable tainted with division in the multiply expression.
-    // taintedVarInMul(var, divId, func) :-
-    //   taintedWithDiv(var, _, func),
-    //   varUsedInMul(_, var, func).
-    ctx.add(
-      Rule.from(
-        [makeAtom("taintedVarInMul", ["var", "divId", "func"])],
-        makeRuleBody(makeAtom("taintedWithDiv", ["var", "divId", "func"])),
-        makeRuleBody(makeAtom("varUsedInMul", ["_", "var", "func"])),
-      ),
-    );
-
-    // The projection rule used to parse output:
-    // violated(divId, func) :-
-    //   taintedVarInMul(_, divId, func).
-    // violated(divId) :-
-    //   divBeforeMul(_, divId, func).
-    ctx.add(
-      Rule.from(
-        [makeAtom("violated", ["divId", "func"])],
-        makeRuleBody(makeAtom("taintedVarInMul", ["_", "divId", "func"])),
+      rule(
+        [atom("taintedWithDiv", ["var", "divId", "func"])],
+        [
+          body(atom("varDef", ["var", "func"])),
+          body(atom("divDef", ["divId", "func"])),
+          body(atom("varTaintedWithDiv", ["var", "divId", "func"])),
+        ],
+        [
+          "Base case: direct tainting with division. For example:",
+          "```",
+          "let a: Int = 10 / 3;",
+          "a * 5;",
+          "```",
+        ],
       ),
     );
     ctx.add(
-      Rule.from(
-        [makeAtom("violated", ["divId", "func"])],
-        makeRuleBody(makeAtom("divBeforeMul", ["_", "divId", "func"])),
+      rule(
+        [atom("taintedWithDiv", ["var", "divId", "func"])],
+        [
+          body(atom("varDef", ["var", "func"])),
+          body(atom("varDef", ["intermediateVar", "func"])),
+          body(atom("varAssign", ["var", "intermediateVar", "func"])),
+          body(atom("taintedWithDiv", ["intermediateVar", "divId", "func"])),
+        ],
+        "Indirect tainting through another tainted variable.",
+      ),
+    );
+    ctx.add(
+      rule(
+        [atom("divBeforeMul", ["mulId", "divId", "func"])],
+        [
+          body(atom("divDef", ["divId", "func"])),
+          body(atom("divUsedInMul", ["mulId", "divId", "func"])),
+        ],
+        "Simple case: Division expression appears inside the multiply expression.",
+      ),
+    );
+    ctx.add(
+      rule(
+        [atom("taintedVarInMul", ["var", "divId", "func"])],
+        [
+          body(atom("taintedWithDiv", ["var", "divId", "func"])),
+          body(atom("varUsedInMul", ["_", "var", "func"])),
+        ],
+        "Tainted case: Using a variable tainted with division in the multiply expression.",
+      ),
+    );
+    ctx.add(
+      rule(
+        [atom("violated", ["divId", "func"])],
+        [body(atom("taintedVarInMul", ["_", "divId", "func"]))],
+        "The projection rule used to parse output",
+      ),
+    );
+    ctx.add(
+      rule(
+        [atom("violated", ["divId", "func"])],
+        [body(atom("divBeforeMul", ["_", "divId", "func"]))],
+        "The projection rule used to parse output",
       ),
     );
   }
@@ -311,7 +291,10 @@ export class DivideBeforeMultiply extends SouffleDetector {
    * @param cu The compilation unit containing the CFGs and AST information.
    * @param ctx The Souffle program to which the facts are added.
    */
-  private addConstraints(cu: CompilationUnit, ctx: Context<SrcInfo>): void {
+  private addConstraints(
+    cu: CompilationUnit,
+    ctx: SouffleContext<SrcInfo>,
+  ): void {
     cu.forEachCFG(cu.ast, (cfg: CFG, _: BasicBlock, stmt: AstStatement) => {
       if (cfg.origin === "stdlib") {
         return;
@@ -321,12 +304,9 @@ export class DivideBeforeMultiply extends SouffleDetector {
       forEachStatement(stmt, (s) => {
         if (s.kind === "statement_let") {
           const varName = s.name.text;
-          ctx.addFact("varDef", Fact.from([varName, funName], s.loc));
+          ctx.addFact("varDef", [varName, funName], s.loc);
           this.collectIdentifiers(s.expression).forEach((rhsName) => {
-            ctx.addFact(
-              "varAssign",
-              Fact.from([varName, rhsName, funName], s.loc),
-            );
+            ctx.addFact("varAssign", [varName, rhsName, funName], s.loc);
           });
           // Collect taints in the initializers, e.g.: `a = 10 / 3`
           this.forEachBinop(s.expression, (binopExpr) => {
@@ -334,7 +314,8 @@ export class DivideBeforeMultiply extends SouffleDetector {
               const divId = binopExpr.id;
               ctx.addFact(
                 "varTaintedWithDiv",
-                Fact.from([varName, divId, funName], binopExpr.loc),
+                [varName, divId, funName],
+                binopExpr.loc,
               );
             }
           });
@@ -343,17 +324,15 @@ export class DivideBeforeMultiply extends SouffleDetector {
       // Collect information about expressions
       this.forEachBinop(stmt, (binopExpr) => {
         if (binopExpr.op === "/") {
-          ctx.addFact(
-            "divDef",
-            Fact.from([binopExpr.id, funName], binopExpr.loc),
-          );
+          ctx.addFact("divDef", [binopExpr.id, funName], binopExpr.loc);
         }
         if (binopExpr.op === "*") {
           const mulId = binopExpr.id;
           this.collectIdentifiers(binopExpr).forEach((usedVar) => {
             ctx.addFact(
               "varUsedInMul",
-              Fact.from([mulId, usedVar, funName], binopExpr.loc),
+              [mulId, usedVar, funName],
+              binopExpr.loc,
             );
           });
           const processBinop = (binOpExpr: AstOpBinary) => {
@@ -361,12 +340,14 @@ export class DivideBeforeMultiply extends SouffleDetector {
               const divId = binOpExpr.id;
               ctx.addFact(
                 "divUsedInMul",
-                Fact.from([mulId, divId, funName], binOpExpr.loc),
+                [mulId, divId, funName],
+                binOpExpr.loc,
               );
               this.collectIdentifiers(binOpExpr).forEach((usedVar) => {
                 ctx.addFact(
                   "varTaintedWithDiv",
-                  Fact.from([usedVar, divId, funName], binOpExpr.loc),
+                  [usedVar, divId, funName],
+                  binOpExpr.loc,
                 );
               });
             }

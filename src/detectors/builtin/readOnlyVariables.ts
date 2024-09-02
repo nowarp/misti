@@ -1,21 +1,13 @@
+import { SouffleDetector, WarningsBehavior } from "../detector";
+import { CompilationUnit, BasicBlock, CFG } from "../../internals/ir";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { extractPath, forEachExpression } from "../../internals/tactASTUtil";
+import { SouffleContext, relation, rule, body, atom } from "@nowarp/souffle";
 import {
   AstStatement,
   SrcInfo,
   AstExpression,
 } from "@tact-lang/compiler/dist/grammar/ast";
-import { SouffleDetector, WarningsBehavior } from "../detector";
-import { CompilationUnit, BasicBlock, CFG } from "../../internals/ir";
-import {
-  Context,
-  Fact,
-  FactType,
-  Relation,
-  Rule,
-  makeRuleBody,
-  makeAtom,
-} from "../../internals/souffle";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { extractPath, forEachExpression } from "../../internals/tactASTUtil";
 
 /**
  * A detector that identifies read-only variables and fields.
@@ -77,54 +69,38 @@ export class ReadOnlyVariables extends SouffleDetector {
    * Adds declarations to the Souffle program to represent the properties of variables.
    * @param ctx The Souffle program where the relations are to be added.
    */
-  addDecls(ctx: Context<SrcInfo>) {
+  addDecls(ctx: SouffleContext<SrcInfo>) {
     ctx.add(
-      Relation.from(
-        "varDecl",
-        [
-          ["var", FactType.Symbol],
-          ["func", FactType.Symbol],
-        ],
-        undefined,
-      ),
+      relation("varDecl", [
+        ["var", "Symbol"],
+        ["func", "Symbol"],
+      ]),
     );
     ctx.add(
-      Relation.from(
-        "varAssign",
-        [
-          ["var", FactType.Symbol],
-          ["func", FactType.Symbol],
-        ],
-        undefined,
-      ),
+      relation("varAssign", [
+        ["var", "Symbol"],
+        ["func", "Symbol"],
+      ]),
     );
     ctx.add(
-      Relation.from(
-        "varUse",
-        [
-          ["var", FactType.Symbol],
-          ["func", FactType.Symbol],
-        ],
-        undefined,
-      ),
+      relation("varUse", [
+        ["var", "Symbol"],
+        ["func", "Symbol"],
+      ]),
     );
     // XXX: Remove when #69 is implemented.
     ctx.add(
-      Relation.from(
-        "skip",
-        [
-          ["var", FactType.Symbol],
-          ["func", FactType.Symbol],
-        ],
-        undefined,
-      ),
+      relation("skip", [
+        ["var", "Symbol"],
+        ["func", "Symbol"],
+      ]),
     );
     ctx.add(
-      Relation.from(
+      relation(
         "readOnly",
         [
-          ["var", FactType.Symbol],
-          ["func", FactType.Symbol],
+          ["var", "Symbol"],
+          ["func", "Symbol"],
         ],
         "output",
       ),
@@ -136,7 +112,7 @@ export class ReadOnlyVariables extends SouffleDetector {
    * @param cu The compilation unit containing the CFGs and AST information.
    * @param ctx The Souffle program to which the facts are added.
    */
-  addConstraints(cu: CompilationUnit, ctx: Context<SrcInfo>) {
+  addConstraints(cu: CompilationUnit, ctx: SouffleContext<SrcInfo>) {
     const track = (
       funName: string,
       node: AstStatement | AstExpression,
@@ -144,7 +120,7 @@ export class ReadOnlyVariables extends SouffleDetector {
     ) => {
       forEachExpression(node, (expr: AstExpression) => {
         if (expr.kind === "id") {
-          ctx.addFact(factName, Fact.from([expr.text, funName], expr.loc));
+          ctx.addFact(factName, [expr.text, funName], expr.loc);
         }
       });
     };
@@ -176,18 +152,12 @@ export class ReadOnlyVariables extends SouffleDetector {
         // XXX: When the variable appears in any other case, it won't be reported.
         // This will changed fixed when #69 is implemented.
         case "statement_let":
-          ctx.addFact(
-            "varDecl",
-            Fact.from([stmt.name.text, funName], stmt.name.loc),
-          );
+          ctx.addFact("varDecl", [stmt.name.text, funName], stmt.name.loc);
           track(funName, stmt.expression, "skip");
           break;
         case "statement_assign":
         case "statement_augmentedassign":
-          ctx.addFact(
-            "varAssign",
-            Fact.from([extractPath(stmt.path), funName], stmt.loc),
-          );
+          ctx.addFact("varAssign", [extractPath(stmt.path), funName], stmt.loc);
           track(funName, stmt.expression, "skip");
           break;
         default:
@@ -197,23 +167,25 @@ export class ReadOnlyVariables extends SouffleDetector {
     });
   }
 
-  addRules(ctx: Context<SrcInfo>) {
+  addRules(ctx: SouffleContext<SrcInfo>) {
     // readOnly(var, func) :-
     //     varDecl(var, func),
     //     varUse(var, func),
     //     !varAssign(var, func),
     //     !skip(var, func).
     ctx.add(
-      Rule.from(
-        [makeAtom("readOnly", ["var", "func"])],
-        makeRuleBody(makeAtom("varDecl", ["var", "func"])),
-        makeRuleBody(makeAtom("varUse", ["var", "func"])),
-        makeRuleBody(makeAtom("varAssign", ["var", "func"]), {
-          negated: true,
-        }),
-        makeRuleBody(makeAtom("skip", ["var", "func"]), {
-          negated: true,
-        }),
+      rule(
+        [atom("readOnly", ["var", "func"])],
+        [
+          body(atom("varDecl", ["var", "func"])),
+          body(atom("varUse", ["var", "func"])),
+          body(atom("varAssign", ["var", "func"]), {
+            negated: true,
+          }),
+          body(atom("skip", ["var", "func"]), {
+            negated: true,
+          }),
+        ],
       ),
     );
   }

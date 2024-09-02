@@ -998,6 +998,11 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@nowarp/souffle@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@nowarp/souffle/-/souffle-0.1.2.tgz#08c32aebd3b79e950fba79f6a6aa352d6326ddf9"
+  integrity sha512-MmFDX+YQ/gG4bePGV/Bc0edwLXMUL1AL4EUn87XGlfFGybRWrbjYED9CJu4JORYgtGaBU7I/a8i3xwCayk18BA==
+
 "@octokit/auth-token@^4.0.0":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@octokit/auth-token/-/auth-token-4.0.0.tgz#40d203ea827b9f17f42a29c6afb93b7745ef80c7"

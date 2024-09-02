@@ -47,6 +47,7 @@ export class Driver {
     dumpConfig?: boolean,
     souffleBinary?: string,
     soufflePath?: string,
+    souffleVerbose?: boolean,
     tactStdlibPath?: string,
     verbose?: boolean,
     quiet?: boolean,
@@ -70,6 +71,7 @@ export class Driver {
     this.ctx = new MistiContext({
       mistiConfigPath,
       soufflePath,
+      souffleVerbose,
       tactStdlibPath,
       verbose,
       quiet,
@@ -102,6 +104,7 @@ export class Driver {
       options.dumpConfig,
       options.souffleBinary,
       options.soufflePath,
+      options.souffleVerbose,
       options.tactStdlibPath,
       options.verbose,
       options.quiet,
@@ -413,6 +416,8 @@ interface CLIOptions {
   soufflePath?: string;
   /** Path to Souffle binary. */
   souffleBinary?: string;
+  /** If set, generates more readable Soufflé files instead of making the result source code smaller. */
+  souffleVerbose?: boolean;
   /***
    * Path to Tact standard library. If not set, the default stdlib from the actual Tact setup will be used.
    */
@@ -451,6 +456,7 @@ export class Runner {
       dumpConfig: undefined,
       souffleBinary: undefined,
       soufflePath: undefined,
+      souffleVerbose: undefined,
       tactStdlibPath: undefined,
       verbose: false,
       quiet: false,

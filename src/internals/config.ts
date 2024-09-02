@@ -18,6 +18,7 @@ const ConfigSchema = z.object({
   detectors: z.array(DetectorConfigSchema),
   ignoredProjects: z.array(z.string()).optional(),
   soufflePath: z.string().optional(),
+  souffleVerbose: z.boolean().optional(),
   tactStdlibPath: z.string().optional(),
   unusedPrefix: z.string().default("_"),
   verbosity: VerbositySchema.optional().default("default"),
@@ -29,7 +30,8 @@ const ConfigSchema = z.object({
 export class MistiConfig {
   public detectors: DetectorConfig[];
   public ignoredProjects: string[];
-  public soufflePath?: string;
+  public soufflePath: string = "/tmp/misti/souffle";
+  public souffleVerbose?: boolean;
   public tactStdlibPath?: string;
   public unusedPrefix: string;
   public verbosity: "quiet" | "debug" | "default";
@@ -72,7 +74,8 @@ export class MistiConfig {
       configData = {
         detectors: this.createDetectorConfigs(detectors, allDetectors),
         ignoredProjects: [],
-        soufflePath: undefined,
+        soufflePath: "/tmp/misti/souffle",
+        souffleVerbose: false,
         tactStdlibPath: undefined,
         unusedPrefix: "_",
         verbosity: "default",

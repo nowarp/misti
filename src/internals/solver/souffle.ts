@@ -1,17 +1,15 @@
-import {
-  Context,
-  Fact,
-  FactType,
-  Relation,
-  SouffleExecutionResult,
-  FactValue,
-  SyncExecutor,
-} from "../souffle/";
 import { MistiContext } from "../context";
-import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import { CFG, BasicBlockIdx, CompilationUnit } from "../ir";
 import { SolverResults } from "./results";
 import { Solver } from "./solver";
+import {
+  SouffleContext,
+  SouffleFact,
+  SouffleExecutionResult,
+  SouffleSyncExecutor,
+  relation,
+} from "@nowarp/souffle";
+import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
  * Basic block definition added in all the Souffle programs.
@@ -39,7 +37,7 @@ export interface SouffleMapper {
    * Example:
    * `.decl var_defined(bb: symbol, var: symbol)` - Variables defined in dataflow
    */
-  addDecls(ctx: Context<SrcInfo>): void;
+  addDecls(ctx: SouffleContext<SrcInfo>): void;
 
   /**
    * Adds Souffle rules specific for the dataflow problem.
@@ -47,7 +45,7 @@ export interface SouffleMapper {
    * Example:
    * `out(bb, var) :- pred(bb, predBB), in(predBB, var).` - Computes the `out` state based on the `in` state
    */
-  addRules(ctx: Context<SrcInfo>): void;
+  addRules(ctx: SouffleContext<SrcInfo>): void;
 
   /**
    * Adds Souffle facts to describe constraints for the dataflow problem.
@@ -55,7 +53,7 @@ export interface SouffleMapper {
    * Example:
    * `var_defined("bb4", "x").` - Variable `x` is defined within the basic block with index 4
    */
-  addConstraints(ctx: Context<SrcInfo>): void;
+  addConstraints(ctx: SouffleContext<SrcInfo>): void;
 }
 
 /**
@@ -80,16 +78,16 @@ export class SouffleSolver<State> implements Solver<State> {
    * Adds common declarations to represent the dataflow problem.
    * @param ctx The Souffle program where the relations are to be added.
    */
-  private addDataflowDecls(ctx: Context<SrcInfo>): void {
+  private addDataflowDecls(ctx: SouffleContext<SrcInfo>): void {
     // Basic block declaration
-    ctx.add(Relation.from("bb", [["bb", FactType.Symbol]], undefined));
+    ctx.add(relation("bb", [["bb", "Symbol"]], undefined));
     // Predecessor declaration
     ctx.add(
-      Relation.from(
+      relation(
         "pred",
         [
-          ["bb_src", FactType.Symbol],
-          ["bb_dst", FactType.Symbol],
+          ["bb_src", "Symbol"],
+          ["bb_dst", "Symbol"],
         ],
         undefined,
       ),
@@ -100,25 +98,25 @@ export class SouffleSolver<State> implements Solver<State> {
    * Adds common facts to represent the dataflow problem.
    * @param ctx The Souffle program where the relations are to be added.
    */
-  private addDataflowFacts(ctx: Context<SrcInfo>): void {
+  private addDataflowFacts(ctx: SouffleContext<SrcInfo>): void {
     this.cfg.forEachBasicBlock(this.cu.ast, (_stmt, node) => {
-      ctx.addFact("bb", Fact.from([BB_FACT(node.idx)]));
+      ctx.addFact("bb", [BB_FACT(node.idx)]);
     });
     this.cfg.forEachEdge((edge) => {
-      ctx.addFact("edge", Fact.from([BB_FACT(edge.src), BB_FACT(edge.dst)]));
+      ctx.addFact("edge", [BB_FACT(edge.src), BB_FACT(edge.dst)]);
     });
   }
 
   /**
    * Executes the Souffle program generated within the solver.
    */
-  private execute(ctx: Context<SrcInfo>): SouffleExecutionResult<SrcInfo> {
-    const executor = this.ctx.config.soufflePath
-      ? new SyncExecutor<SrcInfo>({
-          inputDir: this.ctx.config.soufflePath,
-          outputDir: this.ctx.config.soufflePath,
-        })
-      : new SyncExecutor<SrcInfo>();
+  private execute(
+    ctx: SouffleContext<SrcInfo>,
+  ): SouffleExecutionResult<SrcInfo> {
+    const executor = new SouffleSyncExecutor<SrcInfo>({
+      inputDir: this.ctx.config.soufflePath,
+      outputDir: this.ctx.config.soufflePath,
+    });
     return executor.execute(ctx);
   }
 
@@ -126,22 +124,24 @@ export class SouffleSolver<State> implements Solver<State> {
    * Converts the souffle execution results to the solver results as required by the class interface.
    */
   private createSouffleResults(
-    _souffleResults: Fact<FactValue, SrcInfo>[][],
+    _souffleResults: SouffleFact<SrcInfo>[][],
   ): SolverResults<State> {
     throw new Error("NYI");
   }
 
   public solve(): SolverResults<State> {
-    const ctx: Context<SrcInfo> = new Context<SrcInfo>(this.detectorId);
+    const ctx: SouffleContext<SrcInfo> = new SouffleContext<SrcInfo>(
+      this.detectorId,
+    );
     this.addDataflowDecls(ctx);
     this.mapper.addDecls(ctx);
     this.mapper.addRules(ctx);
     this.addDataflowFacts(ctx);
     this.mapper.addConstraints(ctx);
     const result = this.execute(ctx);
-    if (!result.success) {
+    if (result.kind !== "structured") {
       throw new Error(
-        `Error executing Soufflé for ${this.detectorId}: ${result.stderr}`,
+        `Error executing Soufflé:\n${result.kind === "error" ? result.stderr : "Cannot unmarshal raw output:\n" + result.results}`,
       );
     }
     return this.createSouffleResults(

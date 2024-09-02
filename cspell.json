@@ -79,6 +79,7 @@
     "graphviz",
     "idxs",
     "unmarshalled",
+    "unmarshal",
     "fixpoints",
     "Datalog",
     "lvalues",
