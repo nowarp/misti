@@ -1,10 +1,3 @@
-import {
-  SouffleContext,
-  relation,
-  rule,
-  body,
-  atom,
-} from "../../internals/souffle";
 import { SouffleDetector } from "../detector";
 import { CompilationUnit, BasicBlock, CFG } from "../../internals/ir";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
@@ -13,6 +6,13 @@ import {
   forEachExpression,
   forEachStatement,
 } from "../../internals/tactASTUtil";
+import {
+  SouffleContext,
+  relation,
+  rule,
+  body,
+  atom,
+} from "@nowarp/souffle";
 import {
   AstStatement,
   SrcInfo,

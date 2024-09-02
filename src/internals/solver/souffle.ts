@@ -1,15 +1,15 @@
+import { MistiContext } from "../context";
+import { CFG, BasicBlockIdx, CompilationUnit } from "../ir";
+import { SolverResults } from "./results";
+import { Solver } from "./solver";
 import {
   SouffleContext,
   SouffleFact,
   SouffleExecutionResult,
   SouffleSyncExecutor,
   relation,
-} from "../souffle/";
-import { MistiContext } from "../context";
+} from "@nowarp/souffle";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
-import { CFG, BasicBlockIdx, CompilationUnit } from "../ir";
-import { SolverResults } from "./results";
-import { Solver } from "./solver";
 
 /**
  * Basic block definition added in all the Souffle programs.
