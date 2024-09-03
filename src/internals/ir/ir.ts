@@ -70,11 +70,30 @@ export class CompilationUnit {
   }
 
   /**
-   * Iterates over all CFGs in a Compilation Unit, and applies a callback to each node in every CFG.
+   * Iterates over all CFGs in a Compilation Unit, and applies a callback to CFG.
+   *
    * @param astStore The store containing the AST nodes.
-   * @param callback The function to apply to each node within each CFG.
+   * @param callback The function to apply to each CFG.
    */
-  forEachCFG(
+  forEachCFG(astStore: TactASTStore, callback: (cfg: CFG) => void) {
+    this.functions.forEach((cfg, _) => {
+      callback(cfg);
+    });
+    this.contracts.forEach((contract) => {
+      contract.methods.forEach((cfg, _) => {
+        callback(cfg);
+      });
+    });
+  }
+
+  /**
+   * Iterates over all CFGs in a Compilation Unit, and applies a callback to each
+   * basic block in every CFG.
+   *
+   * @param astStore The store containing the AST nodes.
+   * @param callback The function to apply to each BB within each CFG.
+   */
+  forEachBasicBlock(
     astStore: TactASTStore,
     callback: (cfg: CFG, node: BasicBlock, stmt: AstStatement) => void,
   ) {

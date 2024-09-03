@@ -347,7 +347,7 @@ export class NeverAccessedVariables extends SouffleDetector {
   checkVariables(cu: CompilationUnit): MistiTactWarning[] {
     const errors: MistiTactWarning[] = [];
     const traversedFunctions = new Set<string>();
-    cu.forEachCFG(
+    cu.forEachBasicBlock(
       cu.ast,
       (cfg: CFG, _node: BasicBlock, _stmt: AstStatement) => {
         if (cfg.origin === "stdlib" || traversedFunctions.has(cfg.name)) {

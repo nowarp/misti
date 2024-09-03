@@ -46,15 +46,18 @@ export class GraphvizDumper {
    */
   private static connectFunctionCalls(cu: CompilationUnit): string {
     let output = "";
-    cu.forEachCFG(cu.ast, (cfg: CFG, bb: BasicBlock, _: AstStatement) => {
-      if (bb.kind.kind === "call") {
-        bb.kind.callees.forEach((calleeIdx) => {
-          if (cfg.getBasicBlock(calleeIdx)) {
-            output += `"${bb.idx}" -> "${calleeIdx}";\n`;
-          }
-        });
-      }
-    });
+    cu.forEachBasicBlock(
+      cu.ast,
+      (cfg: CFG, bb: BasicBlock, _: AstStatement) => {
+        if (bb.kind.kind === "call") {
+          bb.kind.callees.forEach((calleeIdx) => {
+            if (cfg.getBasicBlock(calleeIdx)) {
+              output += `"${bb.idx}" -> "${calleeIdx}";\n`;
+            }
+          });
+        }
+      },
+    );
     return output;
   }
 

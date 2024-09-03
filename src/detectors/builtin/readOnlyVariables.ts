@@ -124,47 +124,54 @@ export class ReadOnlyVariables extends SouffleDetector {
         }
       });
     };
-    cu.forEachCFG(cu.ast, (cfg: CFG, _: BasicBlock, stmt: AstStatement) => {
-      if (cfg.origin === "stdlib") {
-        return;
-      }
-      const funName = cfg.name;
-      switch (stmt.kind) {
-        // XXX: Track uses only from conditions and loops.
-        //
-        // This is done to make the detector less noisy, since until version 1.6.0
-        // there are no local constant variables in Tact. This means that the user
-        // *wants* to create local read-only let bindings just to name things, and
-        // that's the expected code style.
-        //
-        // See:
-        // * https://github.com/nowarp/misti/issues/69
-        // * https://github.com/tact-lang/tact/issues/643
-        case "statement_condition":
-        case "statement_while":
-        case "statement_until":
-          track(funName, stmt.condition, "varUse");
-          break;
-        case "statement_repeat":
-          track(funName, stmt.iterations, "varUse");
-          break;
+    cu.forEachBasicBlock(
+      cu.ast,
+      (cfg: CFG, _: BasicBlock, stmt: AstStatement) => {
+        if (cfg.origin === "stdlib") {
+          return;
+        }
+        const funName = cfg.name;
+        switch (stmt.kind) {
+          // XXX: Track uses only from conditions and loops.
+          //
+          // This is done to make the detector less noisy, since until version 1.6.0
+          // there are no local constant variables in Tact. This means that the user
+          // *wants* to create local read-only let bindings just to name things, and
+          // that's the expected code style.
+          //
+          // See:
+          // * https://github.com/nowarp/misti/issues/69
+          // * https://github.com/tact-lang/tact/issues/643
+          case "statement_condition":
+          case "statement_while":
+          case "statement_until":
+            track(funName, stmt.condition, "varUse");
+            break;
+          case "statement_repeat":
+            track(funName, stmt.iterations, "varUse");
+            break;
 
-        // XXX: When the variable appears in any other case, it won't be reported.
-        // This will changed fixed when #69 is implemented.
-        case "statement_let":
-          ctx.addFact("varDecl", [stmt.name.text, funName], stmt.name.loc);
-          track(funName, stmt.expression, "skip");
-          break;
-        case "statement_assign":
-        case "statement_augmentedassign":
-          ctx.addFact("varAssign", [extractPath(stmt.path), funName], stmt.loc);
-          track(funName, stmt.expression, "skip");
-          break;
-        default:
-          track(funName, stmt, "skip");
-          break;
-      }
-    });
+          // XXX: When the variable appears in any other case, it won't be reported.
+          // This will changed fixed when #69 is implemented.
+          case "statement_let":
+            ctx.addFact("varDecl", [stmt.name.text, funName], stmt.name.loc);
+            track(funName, stmt.expression, "skip");
+            break;
+          case "statement_assign":
+          case "statement_augmentedassign":
+            ctx.addFact(
+              "varAssign",
+              [extractPath(stmt.path), funName],
+              stmt.loc,
+            );
+            track(funName, stmt.expression, "skip");
+            break;
+          default:
+            track(funName, stmt, "skip");
+            break;
+        }
+      },
+    );
   }
 
   addRules(ctx: SouffleContext<SrcInfo>) {

@@ -164,78 +164,84 @@ export class UnboundLoops extends SouffleDetector {
     cu: CompilationUnit,
     ctx: SouffleContext<SrcInfo>,
   ): void {
-    cu.forEachCFG(cu.ast, (cfg: CFG, _: BasicBlock, stmt: AstStatement) => {
-      if (cfg.origin === "stdlib") {
-        return;
-      }
-      const funName = cfg.name;
-      if (stmt.kind === "statement_let") {
-        ctx.addFact("varDef", [stmt.name.text, funName], stmt.loc);
-        return;
-      }
-      if (stmt.kind === "statement_while" || stmt.kind === "statement_until") {
-        const loopId = stmt.id;
-        const usedInCond: Set<string> = new Set(); // variables used in the condition
-        ctx.addFact("loopDef", [loopId, funName], stmt.loc);
-        const add = (id: AstId) => {
-          usedInCond.add(id.text);
-          ctx.addFact("loopCondDef", [id.text, loopId, funName], id.loc);
-        };
-        const cond = stmt.condition;
-        // TODO: This could be improved using the constant evaluator when
-        // available in the compiler API: #71
-        if (cond.kind === "id") {
-          // e.g.: while(a)
-          add(cond);
-        } else if (cond.kind === "op_unary" && cond.operand.kind === "id") {
-          // e.g.: while(!a)
-          add(cond.operand);
-        } else if (
-          cond.kind === "op_binary" &&
-          cond.left.kind === "id" &&
-          isValue(cond.right)
-        ) {
-          // e.g.: while(a < 10)
-          add(cond.left);
-        } else if (
-          cond.kind === "op_binary" &&
-          cond.right.kind === "id" &&
-          isValue(cond.left)
-        ) {
-          // e.g.: while(10 > a)
-          add(cond.right);
+    cu.forEachBasicBlock(
+      cu.ast,
+      (cfg: CFG, _: BasicBlock, stmt: AstStatement) => {
+        if (cfg.origin === "stdlib") {
+          return;
         }
-        forEachStatement(stmt, (s) => {
-          if (
-            s.kind === "statement_assign" ||
-            s.kind === "statement_augmentedassign"
+        const funName = cfg.name;
+        if (stmt.kind === "statement_let") {
+          ctx.addFact("varDef", [stmt.name.text, funName], stmt.loc);
+          return;
+        }
+        if (
+          stmt.kind === "statement_while" ||
+          stmt.kind === "statement_until"
+        ) {
+          const loopId = stmt.id;
+          const usedInCond: Set<string> = new Set(); // variables used in the condition
+          ctx.addFact("loopDef", [loopId, funName], stmt.loc);
+          const add = (id: AstId) => {
+            usedInCond.add(id.text);
+            ctx.addFact("loopCondDef", [id.text, loopId, funName], id.loc);
+          };
+          const cond = stmt.condition;
+          // TODO: This could be improved using the constant evaluator when
+          // available in the compiler API: #71
+          if (cond.kind === "id") {
+            // e.g.: while(a)
+            add(cond);
+          } else if (cond.kind === "op_unary" && cond.operand.kind === "id") {
+            // e.g.: while(!a)
+            add(cond.operand);
+          } else if (
+            cond.kind === "op_binary" &&
+            cond.left.kind === "id" &&
+            isValue(cond.right)
           ) {
-            ctx.addFact(
-              "loopVarUse",
-              [extractPath(s.path), loopId, funName],
-              s.loc,
-            );
-          } else if (s.kind === "statement_expression") {
-            const callExpr = s.expression;
-            if (
-              callExpr.kind === "method_call" ||
-              callExpr.kind === "static_call"
-            ) {
-              callExpr.args.forEach((a) => {
-                forEachExpression(a, (expr) => {
-                  if (expr.kind === "id" && usedInCond.has(expr.text)) {
-                    ctx.addFact(
-                      "loopVarUse",
-                      [expr.text, loopId, funName],
-                      s.loc,
-                    );
-                  }
-                });
-              });
-            }
+            // e.g.: while(a < 10)
+            add(cond.left);
+          } else if (
+            cond.kind === "op_binary" &&
+            cond.right.kind === "id" &&
+            isValue(cond.left)
+          ) {
+            // e.g.: while(10 > a)
+            add(cond.right);
           }
-        });
-      }
-    });
+          forEachStatement(stmt, (s) => {
+            if (
+              s.kind === "statement_assign" ||
+              s.kind === "statement_augmentedassign"
+            ) {
+              ctx.addFact(
+                "loopVarUse",
+                [extractPath(s.path), loopId, funName],
+                s.loc,
+              );
+            } else if (s.kind === "statement_expression") {
+              const callExpr = s.expression;
+              if (
+                callExpr.kind === "method_call" ||
+                callExpr.kind === "static_call"
+              ) {
+                callExpr.args.forEach((a) => {
+                  forEachExpression(a, (expr) => {
+                    if (expr.kind === "id" && usedInCond.has(expr.text)) {
+                      ctx.addFact(
+                        "loopVarUse",
+                        [expr.text, loopId, funName],
+                        s.loc,
+                      );
+                    }
+                  });
+                });
+              }
+            }
+          });
+        }
+      },
+    );
   }
 }

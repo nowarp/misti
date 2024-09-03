@@ -295,67 +295,70 @@ export class DivideBeforeMultiply extends SouffleDetector {
     cu: CompilationUnit,
     ctx: SouffleContext<SrcInfo>,
   ): void {
-    cu.forEachCFG(cu.ast, (cfg: CFG, _: BasicBlock, stmt: AstStatement) => {
-      if (cfg.origin === "stdlib") {
-        return;
-      }
-      const funName = cfg.name;
-      // Collect information about variables definitions and tainted divisions in initializers
-      forEachStatement(stmt, (s) => {
-        if (s.kind === "statement_let") {
-          const varName = s.name.text;
-          ctx.addFact("varDef", [varName, funName], s.loc);
-          this.collectIdentifiers(s.expression).forEach((rhsName) => {
-            ctx.addFact("varAssign", [varName, rhsName, funName], s.loc);
-          });
-          // Collect taints in the initializers, e.g.: `a = 10 / 3`
-          this.forEachBinop(s.expression, (binopExpr) => {
-            if (binopExpr.op === "/") {
-              const divId = binopExpr.id;
-              ctx.addFact(
-                "varTaintedWithDiv",
-                [varName, divId, funName],
-                binopExpr.loc,
-              );
-            }
-          });
+    cu.forEachBasicBlock(
+      cu.ast,
+      (cfg: CFG, _: BasicBlock, stmt: AstStatement) => {
+        if (cfg.origin === "stdlib") {
+          return;
         }
-      });
-      // Collect information about expressions
-      this.forEachBinop(stmt, (binopExpr) => {
-        if (binopExpr.op === "/") {
-          ctx.addFact("divDef", [binopExpr.id, funName], binopExpr.loc);
-        }
-        if (binopExpr.op === "*") {
-          const mulId = binopExpr.id;
-          this.collectIdentifiers(binopExpr).forEach((usedVar) => {
-            ctx.addFact(
-              "varUsedInMul",
-              [mulId, usedVar, funName],
-              binopExpr.loc,
-            );
-          });
-          const processBinop = (binOpExpr: AstOpBinary) => {
-            if (binOpExpr.op === "/") {
-              const divId = binOpExpr.id;
-              ctx.addFact(
-                "divUsedInMul",
-                [mulId, divId, funName],
-                binOpExpr.loc,
-              );
-              this.collectIdentifiers(binOpExpr).forEach((usedVar) => {
+        const funName = cfg.name;
+        // Collect information about variables definitions and tainted divisions in initializers
+        forEachStatement(stmt, (s) => {
+          if (s.kind === "statement_let") {
+            const varName = s.name.text;
+            ctx.addFact("varDef", [varName, funName], s.loc);
+            this.collectIdentifiers(s.expression).forEach((rhsName) => {
+              ctx.addFact("varAssign", [varName, rhsName, funName], s.loc);
+            });
+            // Collect taints in the initializers, e.g.: `a = 10 / 3`
+            this.forEachBinop(s.expression, (binopExpr) => {
+              if (binopExpr.op === "/") {
+                const divId = binopExpr.id;
                 ctx.addFact(
                   "varTaintedWithDiv",
-                  [usedVar, divId, funName],
+                  [varName, divId, funName],
+                  binopExpr.loc,
+                );
+              }
+            });
+          }
+        });
+        // Collect information about expressions
+        this.forEachBinop(stmt, (binopExpr) => {
+          if (binopExpr.op === "/") {
+            ctx.addFact("divDef", [binopExpr.id, funName], binopExpr.loc);
+          }
+          if (binopExpr.op === "*") {
+            const mulId = binopExpr.id;
+            this.collectIdentifiers(binopExpr).forEach((usedVar) => {
+              ctx.addFact(
+                "varUsedInMul",
+                [mulId, usedVar, funName],
+                binopExpr.loc,
+              );
+            });
+            const processBinop = (binOpExpr: AstOpBinary) => {
+              if (binOpExpr.op === "/") {
+                const divId = binOpExpr.id;
+                ctx.addFact(
+                  "divUsedInMul",
+                  [mulId, divId, funName],
                   binOpExpr.loc,
                 );
-              });
-            }
-          };
-          this.forEachBinop(binopExpr.left, processBinop);
-          this.forEachBinop(binopExpr.right, processBinop);
-        }
-      });
-    });
+                this.collectIdentifiers(binOpExpr).forEach((usedVar) => {
+                  ctx.addFact(
+                    "varTaintedWithDiv",
+                    [usedVar, divId, funName],
+                    binOpExpr.loc,
+                  );
+                });
+              }
+            };
+            this.forEachBinop(binopExpr.left, processBinop);
+            this.forEachBinop(binopExpr.right, processBinop);
+          }
+        });
+      },
+    );
   }
 }
