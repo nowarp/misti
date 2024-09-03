@@ -23,7 +23,9 @@ import {
  */
 export class TactASTStore {
   /**
-   * Constructs a TactASTStore with mappings to all major AST components.
+   * Constructs a TactASTStore with mappings to all major AST components accessible
+   * by their unique AST identifiers.
+   *
    * @param stdlibIds Identifiers of AST elements defined in stdlib.
    * @param contractConstants Identifiers of constants defined within contracts.
    * @param programEntries Identifiers of AST elements defined on the top-level.

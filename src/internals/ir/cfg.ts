@@ -106,6 +106,7 @@ export class CFG {
   /**
    * Creates an instance of CFG.
    * @param name The name of the function or method this CFG represents.
+   * @param id AST ID.
    * @param kind Indicates whether this CFG represents a standalone function or a method or a receive method belonging to a contract.
    * @param origin Indicates whether the function was defined in users code or in standard library.
    * @param nodes Map of node indices to nodes in the CFG that come in the reverse order.
@@ -115,6 +116,7 @@ export class CFG {
    */
   constructor(
     public name: FunctionName,
+    public id: number,
     public kind: FunctionKind,
     public origin: EntryOrigin,
     public nodes: BasicBlock[],
