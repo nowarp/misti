@@ -1,0 +1,20 @@
+digraph "string-receivers-overlap-1" {
+    node [shape=box];
+    subgraph "cluster_Test__receive_internal_comment_1532_test" {
+        label="Test__receive_internal_comment_1532_test";
+    }
+    subgraph "cluster_Test__receive_internal_simple_1566" {
+        label="Test__receive_internal_simple_1566";
+        "Test__receive_internal_simple_1566_142" [label="if (msg == \"test\")"];
+        "Test__receive_internal_simple_1566_143" [label="if (\"test\" != msg)"];
+        "Test__receive_internal_simple_1566_145" [label="if (\"test\" != msg && WHATEVER)"];
+        "Test__receive_internal_simple_1566_147" [label="if ((WHATEVER || WHATEVER) && \"test\" != msg)"];
+        "Test__receive_internal_simple_1566_149" [label="let a: String = \"foo\""];
+        "Test__receive_internal_simple_1566_151" [label="if (\"test\" != a)",style=filled,fillcolor="#66A7DB"];
+        "Test__receive_internal_simple_1566_142" -> "Test__receive_internal_simple_1566_143";
+        "Test__receive_internal_simple_1566_143" -> "Test__receive_internal_simple_1566_145";
+        "Test__receive_internal_simple_1566_145" -> "Test__receive_internal_simple_1566_147";
+        "Test__receive_internal_simple_1566_147" -> "Test__receive_internal_simple_1566_149";
+        "Test__receive_internal_simple_1566_149" -> "Test__receive_internal_simple_1566_151";
+    }
+}

@@ -1,0 +1,108 @@
+{
+  "projectName": "string-receivers-overlap-1",
+  "functions": [],
+  "contracts": [
+    {
+      "name": "Test",
+      "methods": [
+        {
+          "name": "Test.receive_internal_comment_1532_test",
+          "cfg": {
+            "nodes": [],
+            "edges": []
+          }
+        },
+        {
+          "name": "Test.receive_internal_simple_1566",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 142,
+                "stmtID": 1539,
+                "srcEdges": [],
+                "dstEdges": [
+                  144
+                ]
+              },
+              {
+                "id": 143,
+                "stmtID": 1543,
+                "srcEdges": [
+                  144
+                ],
+                "dstEdges": [
+                  146
+                ]
+              },
+              {
+                "id": 145,
+                "stmtID": 1549,
+                "srcEdges": [
+                  146
+                ],
+                "dstEdges": [
+                  148
+                ]
+              },
+              {
+                "id": 147,
+                "stmtID": 1557,
+                "srcEdges": [
+                  148
+                ],
+                "dstEdges": [
+                  150
+                ]
+              },
+              {
+                "id": 149,
+                "stmtID": 1561,
+                "srcEdges": [
+                  150
+                ],
+                "dstEdges": [
+                  152
+                ]
+              },
+              {
+                "id": 151,
+                "stmtID": 1565,
+                "srcEdges": [
+                  152
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 144,
+                "src": 142,
+                "dst": 143
+              },
+              {
+                "id": 146,
+                "src": 143,
+                "dst": 145
+              },
+              {
+                "id": 148,
+                "src": 145,
+                "dst": 147
+              },
+              {
+                "id": 150,
+                "src": 147,
+                "dst": 149
+              },
+              {
+                "id": 152,
+                "src": 149,
+                "dst": 151
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+test/good/string-receivers-overlap-1.tact:6:13:
+  5 |     receive(msg: String) {
+> 6 |         if (msg == "test") {} // Bad
+                  ^
+  7 |         if ("test" != msg) {} // Bad
+String Receivers Overlap: receiver("msg") might be called instead. This condition might never be executed.
+Help: Implement the desired logic in receiver("msg") and remove msg == "test"
+See: https://nowarp.github.io/tools/misti/docs/detectors/StringReceiversOverlap
+
+test/good/string-receivers-overlap-1.tact:7:13:
+  6 |         if (msg == "test") {} // Bad
+> 7 |         if ("test" != msg) {} // Bad
+                  ^
+  8 |         if (("test" != msg) && WHATEVER) {} // Bad
+String Receivers Overlap: receiver("msg") might be called instead. This condition might never be executed.
+Help: Implement the desired logic in receiver("msg") and remove "test" != msg
+See: https://nowarp.github.io/tools/misti/docs/detectors/StringReceiversOverlap
+
+test/good/string-receivers-overlap-1.tact:8:13:
+  7 |         if ("test" != msg) {} // Bad
+> 8 |         if (("test" != msg) && WHATEVER) {} // Bad
+                  ^
+  9 |         if ((WHATEVER || WHATEVER) && ("test" != msg)) {} // Bad
+String Receivers Overlap: receiver("msg") might be called instead. This condition might never be executed.
+Help: Implement the desired logic in receiver("msg") and remove "test" != msg
+See: https://nowarp.github.io/tools/misti/docs/detectors/StringReceiversOverlap
+
+test/good/string-receivers-overlap-1.tact:9:13:
+   8 |         if (("test" != msg) && WHATEVER) {} // Bad
+>  9 |         if ((WHATEVER || WHATEVER) && ("test" != msg)) {} // Bad
+                   ^
+  10 | 
+String Receivers Overlap: receiver("msg") might be called instead. This condition might never be executed.
+Help: Implement the desired logic in receiver("msg") and remove "test" != msg
+See: https://nowarp.github.io/tools/misti/docs/detectors/StringReceiversOverlap
+
+test/good/string-receivers-overlap-1.tact:13:23:
+  12 |         let a: String = "foo";
+> 13 |         if ("test" != a) {}
+                             ^
+  14 |     }
+Read-only variable
+Help: Consider creating a constant instead
+See: https://nowarp.github.io/tools/misti/docs/detectors/ReadOnlyVariables

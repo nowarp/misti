@@ -228,6 +228,13 @@ const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  StringReceiversOverlap: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/stringReceiversOverlap").then(
+        (module) => new module.StringReceiversOverlap(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**
