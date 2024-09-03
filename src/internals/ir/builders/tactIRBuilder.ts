@@ -119,9 +119,9 @@ function definedInStdlib(ctx: MistiContext, loc: SrcInfo): boolean {
 }
 
 /**
- * Transforms the AstStore to a representation more suitable for analysis.
+ * Transforms AstStore to TactASTStore.
  */
-export class AstMapper {
+export class TactASTStoreBuilder {
   private programEntries = new Set<number>();
   private stdlibIds = new Set<number>();
   private contractConstants = new Set<number>();
@@ -138,7 +138,7 @@ export class AstMapper {
   private traits = new Map<number, AstTrait>();
   private statements = new Map<number, AstStatement>();
 
-  constructor(
+  private constructor(
     private ctx: MistiContext,
     private ast: AstStore,
   ) {
@@ -165,8 +165,11 @@ export class AstMapper {
       this.processType(type);
     });
   }
+  public static make(ctx: MistiContext, ast: AstStore): TactASTStoreBuilder {
+    return new TactASTStoreBuilder(ctx, ast);
+  }
 
-  public getASTStore(): TactASTStore {
+  public build(): TactASTStore {
     return new TactASTStore(
       this.stdlibIds,
       this.contractConstants,
@@ -310,8 +313,9 @@ type FunctionsMap = Map<FunctionName, CFGIdx>;
 type MethodsMap = Map<ContractName, FunctionsMap>;
 
 /**
- * Represents a stateful object which is responsible for constructing the IR of a single Tact project.
- * Currently, it creates a one-statement-per-basic-block CFG.
+ * Represents a stateful object which is responsible for constructing the IR of a Tact project.
+ *
+ * It creates a one-statement-per-basic-block CFG.
  */
 export class TactIRBuilder {
   /**
@@ -325,11 +329,10 @@ export class TactIRBuilder {
   private methodIndexes: MethodsMap = new Map();
 
   /**
-   * Creates an instance of TactIRBuilder.
    * @param projectName The name of the project being compiled and analyzed, used for referencing within the compilation environment.
    * @param ast The AST of the project.
    */
-  constructor(
+  private constructor(
     private ctx: MistiContext,
     private projectName: ProjectName,
     private ast: AstStore,
@@ -337,30 +340,37 @@ export class TactIRBuilder {
     this.registerFunctions();
     this.registerContracts();
   }
+  public static make(
+    ctx: MistiContext,
+    projectName: ProjectName,
+    ast: AstStore,
+  ): TactIRBuilder {
+    return new TactIRBuilder(ctx, projectName, ast);
+  }
 
   /**
-   * Transforms an AST into a CompilationUnit object iterating over all function and contract definitions
-   * to generate CFG for each function and method.
+   * Transforms an AST into a `CompilationUnit` object.
    */
   build(): CompilationUnit {
     const functions = this.createFunctions();
     const contracts = this.createContracts();
     return new CompilationUnit(
       this.projectName,
-      new AstMapper(this.ctx, this.ast).getASTStore(),
+      TactASTStoreBuilder.make(this.ctx, this.ast).build(),
       functions,
       contracts,
     );
   }
 
   /**
-   * Assign the unique identifiers to CFG structures to refer to them in function calls later.
+   * Assign the unique CFG indices to free function definitions.
    */
   private registerFunctions(): void {
     this.functionIndexes = this.ast.functions.reduce((acc, fun) => {
       if (fun.kind == "function_def") {
         const idx = this.registerCFGIdx(
           fun.name.text,
+          fun.id,
           "function",
           fun.loc.origin,
           fun.loc,
@@ -384,6 +394,7 @@ export class TactIRBuilder {
           this.createCFGFromStatements(
             idx,
             fun.name.text,
+            fun.id,
             "function",
             fun.loc.origin,
             fun.statements,
@@ -417,7 +428,7 @@ export class TactIRBuilder {
   }
 
   /**
-   * Assign the unique identifiers to CFG structures to refer to them in function calls later.
+   * Assign the unique CFG indices to contract methods.
    */
   private registerContracts(): void {
     this.methodIndexes = this.ast.types.reduce((acc, entry) => {
@@ -428,6 +439,7 @@ export class TactIRBuilder {
           if (kind && name) {
             const idx = this.registerCFGIdx(
               name,
+              decl.id,
               kind,
               entry.loc.origin,
               decl.loc,
@@ -459,6 +471,7 @@ export class TactIRBuilder {
               this.createCFGFromStatements(
                 idx,
                 name,
+                decl.id,
                 "method",
                 entry.loc.origin,
                 stmts,
@@ -480,11 +493,12 @@ export class TactIRBuilder {
    */
   private registerCFGIdx(
     name: FunctionName,
+    id: number,
     kind: "function" | "method" | "receive",
     origin: "user" | "stdlib",
     ref: SrcInfo,
   ): CFGIdx {
-    return new CFG(name, kind, origin, [], [], ref).idx;
+    return new CFG(name, id, kind, origin, [], [], ref).idx;
   }
 
   /**
@@ -493,6 +507,7 @@ export class TactIRBuilder {
    *
    * @param idx Unique CFG identifier created on the function registration step.
    * @param name The name of the function or method being processed.
+   * @param name AST ID.
    * @param kind Indicates whether the input represents a function or a method.
    * @param origin Indicates whether the function was defined in users code or in standard library.
    * @param statements An array of AstStatement from the AST of the function or method.
@@ -502,6 +517,7 @@ export class TactIRBuilder {
   private createCFGFromStatements(
     idx: CFGIdx,
     name: FunctionName,
+    id: number,
     kind: "function" | "method" | "receive",
     origin: "user" | "stdlib",
     statements: AstStatement[] | null,
@@ -510,7 +526,7 @@ export class TactIRBuilder {
     const [bbs, edges] =
       statements === null ? [[], []] : this.processStatements(statements);
     this.markExitBBs(bbs);
-    return new CFG(name, kind, origin, bbs, edges, ref, idx);
+    return new CFG(name, id, kind, origin, bbs, edges, ref, idx);
   }
 
   /**
@@ -855,8 +871,8 @@ export function createIR(
   const astEntries: Map<ProjectName, AstStore> =
     configManager.parseTactProjects();
   return Array.from(astEntries).reduce((acc, [projectName, ast]) => {
-    const irBuilder = new TactIRBuilder(ctx, projectName, ast);
-    acc.set(projectName, irBuilder.build());
+    const cu = TactIRBuilder.make(ctx, projectName, ast).build();
+    acc.set(projectName, cu);
     return acc;
   }, new Map<ProjectName, CompilationUnit>());
 }
