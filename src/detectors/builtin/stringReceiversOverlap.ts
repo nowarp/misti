@@ -151,8 +151,8 @@ class StringReceiversOverlapTransfer implements Transfer<TaintState> {
  * A detector that finds overlapping messages between general string receivers and string receivers.
  *
  * ## Why is it bad?
- *  Constant string receivers and general string receivers can have overlapping messages
- *  in which case the constant string receiver always takes precedence.
+ * Constant string receivers and general string receivers can have overlapping messages
+ * in which case the constant string receiver always takes precedence.
  *
  * ## Example
  * ```tact
