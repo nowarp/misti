@@ -1,6 +1,6 @@
 import { WorklistSolver } from "../../internals/solver/";
 import { Transfer } from "../../internals/transfer";
-import { SouffleDetector, WarningsBehavior } from "../detector";
+import { Detector, WarningsBehavior } from "../detector";
 import { InternalException } from "../../internals/exceptions";
 import { JoinSemilattice } from "../../internals/lattice";
 import { MistiContext } from "../../internals/context";
@@ -173,7 +173,7 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
  * }
  * ```
  */
-export class NeverAccessedVariables extends SouffleDetector {
+export class NeverAccessedVariables extends Detector {
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return [
       ...this.checkFields(cu),
