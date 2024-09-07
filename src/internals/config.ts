@@ -1,6 +1,7 @@
+import { ExecutionException } from "./exceptions";
+import { getEnabledDetectors, getAllDetectors } from "../detectors/detector";
 import { z } from "zod";
 import * as fs from "fs";
-import { getEnabledDetectors, getAllDetectors } from "../detectors/detector";
 
 interface DetectorConfig {
   modulePath?: string; // Used only for custom out-of-tree detectors
@@ -55,7 +56,7 @@ export class MistiConfig {
         configData = JSON.parse(configFileContents);
       } catch (err) {
         if (err instanceof Error) {
-          throw new Error(
+          throw ExecutionException.make(
             `Could not load or parse config file (${configPath}): ${err.message}`,
           );
         } else {
@@ -91,9 +92,7 @@ export class MistiConfig {
       this.verbosity = parsedConfig.verbosity;
     } catch (err) {
       if (err instanceof z.ZodError) {
-        throw new Error(
-          `Failed to initialize Config with provided data: ${err.message}`,
-        );
+        throw ExecutionException.make(`Configuration error: ${err.message}`);
       } else {
         throw err;
       }
@@ -112,7 +111,7 @@ export class MistiConfig {
         } else {
           const parts = detector.split(":");
           if (parts.length !== 2) {
-            throw new Error(
+            throw ExecutionException.make(
               `Cannot find built-in or custom detector: ${detector}`,
             );
           }

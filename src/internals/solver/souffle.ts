@@ -1,5 +1,6 @@
 import { MistiContext } from "../context";
 import { CFG, BasicBlockIdx, CompilationUnit } from "../ir";
+import { InternalException } from "../exceptions";
 import { SolverResults } from "./results";
 import { Solver } from "./solver";
 import {
@@ -140,7 +141,7 @@ export class SouffleSolver<State> implements Solver<State> {
     this.mapper.addConstraints(ctx);
     const result = this.execute(ctx);
     if (result.kind !== "structured") {
-      throw new Error(
+      throw InternalException.make(
         `Error executing Soufflé:\n${result.kind === "error" ? result.stderr : "Cannot unmarshal raw output:\n" + result.results}`,
       );
     }

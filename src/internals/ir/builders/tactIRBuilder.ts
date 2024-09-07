@@ -16,7 +16,11 @@ import {
 } from "..";
 import { MistiContext } from "../../context";
 import { formatPosition } from "../../tactASTUtil";
-import { TactException, InternalException } from "../../exceptions";
+import {
+  TactException,
+  InternalException,
+  ExecutionException,
+} from "../../exceptions";
 import {
   Config as TactConfig,
   ConfigProject,
@@ -818,12 +822,14 @@ class TactConfigManager {
   private readTactConfig(): TactConfig {
     const resolvedPath = path.resolve(this.tactConfigPath);
     if (!fs.existsSync(resolvedPath)) {
-      throw new Error(`Unable to find config file at ${resolvedPath}`);
+      throw ExecutionException.make(
+        `Unable to find config file at ${resolvedPath}`,
+      );
     }
     try {
       return parseConfig(fs.readFileSync(resolvedPath, "utf8"));
     } catch (err) {
-      throw new Error(
+      throw ExecutionException.make(
         `Unable to parse config file at ${resolvedPath}:\n${err}`,
       );
     }

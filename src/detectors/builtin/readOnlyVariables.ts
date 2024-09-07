@@ -1,6 +1,7 @@
 import { SouffleDetector, WarningsBehavior } from "../detector";
 import { CompilationUnit, BasicBlock, CFG } from "../../internals/ir";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { InternalException } from "../../internals/exceptions";
 import { extractPath, forEachExpression } from "../../internals/tactASTUtil";
 import { SouffleContext, relation, rule, body, atom } from "@nowarp/souffle";
 import {
@@ -49,7 +50,9 @@ export class ReadOnlyVariables extends SouffleDetector {
     this.addConstraints(cu, program);
     return await this.executeSouffle(program, (fact) => {
       if (fact.data === undefined) {
-        throw new Error(`AST position for fact ${fact} is not available`);
+        throw InternalException.make(
+          `AST position for fact ${fact} is not available`,
+        );
       }
       if (this.skipUnused(fact.data.contents)) {
         return undefined;

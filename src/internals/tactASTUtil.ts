@@ -323,7 +323,7 @@ export function foldExpressions<T>(
         });
         break;
       default:
-        throw new Error("Unsupported statement");
+        throw InternalException.make("Unsupported statement");
     }
     return acc;
   }

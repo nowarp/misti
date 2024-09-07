@@ -62,6 +62,9 @@ export class TactException {
   }
 }
 
+/**
+ * Internal error, typically caused by a bug in Misti.
+ */
 export class InternalException {
   private constructor() {}
   static make(
@@ -73,7 +76,7 @@ export class InternalException {
     }> = {},
   ): Error {
     const { loc = undefined, node = undefined, generateReport = true } = params;
-    const locStr = this.makeLocationString(loc);
+    const locStr = makeLocationString(loc);
     const errorKind = `Internal Misti Error${locStr}:`;
     const fullMsg = [
       errorKind,
@@ -94,17 +97,37 @@ export class InternalException {
     // Display short message to the user.
     return new Error([shortMsg, reportText].join("\n"));
   }
+}
 
-  static makeLocationString(loc: SrcInfo | undefined): string {
-    return loc
-      ? (() => {
-          const { lineNum, colNum } = loc.interval.getLineAndColumn();
-          return lineNum !== 0 && colNum !== 0
-            ? ` at ${lineNum}:${colNum}`
-            : "";
-        })()
-      : "";
+/**
+ * An error caused by incorrect actions of the user, such as wrong configuration,
+ * problems in the environment, wrong CLI options.
+ */
+export class ExecutionException {
+  private constructor() {}
+  static make(
+    msg: string,
+    {
+      loc = undefined,
+    }: Partial<{
+      loc: SrcInfo;
+      node: AstNode;
+    }> = {},
+  ): Error {
+    const locStr = makeLocationString(loc);
+    const errorKind = `Execution Error${locStr}:`;
+    const shortMsg = [errorKind, msg].join("\n");
+    return new Error(shortMsg);
   }
+}
+
+function makeLocationString(loc: SrcInfo | undefined): string {
+  return loc
+    ? (() => {
+        const { lineNum, colNum } = loc.interval.getLineAndColumn();
+        return lineNum !== 0 && colNum !== 0 ? ` at ${lineNum}:${colNum}` : "";
+      })()
+    : "";
 }
 
 /**

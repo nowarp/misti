@@ -1,6 +1,7 @@
 import { SouffleDetector } from "../detector";
 import { CompilationUnit, BasicBlock, CFG } from "../../internals/ir";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { InternalException } from "../../internals/exceptions";
 import {
   forEachExpression,
   forEachStatement,
@@ -51,7 +52,9 @@ export class DivideBeforeMultiply extends SouffleDetector {
     this.addConstraints(cu, program);
     return await this.executeSouffle(program, (fact) => {
       if (fact.data === undefined) {
-        throw new Error(`AST position for fact ${fact} is not available`);
+        throw InternalException.make(
+          `AST position for fact ${fact} is not available`,
+        );
       }
       return this.makeWarning(
         "Divide Before Multiply",

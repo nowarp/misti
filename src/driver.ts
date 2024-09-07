@@ -1,6 +1,10 @@
 import { MistiContext } from "./internals/context";
 import { Logger } from "./internals/logger";
-import { tryMsg, InternalException } from "./internals/exceptions";
+import {
+  tryMsg,
+  InternalException,
+  ExecutionException,
+} from "./internals/exceptions";
 import { createIR } from "./internals/ir/builders/tactIRBuilder";
 import { GraphvizDumper, JSONDumper } from "./internals/irDump";
 import { ProjectName, CompilationUnit } from "./internals/ir";
@@ -58,7 +62,7 @@ export class Driver {
     const singleContract = tactPath.endsWith(".tact");
     // Check if the input file exists.
     if (!fs.existsSync(tactPath)) {
-      throw new Error(
+      throw ExecutionException.make(
         `${singleContract ? "Contract" : "Project"} ${tactPath} is not available.`,
       );
     }
@@ -174,7 +178,7 @@ export class Driver {
         }
         const DetectorClass = module[config.className];
         if (!DetectorClass) {
-          throw new Error(
+          throw ExecutionException.make(
             `Detector class ${config.className} not found in module ${config.modulePath}`,
           );
         }
@@ -183,7 +187,9 @@ export class Driver {
         // Attempt to find a built-in detector
         const detector = await findBuiltInDetector(this.ctx, config.className);
         if (!detector) {
-          throw new Error(`Built-in detector ${config.className} not found`);
+          throw ExecutionException.make(
+            `Built-in detector ${config.className} not found`,
+          );
         }
         return detector;
       }
@@ -496,11 +502,11 @@ export class Runner {
    * Returns the result of the execution.
    * @throws If the runner hasn't been executed.
    */
-  public getResult(): MistiResult {
+  public getResult(): MistiResult | never {
     if (this.result !== undefined) {
       return this.result;
     } else {
-      throw new Error("Runner hasn't been executed");
+      throw InternalException.make("Runner hasn't been executed");
     }
   }
 
@@ -517,10 +523,12 @@ export class Runner {
    */
   private static checkCLIOptions(options: CLIOptions) {
     if (options.verbose === true && options.quiet === true) {
-      throw new Error(`Please choose only one option: --verbose or --quiet`);
+      throw ExecutionException.make(
+        `Please choose only one option: --verbose or --quiet`,
+      );
     }
     if (options.allDetectors === true && options.detectors !== undefined) {
-      throw new Error(
+      throw ExecutionException.make(
         `--detectors and --all-detectors cannot be used simultaneously`,
       );
     }
@@ -573,10 +581,12 @@ class SingleContractProjectManager {
     return configPath;
   }
 
-  private extractContractName(): string {
+  private extractContractName(): string | never {
     const fileName = this.contractPath.split("/").pop();
     if (!fileName) {
-      throw new Error(`Invalid contract path: ${this.contractPath}`);
+      throw ExecutionException.make(
+        `Invalid contract path: ${this.contractPath}`,
+      );
     }
     return fileName.slice(0, -5);
   }

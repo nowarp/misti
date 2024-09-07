@@ -1,5 +1,6 @@
 import { SouffleDetector } from "../detector";
 import { CompilationUnit, BasicBlock, CFG } from "../../internals/ir";
+import { InternalException } from "../../internals/exceptions";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import {
   extractPath,
@@ -50,7 +51,9 @@ export class UnboundLoops extends SouffleDetector {
     this.addConstraints(cu, program);
     return await this.executeSouffle(program, (fact) => {
       if (fact.data === undefined) {
-        throw new Error(`AST position for fact ${fact} is not available`);
+        throw InternalException.make(
+          `AST position for fact ${fact} is not available`,
+        );
       }
       return this.makeWarning("Unbounded Loop", Severity.MEDIUM, fact.data, {
         suggestion:

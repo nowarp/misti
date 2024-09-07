@@ -1,4 +1,5 @@
 import { Runner, MistiResult } from "./driver";
+import { ExecutionException } from "./internals/exceptions";
 import { MISTI_VERSION, TACT_VERSION } from "./version";
 import { Command } from "commander";
 import { createDetector } from "./createDetector";
@@ -74,7 +75,7 @@ export function createMistiCommand(): Command {
           .split(",")
           .filter((detector) => detector.trim() !== "");
         if (detectors.length === 0) {
-          throw new Error(
+          throw ExecutionException.make(
             "The --detectors option requires a non-empty list of detector names.",
           );
         }
@@ -102,15 +103,13 @@ export function createMistiCommand(): Command {
       }
 
       if (!PROJECT_CONFIG_OR_FILE_PATH) {
-        throw new Error("`<TACT_CONFIG_PATH|TACT_FILE_PATH>` is required");
+        throw ExecutionException.make(
+          "`<TACT_CONFIG_PATH|TACT_FILE_PATH>` is required",
+        );
       }
 
-      try {
-        RUNNER = await Runner.make(PROJECT_CONFIG_OR_FILE_PATH, options);
-        await RUNNER.run();
-      } catch (error) {
-        throw new Error(`An error occurred: ${error}`);
-      }
+      RUNNER = await Runner.make(PROJECT_CONFIG_OR_FILE_PATH, options);
+      await RUNNER.run();
     });
 
   return command;
@@ -126,7 +125,7 @@ export async function runMistiCommand(
   const command = createMistiCommand();
   if (args.length === 0) {
     command.help();
-    throw new Error("No arguments provided. Help displayed.");
+    throw ExecutionException.make("No arguments provided. Help displayed.");
   } else {
     await command.parseAsync(args, { from: "user" });
     return RUNNER === undefined ? undefined : RUNNER!.getResult();

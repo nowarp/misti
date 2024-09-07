@@ -1,5 +1,6 @@
 import { MistiContext } from "../internals/context";
 import { CompilationUnit } from "../internals/ir";
+import { InternalException } from "../internals/exceptions";
 import { makeDocURL, MistiTactWarning, Severity } from "../internals/warnings";
 import {
   SouffleContext,
@@ -128,7 +129,7 @@ export abstract class SouffleDetector extends Detector {
     });
     const result = await executor.execute(ctx);
     if (result.kind !== "structured") {
-      throw new Error(
+      throw InternalException.make(
         `Error executing Soufflé for ${this.id}:\n${result.kind === "error" ? result.stderr : "Cannot unmarshal raw output:\n" + result.results}`,
       );
     }
