@@ -347,64 +347,55 @@ export class NeverAccessedVariables extends SouffleDetector {
   checkVariables(cu: CompilationUnit): MistiTactWarning[] {
     const errors: MistiTactWarning[] = [];
     const traversedFunctions = new Set<string>();
-    cu.forEachBasicBlock(
-      cu.ast,
-      (cfg: CFG, _node: BasicBlock, _stmt: AstStatement) => {
-        if (cfg.origin === "stdlib" || traversedFunctions.has(cfg.name)) {
+    cu.forEachCFG(cu.ast, (cfg: CFG) => {
+      if (cfg.origin === "stdlib" || traversedFunctions.has(cfg.name)) {
+        return;
+      }
+      traversedFunctions.add(cfg.name);
+      const lattice = new VariableUsageLattice();
+      const transfer = new NeverAccessedTransfer();
+      const solver = new WorklistSolver(cu, cfg, transfer, lattice, "forward");
+      const results = solver.solve();
+
+      const declaredVariables = new Map<string, SrcInfo>();
+      const accessedVariables = new Set<string>();
+      const writtenVariables = new Set<string>();
+      results.getStates().forEach((state, nodeIdx) => {
+        if (!cfg.getBasicBlock(nodeIdx)!.isExit()) {
           return;
         }
-        traversedFunctions.add(cfg.name);
-        const lattice = new VariableUsageLattice();
-        const transfer = new NeverAccessedTransfer();
-        const solver = new WorklistSolver(
-          cu,
-          cfg,
-          transfer,
-          lattice,
-          "forward",
-        );
-        const results = solver.solve();
-
-        const declaredVariables = new Map<string, SrcInfo>();
-        const accessedVariables = new Set<string>();
-        const writtenVariables = new Set<string>();
-        results.getStates().forEach((state, nodeIdx) => {
-          if (!cfg.getBasicBlock(nodeIdx)!.isExit()) {
-            return;
-          }
-          state.declared
-            .extract()
-            .forEach(([name, ref]) => declaredVariables.set(name, ref));
-          state.accessed.forEach((name) => accessedVariables.add(name));
-          state.written.forEach((name) => writtenVariables.add(name));
-        });
-        Array.from(declaredVariables.keys()).forEach((name) => {
-          if (this.skipUnused(name)) {
-            return;
-          }
-          const isWritten = writtenVariables.has(name);
-          const isAccessed = accessedVariables.has(name);
-          if (!isAccessed) {
-            const msg = isWritten
-              ? "Write-only variable"
-              : "Variable is never accessed";
-            const suggestion = isWritten
-              ? "The variable value should be accessed"
-              : "Consider removing the variable";
-            errors.push(
-              this.makeWarning(
-                msg,
-                Severity.MEDIUM,
-                declaredVariables.get(name)!,
-                {
-                  suggestion,
-                },
-              ),
-            );
-          }
-        });
-      },
-    );
+        state.declared
+          .extract()
+          .forEach(([name, ref]) => declaredVariables.set(name, ref));
+        state.accessed.forEach((name) => accessedVariables.add(name));
+        state.written.forEach((name) => writtenVariables.add(name));
+      });
+      Array.from(declaredVariables.keys()).forEach((name) => {
+        if (this.skipUnused(name)) {
+          return;
+        }
+        const isWritten = writtenVariables.has(name);
+        const isAccessed = accessedVariables.has(name);
+        if (!isAccessed) {
+          const msg = isWritten
+            ? "Write-only variable"
+            : "Variable is never accessed";
+          const suggestion = isWritten
+            ? "The variable value should be accessed"
+            : "Consider removing the variable";
+          errors.push(
+            this.makeWarning(
+              msg,
+              Severity.MEDIUM,
+              declaredVariables.get(name)!,
+              {
+                suggestion,
+              },
+            ),
+          );
+        }
+      });
+    });
 
     return errors;
   }
