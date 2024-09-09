@@ -345,7 +345,7 @@ export class NeverAccessedVariables extends Detector {
    * monotonic framework and the fixpoint dataflow solver.
    */
   checkVariables(cu: CompilationUnit): MistiTactWarning[] {
-    const errors: MistiTactWarning[] = [];
+    const warnings: MistiTactWarning[] = [];
     const traversedFunctions = new Set<string>();
     cu.forEachCFG(cu.ast, (cfg: CFG) => {
       if (cfg.origin === "stdlib" || traversedFunctions.has(cfg.name)) {
@@ -383,7 +383,7 @@ export class NeverAccessedVariables extends Detector {
           const suggestion = isWritten
             ? "The variable value should be accessed"
             : "Consider removing the variable";
-          errors.push(
+          warnings.push(
             this.makeWarning(
               msg,
               Severity.MEDIUM,
@@ -397,6 +397,6 @@ export class NeverAccessedVariables extends Detector {
       });
     });
 
-    return errors;
+    return warnings;
   }
 }
