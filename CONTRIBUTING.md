@@ -1,1 +1,1 @@
-See: https://nowarp.github.io/tools/misti/docs/hacking/contributing
+See: https://nowarp.io/tools/misti/docs/hacking/contributing

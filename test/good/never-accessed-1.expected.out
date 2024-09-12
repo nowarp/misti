@@ -5,4 +5,4 @@ test/good/never-accessed-1.tact:2:5:
   3 |     if (true) { // Bad: write-only variable
 Write-only variable
 Help: The variable value should be accessed
-See: https://nowarp.github.io/tools/misti/docs/detectors/NeverAccessedVariables
+See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables

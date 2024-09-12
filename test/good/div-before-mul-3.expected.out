@@ -5,4 +5,4 @@ test/good/div-before-mul-3.tact:2:16:
   3 |   let c: Int = 2;
 Divide Before Multiply
 Help: Consider rearranging the operations: division should follow multiplication
-See: https://nowarp.github.io/tools/misti/docs/detectors/DivideBeforeMultiply
+See: https://nowarp.io/tools/misti/docs/detectors/DivideBeforeMultiply

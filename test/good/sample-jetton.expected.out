@@ -5,7 +5,7 @@ test/good/sample-jetton.tact:312:9:
   313 |         let jettonAmount: Int = msg.loadCoins();
 Variable is never accessed
 Help: Consider removing the variable
-See: https://nowarp.github.io/tools/misti/docs/detectors/NeverAccessedVariables
+See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
 test/good/sample-jetton.tact:67:9:
   66 |         self.requireWallet(msg.owner);                     // Check wallet
@@ -14,7 +14,7 @@ test/good/sample-jetton.tact:67:9:
   68 | 
 Prefer Augmented Assignment
 Help: Consider using augmented assignment instead: self.totalSupply -= msg.amount
-See: https://nowarp.github.io/tools/misti/docs/detectors/PreferAugmentedAssign
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
 
 test/good/sample-jetton.tact:89:9:
   88 |         require(self.totalSupply + amount <= self.max_supply, "The total supply will be overlapping.");
@@ -23,7 +23,7 @@ test/good/sample-jetton.tact:89:9:
   90 | 
 Prefer Augmented Assignment
 Help: Consider using augmented assignment instead: self.totalSupply += amount
-See: https://nowarp.github.io/tools/misti/docs/detectors/PreferAugmentedAssign
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
 
 test/good/sample-jetton.tact:213:9:
   212 | 
@@ -32,7 +32,7 @@ test/good/sample-jetton.tact:213:9:
   214 |         require(self.balance >= 0, "Invalid balance");
 Prefer Augmented Assignment
 Help: Consider using augmented assignment instead: self.balance -= msg.amount
-See: https://nowarp.github.io/tools/misti/docs/detectors/PreferAugmentedAssign
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
 
 test/good/sample-jetton.tact:244:9:
   243 | 
@@ -41,7 +41,7 @@ test/good/sample-jetton.tact:244:9:
   245 |         require(self.balance >= 0, "Invalid balance"); // Update balance
 Prefer Augmented Assignment
 Help: Consider using augmented assignment instead: self.balance += msg.amount
-See: https://nowarp.github.io/tools/misti/docs/detectors/PreferAugmentedAssign
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
 
 test/good/sample-jetton.tact:290:9:
   289 | 
@@ -50,7 +50,7 @@ test/good/sample-jetton.tact:290:9:
   291 |         require(self.balance >= 0, "Invalid balance");
 Prefer Augmented Assignment
 Help: Consider using augmented assignment instead: self.balance -= msg.amount
-See: https://nowarp.github.io/tools/misti/docs/detectors/PreferAugmentedAssign
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
 
 test/good/sample-jetton.tact:316:9:
   315 |         
@@ -59,4 +59,4 @@ test/good/sample-jetton.tact:316:9:
   317 |     }
 Prefer Augmented Assignment
 Help: Consider using augmented assignment instead: self.balance += jettonAmount
-See: https://nowarp.github.io/tools/misti/docs/detectors/PreferAugmentedAssign
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign

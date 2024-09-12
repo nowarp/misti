@@ -5,4 +5,4 @@ test/good/branch-duplicate-1.tact:3:5:
   4 |         a = 43; // bad
 Duplicated code in conditional branches detected
 Help: Identical code in both branches detected. Refactor to eliminate redundancy.
-See: https://nowarp.github.io/tools/misti/docs/detectors/BranchDuplicate
+See: https://nowarp.io/tools/misti/docs/detectors/BranchDuplicate

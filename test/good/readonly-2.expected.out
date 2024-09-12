@@ -5,4 +5,4 @@ test/good/readonly-2.tact:2:9:
   3 |     repeat (a) { /* do nothing */ }
 Read-only variable
 Help: Consider creating a constant instead
-See: https://nowarp.github.io/tools/misti/docs/detectors/ReadOnlyVariables
+See: https://nowarp.io/tools/misti/docs/detectors/ReadOnlyVariables

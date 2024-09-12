@@ -5,4 +5,4 @@ test/good/zero-address.tact:3:23:
   4 |     }
 Using Zero Address
 Help: Consider changing code to avoid using it
-See: https://nowarp.github.io/tools/misti/docs/detectors/ZeroAddress
+See: https://nowarp.io/tools/misti/docs/detectors/ZeroAddress

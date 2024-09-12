@@ -5,7 +5,7 @@ test/good/unbound-loop-10.tact:2:9:
   3 |     while (!i) {} // warning: unbound loop
 Read-only variable
 Help: Consider creating a constant instead
-See: https://nowarp.github.io/tools/misti/docs/detectors/ReadOnlyVariables
+See: https://nowarp.io/tools/misti/docs/detectors/ReadOnlyVariables
 
 test/good/unbound-loop-10.tact:3:13:
   2 |     let i: Bool = true;
@@ -14,4 +14,4 @@ test/good/unbound-loop-10.tact:3:13:
   4 | }
 Unbounded Loop: The condition variable doesn't change within the loop
 Help: Consider changing the variable within the loop to ensure it terminates
-See: https://nowarp.github.io/tools/misti/docs/detectors/UnboundLoops
+See: https://nowarp.io/tools/misti/docs/detectors/UnboundLoops

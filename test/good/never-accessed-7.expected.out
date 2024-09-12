@@ -5,4 +5,4 @@ test/good/never-accessed-7.tact:2:5:
   3 |     let b: Int = 22; // read-only variable
 Variable is never accessed
 Help: Consider removing the variable
-See: https://nowarp.github.io/tools/misti/docs/detectors/NeverAccessedVariables
+See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables

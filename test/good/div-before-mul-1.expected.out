@@ -5,4 +5,4 @@ test/good/div-before-mul-1.tact:5:21:
   6 |   return result;
 Divide Before Multiply
 Help: Consider rearranging the operations: division should follow multiplication
-See: https://nowarp.github.io/tools/misti/docs/detectors/DivideBeforeMultiply
+See: https://nowarp.io/tools/misti/docs/detectors/DivideBeforeMultiply

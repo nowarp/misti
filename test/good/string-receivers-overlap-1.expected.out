@@ -5,7 +5,7 @@ test/good/string-receivers-overlap-1.tact:9:13:
   10 |         if ("test" != msg) {} // Bad
 String Receivers Overlap: receiver("msg") might be called instead. This condition might never be executed.
 Help: Implement the desired logic in receiver("msg") and remove msg == "test"
-See: https://nowarp.github.io/tools/misti/docs/detectors/StringReceiversOverlap
+See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 test/good/string-receivers-overlap-1.tact:10:13:
    9 |         if (msg == "test") {} // Bad
@@ -14,7 +14,7 @@ test/good/string-receivers-overlap-1.tact:10:13:
   11 |         if (("test" != msg) && WHATEVER) {} // Bad
 String Receivers Overlap: receiver("msg") might be called instead. This condition might never be executed.
 Help: Implement the desired logic in receiver("msg") and remove "test" != msg
-See: https://nowarp.github.io/tools/misti/docs/detectors/StringReceiversOverlap
+See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 test/good/string-receivers-overlap-1.tact:11:13:
   10 |         if ("test" != msg) {} // Bad
@@ -23,7 +23,7 @@ test/good/string-receivers-overlap-1.tact:11:13:
   12 |         if ((WHATEVER || WHATEVER) && ("test" != msg)) {} // Bad
 String Receivers Overlap: receiver("msg") might be called instead. This condition might never be executed.
 Help: Implement the desired logic in receiver("msg") and remove "test" != msg
-See: https://nowarp.github.io/tools/misti/docs/detectors/StringReceiversOverlap
+See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 test/good/string-receivers-overlap-1.tact:12:13:
   11 |         if (("test" != msg) && WHATEVER) {} // Bad
@@ -32,7 +32,7 @@ test/good/string-receivers-overlap-1.tact:12:13:
   13 | 
 String Receivers Overlap: receiver("msg") might be called instead. This condition might never be executed.
 Help: Implement the desired logic in receiver("msg") and remove "test" != msg
-See: https://nowarp.github.io/tools/misti/docs/detectors/StringReceiversOverlap
+See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 test/good/string-receivers-overlap-1.tact:17:13:
   16 |         let bar = foo;
@@ -41,7 +41,7 @@ test/good/string-receivers-overlap-1.tact:17:13:
   18 | 
 String Receivers Overlap: receiver("msg") might be called instead. This condition might never be executed.
 Help: Implement the desired logic in receiver("msg") and remove "test" == bar
-See: https://nowarp.github.io/tools/misti/docs/detectors/StringReceiversOverlap
+See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 test/good/string-receivers-overlap-1.tact:22:13:
   21 |         let test2 = test1;
@@ -50,7 +50,7 @@ test/good/string-receivers-overlap-1.tact:22:13:
   23 | 
 String Receivers Overlap: receiver("msg") might be called instead. This condition might never be executed.
 Help: Implement the desired logic in receiver("msg") and remove test2 == msg
-See: https://nowarp.github.io/tools/misti/docs/detectors/StringReceiversOverlap
+See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 test/good/string-receivers-overlap-1.tact:25:13:
   24 |         // Combining tainted cases
@@ -59,7 +59,7 @@ test/good/string-receivers-overlap-1.tact:25:13:
   26 |         if (bar == test2) {} // Bad
 String Receivers Overlap: receiver("msg") might be called instead. This condition might never be executed.
 Help: Implement the desired logic in receiver("msg") and remove test2 != bar
-See: https://nowarp.github.io/tools/misti/docs/detectors/StringReceiversOverlap
+See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 test/good/string-receivers-overlap-1.tact:26:13:
   25 |         if (test2 != bar) {} // Bad
@@ -68,7 +68,7 @@ test/good/string-receivers-overlap-1.tact:26:13:
   27 | 
 String Receivers Overlap: receiver("msg") might be called instead. This condition might never be executed.
 Help: Implement the desired logic in receiver("msg") and remove bar == test2
-See: https://nowarp.github.io/tools/misti/docs/detectors/StringReceiversOverlap
+See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 test/good/string-receivers-overlap-1.tact:17:23:
   16 |         let bar = foo;
@@ -77,7 +77,7 @@ test/good/string-receivers-overlap-1.tact:17:23:
   18 | 
 Read-only variable
 Help: Consider creating a constant instead
-See: https://nowarp.github.io/tools/misti/docs/detectors/ReadOnlyVariables
+See: https://nowarp.io/tools/misti/docs/detectors/ReadOnlyVariables
 
 test/good/string-receivers-overlap-1.tact:22:13:
   21 |         let test2 = test1;
@@ -86,4 +86,4 @@ test/good/string-receivers-overlap-1.tact:22:13:
   23 | 
 Read-only variable
 Help: Consider creating a constant instead
-See: https://nowarp.github.io/tools/misti/docs/detectors/ReadOnlyVariables
+See: https://nowarp.io/tools/misti/docs/detectors/ReadOnlyVariables

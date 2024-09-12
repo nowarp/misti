@@ -5,4 +5,4 @@ test/good/never-accessed-8.tact:3:9:
   4 |     }
 Variable is never accessed
 Help: Consider removing the variable
-See: https://nowarp.github.io/tools/misti/docs/detectors/NeverAccessedVariables
+See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables

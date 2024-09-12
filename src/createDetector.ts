@@ -67,7 +67,7 @@ export async function createDetector(nameOrPath: string): Promise<boolean> {
       [
         `Created ${filepath}\n`,
         "Now you can add your detector to the configuration file and execute it. ",
-        "See: https://nowarp.github.io/tools/misti/docs/hacking/custom-detector.",
+        "See: https://nowarp.io/tools/misti/docs/hacking/custom-detector.",
       ].join(""),
     );
     return true;
