@@ -26,7 +26,7 @@
     "spell": "cspell \"**\" --no-progress --exclude \"dist/**\" --exclude \"node_modules/**\" --exclude \"tags/**\"",
     "docs": "yarn typedoc --out docs/api --entryPointStrategy expand src",
     "detector-docs": "ts-node ./scripts/generateDetectorDocs.ts",
-    "test-all": "yarn test && yarn lint && yarn fmt && yarn spell",
+    "test-all": "yarn fmt && yarn spell && yarn lint && yarn test",
     "misti": "ts-node src/main.ts",
     "release": "yarn build && yarn release-it"
   },
