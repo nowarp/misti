@@ -1,0 +1,12 @@
+{
+  "projects": [
+    {
+      "name": "sample",
+      "path": "good/zero-address.tact",
+      "output": "./tmp/output",
+      "options": {
+        "external": true
+      }
+    }
+  ]
+}

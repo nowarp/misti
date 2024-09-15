@@ -10,6 +10,7 @@ import { GraphvizDumper, JSONDumper } from "./internals/irDump";
 import { ProjectName, CompilationUnit } from "./internals/ir";
 import { MistiTactWarning } from "./internals/warnings";
 import { Detector, findBuiltInDetector } from "./detectors/detector";
+import { DUMP_STDOUT_PATH } from "./cli";
 import { execSync } from "child_process";
 import JSONbig from "json-bigint";
 import path from "path";
@@ -399,8 +400,6 @@ export class Driver {
     }
   }
 }
-
-const DUMP_STDOUT_PATH = "-";
 
 /**
  * CLI options for configuring the analyzer.

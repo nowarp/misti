@@ -106,6 +106,10 @@ export class MistiConfig {
     if (detectors !== undefined) {
       const builtinDetectors = new Set(getAllDetectors());
       return detectors.reduce<DetectorConfig[]>((acc, detector) => {
+        if (detector === "") {
+          // The user has specified the empty value in the config.
+          return acc;
+        }
         if (builtinDetectors.has(detector)) {
           acc.push({ className: detector });
         } else {
