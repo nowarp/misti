@@ -1,4 +1,4 @@
-import { Driver } from "../../../src/driver";
+import { Driver } from "../../../src/cli";
 import path from "path";
 
 describe("ImplicitInit Detector Tests", () => {

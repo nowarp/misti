@@ -1,5 +1,5 @@
 import { runMistiCommand } from "../src/cli";
-import { Runner } from "../src/driver";
+import { Runner } from "../src/cli";
 import path from "path";
 
 const TACT_CONFIG_PATH = path.join(__dirname, "./tact.config.json");

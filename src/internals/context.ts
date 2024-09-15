@@ -1,4 +1,6 @@
 import { Logger, QuietLogger, DebugLogger, TraceLogger } from "./logger";
+import { execSync } from "child_process";
+import { CLIOptions } from "../cli";
 import { MistiConfig } from "./config";
 
 /**
@@ -14,73 +16,38 @@ export class MistiContext {
 
   /**
    * Initializes the context for Misti, setting up configuration and appropriate logger.
-   * @param params Contains various configuration options:
-   *   - mistiConfigPath: Path to the Misti configuration file.
-   *   - soufflePath: Directory to save Soufflé files.
-   *   - souffleVerbose: Generate more verbose Soufflé programs.
-   *   - tactStdlibPath: Non-default path to Tact stdlib.
-   *   - verbose: CLI option to force verbose output.
-   *   - quiet: CLI option to forcefully suppress output.
-   *   - quiet: CLI option to forcefully activate all the available built-in detectors.
-   *   - detectors: Detectors to run that will override those specified in the configuration file if set.
-   *   - allDetectors: Enable all the available built-in detectors no matter if they are enabled in config.
-   *   - singleContractPath: Contains path to a single contract if executed without project configuration.
-   *   - souffleAvailable: Indicates whether a Souffle binary is available..
    */
-  constructor(
-    params: Partial<{
-      mistiConfigPath?: string;
-      soufflePath?: string;
-      souffleVerbose?: boolean;
-      tactStdlibPath?: string;
-      verbose?: boolean;
-      quiet?: boolean;
-      detectors?: string[];
-      allDetectors?: boolean;
-      singleContractPath?: string;
-      souffleAvailable?: boolean;
-    }> = {},
-  ) {
-    const {
-      mistiConfigPath = undefined,
-      soufflePath = undefined,
-      souffleVerbose = false,
-      tactStdlibPath = undefined,
-      verbose = false,
-      quiet = false,
-      detectors = undefined,
-      allDetectors = false,
-      singleContractPath: singleContractPath,
-      souffleAvailable = false,
-    } = params;
-    this.singleContractPath = singleContractPath;
-    this.souffleAvailable = souffleAvailable;
+  constructor(tactPath: string, options: CLIOptions) {
+    this.singleContractPath = tactPath.endsWith(".tact") ? tactPath : undefined;
+    this.souffleAvailable = this.checkSouffleInstallation(
+      options.souffleBinary ?? "souffle",
+    );
     this.config = new MistiConfig({
-      detectors,
-      allDetectors,
-      configPath: mistiConfigPath,
+      detectors: options.detectors,
+      allDetectors: options.allDetectors,
+      configPath: options.config,
     });
 
     // Prioritize CLI options to configuration file values
-    if (soufflePath !== undefined) {
-      this.config.soufflePath = soufflePath;
+    if (options.soufflePath !== undefined) {
+      this.config.soufflePath = options.soufflePath;
     }
-    if (souffleVerbose !== undefined) {
-      this.config.souffleVerbose = souffleVerbose;
+    if (options.souffleVerbose !== undefined) {
+      this.config.souffleVerbose = options.souffleVerbose;
     }
-    if (tactStdlibPath !== undefined) {
-      this.config.tactStdlibPath = tactStdlibPath;
+    if (options.tactStdlibPath !== undefined) {
+      this.config.tactStdlibPath = options.tactStdlibPath;
     }
 
     // Prioritize CLI options for verbosity
-    if (verbose === true) {
+    if (options.verbose === true) {
       this.logger = new DebugLogger();
-    } else if (quiet === true) {
+    } else if (options.quiet === true) {
       this.logger = new QuietLogger();
     } else {
-      if (this.config.verbosity == "quiet") {
+      if (this.config.verbosity === "quiet") {
         this.logger = new QuietLogger();
-      } else if (this.config.verbosity == "debug") {
+      } else if (this.config.verbosity === "debug") {
         this.logger = new DebugLogger();
       } else {
         this.logger = new Logger();
@@ -90,6 +57,18 @@ export class MistiContext {
     // Add backtraces to the logger output if requested
     if (process.env.MISTI_TRACE === "1") {
       this.logger = new TraceLogger();
+    }
+  }
+
+  /**
+   * Checks whether the Souffle binary is available.
+   */
+  private checkSouffleInstallation(souffleBinary: string): boolean {
+    try {
+      execSync(`${souffleBinary} --version`, { stdio: "ignore" });
+      return true;
+    } catch (error) {
+      return false;
     }
   }
 }

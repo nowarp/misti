@@ -1,4 +1,4 @@
-import { Runner } from "../src/driver";
+import { Runner } from "../src/cli";
 import { TAP, processTactFiles, GOOD_DIR, resetIds } from "./testUtil";
 import path from "path";
 

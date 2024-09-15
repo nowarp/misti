@@ -1,17 +1,16 @@
-import { MistiContext } from "./internals/context";
-import { Logger } from "./internals/logger";
+import { MistiContext } from "../internals/context";
+import { Logger } from "../internals/logger";
 import {
   tryMsg,
   InternalException,
   ExecutionException,
-} from "./internals/exceptions";
-import { createIR } from "./internals/ir/builders/tactIRBuilder";
-import { GraphvizDumper, JSONDumper } from "./internals/irDump";
-import { ProjectName, CompilationUnit } from "./internals/ir";
-import { MistiTactWarning } from "./internals/warnings";
-import { Detector, findBuiltInDetector } from "./detectors/detector";
-import { DUMP_STDOUT_PATH } from "./cli";
-import { execSync } from "child_process";
+} from "../internals/exceptions";
+import { createIR } from "../internals/ir/builders/tactIRBuilder";
+import { GraphvizDumper, JSONDumper } from "../internals/irDump";
+import { ProjectName, CompilationUnit } from "../internals/ir";
+import { MistiTactWarning } from "../internals/warnings";
+import { Detector, findBuiltInDetector } from "../detectors/detector";
+import { DUMP_STDOUT_PATH, CLIOptions } from "./options";
 import JSONbig from "json-bigint";
 import path from "path";
 import fs from "fs";
@@ -44,53 +43,27 @@ export class Driver {
   private dumpConfig: boolean;
   private tactConfigPath: string;
 
-  private constructor(
-    tactPath: string,
-    dumpCFG?: "json" | "dot",
-    dumpCFGStdlib?: boolean,
-    dumpCFGOutput?: string,
-    dumpConfig?: boolean,
-    souffleBinary?: string,
-    soufflePath?: string,
-    souffleVerbose?: boolean,
-    tactStdlibPath?: string,
-    verbose?: boolean,
-    quiet?: boolean,
-    detectors?: string[],
-    allDetectors?: boolean,
-    mistiConfigPath?: string,
-  ) {
+  private constructor(tactPath: string, options: CLIOptions) {
     const singleContract = tactPath.endsWith(".tact");
+
     // Check if the input file exists.
     if (!fs.existsSync(tactPath)) {
       throw ExecutionException.make(
         `${singleContract ? "Contract" : "Project"} ${tactPath} is not available.`,
       );
     }
+
     // Tact internals expect as an input a configuration file. Thus we have to
     // create a dummy config for a single contract with default options.
     this.tactConfigPath = singleContract
       ? SingleContractProjectManager.fromContractPath(tactPath).generate()
       : path.resolve(tactPath); // Tact supports absolute paths only
-    // Detect if there is valid Souffle installation.
-    this.ctx = new MistiContext({
-      mistiConfigPath,
-      soufflePath,
-      souffleVerbose,
-      tactStdlibPath,
-      verbose,
-      quiet,
-      detectors,
-      allDetectors,
-      singleContractPath: singleContract ? tactPath : undefined,
-      souffleAvailable: this.checkSouffleInstallation(
-        souffleBinary ?? "souffle",
-      ),
-    });
-    this.dumpCFG = dumpCFG;
-    this.dumpCFGStdlib = dumpCFGStdlib ? dumpCFGStdlib : false;
-    this.dumpCFGOutput = dumpCFGOutput ? dumpCFGOutput : DUMP_STDOUT_PATH;
-    this.dumpConfig = dumpConfig === undefined ? false : dumpConfig;
+
+    this.ctx = new MistiContext(tactPath, options);
+    this.dumpCFG = options.dumpCfg;
+    this.dumpCFGStdlib = options.dumpCfgStdlib || false;
+    this.dumpCFGOutput = options.dumpCfgOutput || DUMP_STDOUT_PATH;
+    this.dumpConfig = options.dumpConfig ?? false;
   }
 
   /**
@@ -101,39 +74,12 @@ export class Driver {
     tactPath: string,
     options: CLIOptions,
   ): Promise<Driver> {
-    const driver = new Driver(
-      tactPath,
-      options.dumpCfg,
-      options.dumpCfgStdlib,
-      options.dumpCfgOutput,
-      options.dumpConfig,
-      options.souffleBinary,
-      options.soufflePath,
-      options.souffleVerbose,
-      options.tactStdlibPath,
-      options.verbose,
-      options.quiet,
-      options.detectors,
-      options.allDetectors,
-      options.config,
-    );
+    const driver = new Driver(tactPath, options);
     await driver.initializeDetectors();
     if (!driver.ctx.souffleAvailable) {
       this.warnOnDisabledDetectors(driver);
     }
     return driver;
-  }
-
-  /**
-   * Checks whether the Souffle binary is available.
-   */
-  private checkSouffleInstallation(souffleBinary: string): boolean {
-    try {
-      execSync(`${souffleBinary} --version`, { stdio: "ignore" });
-      return true;
-    } catch (error) {
-      return false;
-    }
   }
 
   /**
@@ -399,44 +345,6 @@ export class Driver {
       );
     }
   }
-}
-
-/**
- * CLI options for configuring the analyzer.
- */
-interface CLIOptions {
-  /** Specifies the format for dumping CFG. If `undefined`, no dumps will be generated. */
-  dumpCfg?: "json" | "dot";
-  /** Determines whether to include standard library components in the dump. */
-  dumpCfgStdlib?: boolean;
-  /** Path where to save CFG dumps. If equals to DUMP_STDOUT_PATH, the stdout is used. */
-  dumpCfgOutput?: string;
-  /** Dump the used Misti JSON configuration file. If no custom configuration
-   * available, dumps the default config. */
-  dumpConfig?: boolean;
-  /**
-   * Specifies path to save generated Soufflé files. If equals to DUMP_STDOUT_PATH, the
-   * stdout is used. If `undefined`, no dumps will be generated.
-   */
-  soufflePath?: string;
-  /** Path to Souffle binary. */
-  souffleBinary?: string;
-  /** If set, generates more readable Soufflé files instead of making the result source code smaller. */
-  souffleVerbose?: boolean;
-  /***
-   * Path to Tact standard library. If not set, the default stdlib from the actual Tact setup will be used.
-   */
-  tactStdlibPath?: string;
-  /** Add additional stdout output. */
-  verbose?: boolean;
-  /** Suppress driver's output. */
-  quiet?: boolean;
-  /** Detectors to run that will override those specified in the configuration file if set. */
-  detectors?: string[];
-  /** Enable all the available built-in detectors no matter if they are enabled in config. */
-  allDetectors?: boolean;
-  /** Optional path to the configuration file. If provided, the analyzer uses settings from this file. */
-  config?: string;
 }
 
 /**
