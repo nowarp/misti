@@ -6,12 +6,12 @@
       "name": "Test",
       "methods": [
         {
-          "name": "Test.receive_internal_comment_1554_test",
+          "name": "Test.receive_internal_comment_1678_test",
           "cfg": {
             "nodes": [
               {
                 "id": 141,
-                "stmtID": 1540,
+                "stmtID": 1664,
                 "srcEdges": [],
                 "dstEdges": [
                   143
@@ -19,7 +19,7 @@
               },
               {
                 "id": 142,
-                "stmtID": 1544,
+                "stmtID": 1668,
                 "srcEdges": [
                   143
                 ],
@@ -29,7 +29,7 @@
               },
               {
                 "id": 144,
-                "stmtID": 1553,
+                "stmtID": 1677,
                 "srcEdges": [
                   145,
                   148
@@ -40,7 +40,7 @@
               },
               {
                 "id": 146,
-                "stmtID": 1552,
+                "stmtID": 1676,
                 "srcEdges": [
                   147
                 ],

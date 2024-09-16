@@ -1,0 +1,3 @@
+digraph "asm-fun-1" {
+    node [shape=box];
+}

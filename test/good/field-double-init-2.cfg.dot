@@ -1,8 +1,8 @@
 digraph "field-double-init-2" {
     node [shape=box];
-    subgraph "cluster_Test__init_1550" {
-        label="Test__init_1550";
-        "Test__init_1550_142" [label="self.a = x",style=filled,fillcolor="#66A7DB"];
+    subgraph "cluster_Test__init_1674" {
+        label="Test__init_1674";
+        "Test__init_1674_142" [label="self.a = x",style=filled,fillcolor="#66A7DB"];
     }
     subgraph "cluster_Test__getB" {
         label="Test__getB";

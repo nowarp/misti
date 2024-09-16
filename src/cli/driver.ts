@@ -341,7 +341,7 @@ export class Driver {
       return (await Promise.all(warningsPromises)).flat();
     } catch (error) {
       throw InternalException.make(
-        `${cu.projectName} execution error:\n${JSON.stringify(error)}`,
+        `${cu.projectName} execution error:\n${error}`,
       );
     }
   }

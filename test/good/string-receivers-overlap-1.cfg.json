@@ -6,19 +6,19 @@
       "name": "Test",
       "methods": [
         {
-          "name": "Test.receive_internal_comment_1536_test",
+          "name": "Test.receive_internal_comment_1660_test",
           "cfg": {
             "nodes": [],
             "edges": []
           }
         },
         {
-          "name": "Test.receive_internal_simple_1596",
+          "name": "Test.receive_internal_simple_1720",
           "cfg": {
             "nodes": [
               {
                 "id": 142,
-                "stmtID": 1543,
+                "stmtID": 1667,
                 "srcEdges": [],
                 "dstEdges": [
                   144
@@ -26,7 +26,7 @@
               },
               {
                 "id": 143,
-                "stmtID": 1547,
+                "stmtID": 1671,
                 "srcEdges": [
                   144
                 ],
@@ -36,7 +36,7 @@
               },
               {
                 "id": 145,
-                "stmtID": 1553,
+                "stmtID": 1677,
                 "srcEdges": [
                   146
                 ],
@@ -46,7 +46,7 @@
               },
               {
                 "id": 147,
-                "stmtID": 1561,
+                "stmtID": 1685,
                 "srcEdges": [
                   148
                 ],
@@ -56,7 +56,7 @@
               },
               {
                 "id": 149,
-                "stmtID": 1565,
+                "stmtID": 1689,
                 "srcEdges": [
                   150
                 ],
@@ -66,7 +66,7 @@
               },
               {
                 "id": 151,
-                "stmtID": 1568,
+                "stmtID": 1692,
                 "srcEdges": [
                   152
                 ],
@@ -76,7 +76,7 @@
               },
               {
                 "id": 153,
-                "stmtID": 1572,
+                "stmtID": 1696,
                 "srcEdges": [
                   154
                 ],
@@ -86,7 +86,7 @@
               },
               {
                 "id": 155,
-                "stmtID": 1576,
+                "stmtID": 1700,
                 "srcEdges": [
                   156
                 ],
@@ -96,7 +96,7 @@
               },
               {
                 "id": 157,
-                "stmtID": 1579,
+                "stmtID": 1703,
                 "srcEdges": [
                   158
                 ],
@@ -106,7 +106,7 @@
               },
               {
                 "id": 159,
-                "stmtID": 1583,
+                "stmtID": 1707,
                 "srcEdges": [
                   160
                 ],
@@ -116,7 +116,7 @@
               },
               {
                 "id": 161,
-                "stmtID": 1587,
+                "stmtID": 1711,
                 "srcEdges": [
                   162
                 ],
@@ -126,7 +126,7 @@
               },
               {
                 "id": 163,
-                "stmtID": 1591,
+                "stmtID": 1715,
                 "srcEdges": [
                   164
                 ],
@@ -136,7 +136,7 @@
               },
               {
                 "id": 165,
-                "stmtID": 1595,
+                "stmtID": 1719,
                 "srcEdges": [
                   166
                 ],

@@ -6,12 +6,12 @@
       "name": "Test",
       "methods": [
         {
-          "name": "Test.init_1540",
+          "name": "Test.init_1664",
           "cfg": {
             "nodes": [
               {
                 "id": 141,
-                "stmtID": 1538,
+                "stmtID": 1662,
                 "srcEdges": [],
                 "dstEdges": []
               }

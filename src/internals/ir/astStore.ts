@@ -10,6 +10,7 @@ import {
   AstConstantDef,
   AstContract,
   AstPrimitiveTypeDecl,
+  AstAsmFunctionDef,
   AstStructDecl,
   AstMessageDecl,
   AstTrait,
@@ -33,6 +34,7 @@ export class TactASTStore {
    * @param constants Constants defined across the compilation unit.
    * @param contracts Contracts defined within the project.
    * @param nativeFunctions Functions defined natively (not in user's source code).
+   * @param asmFunctions Tact asm functions.
    * @param primitives Primitive types defined in the project.
    * @param structs Structs defined in the project.
    * @param messages Messages defined in the project.
@@ -50,6 +52,7 @@ export class TactASTStore {
     private constants: Map<number, AstConstantDef>,
     private contracts: Map<number, AstContract>,
     private nativeFunctions: Map<number, AstNativeFunctionDecl>,
+    private asmFunctions: Map<number, AstAsmFunctionDef>,
     private primitives: Map<number, AstPrimitiveTypeDecl>,
     private structs: Map<number, AstStructDecl>,
     private messages: Map<number, AstMessageDecl>,
@@ -70,6 +73,8 @@ export class TactASTStore {
         acc.push(this.contracts.get(id)!);
       } else if (this.nativeFunctions.has(id)) {
         acc.push(this.nativeFunctions.get(id)!);
+      } else if (this.asmFunctions.has(id)) {
+        acc.push(this.asmFunctions.get(id)!);
       } else if (this.primitives.has(id)) {
         acc.push(this.primitives.get(id)!);
       } else if (this.structs.has(id)) {
@@ -151,6 +156,10 @@ export class TactASTStore {
     return this.nativeFunctions.values();
   }
 
+  getAsmFunctions(): IterableIterator<AstAsmFunctionDef> {
+    return this.asmFunctions.values();
+  }
+
   getPrimitives(): IterableIterator<AstPrimitiveTypeDecl> {
     return this.primitives.values();
   }
@@ -226,6 +235,19 @@ export class TactASTStore {
 
   public hasNativeFunction(id: number): boolean {
     return this.getNativeFunction(id) !== undefined;
+  }
+
+  /**
+   * Retrieves an asm function by its ID.
+   * @param id The unique identifier of the asm function.
+   * @returns The asm function if found, otherwise undefined.
+   */
+  public getAsmFunction(id: number): AstAsmFunctionDef | undefined {
+    return this.asmFunctions.get(id);
+  }
+
+  public hasAsmFunction(id: number): boolean {
+    return this.getAsmFunction(id) !== undefined;
   }
 
   /**

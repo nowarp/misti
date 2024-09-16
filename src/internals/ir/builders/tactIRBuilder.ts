@@ -38,12 +38,13 @@ import {
   AstFunctionDef,
   AstExpression,
   AstTypeDecl,
+  AstAsmFunctionDef,
   AstNativeFunctionDecl,
   AstReceiver,
   AstContractInit,
+  AstContractDeclaration,
   AstContract,
   AstPrimitiveTypeDecl,
-  AstFieldDecl,
   AstStructDecl,
   AstMessageDecl,
   AstTrait,
@@ -136,6 +137,7 @@ export class TactASTStoreBuilder {
   private constants = new Map<number, AstConstantDef>();
   private contracts = new Map<number, AstContract>();
   private nativeFunctions = new Map<number, AstNativeFunctionDecl>();
+  private asmFunctions = new Map<number, AstAsmFunctionDef>();
   private primitives = new Map<number, AstPrimitiveTypeDecl>();
   private structs = new Map<number, AstStructDecl>();
   private messages = new Map<number, AstMessageDecl>();
@@ -151,10 +153,20 @@ export class TactASTStoreBuilder {
       if (definedInStdlib(this.ctx, func.loc)) {
         this.stdlibIds.add(func.id);
       }
-      if (func.kind == "function_def") {
-        this.processFunction(func);
-      } else {
-        this.nativeFunctions.set(func.id, func);
+      switch (func.kind) {
+        case "function_def":
+          this.processFunction(func);
+          break;
+        case "asm_function_def":
+          this.asmFunctions.set(func.id, func);
+          break;
+        case "native_function_decl":
+          this.nativeFunctions.set(func.id, func);
+          break;
+        default:
+          throw InternalException.make("Unsupported top-level function", {
+            node: func,
+          });
       }
     });
     this.ast.constants.forEach((constant) => {
@@ -182,6 +194,7 @@ export class TactASTStoreBuilder {
       this.constants,
       this.contracts,
       this.nativeFunctions,
+      this.asmFunctions,
       this.primitives,
       this.structs,
       this.messages,
@@ -225,6 +238,9 @@ export class TactASTStoreBuilder {
         case "receiver":
           this.processFunction(decl);
           break;
+        case "asm_function_def":
+          this.asmFunctions.set(decl.id, decl);
+          break;
         case "constant_def":
           this.constants.set(decl.id, decl);
           this.contractConstants.add(decl.id);
@@ -251,6 +267,9 @@ export class TactASTStoreBuilder {
         case "contract_init":
         case "receiver":
           this.processFunction(decl);
+          break;
+        case "asm_function_def":
+          this.asmFunctions.set(decl.id, decl);
           break;
         case "constant_def":
           this.constants.set(decl.id, decl);
@@ -414,12 +433,7 @@ export class TactIRBuilder {
    * Extracts information from the contract AST entry if it is a method.
    */
   private getMethodInfo(
-    decl:
-      | AstFieldDecl
-      | AstFunctionDef
-      | AstContractInit
-      | AstReceiver
-      | AstConstantDef,
+    decl: AstContractDeclaration,
     contractId: number,
   ): [string | undefined, FunctionKind | undefined, AstStatement[] | null] {
     return decl.kind === "function_def"
@@ -440,6 +454,7 @@ export class TactIRBuilder {
         const contractName = entry.name.text;
         const methodsMap = entry.declarations.reduce((methodAcc, decl) => {
           const [name, kind, _] = this.getMethodInfo(decl, entry.id);
+          // NOTE: We don't create CFG entries for asm functions.
           if (kind && name) {
             const idx = this.registerCFGIdx(
               name,
@@ -851,7 +866,7 @@ class TactConfigManager {
       (acc: Map<ProjectName, AstStore>, projectConfig: ConfigProject) => {
         this.ctx.logger.debug(`Parsing project ${projectConfig.name} ...`);
         try {
-          let ctx = new CompilerContext({ shared: {} });
+          let ctx = new CompilerContext();
           ctx = enableFeatures(ctx, this.ctx.logger, projectConfig);
           ctx = precompile(ctx, project, stdlib, projectConfig.path);
           acc.set(projectConfig.name, getRawAST(ctx));

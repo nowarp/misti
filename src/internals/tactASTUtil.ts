@@ -189,6 +189,7 @@ export function forEachExpression(
       case "function_decl":
       case "optional_type":
       case "constant_decl":
+      case "asm_function_def":
         // Do nothing
         break;
       default:
@@ -405,6 +406,7 @@ export function foldExpressions<T>(
       case "function_decl":
       case "optional_type":
       case "constant_decl":
+      case "asm_function_def":
         // Do nothing
         break;
       default:
@@ -512,6 +514,7 @@ export function forEachStatement(
       case "field_decl":
       case "import":
       case "primitive_type_decl":
+      case "asm_function_def":
         // Do nothing
         break;
       default:
@@ -633,6 +636,7 @@ export function foldStatements<T>(
       case "field_decl":
       case "import":
       case "primitive_type_decl":
+      case "asm_function_def":
         // Do nothing
         break;
       default:

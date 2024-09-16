@@ -1,7 +1,7 @@
 digraph "never-accessed-9" {
     node [shape=box];
-    subgraph "cluster_TestContract__receive_internal_fallback_1531" {
-        label="TestContract__receive_internal_fallback_1531";
-        "TestContract__receive_internal_fallback_1531_141" [label="let _test: Int = 123",style=filled,fillcolor="#66A7DB"];
+    subgraph "cluster_TestContract__receive_internal_fallback_1655" {
+        label="TestContract__receive_internal_fallback_1655";
+        "TestContract__receive_internal_fallback_1655_141" [label="let _test: Int = 123",style=filled,fillcolor="#66A7DB"];
     }
 }

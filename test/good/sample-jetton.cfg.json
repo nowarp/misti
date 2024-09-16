@@ -6,12 +6,12 @@
       "name": "SampleJetton",
       "methods": [
         {
-          "name": "SampleJetton.init_1781",
+          "name": "SampleJetton.init_1905",
           "cfg": {
             "nodes": [
               {
                 "id": 151,
-                "stmtID": 1670,
+                "stmtID": 1794,
                 "srcEdges": [],
                 "dstEdges": [
                   153
@@ -19,7 +19,7 @@
               },
               {
                 "id": 152,
-                "stmtID": 1675,
+                "stmtID": 1799,
                 "srcEdges": [
                   153
                 ],
@@ -29,7 +29,7 @@
               },
               {
                 "id": 154,
-                "stmtID": 1680,
+                "stmtID": 1804,
                 "srcEdges": [
                   155
                 ],
@@ -39,7 +39,7 @@
               },
               {
                 "id": 156,
-                "stmtID": 1685,
+                "stmtID": 1809,
                 "srcEdges": [
                   157
                 ],
@@ -49,7 +49,7 @@
               },
               {
                 "id": 158,
-                "stmtID": 1690,
+                "stmtID": 1814,
                 "srcEdges": [
                   159
                 ],
@@ -81,12 +81,12 @@
           }
         },
         {
-          "name": "SampleJetton.receive_internal_simple_1731",
+          "name": "SampleJetton.receive_internal_simple_1855",
           "cfg": {
             "nodes": [
               {
                 "id": 160,
-                "stmtID": 1699,
+                "stmtID": 1823,
                 "srcEdges": [],
                 "dstEdges": [
                   162
@@ -94,7 +94,7 @@
               },
               {
                 "id": 161,
-                "stmtID": 1710,
+                "stmtID": 1834,
                 "srcEdges": [
                   162
                 ],
@@ -104,7 +104,7 @@
               },
               {
                 "id": 163,
-                "stmtID": 1717,
+                "stmtID": 1841,
                 "srcEdges": [
                   164
                 ],
@@ -114,7 +114,7 @@
               },
               {
                 "id": 165,
-                "stmtID": 1730,
+                "stmtID": 1854,
                 "srcEdges": [
                   166
                 ],
@@ -141,12 +141,12 @@
           }
         },
         {
-          "name": "SampleJetton.receive_internal_comment_1756_Mint: 100",
+          "name": "SampleJetton.receive_internal_comment_1880_Mint: 100",
           "cfg": {
             "nodes": [
               {
                 "id": 167,
-                "stmtID": 1737,
+                "stmtID": 1861,
                 "srcEdges": [],
                 "dstEdges": [
                   169
@@ -154,7 +154,7 @@
               },
               {
                 "id": 168,
-                "stmtID": 1744,
+                "stmtID": 1868,
                 "srcEdges": [
                   169
                 ],
@@ -164,7 +164,7 @@
               },
               {
                 "id": 170,
-                "stmtID": 1755,
+                "stmtID": 1879,
                 "srcEdges": [
                   171
                 ],
@@ -186,12 +186,12 @@
           }
         },
         {
-          "name": "SampleJetton.receive_internal_comment_1779_Owner: MintClose",
+          "name": "SampleJetton.receive_internal_comment_1903_Owner: MintClose",
           "cfg": {
             "nodes": [
               {
                 "id": 172,
-                "stmtID": 1762,
+                "stmtID": 1886,
                 "srcEdges": [],
                 "dstEdges": [
                   174
@@ -199,7 +199,7 @@
               },
               {
                 "id": 173,
-                "stmtID": 1773,
+                "stmtID": 1897,
                 "srcEdges": [
                   174
                 ],
@@ -209,7 +209,7 @@
               },
               {
                 "id": 175,
-                "stmtID": 1778,
+                "stmtID": 1902,
                 "srcEdges": [
                   176
                 ],
@@ -236,12 +236,12 @@
       "name": "JettonDefaultWallet",
       "methods": [
         {
-          "name": "JettonDefaultWallet.init_2778",
+          "name": "JettonDefaultWallet.init_2908",
           "cfg": {
             "nodes": [
               {
                 "id": 178,
-                "stmtID": 2216,
+                "stmtID": 2346,
                 "srcEdges": [],
                 "dstEdges": [
                   180
@@ -249,7 +249,7 @@
               },
               {
                 "id": 179,
-                "stmtID": 2221,
+                "stmtID": 2351,
                 "srcEdges": [
                   180
                 ],
@@ -259,7 +259,7 @@
               },
               {
                 "id": 181,
-                "stmtID": 2226,
+                "stmtID": 2356,
                 "srcEdges": [
                   182
                 ],
@@ -281,12 +281,12 @@
           }
         },
         {
-          "name": "JettonDefaultWallet.receive_internal_simple_2385",
+          "name": "JettonDefaultWallet.receive_internal_simple_2515",
           "cfg": {
             "nodes": [
               {
                 "id": 183,
-                "stmtID": 2235,
+                "stmtID": 2365,
                 "srcEdges": [],
                 "dstEdges": [
                   185
@@ -294,7 +294,7 @@
               },
               {
                 "id": 184,
-                "stmtID": 2246,
+                "stmtID": 2376,
                 "srcEdges": [
                   185
                 ],
@@ -304,7 +304,7 @@
               },
               {
                 "id": 186,
-                "stmtID": 2256,
+                "stmtID": 2386,
                 "srcEdges": [
                   187
                 ],
@@ -314,7 +314,7 @@
               },
               {
                 "id": 188,
-                "stmtID": 2270,
+                "stmtID": 2400,
                 "srcEdges": [
                   189
                 ],
@@ -324,7 +324,7 @@
               },
               {
                 "id": 190,
-                "stmtID": 2284,
+                "stmtID": 2414,
                 "srcEdges": [
                   191
                 ],
@@ -334,7 +334,7 @@
               },
               {
                 "id": 192,
-                "stmtID": 2295,
+                "stmtID": 2425,
                 "srcEdges": [
                   193
                 ],
@@ -344,7 +344,7 @@
               },
               {
                 "id": 194,
-                "stmtID": 2304,
+                "stmtID": 2434,
                 "srcEdges": [
                   195
                 ],
@@ -354,7 +354,7 @@
               },
               {
                 "id": 196,
-                "stmtID": 2315,
+                "stmtID": 2445,
                 "srcEdges": [
                   197
                 ],
@@ -364,7 +364,7 @@
               },
               {
                 "id": 198,
-                "stmtID": 2321,
+                "stmtID": 2451,
                 "srcEdges": [
                   199
                 ],
@@ -374,7 +374,7 @@
               },
               {
                 "id": 200,
-                "stmtID": 2384,
+                "stmtID": 2514,
                 "srcEdges": [
                   201
                 ],
@@ -431,12 +431,12 @@
           }
         },
         {
-          "name": "JettonDefaultWallet.receive_internal_simple_2555",
+          "name": "JettonDefaultWallet.receive_internal_simple_2685",
           "cfg": {
             "nodes": [
               {
                 "id": 202,
-                "stmtID": 2393,
+                "stmtID": 2523,
                 "srcEdges": [],
                 "dstEdges": [
                   204
@@ -444,7 +444,7 @@
               },
               {
                 "id": 203,
-                "stmtID": 2423,
+                "stmtID": 2553,
                 "srcEdges": [
                   204
                 ],
@@ -454,7 +454,7 @@
               },
               {
                 "id": 205,
-                "stmtID": 2411,
+                "stmtID": 2541,
                 "srcEdges": [
                   206
                 ],
@@ -464,7 +464,7 @@
               },
               {
                 "id": 207,
-                "stmtID": 2422,
+                "stmtID": 2552,
                 "srcEdges": [
                   208
                 ],
@@ -474,7 +474,7 @@
               },
               {
                 "id": 209,
-                "stmtID": 2434,
+                "stmtID": 2564,
                 "srcEdges": [
                   210
                 ],
@@ -484,7 +484,7 @@
               },
               {
                 "id": 211,
-                "stmtID": 2443,
+                "stmtID": 2573,
                 "srcEdges": [
                   212
                 ],
@@ -494,7 +494,7 @@
               },
               {
                 "id": 213,
-                "stmtID": 2493,
+                "stmtID": 2623,
                 "srcEdges": [
                   214
                 ],
@@ -504,7 +504,7 @@
               },
               {
                 "id": 215,
-                "stmtID": 2492,
+                "stmtID": 2622,
                 "srcEdges": [
                   216
                 ],
@@ -514,7 +514,7 @@
               },
               {
                 "id": 217,
-                "stmtID": 2502,
+                "stmtID": 2632,
                 "srcEdges": [
                   218
                 ],
@@ -524,7 +524,7 @@
               },
               {
                 "id": 219,
-                "stmtID": 2508,
+                "stmtID": 2638,
                 "srcEdges": [
                   220
                 ],
@@ -534,7 +534,7 @@
               },
               {
                 "id": 221,
-                "stmtID": 2517,
+                "stmtID": 2647,
                 "srcEdges": [
                   222
                 ],
@@ -544,7 +544,7 @@
               },
               {
                 "id": 223,
-                "stmtID": 2554,
+                "stmtID": 2684,
                 "srcEdges": [
                   224
                 ],
@@ -554,7 +554,7 @@
               },
               {
                 "id": 225,
-                "stmtID": 2553,
+                "stmtID": 2683,
                 "srcEdges": [
                   226
                 ],
@@ -631,7 +631,7 @@
             "nodes": [
               {
                 "id": 227,
-                "stmtID": 2567,
+                "stmtID": 2697,
                 "srcEdges": [],
                 "dstEdges": [
                   229
@@ -639,7 +639,7 @@
               },
               {
                 "id": 228,
-                "stmtID": 2580,
+                "stmtID": 2710,
                 "srcEdges": [
                   229
                 ],
@@ -649,7 +649,7 @@
               },
               {
                 "id": 230,
-                "stmtID": 2587,
+                "stmtID": 2717,
                 "srcEdges": [
                   231
                 ],
@@ -659,7 +659,7 @@
               },
               {
                 "id": 232,
-                "stmtID": 2589,
+                "stmtID": 2719,
                 "srcEdges": [
                   233
                 ],
@@ -686,12 +686,12 @@
           }
         },
         {
-          "name": "JettonDefaultWallet.receive_internal_simple_2700",
+          "name": "JettonDefaultWallet.receive_internal_simple_2830",
           "cfg": {
             "nodes": [
               {
                 "id": 234,
-                "stmtID": 2598,
+                "stmtID": 2728,
                 "srcEdges": [],
                 "dstEdges": [
                   236
@@ -699,7 +699,7 @@
               },
               {
                 "id": 235,
-                "stmtID": 2609,
+                "stmtID": 2739,
                 "srcEdges": [
                   236
                 ],
@@ -709,7 +709,7 @@
               },
               {
                 "id": 237,
-                "stmtID": 2620,
+                "stmtID": 2750,
                 "srcEdges": [
                   238
                 ],
@@ -719,7 +719,7 @@
               },
               {
                 "id": 239,
-                "stmtID": 2629,
+                "stmtID": 2759,
                 "srcEdges": [
                   240
                 ],
@@ -729,7 +729,7 @@
               },
               {
                 "id": 241,
-                "stmtID": 2635,
+                "stmtID": 2765,
                 "srcEdges": [
                   242
                 ],
@@ -739,7 +739,7 @@
               },
               {
                 "id": 243,
-                "stmtID": 2654,
+                "stmtID": 2784,
                 "srcEdges": [
                   244
                 ],
@@ -749,7 +749,7 @@
               },
               {
                 "id": 245,
-                "stmtID": 2699,
+                "stmtID": 2829,
                 "srcEdges": [
                   246
                 ],
@@ -791,12 +791,12 @@
           }
         },
         {
-          "name": "JettonDefaultWallet.receive_bounce_2744",
+          "name": "JettonDefaultWallet.receive_bounce_2874",
           "cfg": {
             "nodes": [
               {
                 "id": 247,
-                "stmtID": 2710,
+                "stmtID": 2840,
                 "srcEdges": [],
                 "dstEdges": [
                   249
@@ -804,7 +804,7 @@
               },
               {
                 "id": 248,
-                "stmtID": 2717,
+                "stmtID": 2847,
                 "srcEdges": [
                   249
                 ],
@@ -814,7 +814,7 @@
               },
               {
                 "id": 250,
-                "stmtID": 2723,
+                "stmtID": 2853,
                 "srcEdges": [
                   251
                 ],
@@ -824,7 +824,7 @@
               },
               {
                 "id": 252,
-                "stmtID": 2734,
+                "stmtID": 2864,
                 "srcEdges": [
                   253
                 ],
@@ -834,7 +834,7 @@
               },
               {
                 "id": 254,
-                "stmtID": 2743,
+                "stmtID": 2873,
                 "srcEdges": [
                   255
                 ],
@@ -871,7 +871,7 @@
             "nodes": [
               {
                 "id": 256,
-                "stmtID": 2776,
+                "stmtID": 2906,
                 "srcEdges": [],
                 "dstEdges": []
               }
