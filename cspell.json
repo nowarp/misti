@@ -90,6 +90,7 @@
     "PUSHREF",
     "PUSHSLICE",
     "SETINDEXVARQ",
+    "LDREF",
     "nowarp",
     "Idxes",
     "dentry",
