@@ -1,4 +1,4 @@
-import { Detector } from "../detector";
+import { ASTDetector } from "../detector";
 import { CompilationUnit } from "../../internals/ir";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { foldStatements } from "../../internals/tactASTUtil";
@@ -52,7 +52,7 @@ const DontSuggestKinds = new Set<string>([
  * msgValue -= ctx.readForwardFee());
  * ```
  */
-export class PreferAugmentedAssign extends Detector {
+export class PreferAugmentedAssign extends ASTDetector {
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(

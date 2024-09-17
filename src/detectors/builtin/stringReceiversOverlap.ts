@@ -1,4 +1,4 @@
-import { Detector } from "../detector";
+import { DataflowDetector } from "../detector";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { CompilationUnit, BasicBlock, CFG } from "../../internals/ir";
 import {
@@ -172,7 +172,7 @@ class StringReceiversOverlapTransfer implements Transfer<TaintState> {
  * }
  * ```
  */
-export class StringReceiversOverlap extends Detector {
+export class StringReceiversOverlap extends DataflowDetector {
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const stringReceivers = this.getStringReceiverNames(cu);
     let warnings: MistiTactWarning[] = [];

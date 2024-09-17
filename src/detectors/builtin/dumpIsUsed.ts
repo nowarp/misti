@@ -1,4 +1,4 @@
-import { Detector } from "../detector";
+import { ASTDetector } from "../detector";
 import { CompilationUnit } from "../../internals/ir";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { foldExpressions } from "../../internals/tactASTUtil";
@@ -32,7 +32,7 @@ import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
  * }
  * ```
  */
-export class DumpIsUsed extends Detector {
+export class DumpIsUsed extends ASTDetector {
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(

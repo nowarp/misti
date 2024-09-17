@@ -7,6 +7,7 @@ export interface CLIOptions {
   dumpCfgStdlib?: boolean;
   dumpCfgOutput?: string;
   dumpConfig?: boolean;
+  dumpAst?: boolean;
   soufflePath?: string;
   souffleBinary?: string;
   souffleVerbose?: boolean;
