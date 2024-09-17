@@ -7,6 +7,7 @@ import {
 } from "../internals/exceptions";
 import { createIR } from "../internals/ir/builders/tactIRBuilder";
 import { GraphvizDumper, JSONDumper } from "../internals/irDump";
+import { ASTDumper } from "../internals/astDump";
 import { ProjectName, CompilationUnit } from "../internals/ir";
 import { MistiTactWarning } from "../internals/warnings";
 import { Detector, findBuiltInDetector } from "../detectors/detector";
@@ -38,8 +39,9 @@ export class Driver {
   ctx: MistiContext;
   detectors: Detector[] = [];
   private dumpCFG?: "json" | "dot" = undefined;
+  private dumpAST: boolean;
   private dumpCFGStdlib: boolean;
-  private dumpCFGOutput: string;
+  private dumpOutput: string;
   private dumpConfig: boolean;
   private tactConfigPath: string;
 
@@ -61,8 +63,9 @@ export class Driver {
 
     this.ctx = new MistiContext(tactPath, options);
     this.dumpCFG = options.dumpCfg;
-    this.dumpCFGStdlib = options.dumpCfgStdlib || false;
-    this.dumpCFGOutput = options.dumpCfgOutput || DUMP_STDOUT_PATH;
+    this.dumpAST = options.dumpAst || false;
+    this.dumpCFGStdlib = options.dumpIncludeStdlib || false;
+    this.dumpOutput = options.dumpOutput || DUMP_STDOUT_PATH;
     this.dumpConfig = options.dumpConfig ?? false;
   }
 
@@ -149,31 +152,60 @@ export class Driver {
   }
 
   /**
-   * Collects output of the Control Flow Graph (CFG) dump functions.
+   * Generic method to collect and output dumps.
    */
-  private async getCFGDump(
+  private async getDump(
     cus: Map<ProjectName, CompilationUnit>,
+    dumpFunction: (cu: CompilationUnit, includeStdlib: boolean) => string,
+    outputExtension: string,
+    includeStdlib: boolean,
   ): Promise<string> {
     const results: string[] = [];
     const promises = Array.from(cus.entries()).reduce((acc, [name, cu]) => {
-      const dump =
-        this.dumpCFG === "dot"
-          ? GraphvizDumper.dumpCU(cu, this.dumpCFGStdlib)
-          : JSONDumper.dumpCU(cu, this.dumpCFGStdlib);
-      if (this.dumpCFGOutput === DUMP_STDOUT_PATH) {
+      const dump = dumpFunction(cu, includeStdlib);
+      if (this.dumpOutput === DUMP_STDOUT_PATH) {
         results.push(dump);
       } else {
-        const filename =
-          this.dumpCFG === "dot" ? `${name}.dot` : `${name}.json`;
-        const filepath = path.join(this.dumpCFGOutput, filename);
-        const promise = fs.promises.writeFile(filepath, dump, "utf8");
-        this.ctx.logger.debug(`CFG dump will be saved at ${filepath}`);
+        const filename = `${name}${outputExtension}`;
+        const filepath = path.join(this.dumpOutput, filename);
+        const promise = fs.promises
+          .writeFile(filepath, dump, "utf8")
+          .then(() => {
+            this.ctx.logger.debug(`Dump has been saved at ${filepath}`);
+          });
         acc.push(promise);
       }
       return acc;
     }, [] as Promise<void>[]);
     await Promise.all(promises);
     return results.join("\n");
+  }
+
+  /**
+   * Collects output of the Control Flow Graph (CFG) dump functions.
+   */
+  private async getCFGDump(
+    cus: Map<ProjectName, CompilationUnit>,
+  ): Promise<string> {
+    const dumpFunction =
+      this.dumpCFG === "dot"
+        ? (cu: CompilationUnit, includeStdlib: boolean) =>
+            GraphvizDumper.dumpCU.call(GraphvizDumper, cu, includeStdlib)
+        : (cu: CompilationUnit, includeStdlib: boolean) =>
+            JSONDumper.dumpCU(cu, includeStdlib);
+    const outputExtension = this.dumpCFG === "dot" ? ".dot" : ".json";
+    return this.getDump(cus, dumpFunction, outputExtension, this.dumpCFGStdlib);
+  }
+
+  /**
+   * Dumps AST of the input source.
+   */
+  private async getASTDump(
+    cus: Map<ProjectName, CompilationUnit>,
+  ): Promise<string> {
+    const dumpFunction = (cu: CompilationUnit, includeStdlib: boolean) =>
+      ASTDumper.dumpCU.call(ASTDumper, cu, includeStdlib);
+    return this.getDump(cus, dumpFunction, ".ast.json", this.dumpCFGStdlib);
   }
 
   /**
@@ -194,6 +226,10 @@ export class Driver {
     );
     if (this.dumpCFG !== undefined) {
       const output = await this.getCFGDump(cus);
+      return { warningsFound: 0, output };
+    }
+    if (this.dumpAST === true) {
+      const output = await this.getASTDump(cus);
       return { warningsFound: 0, output };
     }
     if (this.dumpConfig === true) {
@@ -364,8 +400,8 @@ export class Runner {
     tactPath: string,
     options: CLIOptions = {
       dumpCfg: undefined,
-      dumpCfgStdlib: false,
-      dumpCfgOutput: DUMP_STDOUT_PATH,
+      dumpIncludeStdlib: false,
+      dumpOutput: DUMP_STDOUT_PATH,
       dumpConfig: undefined,
       souffleBinary: undefined,
       soufflePath: undefined,
@@ -428,10 +464,15 @@ export class Runner {
    * Check CLI options for ambiguities.
    * @throws If Misti cannot be executed with the given options
    */
-  private static checkCLIOptions(options: CLIOptions) {
+  private static checkCLIOptions(options: CLIOptions): void | never {
     if (options.verbose === true && options.quiet === true) {
       throw ExecutionException.make(
         `Please choose only one option: --verbose or --quiet`,
+      );
+    }
+    if (options.dumpCfg !== undefined && options.dumpAst === true) {
+      throw ExecutionException.make(
+        `Please choose only one option: --dump-cfg or --dump-ast`,
       );
     }
     if (options.allDetectors === true && options.detectors !== undefined) {

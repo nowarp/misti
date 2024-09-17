@@ -61,10 +61,13 @@ export class TactASTStore {
   ) {}
 
   /**
-   * Returns program entries defined on the top-level.
+   * Returns top-level program entries in order as they defined.
    */
-  getProgramEntries(): AstNode[] {
+  getProgramEntries(includeStdlib: boolean = false): AstNode[] {
     return Array.from(this.programEntries).reduce((acc, id) => {
+      if (!includeStdlib && this.stdlibIds.has(id)) {
+        return acc;
+      }
       if (this.functions.has(id)) {
         acc.push(this.functions.get(id)!);
       } else if (this.constants.has(id)) {
@@ -98,9 +101,8 @@ export class TactASTStore {
    */
   private getItems<T extends { id: number }>(
     items: Map<number, T>,
-    params: Partial<{ includeStdlib: boolean }> = {},
+    { includeStdlib = false }: Partial<{ includeStdlib: boolean }> = {},
   ): IterableIterator<T> {
-    const { includeStdlib = false } = params;
     if (includeStdlib) {
       return items.values();
     }

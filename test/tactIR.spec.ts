@@ -11,8 +11,8 @@ processTactFiles(GOOD_DIR, (file) => {
       resetIds();
       const runner = await Runner.make(filePath, {
         dumpCfg: "json",
-        dumpCfgStdlib: false,
-        dumpCfgOutput: GOOD_DIR,
+        dumpIncludeStdlib: false,
+        dumpOutput: GOOD_DIR,
         quiet: true,
       });
       await runner.run();
@@ -22,8 +22,8 @@ processTactFiles(GOOD_DIR, (file) => {
       resetIds();
       const runner = await Runner.make(filePath, {
         dumpCfg: "dot",
-        dumpCfgStdlib: false,
-        dumpCfgOutput: GOOD_DIR,
+        dumpIncludeStdlib: false,
+        dumpOutput: GOOD_DIR,
         quiet: true,
       });
       await runner.run();

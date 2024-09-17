@@ -4,10 +4,10 @@ export const DUMP_STDOUT_PATH = "-";
 
 export interface CLIOptions {
   dumpCfg?: "json" | "dot";
-  dumpCfgStdlib?: boolean;
-  dumpCfgOutput?: string;
-  dumpConfig?: boolean;
   dumpAst?: boolean;
+  dumpIncludeStdlib?: boolean;
+  dumpOutput?: string;
+  dumpConfig?: boolean;
   soufflePath?: string;
   souffleBinary?: string;
   souffleVerbose?: boolean;
@@ -22,16 +22,20 @@ export interface CLIOptions {
 export const cliOptions = [
   new Option(
     "--dump-cfg <json|dot>",
-    "Print Control Flow Graph in the requested format: JSON or Graphviz Dot",
+    "Dump Control Flow Graph (CFG) in the requested format: JSON or Graphviz Dot",
   ).default(undefined),
   new Option(
-    "--dump-cfg-stdlib",
-    "Include standard library components in the CFG dump",
+    "--dump-ast",
+    "Dump Abstract Syntax Tree (AST) in the JSON format",
   ).default(false),
   new Option(
-    "--dump-cfg-output <PATH>",
-    "Directory to save the CFG dump. If <PATH> is `-`, then stdout is used.",
+    "--dump-output <PATH>",
+    "Directory to save the AST/CFG dump. If <PATH> is `-`, then stdout is used.",
   ).default(DUMP_STDOUT_PATH),
+  new Option(
+    "--dump-include-stdlib",
+    "Include standard library components in the AST/CFG dump",
+  ).default(false),
   new Option(
     "--dump-config",
     "Dump the Misti JSON configuration file in use.",
