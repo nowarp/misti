@@ -4,8 +4,27 @@ import { MistiTactWarning, Severity } from "../../src/internals/warnings";
 
 /**
  * An example of a custom detector that showcases the usage of the detector API.
+ * It reports all contracts that don't have an explicit implementation of the init function.
  *
- * It reports all the contracts that doesn't have an explicit implementation of the init function.
+ * ## Why is it bad?
+ * It is better to have an explicit definition of the init function to ensure the
+ * developer did not forget to initialize anything.
+ *
+ * ## Example
+ * ```tact
+ * contract Main {
+ *   val: Int = 42;
+ *   // Bad: no init function
+ * }
+ * ```
+ *
+ * Use instead:
+ * ```tact
+ * contract Main {
+ *   val: Int = 42;
+ *   init() {} // Good: the init function has been added
+ * }
+ * ```
  */
 export class ImplicitInit extends ASTDetector {
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
