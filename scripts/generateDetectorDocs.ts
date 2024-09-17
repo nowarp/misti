@@ -1,12 +1,18 @@
+import { DetectorKind } from "../src/detectors/detector";
 import {
   ClassDeclaration,
   SyntaxKind,
   Node,
   getJSDocCommentsAndTags,
-  createSourceFile,
   ScriptTarget,
   isClassDeclaration,
   forEachChild,
+  Program,
+  createProgram,
+  TypeChecker,
+  isGetAccessorDeclaration,
+  ReturnStatement,
+  StringLiteral,
 } from "typescript";
 import fs from "fs-extra";
 import * as path from "path";
@@ -22,64 +28,142 @@ declare module "typescript" {
   ): readonly (JSDoc | JSDocTag)[];
 }
 
-function extendsDetector(node: ClassDeclaration): boolean {
-  if (!node.heritageClauses) {
+type DetectorDoc = {
+  className: string;
+  kind: DetectorKind;
+  markdown: string;
+};
+
+export function extendsDetector(
+  node: ClassDeclaration,
+  checker: TypeChecker,
+): boolean {
+  const symbol = checker.getSymbolAtLocation(node.name!);
+  if (!symbol) {
     return false;
   }
-  const extendsClause = node.heritageClauses.find(
-    (clause) => clause.token === SyntaxKind.ExtendsKeyword,
-  );
-  if (!extendsClause) {
-    return false;
+  const classType = checker.getDeclaredTypeOfSymbol(symbol);
+
+  function isDetectorType(type: any): boolean {
+    if (!type || !type.symbol) {
+      return false;
+    }
+    const typeName = checker.getFullyQualifiedName(type.symbol);
+    if (typeName.endsWith("Detector")) {
+      return true;
+    }
+    const baseTypes = type.getBaseTypes();
+    if (!baseTypes || baseTypes.length === 0) {
+      return false;
+    }
+    return baseTypes.some((baseType: any) => isDetectorType(baseType));
   }
-  return extendsClause.types.some(
-    (type) => type.expression.getText() === "Detector",
-  );
+
+  return isDetectorType(classType);
 }
 
-function getJSDocComments(node: Node): string {
+export function getJSDocComments(node: Node): string {
   return getJSDocCommentsAndTags(node)
     .filter((jsdoc) => jsdoc.kind === SyntaxKind.JSDoc)
     .map((jsdoc) => jsdoc.comment)
     .join("\n");
 }
 
-function processFile(
-  fileName: string,
-): Array<[/*className:*/ string, /*markdown:*/ string]> {
-  const sourceFile = createSourceFile(
-    fileName,
-    fs.readFileSync(fileName).toString(),
-    ScriptTarget.Latest,
-    true,
-  );
-  const results: Array<[string, string]> = [];
-  function visit(node: Node) {
-    if (isClassDeclaration(node) && extendsDetector(node)) {
-      const className = node.name?.getText() || "Unknown Class";
-      const docComment = getJSDocComments(node);
+function extractKindValue(
+  node: ClassDeclaration,
+  checker: TypeChecker,
+): DetectorKind | undefined {
+  // Find the 'kind' getter in the class
+  for (const member of node.members) {
+    if (isGetAccessorDeclaration(member) && member.name.getText() === "kind") {
+      // Try to extract the return value
+      if (member.body && member.body.statements.length > 0) {
+        const returnStatement = member.body.statements.find(
+          (stmt): stmt is ReturnStatement =>
+            stmt.kind === SyntaxKind.ReturnStatement,
+        );
+        if (
+          returnStatement &&
+          returnStatement.expression &&
+          returnStatement.expression.kind === SyntaxKind.StringLiteral
+        ) {
+          const kindValue = (returnStatement.expression as StringLiteral).text;
+          return kindValue as DetectorKind;
+        }
+      }
+    }
+  }
+  // If 'kind' is not defined in the class, try to get it from the base class
+  const symbol = checker.getSymbolAtLocation(node.name!);
+  if (symbol) {
+    const classType = checker.getDeclaredTypeOfSymbol(symbol);
+    const baseTypes = classType.getBaseTypes();
+    if (baseTypes && baseTypes.length > 0) {
+      // Assume single inheritance
+      const baseType = baseTypes[0];
+      const declaration = baseType.symbol.valueDeclaration;
+      if (declaration && isClassDeclaration(declaration)) {
+        return extractKindValue(declaration, checker);
+      }
+    }
+  }
+  return undefined;
+}
 
-      const markdown = `# ${className}\n${docComment}\n`;
-      results.push([className, markdown]);
+export function processFile(
+  fileName: string,
+  program: Program,
+): Array<DetectorDoc> {
+  const sourceFile = program.getSourceFile(fileName);
+  if (!sourceFile) {
+    return [];
+  }
+  const checker = program.getTypeChecker();
+  const results: Array<DetectorDoc> = [];
+
+  function visit(node: Node) {
+    if (isClassDeclaration(node) && node.name) {
+      if (extendsDetector(node, checker)) {
+        const className = node.name.getText();
+        const docComment = getJSDocComments(node);
+        const kind = extractKindValue(node, checker)!;
+
+        const markdown = `# ${className}\n${docComment}\n`;
+        results.push({ className, markdown, kind });
+      }
     }
     forEachChild(node, visit);
   }
+
   visit(sourceFile);
   return results;
 }
 
-function processDirectory(
+export function processDirectory(
   directoryPath: string,
   outputDirectory: string,
 ): void {
-  fs.readdirSync(directoryPath).forEach((file) => {
-    const filePath = path.join(directoryPath, file);
-    if (fs.statSync(filePath).isFile() && file.endsWith(".ts")) {
-      processFile(filePath).forEach(([className, markdown]) => {
-        const dest = path.join(outputDirectory, `${className}.md`);
-        fs.outputFileSync(dest, markdown);
-      });
-    }
+  const fileNames = fs
+    .readdirSync(directoryPath)
+    .filter((file) => file.endsWith(".ts"))
+    .map((file) => path.join(directoryPath, file));
+
+  const program = createProgram(fileNames, {
+    target: ScriptTarget.Latest,
+    module: 1, // CommonJS
+  });
+
+  fileNames.forEach((fileName) => {
+    processFile(fileName, program).forEach(({ className, markdown, kind }) => {
+      const markdownPath = `${className}.md`;
+      const dest = path.join(outputDirectory, markdownPath);
+      // Prints detectors info in the following format:
+      // - [StringReceiversOverlap](./detectors/StringReceiversOverlap) (requires Soufflé)
+      console.log(
+        `- [${className}](./detectors/${markdownPath})${kind === "souffle" ? " (requires Soufflé)" : ""}`,
+      );
+      fs.outputFileSync(dest, markdown);
+    });
   });
 }
 
