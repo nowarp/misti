@@ -1223,13 +1223,13 @@
   dependencies:
     defer-to-connect "^2.0.1"
 
-"@tact-lang/compiler@^1.5.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@tact-lang/compiler/-/compiler-1.5.0.tgz#1a3c3c9faf32c41fbab269db9fe2af24b7f9c360"
-  integrity sha512-VN/E81VDwwyoE6H8NrX2Sfp63Y3N0Jdk349tg48YjdoTmyDEpiEbpHajfRoy04ZoxLKwbOD6213qflyv9g52Mw==
+"@tact-lang/compiler@^1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@tact-lang/compiler/-/compiler-1.5.1.tgz#2b82dd6f26c741989bf6270ccaf706f728ede5ac"
+  integrity sha512-pzszIP3vtDLMYT2dVO9U0siLBxxjgFUig95uKb/u2Y+MOByoBMyBIRxJlw1IoQUXYIFKGTPpBIhS3bHcLCkNTQ==
   dependencies:
     "@tact-lang/opcode" "^0.0.16"
-    "@ton/core" "0.57.0"
+    "@ton/core" "0.58.1"
     "@ton/crypto" "^3.2.0"
     blockstore-core "1.0.5"
     change-case "^4.1.2"
@@ -1248,10 +1248,10 @@
   resolved "https://registry.yarnpkg.com/@tact-lang/opcode/-/opcode-0.0.16.tgz#cc9e4117ce706d8bb6e054a520bab719f70adf96"
   integrity sha512-YJTUjoDOy+e+FHHppJiF+uWJ2IMjVknB9VQ5n78pknCE129DazCb/nFXnw0wVRDVcn8Tn59ky+pmjiQjQOjEbw==
 
-"@ton/core@0.57.0":
-  version "0.57.0"
-  resolved "https://registry.yarnpkg.com/@ton/core/-/core-0.57.0.tgz#fdf2d32848a3d1135b890e9a5bd8295e958a4a81"
-  integrity sha512-UOehEXEV5yqi+17qmmWdD01YfVgQlYtitSm5OfN/WMg6PAMkt+Uf91JRC4mdPNtkKDhyKuujJuhYs6QiOsHPfw==
+"@ton/core@0.58.1":
+  version "0.58.1"
+  resolved "https://registry.yarnpkg.com/@ton/core/-/core-0.58.1.tgz#f6f2ecef6a7149bcd23825bfbb454f116d54363f"
+  integrity sha512-zydh42iT6E3U3Ky/DhTFqJMN/ycKKzbsHASY257Qr2sZn97G/MOcHFizPfMnbJJgx0H9iHX6mdyMvp1IKBVAFA==
   dependencies:
     symbol.inspect "1.0.1"
 
