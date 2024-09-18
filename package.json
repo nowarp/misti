@@ -19,7 +19,6 @@
   "scripts": {
     "clean": "rm -fr dist docs/*",
     "build": "tsc && cp -R src/detectors/templates dist/src/detectors/",
-    "postinstall": "yarn build",
     "test": "jest",
     "benchmark": "ts-node benchmarks/detectors.ts",
     "lint": "eslint src test examples",
