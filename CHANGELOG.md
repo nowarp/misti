@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Moved Souffle bindings to a its own repository https://github.com/nowarp/souffle.js: PR [#120](https://github.com/nowarp/misti/pull/120)
 - Refined the CLI interface.
+- The `engines` property in `package.json` and its strict checking to ensure minimal required Node.js version is 22 (follows-up changes in Tact).
 
 ### Fixed
 - Adjust option names in Config and JSONSchema
