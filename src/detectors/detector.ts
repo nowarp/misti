@@ -94,7 +94,7 @@ export abstract class Detector {
       loc,
       {
         ...data,
-        docURL: makeDocURL(this.id),
+        docURL: hasBuiltInDetector(this.id) ? makeDocURL(this.id) : undefined,
       },
     );
   }
@@ -315,4 +315,11 @@ export function getEnabledDetectors(): string[] {
   return Object.keys(BuiltInDetectors).filter(
     (name) => BuiltInDetectors[name].enabledByDefault,
   );
+}
+
+/**
+ * @returns True if there is a built-in detector with the given name.
+ */
+export function hasBuiltInDetector(name: string): boolean {
+  return name in BuiltInDetectors;
 }
