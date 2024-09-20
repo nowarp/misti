@@ -5,7 +5,8 @@
     "type": "git",
     "url": "git+https://github.com/nowarp/misti.git"
   },
-  "homepage": "https://nowarp.github.io/tools/misti/",
+  "homepage": "https://nowarp.io/tools/misti/",
+  "bugs": "https://github.com/nowarp/misti/issues",
   "description": "TON Static Analyzer",
   "keywords": [
     "static analysis",
