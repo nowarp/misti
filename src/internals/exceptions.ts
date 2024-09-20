@@ -1,3 +1,4 @@
+import { TACT_VERSION, MISTI_VERSION } from "../version";
 import { AstNode, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import * as fs from "fs";
 import JSONbig from "json-bigint";
@@ -38,6 +39,7 @@ export class TactException {
       tactStack,
       SEPARATOR,
       getCmd(),
+      getVersions(),
     ].join("\n");
     const shortMsg = [errorKind, error.message].join("\n");
     // Dump full message to the file.
@@ -85,10 +87,12 @@ export class InternalException {
         ? []
         : [`${SEPARATOR}AST node:\n${JSONbig.stringify(node, null, 2)}`]),
       SEPARATOR,
-      getCmd(),
       getCurrentStackTrace(),
+      SEPARATOR,
+      getCmd(),
+      getVersions(),
     ].join("\n");
-    const shortMsg = [errorKind, msg].join("\n");
+    const shortMsg = [errorKind, msg, getVersions()].join("\n");
     if (!generateReport) {
       return new Error(shortMsg);
     }
@@ -145,9 +149,18 @@ function getCurrentStackTrace(): string {
   }
 }
 
-/** Returns the command used to execute code, like: "$0 $@". */
+/**
+ * @returns Command used to execute code, like: "$0 $@".
+ */
 function getCmd(): string {
   return `Command: ${process.argv.join(" ")}`;
+}
+
+/**
+ * @returns Tact and Misti versions string.
+ */
+function getVersions(): string {
+  return `Using Tact ${TACT_VERSION}; Misti ${MISTI_VERSION}`;
 }
 
 /**
