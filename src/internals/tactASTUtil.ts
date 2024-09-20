@@ -1,13 +1,13 @@
 import { InternalException } from "./exceptions";
 import {
-  AstNode,
   AstExpression,
+  AstNode,
   AstStatement,
-  tryExtractPath,
   SrcInfo,
+  tryExtractPath,
 } from "@tact-lang/compiler/dist/grammar/ast";
-import * as path from "path";
 import { Interval as RawInterval } from "ohm-js";
+import * as path from "path";
 
 export function extractPath(path: AstExpression): string {
   const result = tryExtractPath(path);

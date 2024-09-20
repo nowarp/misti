@@ -1,11 +1,11 @@
 import { MistiContext } from "../internals/context";
-import { CompilationUnit } from "../internals/ir";
 import { InternalException } from "../internals/exceptions";
-import { makeDocURL, MistiTactWarning, Severity } from "../internals/warnings";
+import { CompilationUnit } from "../internals/ir";
+import { MistiTactWarning, Severity, makeDocURL } from "../internals/warnings";
 import {
+  SouffleAsyncExecutor,
   SouffleContext,
   SouffleFact,
-  SouffleAsyncExecutor,
   comment,
 } from "@nowarp/souffle";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";

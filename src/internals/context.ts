@@ -1,7 +1,7 @@
-import { Logger, QuietLogger, DebugLogger, TraceLogger } from "./logger";
-import { execSync } from "child_process";
-import { CLIOptions } from "../cli";
 import { MistiConfig } from "./config";
+import { DebugLogger, Logger, QuietLogger, TraceLogger } from "./logger";
+import { CLIOptions } from "../cli";
+import { execSync } from "child_process";
 
 /**
  * Represents the context for a Misti run.

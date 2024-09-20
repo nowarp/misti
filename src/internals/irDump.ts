@@ -1,7 +1,7 @@
-import { CompilationUnit, CFG, BasicBlock } from "./ir";
 import { InternalException } from "./exceptions";
-import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
+import { BasicBlock, CFG, CompilationUnit } from "./ir";
 import { AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
+import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 import JSONbig from "json-bigint";
 
 /**

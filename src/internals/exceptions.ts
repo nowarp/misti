@@ -1,6 +1,6 @@
 import { AstNode, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
-import JSONbig from "json-bigint";
 import * as fs from "fs";
+import JSONbig from "json-bigint";
 import * as path from "path";
 
 const REPORTS_DIR = "/tmp/misti/reports";

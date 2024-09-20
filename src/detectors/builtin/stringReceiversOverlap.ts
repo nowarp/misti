@@ -1,18 +1,18 @@
-import { DataflowDetector } from "../detector";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { CompilationUnit, BasicBlock, CFG } from "../../internals/ir";
+import { BasicBlock, CFG, CompilationUnit } from "../../internals/ir";
+import { JoinSemilattice } from "../../internals/lattice";
+import { WorklistSolver } from "../../internals/solver/";
 import {
   forEachExpression,
   forEachStatement,
 } from "../../internals/tactASTUtil";
-import { JoinSemilattice } from "../../internals/lattice";
-import { WorklistSolver } from "../../internals/solver/";
 import { Transfer } from "../../internals/transfer";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { DataflowDetector } from "../detector";
 import {
   AstExpression,
-  AstStatementLet,
-  AstStatement,
   AstReceiver,
+  AstStatement,
+  AstStatementLet,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
 interface TaintState {

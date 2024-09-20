@@ -1,14 +1,14 @@
+import { SolverResults } from "./results";
+import { Solver } from "./solver";
 import { InternalException } from "../exceptions";
-import { JoinSemilattice } from "../lattice";
 import {
-  CFG,
   BasicBlock,
+  CFG,
   CompilationUnit,
   getPredecessors,
   getSuccessors,
 } from "../ir";
-import { SolverResults } from "./results";
-import { Solver } from "./solver";
+import { JoinSemilattice } from "../lattice";
 import { Transfer } from "../transfer";
 
 /**

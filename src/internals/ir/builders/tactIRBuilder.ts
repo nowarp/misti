@@ -1,58 +1,58 @@
 import {
-  ProjectName,
-  CompilationUnit,
-  FunctionKind,
-  TactASTStore,
+  BasicBlock,
   BasicBlockIdx,
+  BasicBlockKind,
+  CFG,
+  CFGIdx,
+  CompilationUnit,
+  Contract,
+  ContractIdx,
   ContractName,
   Edge,
-  CFGIdx,
-  ContractIdx,
-  BasicBlockKind,
-  BasicBlock,
+  FunctionKind,
   FunctionName,
-  CFG,
-  Contract,
+  ProjectName,
+  TactASTStore,
 } from "..";
 import { MistiContext } from "../../context";
+import {
+  ExecutionException,
+  InternalException,
+  TactException,
+} from "../../exceptions";
 import { formatPosition } from "../../tactASTUtil";
 import {
-  TactException,
-  InternalException,
-  ExecutionException,
-} from "../../exceptions";
-import {
-  Config as TactConfig,
   ConfigProject,
+  Config as TactConfig,
   parseConfig,
 } from "@tact-lang/compiler/dist/config/parseConfig";
-import { enableFeatures } from "@tact-lang/compiler/dist/pipeline/build";
 import { CompilerContext } from "@tact-lang/compiler/dist/context";
-import { getRawAST } from "@tact-lang/compiler/dist/grammar/store";
-import { createNodeFileSystem } from "@tact-lang/compiler/dist/vfs/createNodeFileSystem";
-import { precompile } from "@tact-lang/compiler/dist/pipeline/precompile";
 import {
-  AstStatement,
-  SrcInfo,
-  AstConstantDef,
-  AstFunctionDef,
-  AstExpression,
-  AstTypeDecl,
   AstAsmFunctionDef,
-  AstNativeFunctionDecl,
-  AstReceiver,
-  AstContractInit,
-  AstContractDeclaration,
+  AstConstantDef,
   AstContract,
-  AstPrimitiveTypeDecl,
-  AstStructDecl,
+  AstContractDeclaration,
+  AstContractInit,
+  AstExpression,
+  AstFunctionDef,
   AstMessageDecl,
+  AstNativeFunctionDecl,
+  AstPrimitiveTypeDecl,
+  AstReceiver,
+  AstStatement,
+  AstStructDecl,
   AstTrait,
+  AstTypeDecl,
+  SrcInfo,
   isSelfId,
 } from "@tact-lang/compiler/dist/grammar/ast";
+import { getRawAST } from "@tact-lang/compiler/dist/grammar/store";
 import { AstStore } from "@tact-lang/compiler/dist/grammar/store";
-import path from "path";
+import { enableFeatures } from "@tact-lang/compiler/dist/pipeline/build";
+import { precompile } from "@tact-lang/compiler/dist/pipeline/precompile";
+import { createNodeFileSystem } from "@tact-lang/compiler/dist/vfs/createNodeFileSystem";
 import fs from "fs";
+import path from "path";
 
 /**
  * Generates a unique name used to identify receive functions in CFG.

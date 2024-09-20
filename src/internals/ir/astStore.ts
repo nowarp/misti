@@ -1,18 +1,18 @@
 import { InternalException } from "../exceptions";
 import {
-  AstStatement,
-  AstReceiver,
-  AstFieldDecl,
-  AstContractInit,
-  AstNode,
-  AstFunctionDef,
-  AstNativeFunctionDecl,
+  AstAsmFunctionDef,
   AstConstantDef,
   AstContract,
-  AstPrimitiveTypeDecl,
-  AstAsmFunctionDef,
-  AstStructDecl,
+  AstContractInit,
+  AstFieldDecl,
+  AstFunctionDef,
   AstMessageDecl,
+  AstNativeFunctionDecl,
+  AstNode,
+  AstPrimitiveTypeDecl,
+  AstReceiver,
+  AstStatement,
+  AstStructDecl,
   AstTrait,
 } from "@tact-lang/compiler/dist/grammar/ast";
 

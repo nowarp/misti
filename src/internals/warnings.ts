@@ -1,5 +1,5 @@
-import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import { MistiContext } from "./context";
+import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import * as path from "path";
 
 /**

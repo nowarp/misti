@@ -1,15 +1,15 @@
-import { InternalException } from "../exceptions";
 import { TactASTStore } from "./astStore";
+import { IdxGenerator } from "./indices";
 import {
   BasicBlockIdx,
-  EdgeIdx,
-  ContractIdx,
   CFGIdx,
-  FunctionName,
+  ContractIdx,
   ContractName,
+  EdgeIdx,
+  FunctionName,
 } from "./types";
-import { IdxGenerator } from "./indices";
-import { SrcInfo, AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
+import { InternalException } from "../exceptions";
+import { AstStatement, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 
 export type EntryOrigin = "user" | "stdlib";
 

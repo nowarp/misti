@@ -1,7 +1,7 @@
 import { ExecutionException } from "./exceptions";
-import { getEnabledDetectors, getAllDetectors } from "../detectors/detector";
-import { z } from "zod";
+import { getAllDetectors, getEnabledDetectors } from "../detectors/detector";
 import * as fs from "fs";
+import { z } from "zod";
 
 interface DetectorConfig {
   modulePath?: string; // Used only for custom out-of-tree detectors

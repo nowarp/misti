@@ -1,14 +1,14 @@
-import { ASTDetector } from "../detector";
 import { CompilationUnit } from "../../internals/ir";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { foldExpressions, foldStatements } from "../../internals/tactASTUtil";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { ASTDetector } from "../detector";
+import { AstComparator } from "@tact-lang/compiler/dist/";
 import {
+  AstCondition,
   AstExpression,
   AstStatement,
-  AstCondition,
   SrcInfo,
 } from "@tact-lang/compiler/dist/grammar/ast";
-import { AstComparator } from "@tact-lang/compiler/dist/";
 
 /**
  * Detector that reports duplicated code in conditional branches.

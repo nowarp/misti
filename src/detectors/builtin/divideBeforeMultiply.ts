@@ -1,18 +1,18 @@
-import { SouffleDetector } from "../detector";
-import { CompilationUnit, BasicBlock, CFG } from "../../internals/ir";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { InternalException } from "../../internals/exceptions";
+import { BasicBlock, CFG, CompilationUnit } from "../../internals/ir";
 import {
+  foldExpressions,
   forEachExpression,
   forEachStatement,
-  foldExpressions,
 } from "../../internals/tactASTUtil";
-import { SouffleContext, atom, rule, body, relation } from "@nowarp/souffle";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { SouffleDetector } from "../detector";
+import { SouffleContext, atom, body, relation, rule } from "@nowarp/souffle";
 import {
-  AstStatement,
-  AstNode,
   AstExpression,
+  AstNode,
   AstOpBinary,
+  AstStatement,
   SrcInfo,
 } from "@tact-lang/compiler/dist/grammar/ast";
 

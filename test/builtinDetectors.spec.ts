@@ -1,13 +1,13 @@
-import { describe, it } from "@jest/globals";
 import {
+  GOOD_DIR,
+  TACT_CONFIG_NAME,
   TAP,
   processTactFiles,
   processTactProjects,
-  GOOD_DIR,
-  TACT_CONFIG_NAME,
   resetIds,
 } from "./testUtil";
 import { executeMisti } from "../src/cli";
+import { describe, it } from "@jest/globals";
 import fs from "fs";
 import path from "path";
 

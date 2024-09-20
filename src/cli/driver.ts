@@ -1,20 +1,20 @@
+import { CLIOptions, DUMP_STDOUT_PATH } from "./options";
+import { Detector, findBuiltInDetector } from "../detectors/detector";
+import { ASTDumper } from "../internals/astDump";
 import { MistiContext } from "../internals/context";
-import { Logger } from "../internals/logger";
 import {
-  tryMsg,
-  InternalException,
   ExecutionException,
+  InternalException,
+  tryMsg,
 } from "../internals/exceptions";
+import { CompilationUnit, ProjectName } from "../internals/ir";
 import { createIR } from "../internals/ir/builders/tactIRBuilder";
 import { GraphvizDumper, JSONDumper } from "../internals/irDump";
-import { ASTDumper } from "../internals/astDump";
-import { ProjectName, CompilationUnit } from "../internals/ir";
+import { Logger } from "../internals/logger";
 import { MistiTactWarning } from "../internals/warnings";
-import { Detector, findBuiltInDetector } from "../detectors/detector";
-import { DUMP_STDOUT_PATH, CLIOptions } from "./options";
+import fs from "fs";
 import JSONbig from "json-bigint";
 import path from "path";
-import fs from "fs";
 
 export interface MistiResult {
   /**

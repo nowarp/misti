@@ -1,8 +1,8 @@
-import { Runner, MistiResult } from "./driver";
+import { MistiResult, Runner } from "./driver";
+import { cliOptions } from "./options";
+import { createDetector } from "../createDetector";
 import { ExecutionException } from "../internals/exceptions";
 import { MISTI_VERSION, TACT_VERSION } from "../version";
-import { createDetector } from "../createDetector";
-import { cliOptions } from "./options";
 import { Command } from "commander";
 
 /**

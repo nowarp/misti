@@ -1,5 +1,5 @@
+import { GOOD_DIR, TAP, processTactFiles, resetIds } from "./testUtil";
 import { Runner } from "../src/cli";
-import { TAP, processTactFiles, GOOD_DIR, resetIds } from "./testUtil";
 import path from "path";
 
 processTactFiles(GOOD_DIR, (file) => {

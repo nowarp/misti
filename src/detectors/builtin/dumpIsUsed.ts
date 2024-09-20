@@ -1,7 +1,7 @@
-import { ASTDetector } from "../detector";
 import { CompilationUnit } from "../../internals/ir";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { foldExpressions } from "../../internals/tactASTUtil";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { ASTDetector } from "../detector";
 import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**

@@ -1,12 +1,12 @@
-import { MistiContext } from "../context";
-import { CFG, BasicBlockIdx, CompilationUnit } from "../ir";
-import { InternalException } from "../exceptions";
 import { SolverResults } from "./results";
 import { Solver } from "./solver";
+import { MistiContext } from "../context";
+import { InternalException } from "../exceptions";
+import { BasicBlockIdx, CFG, CompilationUnit } from "../ir";
 import {
   SouffleContext,
-  SouffleFact,
   SouffleExecutionResult,
+  SouffleFact,
   SouffleSyncExecutor,
   relation,
 } from "@nowarp/souffle";

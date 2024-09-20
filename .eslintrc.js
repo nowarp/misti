@@ -9,6 +9,8 @@ module.exports = {
   ignorePatterns: ["src/detectors/templates"],
   plugins: [
     "@typescript-eslint",
+    "import",
+    "unused-imports"
   ],
   rules: {
     "@typescript-eslint/switch-exhaustiveness-check": "error",
@@ -21,5 +23,29 @@ module.exports = {
         caughtErrorsIgnorePattern: "^_",
       },
     ],
+    // Autofix for imports: https://simondosda.github.io/posts/2021-05-10-eslint-imports.html
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          ["parent", "sibling", "index"],
+          ["builtin", "external"],
+        ],
+        "newlines-between": "never",
+        "pathGroupsExcludedImportTypes": ["builtin"],
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }
+    ]
   },
 };

@@ -1,6 +1,6 @@
 import { IdxGenerator } from "../src/internals/ir/indices";
-import { __DANGER_resetNodeId } from "@tact-lang/compiler/dist/grammar/ast";
 import { expect } from "@jest/globals";
+import { __DANGER_resetNodeId } from "@tact-lang/compiler/dist/grammar/ast";
 import * as fs from "fs";
 import * as path from "path";
 

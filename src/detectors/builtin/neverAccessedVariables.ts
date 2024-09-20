@@ -1,22 +1,22 @@
-import { WorklistSolver } from "../../internals/solver/";
-import { Transfer } from "../../internals/transfer";
-import { DataflowDetector, WarningsBehavior } from "../detector";
-import { InternalException } from "../../internals/exceptions";
-import { JoinSemilattice } from "../../internals/lattice";
 import { MistiContext } from "../../internals/context";
-import { CompilationUnit, BasicBlock, CFG } from "../../internals/ir";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { InternalException } from "../../internals/exceptions";
+import { BasicBlock, CFG, CompilationUnit } from "../../internals/ir";
+import { JoinSemilattice } from "../../internals/lattice";
+import { WorklistSolver } from "../../internals/solver/";
 import {
-  extractPath,
   SrcInfoSet,
+  extractPath,
   forEachExpression,
 } from "../../internals/tactASTUtil";
+import { Transfer } from "../../internals/transfer";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { DataflowDetector, WarningsBehavior } from "../detector";
 import {
+  AstExpression,
+  AstId,
   AstNode,
   AstStatement,
-  AstId,
   AstTrait,
-  AstExpression,
   SrcInfo,
   isSelfId,
 } from "@tact-lang/compiler/dist/grammar/ast";

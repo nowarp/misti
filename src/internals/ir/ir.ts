@@ -1,13 +1,13 @@
+import { TactASTStore } from "./astStore";
+import { BasicBlock, CFG, Contract } from "./cfg";
 import {
   BasicBlockIdx,
-  ContractIdx,
   CFGIdx,
-  FunctionName,
+  ContractIdx,
   ContractName,
+  FunctionName,
   ProjectName,
 } from "./types";
-import { CFG, Contract, BasicBlock } from "./cfg";
-import { TactASTStore } from "./astStore";
 import { AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
