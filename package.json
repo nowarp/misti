@@ -24,7 +24,7 @@
     "benchmark": "ts-node benchmarks/detectors.ts",
     "lint": "eslint src test examples",
     "fmt": "prettier --check src test examples",
-    "spell": "cspell \"**\" --no-progress --exclude \"dist/**\" --exclude \"node_modules/**\" --exclude \"tags/**\"",
+    "spell": "cspell \"**\" --no-progress --exclude \"dist/**\" --exclude \"node_modules/**\" --exclude \"tags/**\" --exclude \"docs/**\"",
     "docs": "yarn typedoc --out docs/api --entryPointStrategy expand src",
     "detector-docs": "ts-node ./scripts/generateDetectorDocs.ts",
     "fix-all": "yarn fmt --write && yarn lint --fix",
