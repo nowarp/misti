@@ -90,6 +90,7 @@
     "PUSHREF",
     "PUSHSLICE",
     "SETINDEXVARQ",
+    "GETSTORAGEFEE",
     "LDREF",
     "nowarp",
     "Idxes",

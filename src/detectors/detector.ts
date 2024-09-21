@@ -287,11 +287,16 @@ const BuiltInDetectors: Record<string, DetectorEntry> = {
   },
   AsmIsUsed: {
     loader: (ctx: MistiContext) =>
-      import("./builtin/asmIsUsed").then(
-        (module) => new module.AsmIsUsed(ctx),
+      import("./builtin/asmIsUsed").then((module) => new module.AsmIsUsed(ctx)),
+    enabledByDefault: false,
+  },
+  PreferredStdlibApi: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/preferredStdlibApi").then(
+        (module) => new module.PreferredStdlibApi(ctx),
       ),
     enabledByDefault: false,
-  }
+  },
 };
 
 /**

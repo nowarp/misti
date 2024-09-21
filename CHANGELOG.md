@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `StringReceiversOverlap` detector: PR [#122](https://github.com/nowarp/misti/pull/122)
 - `AsmIsUsed` detector: Issue [#119](https://github.com/nowarp/misti/issues/119)
+- `PreferredStdlibApi` detector: Issue [#132](https://github.com/nowarp/misti/issues/132)
 - Allow running Misti without Souffle installation: Issue [#45](https://github.com/nowarp/misti/issues/45)
 - `--dump-ast` CLI option.
 - `--souffle-binary` CLI option to specify path to the Souffle executable
