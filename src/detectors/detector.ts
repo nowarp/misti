@@ -5,6 +5,11 @@
  * Supports dynamic loading of built-in detectors, warning generation, and configurable
  * behavior for multi-project setups.
  *
+ * ### Adding a new built-in detector
+ * To add a new built-in detector, create its implementation in the `./builtin`
+ * directory and add information about it to `BuiltInDetectors`. No other changes
+ * in the project are needed.
+ *
  * @packageDocumentation
  */
 import { MistiContext } from "../internals/context";
