@@ -1,0 +1,25 @@
+{
+  "projectName": "inheritance-state-mutation-1",
+  "functions": [],
+  "contracts": [
+    {
+      "name": "C",
+      "methods": [
+        {
+          "name": "C.updateBalance",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 141,
+                "stmtID": 1665,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        }
+      ]
+    }
+  ]
+}

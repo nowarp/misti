@@ -378,7 +378,7 @@ export class TactASTStore {
   }
 
   /**
-   * Retrieves the fields defined within a specified contract.
+   * Retrieves fields defined within a specified contract.
    * @param contractId The ID of the contract.
    * @returns An array of AstFieldDecl or undefined if no contract is found.
    */
@@ -393,5 +393,30 @@ export class TactASTStore {
       }
       return result;
     }, [] as AstFieldDecl[]);
+  }
+
+  /**
+   * Retrieves fields defined in the traits the contract inherited.
+   * @param contractId The ID of the contract.
+   * @returns An array of AstFieldDecl or undefined if no contract or one its trait are found.
+   */
+  public getInheritedFields(contractId: number): AstFieldDecl[] | undefined {
+    const contract = this.getContract(contractId);
+    if (!contract) {
+      return undefined;
+    }
+    const fields = [] as AstFieldDecl[];
+    contract.traits.forEach((traitId) => {
+      const trait = this.findTrait(traitId.text);
+      if (trait === undefined) {
+        return undefined;
+      }
+      trait.declarations.forEach((decl) => {
+        if (decl.kind === "field_decl") {
+          fields.push(decl);
+        }
+      });
+    });
+    return fields;
   }
 }

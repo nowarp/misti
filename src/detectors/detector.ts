@@ -297,6 +297,13 @@ const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: false,
   },
+  InheritedStateMutation: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/inheritedStateMutation").then(
+        (module) => new module.InheritedStateMutation(ctx),
+      ),
+    enabledByDefault: false,
+  },
 };
 
 /**

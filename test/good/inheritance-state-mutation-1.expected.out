@@ -1,0 +1,8 @@
+test/good/inheritance-state-mutation-1.tact:8:5:
+  7 |   fun updateBalance() {
+> 8 |     self.balance = 100; // Suspicious: Highlighted by the detector
+          ^
+  9 |   }
+Inherited Trait Variable Mutation: Directly modifying inherited trait variables can indicate a potential error or poor design
+Help: Consider using setter methods to preserve invariants
+See: https://nowarp.io/tools/misti/docs/detectors/InheritedStateMutation

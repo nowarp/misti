@@ -6,12 +6,7 @@
  */
 import { TactASTStore } from "./astStore";
 import { IdxGenerator } from "./indices";
-import {
-  BasicBlockIdx,
-  CFGIdx,
-  EdgeIdx,
-  FunctionName,
-} from "./types";
+import { BasicBlockIdx, CFGIdx, EdgeIdx, FunctionName } from "./types";
 import { InternalException } from "../exceptions";
 import { AstStatement, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 

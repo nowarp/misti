@@ -60,3 +60,57 @@ test/good/sample-jetton.tact:316:9:
 Prefer Augmented Assignment
 Help: Consider using augmented assignment instead: self.balance += jettonAmount
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+test/good/sample-jetton.tact:24:9:
+  23 |     init(owner: Address, content: Cell, max_supply: Int) {
+> 24 |         self.totalSupply = 0;
+               ^
+  25 |         self.max_supply = max_supply;
+Inherited Trait Variable Mutation: Directly modifying inherited trait variables can indicate a potential error or poor design
+Help: Consider using setter methods to preserve invariants
+See: https://nowarp.io/tools/misti/docs/detectors/InheritedStateMutation
+
+test/good/sample-jetton.tact:25:9:
+  24 |         self.totalSupply = 0;
+> 25 |         self.max_supply = max_supply;
+               ^
+  26 |         self.owner = owner;
+Inherited Trait Variable Mutation: Directly modifying inherited trait variables can indicate a potential error or poor design
+Help: Consider using setter methods to preserve invariants
+See: https://nowarp.io/tools/misti/docs/detectors/InheritedStateMutation
+
+test/good/sample-jetton.tact:26:9:
+  25 |         self.max_supply = max_supply;
+> 26 |         self.owner = owner;
+               ^
+  27 |         self.mintable = true;
+Inherited Trait Variable Mutation: Directly modifying inherited trait variables can indicate a potential error or poor design
+Help: Consider using setter methods to preserve invariants
+See: https://nowarp.io/tools/misti/docs/detectors/InheritedStateMutation
+
+test/good/sample-jetton.tact:27:9:
+  26 |         self.owner = owner;
+> 27 |         self.mintable = true;
+               ^
+  28 |         self.content = content;
+Inherited Trait Variable Mutation: Directly modifying inherited trait variables can indicate a potential error or poor design
+Help: Consider using setter methods to preserve invariants
+See: https://nowarp.io/tools/misti/docs/detectors/InheritedStateMutation
+
+test/good/sample-jetton.tact:28:9:
+  27 |         self.mintable = true;
+> 28 |         self.content = content;
+               ^
+  29 |     }
+Inherited Trait Variable Mutation: Directly modifying inherited trait variables can indicate a potential error or poor design
+Help: Consider using setter methods to preserve invariants
+See: https://nowarp.io/tools/misti/docs/detectors/InheritedStateMutation
+
+test/good/sample-jetton.tact:47:9:
+  46 |         require(ctx.sender == self.owner, "Not Owner");
+> 47 |         self.mintable = false;
+               ^
+  48 |     }
+Inherited Trait Variable Mutation: Directly modifying inherited trait variables can indicate a potential error or poor design
+Help: Consider using setter methods to preserve invariants
+See: https://nowarp.io/tools/misti/docs/detectors/InheritedStateMutation

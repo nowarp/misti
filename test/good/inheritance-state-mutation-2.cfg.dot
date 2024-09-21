@@ -1,0 +1,7 @@
+digraph "inheritance-state-mutation-2" {
+    node [shape=box];
+    subgraph "cluster_C__updateBalance" {
+        label="C__updateBalance";
+        "C__updateBalance_141" [label="self.setBalance(100)",style=filled,fillcolor="#66A7DB"];
+    }
+}
