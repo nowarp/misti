@@ -4,7 +4,8 @@
  * @packageDocumentation
  */
 import { TactASTStore } from "./astStore";
-import { BasicBlock, CFG, Contract } from "./cfg";
+import { BasicBlock, CFG } from "./cfg";
+import { IdxGenerator } from "./indices";
 import {
   BasicBlockIdx,
   CFGIdx,
@@ -13,7 +14,7 @@ import {
   FunctionName,
   ProjectName,
 } from "./types";
-import { AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
+import { AstStatement, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
  * Represents a Compilation Unit, encapsulating the information necessary for
@@ -117,5 +118,32 @@ export class CompilationUnit {
         });
       });
     });
+  }
+}
+
+/**
+ * Represents an entry for a contract in the compilation unit which
+ * encapsulates a collection of related methods and their configurations.
+ */
+export class Contract {
+  /**
+   * The unique identifier of this Contract among the compilation unit it belongs to.
+   */
+  public idx: ContractIdx;
+
+  /**
+   * Creates an instance of Contract.
+   * @param name The unique name identifying this contract within the project.
+   * @param methods A mapping of method ids to their CFGs.
+   * @param ref AST reference that corresponds to the contract definition.
+   * @param idx An optional unique index. If not set, a new one will be chosen automatically.
+   */
+  constructor(
+    public name: ContractName,
+    public methods: Map<CFGIdx, CFG>,
+    public ref: SrcInfo,
+    idx: ContractIdx | undefined = undefined,
+  ) {
+    this.idx = idx ? idx : IdxGenerator.next();
   }
 }
