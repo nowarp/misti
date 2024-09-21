@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@nowarp/souffle": "^0.1.2",
-    "@tact-lang/compiler": "^1.5.1",
+    "@tact-lang/compiler": "~1.5.1",
     "@types/benchmark": "^2.1.5",
     "@types/fs-extra": "^11.0.4",
     "@types/js-yaml": "^4.0.9",

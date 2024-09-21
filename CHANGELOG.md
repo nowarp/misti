@@ -19,8 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A script to generate detectors documentation: `./scripts/generateDetectorDocs.ts`
 - The `--detectors` CLI option can be used to quickly run Misti with the specified detectors, e.g., `yarn misti --detectors ReadOnlyVariables,./examples/implicit-init/implicitInit.ts:ImplicitInit`
 - Asynchronous detectors and Souffle execution: PR [#118](https://github.com/nowarp/misti/pull/118)
-- Supported Tact 1.5.0: Issue [#33](https://github.com/nowarp/misti/issues/33)
-- Supported Tact 1.5.1
+- Supported Tact 1.5: Issue [#33](https://github.com/nowarp/misti/issues/33)
 
 ### Changed
 - Moved Souffle bindings to a its own repository https://github.com/nowarp/souffle.js: PR [#120](https://github.com/nowarp/misti/pull/120)
