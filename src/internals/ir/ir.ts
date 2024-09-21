@@ -1,3 +1,8 @@
+/**
+ * Defined the Intermediate Representation (IR) for Tact used in analysis.
+ *
+ * @packageDocumentation
+ */
 import { TactASTStore } from "./astStore";
 import { BasicBlock, CFG, Contract } from "./cfg";
 import {

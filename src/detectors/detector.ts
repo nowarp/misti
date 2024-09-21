@@ -1,3 +1,12 @@
+/**
+ * Defines the base structure for Misti static analysis detectors, including AST,
+ * dataflow, and Soufflé-based detectors.
+ *
+ * Supports dynamic loading of built-in detectors, warning generation, and configurable
+ * behavior for multi-project setups.
+ *
+ * @packageDocumentation
+ */
 import { MistiContext } from "../internals/context";
 import { InternalException } from "../internals/exceptions";
 import { CompilationUnit } from "../internals/ir";

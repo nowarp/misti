@@ -1,3 +1,9 @@
+/**
+ * Contains definitions of the Control Flow Graph (CFG) for Tact and utility
+ * functions to work with it.
+ *
+ * @packageDocumentation
+ */
 import { TactASTStore } from "./astStore";
 import { IdxGenerator } from "./indices";
 import {

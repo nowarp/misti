@@ -1,3 +1,8 @@
+/**
+ * An utility to create new custom detectors from the defined template.
+ *
+ * @packageDocumentation
+ */
 import fs from "fs-extra";
 import path from "path";
 
