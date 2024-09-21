@@ -38,7 +38,8 @@ export interface MistiResult {
 export class Driver {
   ctx: MistiContext;
   detectors: Detector[] = [];
-  private dumpCFG?: "json" | "dot" = undefined;
+  private suppressedDetectorNames: Set<string>;
+  private dumpCFG?: "json" | "dot";
   private dumpAST: boolean;
   private dumpCFGStdlib: boolean;
   private dumpOutput: string;
@@ -63,6 +64,7 @@ export class Driver {
 
     this.ctx = new MistiContext(tactPath, options);
     this.dumpCFG = options.dumpCfg;
+    this.suppressedDetectorNames = new Set(options.suppress ?? []);
     this.dumpAST = options.dumpAst || false;
     this.dumpCFGStdlib = options.dumpIncludeStdlib || false;
     this.dumpOutput = options.dumpOutput || DUMP_STDOUT_PATH;
@@ -112,39 +114,52 @@ export class Driver {
    * @throws Error if a detector class cannot be found in the specified module or as a built-in.
    */
   async initializeDetectors(): Promise<void> {
-    const detectorPromises = this.ctx.config.detectors.map(async (config) => {
-      if (config.modulePath) {
-        // Dynamic import for external detectors
-        let module;
-        try {
-          const absolutePath = path.resolve(config.modulePath);
-          const relativePath = path.relative(__dirname, absolutePath);
-          module = await import(
-            relativePath.replace(path.extname(relativePath), "")
-          );
-        } catch (error) {
-          console.error(`Failed to import module: ${config.modulePath}`);
-          console.error(error);
-        }
-        const DetectorClass = module[config.className];
-        if (!DetectorClass) {
-          throw ExecutionException.make(
-            `Detector class ${config.className} not found in module ${config.modulePath}`,
-          );
-        }
-        return new DetectorClass(this.ctx) as Detector;
-      } else {
-        // Attempt to find a built-in detector
-        const detector = await findBuiltInDetector(this.ctx, config.className);
-        if (!detector) {
-          throw ExecutionException.make(
-            `Built-in detector ${config.className} not found`,
-          );
-        }
-        return detector;
+    const detectorPromises = this.ctx.config.detectors.reduce<
+      Promise<Detector>[]
+    >((acc, config) => {
+      if (this.suppressedDetectorNames.has(config.className)) {
+        this.ctx.logger.debug(`Suppressed detector: ${config.className}`);
+        return acc;
       }
-    });
-    // Wait for all detectors to be initialized
+      acc.push(
+        (async () => {
+          if (config.modulePath) {
+            let module;
+            try {
+              const absolutePath = path.resolve(config.modulePath);
+              const relativePath = path.relative(__dirname, absolutePath);
+              module = await import(
+                relativePath.replace(path.extname(relativePath), "")
+              );
+            } catch (error) {
+              this.ctx.logger.error(
+                `Failed to import module: ${config.modulePath}`,
+              );
+              this.ctx.logger.error(`${error}`);
+            }
+            const DetectorClass = module[config.className];
+            if (!DetectorClass) {
+              throw ExecutionException.make(
+                `Detector class ${config.className} not found in module ${config.modulePath}`,
+              );
+            }
+            return new DetectorClass(this.ctx) as Detector;
+          } else {
+            const detector = await findBuiltInDetector(
+              this.ctx,
+              config.className,
+            );
+            if (!detector) {
+              throw ExecutionException.make(
+                `Built-in detector ${config.className} not found`,
+              );
+            }
+            return detector;
+          }
+        })(),
+      );
+      return acc;
+    }, []);
     this.detectors = await Promise.all(detectorPromises);
     this.ctx.logger.debug(
       `Enabled detectors (${this.detectors.length}): ${this.detectors.map((d) => d.id).join(", ")}`,
@@ -410,6 +425,7 @@ export class Runner {
       verbose: false,
       quiet: false,
       detectors: undefined,
+      suppress: undefined,
       allDetectors: false,
       config: undefined,
     },

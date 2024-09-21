@@ -15,6 +15,7 @@ export interface CLIOptions {
   verbose?: boolean;
   quiet?: boolean;
   detectors?: string[];
+  suppress?: string[];
   allDetectors?: boolean;
   config?: string;
 }
@@ -63,6 +64,20 @@ export const cliOptions = [
       if (detectors.length === 0) {
         throw new Error(
           "The --detectors option requires a non-empty list of detector names.",
+        );
+      }
+      return detectors;
+    })
+    .default(undefined),
+  new Option(
+    "--suppress <names>",
+    "A comma-separated list of names of detectors to suppress.",
+  )
+    .argParser((value) => {
+      const detectors = value.split(",").map((detector) => detector.trim());
+      if (detectors.length === 0) {
+        throw new Error(
+          "The --suppress option requires a non-empty list of detector names.",
         );
       }
       return detectors;
