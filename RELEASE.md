@@ -23,3 +23,4 @@
 ### Fixed
 ```
 - [ ] Create a post that highlights introduced changes
+- [ ] Update [`blueprint-misti`](https://github.com/nowarp/blueprint-misti) and release a new version in order to update the npm dependency
