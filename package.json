@@ -88,8 +88,8 @@
   },
   "release-it": {
     "hooks": {
-      "before:release": "yarn clean && yarn build",
-      "after:bump": "yarn build"
+      "before:release": "yarn clean && yarn gen && yarn build",
+      "after:bump": "yarn gen && yarn build"
     },
     "github": {
       "release": true
