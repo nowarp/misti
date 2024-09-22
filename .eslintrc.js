@@ -23,6 +23,8 @@ module.exports = {
         caughtErrorsIgnorePattern: "^_",
       },
     ],
+    // Forbid console.{error,out}
+    "no-console": ["error", { "allow": ["warn", "info"] }],
     // Autofix for imports: https://simondosda.github.io/posts/2021-05-10-eslint-imports.html
     "unused-imports/no-unused-imports": "error",
     "unused-imports/no-unused-vars": [
@@ -48,4 +50,13 @@ module.exports = {
       }
     ]
   },
+  // Suppress `no-console` for specific files
+  "overrides": [
+    {
+      "files": ["src/internals/logger.ts", "src/createDetector.ts", "src/main.ts", "test/**"],
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ]
 };
