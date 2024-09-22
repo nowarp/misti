@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2024-09-22
+
 ### Added
 - `StringReceiversOverlap` detector: PR [#122](https://github.com/nowarp/misti/pull/122)
 - `AsmIsUsed` detector: Issue [#119](https://github.com/nowarp/misti/issues/119)
