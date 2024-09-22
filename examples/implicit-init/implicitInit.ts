@@ -4,11 +4,12 @@ import { MistiTactWarning, Severity } from "../../src/internals/warnings";
 
 /**
  * An example of a custom detector that showcases the usage of the detector API.
- * It reports all contracts that don't have an explicit implementation of the init function.
+ * It reports all contracts that don't have an explicit implementation of the
+ * init function.
  *
  * ## Why is it bad?
- * It is better to have an explicit definition of the init function to ensure the
- * developer did not forget to initialize anything.
+ * It is better to have an explicit definition of the init function to ensure
+ * the developer did not forget to initialize something.
  *
  * ## Example
  * ```tact
