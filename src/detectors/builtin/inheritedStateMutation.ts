@@ -5,6 +5,7 @@ import {
   collectMutations,
   mutationNames,
 } from "../../internals/tactASTUtil";
+import { intersection } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import { AstStatement, AstNode } from "@tact-lang/compiler/dist/grammar/ast";
@@ -90,8 +91,6 @@ export class InheritedStateMutation extends ASTDetector {
     stmt: AstStatement,
     inheritedFieldNames: string[],
   ): MistiTactWarning[] {
-    const intersection = <T>(l1: T[], l2: T[]): T[] =>
-      l1.filter((element) => l2.includes(element));
     const mutations = collectMutations(stmt);
     const foundMutations = mutations
       ? intersection(

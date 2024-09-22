@@ -304,6 +304,13 @@ const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: false,
   },
+  ArgCopyMutation: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/argCopyMutation").then(
+        (module) => new module.ArgCopyMutation(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**

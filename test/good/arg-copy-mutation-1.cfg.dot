@@ -1,0 +1,17 @@
+digraph "arg-copy-mutation-1" {
+    node [shape=box];
+    subgraph "cluster_Test__test" {
+        label="Test__test";
+        "Test__test_141" [label="m.set(3, 3)"];
+        "Test__test_142" [label="m.del(3)"];
+        "Test__test_144" [label="a += 1"];
+        "Test__test_146" [label="a = 42"];
+        "Test__test_148" [label="let _b: Int? = m.get(3)"];
+        "Test__test_150" [label="self.m.set(3, 3)",style=filled,fillcolor="#66A7DB"];
+        "Test__test_141" -> "Test__test_142";
+        "Test__test_142" -> "Test__test_144";
+        "Test__test_144" -> "Test__test_146";
+        "Test__test_146" -> "Test__test_148";
+        "Test__test_148" -> "Test__test_150";
+    }
+}

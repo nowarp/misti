@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `AsmIsUsed` detector: Issue [#119](https://github.com/nowarp/misti/issues/119)
 - `PreferredStdlibApi` detector: Issue [#132](https://github.com/nowarp/misti/issues/132)
 - `InheritedStateMutation` detector: Issue [#64](https://github.com/nowarp/misti/issues/64)
+- `ArgCopyMutation` detector: Issue [#125](https://github.com/nowarp/misti/issues/125)
 - Allow running Misti without Souffle installation: Issue [#45](https://github.com/nowarp/misti/issues/45)
 - `--dump-ast` CLI option.
 - `--suppress` CLI option: Issue [#135](https://github.com/nowarp/misti/issues/135)
