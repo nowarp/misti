@@ -6,17 +6,153 @@
       "name": "C",
       "methods": [
         {
+          "name": "C.init_1766",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 142,
+                "stmtID": 1698,
+                "srcEdges": [],
+                "dstEdges": [
+                  144
+                ]
+              },
+              {
+                "id": 143,
+                "stmtID": 1703,
+                "srcEdges": [
+                  144
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 144,
+                "src": 142,
+                "dst": 143
+              }
+            ]
+          }
+        },
+        {
           "name": "C.updateBalance",
           "cfg": {
             "nodes": [
               {
-                "id": 141,
-                "stmtID": 1665,
+                "id": 145,
+                "stmtID": 1710,
                 "srcEdges": [],
+                "dstEdges": [
+                  147
+                ]
+              },
+              {
+                "id": 146,
+                "stmtID": 1715,
+                "srcEdges": [
+                  147
+                ],
+                "dstEdges": [
+                  149
+                ]
+              },
+              {
+                "id": 148,
+                "stmtID": 1723,
+                "srcEdges": [
+                  149
+                ],
+                "dstEdges": [
+                  151
+                ]
+              },
+              {
+                "id": 150,
+                "stmtID": 1730,
+                "srcEdges": [
+                  151
+                ],
+                "dstEdges": [
+                  153
+                ]
+              },
+              {
+                "id": 152,
+                "stmtID": 1737,
+                "srcEdges": [
+                  153
+                ],
+                "dstEdges": [
+                  155
+                ]
+              },
+              {
+                "id": 154,
+                "stmtID": 1744,
+                "srcEdges": [
+                  155
+                ],
+                "dstEdges": [
+                  157
+                ]
+              },
+              {
+                "id": 156,
+                "stmtID": 1754,
+                "srcEdges": [
+                  157
+                ],
+                "dstEdges": [
+                  159
+                ]
+              },
+              {
+                "id": 158,
+                "stmtID": 1763,
+                "srcEdges": [
+                  159
+                ],
                 "dstEdges": []
               }
             ],
-            "edges": []
+            "edges": [
+              {
+                "id": 147,
+                "src": 145,
+                "dst": 146
+              },
+              {
+                "id": 149,
+                "src": 146,
+                "dst": 148
+              },
+              {
+                "id": 151,
+                "src": 148,
+                "dst": 150
+              },
+              {
+                "id": 153,
+                "src": 150,
+                "dst": 152
+              },
+              {
+                "id": 155,
+                "src": 152,
+                "dst": 154
+              },
+              {
+                "id": 157,
+                "src": 154,
+                "dst": 156
+              },
+              {
+                "id": 159,
+                "src": 156,
+                "dst": 158
+              }
+            ]
           }
         }
       ]

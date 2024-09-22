@@ -2,8 +2,13 @@ import { InternalException } from "./exceptions";
 import {
   AstExpression,
   AstNode,
+  AstId,
+  AstFieldAccess,
   AstStatement,
+  AstMethodCall,
   SrcInfo,
+  isSelfId,
+  idText,
   tryExtractPath,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { Interval as RawInterval } from "ohm-js";
@@ -658,6 +663,162 @@ export function formatPosition(ref?: SrcInfo): string {
   const relativeFilePath = path.relative(process.cwd(), ref.file);
   const lc = ref.interval.getLineAndColumn();
   return `${relativeFilePath}: ${lc}\n`;
+}
+
+/**
+ * Returns the accessor name without the leading `self.` part.
+ *
+ * For example:
+ * - `self.a` -> AstId(`a`)
+ * - `self.a()` -> AstMethodCall(`a`)
+ * - `self.object.f1` -> AstFieldAccess(`object.f1`)
+ * - `nonSelf.a` -> undefined
+ */
+export function removeSelf(
+  expr: AstExpression,
+): AstId | AstFieldAccess | undefined {
+  if (expr.kind === "method_call") {
+    return removeSelf(expr.self);
+  }
+  if (expr.kind === "field_access") {
+    if (isSelf(expr.aggregate)) {
+      return expr.field;
+    } else {
+      const newAggregate = removeSelf(expr.aggregate);
+      if (newAggregate !== undefined) {
+        return {
+          ...expr,
+          aggregate: newAggregate,
+        };
+      }
+    }
+  }
+  return undefined;
+}
+
+/**
+ * @returns True for self identifiers: `self`.
+ */
+export function isSelf(expr: AstExpression): boolean {
+  return expr.kind === "id" && isSelfId(expr);
+}
+
+/**
+ * @returns True for self access expressions: `self.a`, `self.a.b`.
+ */
+export function isSelfAccess(expr: AstExpression): boolean {
+  const path = tryExtractPath(expr);
+  return path !== null && path.length > 1 && isSelfId(path[0]);
+}
+
+/**
+ * @returns True iff `call` is a stdlib method mutating its receiver.
+ */
+export function isStdlibMutationMethod(call: AstMethodCall): boolean {
+  // https://docs.tact-lang.org/book/maps
+  const mapMutationOperations = ["set", "del"];
+  // See: stdlib/std/cells.tact
+  const builderMutationOperations = [
+    "storeInt",
+    "storeUint",
+    "storeBool",
+    "storeBit",
+    "storeCoins",
+    "storeRef",
+    "storeSlice",
+    "storeBuilder",
+    "storeAddress",
+    "storeMaybeRef",
+  ];
+  const methodName = idText(call.method);
+  return (
+    // Filter out contract calls e.g.: `self.set(/*...*/)`
+    !isSelf(call.self) &&
+    // TODO: This should be rewritten when we have types in AST
+    (mapMutationOperations.includes(methodName) ||
+      builderMutationOperations.includes(methodName))
+  );
+}
+
+export type MutatedElement = AstId | AstFieldAccess;
+
+/**
+ * Collects mutations local or state mutations within the statements.
+ *
+ * @param The statement to analyze
+ * @returns Mutated fields and local identifiers, including nested fields of mutated structure instances
+ */
+export function collectMutations(
+  stmt: AstStatement,
+):
+  | { mutatedFields: MutatedElement[]; mutatedLocals: MutatedElement[] }
+  | undefined {
+  const mutatedFields: MutatedElement[] = [];
+  const mutatedLocals: MutatedElement[] = [];
+
+  const handleMethodCallsMutations = (): void => {
+    forEachExpression(stmt, (expr: AstExpression) => {
+      if (expr.kind === "method_call" && isStdlibMutationMethod(expr)) {
+        if (isSelfAccess(expr.self)) {
+          // Field mutation
+          const mutated = removeSelf(expr);
+          if (mutated) {
+            mutatedFields.push(mutated);
+          }
+        } else {
+          // Local mutation
+          if (expr.self.kind === "field_access" || expr.self.kind === "id")
+            mutatedLocals.push(expr.self);
+        }
+      }
+    });
+  };
+  handleMethodCallsMutations();
+
+  const handleAssignmentMutations = (): void => {
+    if (
+      stmt.kind === "statement_assign" ||
+      stmt.kind === "statement_augmentedassign"
+    ) {
+      const field = removeSelf(stmt.path);
+      if (field) {
+        // Field mutations
+        mutatedFields.push(field);
+      } else {
+        // Local mutations
+        const local = stmt.path;
+        if (local.kind === "field_access" || local.kind === "id") {
+          mutatedLocals.push(local);
+        }
+      }
+    }
+  };
+  handleAssignmentMutations();
+
+  return !mutatedFields.length && !mutatedLocals.length
+    ? undefined
+    : { mutatedFields, mutatedLocals };
+}
+
+/**
+ * Collects names of the mutated elements.
+ *
+ * For example:
+ * - a -> a
+ * - self.a -> a
+ * - self.object.f1 -> object
+ */
+export function mutationNames(items: MutatedElement[]): string[] {
+  return items.flatMap((item) => {
+    if (item.kind === "id") {
+      return [item.text];
+    } else if (item.kind === "field_access") {
+      const path = tryExtractPath(item);
+      return path && path.length >= 2 ? [path[0].text] : [];
+    } else {
+      return [];
+    }
+  });
 }
 
 /**

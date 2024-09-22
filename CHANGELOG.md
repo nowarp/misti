@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Detector templates and the `--new-detector` CLI option: PR [#105](https://github.com/nowarp/misti/pull/105)
 - A script to generate detectors documentation: `./scripts/generateDetectorDocs.ts`
 - The `--detectors` CLI option can be used to quickly run Misti with the specified detectors, e.g., `yarn misti --detectors ReadOnlyVariables,./examples/implicit-init/implicitInit.ts:ImplicitInit`
+- `TactASTUtil`: API functions to check mutability of the statement.
 - Asynchronous detectors and Souffle execution: PR [#118](https://github.com/nowarp/misti/pull/118)
 - Supported Tact 1.5: Issue [#33](https://github.com/nowarp/misti/issues/33)
 
