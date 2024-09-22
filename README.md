@@ -1,4 +1,4 @@
-# Misti
+# <img src="img/misti.png" alt="Misti Logo" width="32"/> Misti
 Misti is a static analysis tool designed for smart contracts on the [TON blockchain](https://ton.org/).
 
 **Language Support:**
