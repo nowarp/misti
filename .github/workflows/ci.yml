@@ -45,6 +45,11 @@ jobs:
         output: /tmp/lychee.txt
         fail: true
 
+    - name: Build
+      run: |
+        yarn gen
+        yarn build
+
     - name: Spellcheck code base
       run: |
         yarn spell
@@ -57,11 +62,6 @@ jobs:
 
     - name: Run ESLint
       run: yarn lint
-
-    - name: Build
-      run: |
-        yarn gen
-        yarn build
 
     - name: Run tests
       run: |
