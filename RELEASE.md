@@ -1,4 +1,4 @@
-# Misti release checklist template
+# Misti Release Checklist
 
 - [ ] Release new Misti version
   - [ ] Run: `yarn release -- --dry-run` to ensure everything works as expected
@@ -6,21 +6,16 @@
 - [ ] Create a GitHub release
 - [ ] Prepare [documentation](https://github.com/nowarp/nowarp.github.io/):
   - [ ] Update the supported Tact version in the introduction page
-  - [ ] Check whether `configuration.md` is updated according to `configSchema.json`
+  - [ ] Generate detectors documentation: `yarn detector-docs ../nowarp.github.io/docs/detectors/`
+  - [ ] Update the `detectors.md` page
+  - [ ] Update `sidebars.ts` adding new detectors
+  - [ ] Check whether `configuration.md` and `cli.md` should be updated
   - [ ] Check if examples are updated according to API changes
   - [ ] Ensure that funding information is actual
   - [ ] Run: `yarn spell && yarn build` from the `nowarp.github.io` directory to ensure there are no errors
   - [ ] Release a new version of documentation: `npx docusaurus docs:version <VERSION>`
   - [ ] Run: `yarn build && yarn deploy` from the `nowarp.github.io` directory
-- [ ] Add the `Unreleased` section in [CHANGELOG.md](./CHANGELOG.md):
-```
-## [Unreleased]
-
-### Added
-
-### Changed
-
-### Fixed
-```
+- [ ] Update [`blueprint-misti`](https://github.com/nowarp/blueprint-misti):
+  - [ ] Update Misti version and build the project
+  - [ ] Release it in order to update the npm dependency
 - [ ] Create a post that highlights introduced changes
-- [ ] Update [`blueprint-misti`](https://github.com/nowarp/blueprint-misti) and release a new version in order to update the npm dependency
