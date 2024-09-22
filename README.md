@@ -1,9 +1,15 @@
 # <img src="img/misti.png" alt="Misti Logo" width="32"/> Misti
 Misti is a static analysis tool designed for smart contracts on the [TON blockchain](https://ton.org/).
 
-**Language Support:**
-- [Tact](https://tact-lang.org/) 1.5 is supported.
-- Support for [FunC](https://docs.ton.org/develop/func/overview) [is planned](https://github.com/nowarp/misti/issues/56).
+#### Language Support
+- [Tact](https://tact-lang.org/) 1.5 supported.
+- [FunC](https://docs.ton.org/develop/func/overview) support is [planned](https://github.com/nowarp/misti/issues/56).
+
+#### Use Cases
+- **Detect Code Issues**: Identify and fix potential [security flaws and code problems](https://nowarp.io/tools/misti/docs/detectors) early in the development cycle.
+- **Streamline Development**:
+  [Integrate](https://nowarp.io/tools/misti/docs/tutorial/ci-cd) Misti into your CI/CD pipeline to ensure continuous code quality checks.
+- **Custom Detectors**: Create [custom detectors](https://nowarp.io/tools/misti/docs/hacking/custom-detector) to solve specific problems in your code or to provide a thorough security review if you are an auditor.
 
 ## Getting Started
 1. Install Soufflé according to [the official installation instruction](https://souffle-lang.github.io/install).
@@ -18,16 +24,8 @@ yarn add @nowarp/misti
 npx misti test/projects/simple/tactConfig.json
 ```
 
-## Use Cases
-* **Detect Vulnerabilities:** Identify and fix potential security flaws early in the development cycle.
-* **Improve Code Quality:** Maintain high standards by catching bugs and enforcing best practices automatically.
-* **Streamline Development:** Integrate Misti into your CI/CD pipeline to ensure continuous code quality checks.
-* **Custom Detectors:** Create custom detectors to solve specific problems in your code or to provide a thorough security review if you are an auditor.
-
 ## Resources
-* [Misti Documentation](https://nowarp.github.io/tools/misti/) provides a detailed overview of the built-in detectors, the architecture of the analyzer, and developer documentation.
-* [Misti API Reference](https://nowarp.github.io/tools/misti/api) is useful if you are going to contribute or create your own detectors to streamline your audit.
-* [Misti Blueprint Plugin](https://github.com/nowarp/blueprint-misti) is a plugin for the Blueprint Framework that simplifies your workflow with Misti.
-
-## Community
-* [Misti Discussion Group](https://t.me/misti_dev)
+- **[Misti Documentation](https://nowarp.github.io/tools/misti/)**: Comprehensive guide on detectors, architecture, and development.
+- **[Misti API Reference](https://nowarp.github.io/tools/misti/api)**: Useful for contributors or developers creating custom detectors.
+- **[Misti Blueprint Plugin](https://github.com/nowarp/blueprint-misti)**: A plugin for the Blueprint Framework to enhance your workflow.
+- **[Misti Discussion Group](https://t.me/misti_dev)**: Join the conversation.
