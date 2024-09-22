@@ -19,7 +19,8 @@
   "license": "Apache-2.0",
   "scripts": {
     "clean": "rm -fr dist docs/*",
-    "build": "tsc && cp -R src/detectors/templates dist/src/detectors/",
+    "build": "tsc && cp -R src/detectors/templates dist/detectors/",
+    "gen": "ts-node scripts/genVersions.ts",
     "test": "jest",
     "benchmark": "ts-node benchmarks/detectors.ts",
     "lint": "eslint src test examples",
@@ -30,7 +31,7 @@
     "fix-all": "yarn fmt --write && yarn lint --fix",
     "test-all": "yarn spell && yarn fmt && yarn lint && yarn test",
     "misti": "ts-node src/main.ts",
-    "release": "yarn build && yarn release-it"
+    "release": "yarn release-it"
   },
   "files": [
     "dist/**/*",
@@ -86,12 +87,17 @@
     "registry": "https://registry.npmjs.org/"
   },
   "release-it": {
+    "hooks": {
+      "before:release": "yarn clean && yarn build",
+      "after:bump": "yarn build"
+    },
     "github": {
       "release": true
     },
     "plugins": {
       "@release-it/keep-a-changelog": {
-        "filename": "CHANGELOG.md"
+        "filename": "CHANGELOG.md",
+        "addUnreleased": true
       }
     }
   },

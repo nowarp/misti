@@ -138,3 +138,6 @@ test/good/**/*.dot
 test/good/**/*.actual.out
 !test/good/**/*.cfg.json
 !test/good/**/*.cfg.dot
+
+# Generated code
+src/version-info.ts

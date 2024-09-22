@@ -55,7 +55,11 @@ jobs:
     - name: Run ESLint
       run: yarn lint
 
+    - name: Build
+      run: |
+        yarn gen
+        yarn build
+
     - name: Run tests
       run: |
-        yarn build
         yarn test

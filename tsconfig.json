@@ -13,12 +13,7 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src/**/*",
-    "test/**/*",
-    "examples/**/*"
+    "src/**/*"
   ],
-  "exclude": [
-    "**/**.bind.ts",
-    "src/test/features/output/**/*"
-  ]
+  "exclude": ["node_modules", "examples/**/*"]
 }
