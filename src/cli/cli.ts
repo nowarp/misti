@@ -20,7 +20,7 @@ export function createMistiCommand(): Command {
   command
     .name("misti")
     .description("TON Static Analyzer")
-    .version(`${MISTI_VERSION}\n\nSupported Tact version: ${TACT_VERSION}`)
+    .version(`Misti ${MISTI_VERSION}\nSupported Tact version: ${TACT_VERSION}`)
     .arguments("[TACT_CONFIG_PATH|TACT_FILE_PATH]");
   cliOptions.forEach((option) => command.addOption(option));
   command.action(async (PROJECT_CONFIG_OR_FILE_PATH, options) => {
