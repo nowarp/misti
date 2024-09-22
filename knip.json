@@ -1,0 +1,13 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["src/index.ts", "src/main.ts"],
+  "project": ["src/**/*.ts"],
+  "ignore": [
+    ".github/workflows/tact.yml",
+    "src/internals/warnings.ts"
+  ],
+  "ignoreDependencies": [
+    "@types/jest"
+  ]
+}
+

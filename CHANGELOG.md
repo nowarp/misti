@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `InheritedStateMutation` detector: Issue [#64](https://github.com/nowarp/misti/issues/64)
 - `ArgCopyMutation` detector: Issue [#125](https://github.com/nowarp/misti/issues/125)
 - Allow running Misti without Souffle installation: Issue [#45](https://github.com/nowarp/misti/issues/45)
+- Add `index.ts` in order to simplify writing custom detectors: PR [#140](https://github.com/nowarp/misti/pull/140)
 - `--dump-ast` CLI option.
 - `--suppress` CLI option: Issue [#135](https://github.com/nowarp/misti/issues/135)
 - `--souffle-binary` CLI option to specify path to the Souffle executable

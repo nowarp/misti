@@ -45,9 +45,17 @@ jobs:
         output: /tmp/lychee.txt
         fail: true
 
+    - name: Build
+      run: |
+        yarn gen
+        yarn build
+
     - name: Spellcheck code base
       run: |
         yarn spell
+
+    - name: Run knip
+      run: yarn knip
 
     - name: Check formatting with Prettier
       run: yarn fmt
@@ -57,5 +65,4 @@ jobs:
 
     - name: Run tests
       run: |
-        yarn build
         yarn test

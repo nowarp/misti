@@ -6,7 +6,7 @@
 import fs from "fs-extra";
 import path from "path";
 
-export const TEMPLATE_PATH = path.join(
+const TEMPLATE_PATH = path.join(
   __dirname,
   "detectors/templates/simple.ts.template",
 );
