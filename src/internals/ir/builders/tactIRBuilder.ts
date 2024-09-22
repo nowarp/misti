@@ -126,7 +126,7 @@ function definedInStdlib(ctx: MistiContext, loc: SrcInfo): boolean {
 /**
  * Transforms AstStore to TactASTStore.
  */
-export class TactASTStoreBuilder {
+class TactASTStoreBuilder {
   private programEntries = new Set<number>();
   private stdlibIds = new Set<number>();
   private contractConstants = new Set<number>();
@@ -328,12 +328,12 @@ export class TactASTStoreBuilder {
 /**
  * Maps each function name to its corresponding CFG index.
  */
-type FunctionsMap = Map<FunctionName, CFGIdx>;
+export type FunctionsMap = Map<FunctionName, CFGIdx>;
 
 /**
  * Maps each contract name to a map of its methods, where each method is mapped to its CFG index.
  */
-type MethodsMap = Map<ContractName, FunctionsMap>;
+export type MethodsMap = Map<ContractName, FunctionsMap>;
 
 /**
  * Represents a stateful object which is responsible for constructing the IR of a Tact project.

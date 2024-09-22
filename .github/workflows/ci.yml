@@ -49,6 +49,9 @@ jobs:
       run: |
         yarn spell
 
+    - name: Run knip
+      run: yarn knip
+
     - name: Check formatting with Prettier
       run: yarn fmt
 
