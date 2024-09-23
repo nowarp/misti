@@ -39,7 +39,7 @@ import {
  * ```
  *
  * Alternatively, you could redesign the method:
- * ```
+ * ```tact
  * fun generateNewValue(): Int {
  *   // ... produce new value for the map
  *   return self.nextValue + 1;
