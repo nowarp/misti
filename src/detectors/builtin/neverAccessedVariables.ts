@@ -132,6 +132,7 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
         );
         break;
       case "statement_foreach":
+        trackAccess(stmt.map);
         stmt.statements.forEach((s) => this.processStatements(outState, s));
         break;
       default:

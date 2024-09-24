@@ -1,11 +1,18 @@
 digraph "never-accessed-2" {
     node [shape=box];
-    subgraph "cluster_FieldTest__init_1673" {
-        label="FieldTest__init_1673";
-        "FieldTest__init_1673_142" [label="self.f1 = sender()",style=filled,fillcolor="#66A7DB"];
+    subgraph "cluster_FieldTest__init_1692" {
+        label="FieldTest__init_1692";
+        "FieldTest__init_1692_143" [label="self.f1 = sender()",style=filled,fillcolor="#66A7DB"];
     }
     subgraph "cluster_FieldTest__use_f1" {
         label="FieldTest__use_f1";
-        "FieldTest__use_f1_143" [label="return self.f1",style=filled,fillcolor="#66A7DB"];
+        "FieldTest__use_f1_144" [label="return self.f1",style=filled,fillcolor="#66A7DB"];
+    }
+    subgraph "cluster_FieldTest__forEachUse" {
+        label="FieldTest__forEachUse";
+        "FieldTest__forEachUse_145" [label="let foreachmap: map<Address, Address> = self.foreachmap"];
+        "FieldTest__forEachUse_146" [label="foreach ((_, _) of foreachmap)"];
+        "FieldTest__forEachUse_145" -> "FieldTest__forEachUse_146";
+        "FieldTest__forEachUse_146" -> "FieldTest__forEachUse_146";
     }
 }

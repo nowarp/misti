@@ -6,12 +6,12 @@
       "name": "FieldTest",
       "methods": [
         {
-          "name": "FieldTest.init_1673",
+          "name": "FieldTest.init_1692",
           "cfg": {
             "nodes": [
               {
-                "id": 142,
-                "stmtID": 1664,
+                "id": 143,
+                "stmtID": 1669,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -24,13 +24,51 @@
           "cfg": {
             "nodes": [
               {
-                "id": 143,
-                "stmtID": 1671,
+                "id": 144,
+                "stmtID": 1676,
                 "srcEdges": [],
                 "dstEdges": []
               }
             ],
             "edges": []
+          }
+        },
+        {
+          "name": "FieldTest.forEachUse",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 145,
+                "stmtID": 1686,
+                "srcEdges": [],
+                "dstEdges": [
+                  147
+                ]
+              },
+              {
+                "id": 146,
+                "stmtID": 1690,
+                "srcEdges": [
+                  147,
+                  148
+                ],
+                "dstEdges": [
+                  148
+                ]
+              }
+            ],
+            "edges": [
+              {
+                "id": 147,
+                "src": 145,
+                "dst": 146
+              },
+              {
+                "id": 148,
+                "src": 146,
+                "dst": 146
+              }
+            ]
           }
         }
       ]

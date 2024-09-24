@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `NeverAccessedVariables`: False positive: reported a map variable used in the `foreach` loop.
+
 ## [0.3.0] - 2024-09-22
 
 ### Added
