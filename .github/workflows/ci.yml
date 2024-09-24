@@ -27,8 +27,8 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: "yarn"
 
-    - name: Install Dependencies
-      run: yarn install
+    - name: Install system dependencies
+      run: sudo apt-get update && sudo apt-get install -y graphviz
 
     - name: Install Soufflé on Ubuntu
       if: matrix.os == 'ubuntu-latest'
@@ -37,6 +37,15 @@ jobs:
         echo "deb [signed-by=/usr/share/keyrings/souffle-archive-keyring.gpg] https://souffle-lang.github.io/ppa/ubuntu/ stable main" | sudo tee /etc/apt/sources.list.d/souffle.list
         sudo apt update
         sudo apt install souffle
+
+    - name: Install npm dependencies
+      run: yarn install
+
+    - name: Validate expected dot files
+      run: |
+        for file in test/good/*.dot; do
+          dot -Tdot "$file" -o /dev/null || exit 1
+        done
 
     - name: Check broken links
       uses: lycheeverse/lychee-action@v1
