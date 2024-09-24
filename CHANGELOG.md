@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- `NeverAccessedVariables`: False positive: reported a map variable used in the `foreach` loop.
+- `NeverAccessedVariables`: False positive: reported a map variable used in the `foreach` loop
+- Path to the compiled `main.js` in `./bin/misti`
 
 ## [0.3.0] - 2024-09-22
 
