@@ -39,7 +39,7 @@
     "src/**/*",
     "bin/**/*"
   ],
-  "main": "./dist/src/main.js",
+  "main": "./dist/main.js",
   "bin": {
     "misti": "./bin/misti"
   },

@@ -96,12 +96,9 @@ export const DEFAULT_STDLIB_PATH_ELEMENTS = [
  * This adjustment is needed to get an actual path to stdlib distributed within the tact package.
  */
 export function setTactStdlibPath(nodeModulesPath: string = "../../../..") {
-  const distPathPrefix = __dirname.includes("/dist/")
-    ? path.join("..", nodeModulesPath)
-    : nodeModulesPath;
   return path.resolve(
     __dirname,
-    distPathPrefix,
+    nodeModulesPath,
     ...DEFAULT_STDLIB_PATH_ELEMENTS,
   );
 }
