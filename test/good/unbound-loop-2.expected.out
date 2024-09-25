@@ -1,8 +1,9 @@
+[HIGH] UnboundLoops: Found unbounded loop
 test/good/unbound-loop-2.tact:4:14:
   3 |     do  { // error: a is not changing within the loop
 > 4 |     } until (a > 10);
                    ^
   5 |     return a;
-Unbounded Loop: The condition variable doesn't change within the loop
-Help: Consider changing the variable within the loop to ensure it terminates
+The condition variable doesn't change inside the loop
+Help: Consider changing the variable inside the loop to ensure it terminates
 See: https://nowarp.io/tools/misti/docs/detectors/UnboundLoops

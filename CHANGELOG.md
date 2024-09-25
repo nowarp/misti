@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- ANSI escape sequences to colorize output and the `--no-colors` CLI option to disable it
+
 ## [0.3.1] - 2024-09-24
 
 ### Fixed

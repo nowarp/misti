@@ -1,8 +1,8 @@
+[INFO] ConstantAddress: Found constant Address
 test/good/constant-address-1.tact:5:18:
   4 |     // Bad: Constant address highlighted by the analyzer.
 > 5 |     self.proxy = address("UQBKgXCNLPexWhs2L79kiARR1phGH1LwXxRbNsCFF9doczSI");
                        ^
   6 |   }
-Found Constant Address
 Help: Using hardcoded addresses can sometimes indicate poor contract design
 See: https://nowarp.io/tools/misti/docs/detectors/ConstantAddress

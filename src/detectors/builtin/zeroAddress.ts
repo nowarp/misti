@@ -65,11 +65,14 @@ export class ZeroAddress extends ASTDetector {
       ) {
         acc.push(
           this.makeWarning(
-            "Using Zero Address",
+            "Using zero address",
             Severity.MEDIUM,
             expr.args[1].loc,
             {
-              suggestion: "Consider changing code to avoid using it",
+              suggestion: [
+                "Consider changing code to avoid using it.",
+                "For example, you could pass the address during the deployment.",
+              ].join(" "),
             },
           ),
         );

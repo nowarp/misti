@@ -140,7 +140,7 @@ export class BranchDuplicate extends ASTDetector {
 
   private createWarning(loc: SrcInfo): MistiTactWarning {
     return this.makeWarning(
-      "Duplicated code in conditional branches detected",
+      "Duplicated code in conditional branches is detected",
       Severity.HIGH,
       loc,
       {

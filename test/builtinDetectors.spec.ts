@@ -22,7 +22,11 @@ function runTestForFile(filePath: string, nameBase: string, testName: string) {
   describe(`Testing built-in detectors for ${testName}`, () => {
     it(`should generate the expected warnings for ${testName}`, async () => {
       resetIds();
-      const output = await executeMisti(["--all-detectors", filePath]);
+      const output = await executeMisti([
+        "--all-detectors",
+        "--no-colors",
+        filePath,
+      ]);
       fs.writeFileSync(outputFilePath, output);
       await TAP.from(nameBase, actualSuffix, "expected.out").run();
     }, 30000);

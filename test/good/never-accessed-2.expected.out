@@ -1,8 +1,8 @@
+[MEDIUM] NeverAccessedVariables: Field f2 is never used
 test/good/never-accessed-2.tact:3:5:
   2 |     f1: Address;
 > 3 |     f2: Int as uint256 = 0;
           ^
   4 |     foreachmap: map<Address, Address>;
-Field is never used
 Help: Consider creating a constant instead of field
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables

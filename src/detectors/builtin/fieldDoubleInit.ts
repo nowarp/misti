@@ -75,7 +75,7 @@ export class FieldDoubleInit extends ASTDetector {
       ) {
         acc.push(
           this.makeWarning(
-            "Field Initialized Twice",
+            `Field ${stmt.path.field.text} is initialized twice`,
             Severity.MEDIUM,
             stmt.loc,
             {

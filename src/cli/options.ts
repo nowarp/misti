@@ -8,6 +8,7 @@ export interface CLIOptions {
   dumpIncludeStdlib?: boolean;
   dumpOutput?: string;
   dumpConfig?: boolean;
+  colors?: boolean;
   soufflePath?: string;
   souffleBinary?: string;
   souffleVerbose?: boolean;
@@ -41,6 +42,9 @@ export const cliOptions = [
     "--dump-config",
     "Dump the Misti JSON configuration file in use.",
   ).default(false),
+  new Option("--no-colors", "Disables ANSI colors in the output.").default(
+    undefined,
+  ),
   new Option("--souffle-binary <PATH>", "Path to the Soufflé binary.").default(
     "souffle",
   ),

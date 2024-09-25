@@ -69,13 +69,12 @@ export class PreferredStdlibApi extends ASTDetector {
       if (replacementInfo !== undefined)
         acc.push(
           this.makeWarning(
-            `Prefer ${replacementInfo.replacement}`,
+            `${funName} has a safer alternative: ${replacementInfo.replacement}`,
             Severity.LOW,
             expr.loc,
             {
               extraDescription: replacementInfo.rationale,
-              suggestion:
-                "Consider replacing stdlib function with a safer alternative",
+              suggestion: `${funName} should be replaced with a safer alternative: ${replacementInfo.replacement}`,
             },
           ),
         );

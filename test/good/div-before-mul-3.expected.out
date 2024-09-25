@@ -1,8 +1,9 @@
+[HIGH] DivideBeforeMultiply: Division operation comes before multiplication
 test/good/div-before-mul-3.tact:2:16:
   1 | fun test(): Int {
 > 2 |   let a: Int = 10 / 3; // Division operation
                      ^
   3 |   let c: Int = 2;
-Divide Before Multiply
+Performing division before multiplication can lead to unexpected results due to precision loss and rounding errors
 Help: Consider rearranging the operations: division should follow multiplication
 See: https://nowarp.io/tools/misti/docs/detectors/DivideBeforeMultiply

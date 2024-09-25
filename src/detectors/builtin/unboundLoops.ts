@@ -55,12 +55,17 @@ export class UnboundLoops extends SouffleDetector {
           `AST position for fact ${fact} is not available`,
         );
       }
-      return this.makeWarning("Unbounded Loop", Severity.MEDIUM, fact.data, {
-        suggestion:
-          "Consider changing the variable within the loop to ensure it terminates",
-        extraDescription:
-          "The condition variable doesn't change within the loop",
-      });
+      return this.makeWarning(
+        "Found unbounded loop",
+        Severity.HIGH,
+        fact.data,
+        {
+          suggestion:
+            "Consider changing the variable inside the loop to ensure it terminates",
+          extraDescription:
+            "The condition variable doesn't change inside the loop",
+        },
+      );
     });
   }
 

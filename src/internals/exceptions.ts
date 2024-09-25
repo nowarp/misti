@@ -65,7 +65,7 @@ export class TactException {
 }
 
 /**
- * Internal error, typically caused by a bug in Misti.
+ * Internal error, typically caused by a bug in Misti or incorrect API usage.
  */
 export class InternalException {
   private constructor() {}

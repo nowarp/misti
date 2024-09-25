@@ -1,8 +1,8 @@
+[HIGH] BranchDuplicate: Duplicated code in conditional branches is detected
 test/good/branch-duplicate-2.tact:3:12:
   2 |     let a: Int = 42;
 > 3 |     return (a == 42) ? a + 43 : a + 43; // bad
                  ^
   4 | }
-Duplicated code in conditional branches detected
 Help: Identical code in both branches detected. Refactor to eliminate redundancy.
 See: https://nowarp.io/tools/misti/docs/detectors/BranchDuplicate

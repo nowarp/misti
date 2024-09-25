@@ -11,7 +11,7 @@ import { CompilationUnit, ProjectName } from "../internals/ir";
 import { createIR } from "../internals/ir/builders/tactIRBuilder";
 import { GraphvizDumper, JSONDumper } from "../internals/irDump";
 import { Logger } from "../internals/logger";
-import { MistiTactWarning } from "../internals/warnings";
+import { MistiTactWarning, severityToString } from "../internals/warnings";
 import fs from "fs";
 import JSONbig from "json-bigint";
 import path from "path";
@@ -44,6 +44,7 @@ export class Driver {
   private dumpCFGStdlib: boolean;
   private dumpOutput: string;
   private dumpConfig: boolean;
+  private colorizeOutput: boolean;
   private tactConfigPath: string;
 
   private constructor(tactPath: string, options: CLIOptions) {
@@ -69,6 +70,7 @@ export class Driver {
     this.dumpCFGStdlib = options.dumpIncludeStdlib || false;
     this.dumpOutput = options.dumpOutput || DUMP_STDOUT_PATH;
     this.dumpConfig = options.dumpConfig ?? false;
+    this.colorizeOutput = options.colors ?? true;
   }
 
   /**
@@ -367,7 +369,10 @@ export class Driver {
    * Returns string representation of the warning.
    */
   private formatWarning(warn: MistiTactWarning, addNewline: boolean): string {
-    return `${warn.msg}${addNewline && !warn.msg.endsWith("\n") ? "\n" : ""}`;
+    const severity = severityToString(warn.severity, {
+      colorize: this.colorizeOutput,
+    });
+    return `${severity} ${warn.detectorId}: ${warn.msg}${addNewline && !warn.msg.endsWith("\n") ? "\n" : ""}`;
   }
 
   /**
@@ -418,6 +423,7 @@ export class Runner {
       dumpIncludeStdlib: false,
       dumpOutput: DUMP_STDOUT_PATH,
       dumpConfig: undefined,
+      colors: undefined,
       souffleBinary: undefined,
       soufflePath: undefined,
       souffleVerbose: undefined,
@@ -496,73 +502,5 @@ export class Runner {
         `--detectors and --all-detectors cannot be used simultaneously`,
       );
     }
-  }
-}
-
-/**
- * Encapsulates logic of handling single Tact contracts without user-defined configuration.
- */
-class SingleContractProjectManager {
-  private constructor(private contractPath: string) {}
-  static fromContractPath(contractPath: string): SingleContractProjectManager {
-    return new SingleContractProjectManager(contractPath);
-  }
-
-  /**
-   * Creates a project directory that contains the given contract and the
-   * configuration file to execute it.
-   * @returns Path to the created Tact project configuration.
-   */
-  public generate(): string {
-    const tempDir = this.createTempDir();
-    const contractName = this.extractContractName();
-    const configPath = path.join(tempDir, "tact.config.json");
-    const relativeContractPath = `./${contractName}.tact`;
-    const config = {
-      projects: [
-        {
-          name: contractName,
-          path: relativeContractPath,
-          output: `./output`,
-          options: {
-            external: true,
-          },
-        },
-      ],
-    };
-    tryMsg(
-      () => fs.writeFileSync(configPath, JSON.stringify(config), "utf8"),
-      `Cannot create a default project configuration at ${configPath}`,
-    );
-    tryMsg(
-      () =>
-        fs.copyFileSync(
-          this.contractPath,
-          path.join(tempDir, relativeContractPath),
-        ),
-      `Cannot access the ${this.contractPath} contact`,
-    );
-    return configPath;
-  }
-
-  private extractContractName(): string | never {
-    const fileName = this.contractPath.split("/").pop();
-    if (!fileName) {
-      throw ExecutionException.make(
-        `Invalid contract path: ${this.contractPath}`,
-      );
-    }
-    return fileName.slice(0, -5);
-  }
-
-  /**
-   * Creates a temporary directory for a single contract project configuration.
-   */
-  private createTempDir(): string {
-    const baseDir = path.join("/tmp", "misti");
-    fs.mkdirSync(baseDir, { recursive: true });
-    const tempDirPrefix = path.join(baseDir, "temp-");
-    const dirPath = fs.mkdtempSync(tempDirPrefix);
-    return dirPath;
   }
 }

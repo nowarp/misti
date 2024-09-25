@@ -14,6 +14,7 @@ import {
   AstStatement,
   AstStatementLet,
 } from "@tact-lang/compiler/dist/grammar/ast";
+import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
 interface TaintState {
   // Generic receiver's string argument name
@@ -236,6 +237,7 @@ export class StringReceiversOverlap extends DataflowDetector {
       // Conditional statements
       if (stmt.kind === "statement_condition") {
         this.checkCondition(
+          receiver,
           warnings,
           stmt.condition,
           argName,
@@ -249,6 +251,7 @@ export class StringReceiversOverlap extends DataflowDetector {
       // Ternary conditions
       if (expr.kind === "conditional") {
         this.checkCondition(
+          receiver,
           warnings,
           expr.condition,
           argName,
@@ -266,6 +269,7 @@ export class StringReceiversOverlap extends DataflowDetector {
    * involving the overlapping arg.
    */
   private checkCondition(
+    receiver: AstReceiver,
     warnings: MistiTactWarning[],
     condition: AstExpression,
     argName: string,
@@ -288,17 +292,19 @@ export class StringReceiversOverlap extends DataflowDetector {
         (isOverlappingComparison(expr.left, expr.right) ||
           isOverlappingComparison(expr.right, expr.left))
       ) {
-        const receiverName = `receiver("${argName}")`;
+        const cutUntilBrace = (str: string): string => {
+          const index = str.indexOf("{");
+          return index !== -1 ? str.slice(0, index).trimEnd() : str.trimEnd();
+        };
+        const genericReceiverSignature = cutUntilBrace(prettyPrint(receiver));
+        const stringReceiverSignature = `receiver("${argName}")`;
         const warn = this.makeWarning(
-          "String Receivers Overlap",
+          `${genericReceiverSignature} overlaps with ${stringReceiverSignature}`,
           Severity.HIGH,
           condition.loc,
           {
-            extraDescription: [
-              `${receiverName} might be called instead.`,
-              `This condition might never be executed.`,
-            ].join(" "),
-            suggestion: `Implement the desired logic in ${receiverName} and remove ${expr.loc.contents}`,
+            extraDescription: `The highlighted condition might never be executed`,
+            suggestion: `Implement the desired logic in ${stringReceiverSignature} and remove ${condition.loc.contents}`,
           },
         );
         warnings.push(warn);

@@ -1,17 +1,17 @@
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
 test/good/loops-2.tact:5:5:
   4 |   do {
 > 5 |     i = i + 1;
           ^
   6 |     sum = sum + i;
-Prefer Augmented Assignment
 Help: Consider using augmented assignment instead: i += 1
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
 
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: sum += i
 test/good/loops-2.tact:6:5:
   5 |     i = i + 1;
 > 6 |     sum = sum + i;
           ^
   7 |   } until (i < 10);
-Prefer Augmented Assignment
 Help: Consider using augmented assignment instead: sum += i
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign

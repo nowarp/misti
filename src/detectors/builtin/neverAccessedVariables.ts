@@ -199,7 +199,7 @@ export class NeverAccessedVariables extends DataflowDetector {
         return acc;
       }
       const err = this.makeWarning(
-        "Field is never used",
+        `Field ${name} is never used`,
         Severity.MEDIUM,
         ref,
         {
@@ -305,8 +305,8 @@ export class NeverAccessedVariables extends DataflowDetector {
         return acc;
       }
       const err = this.makeWarning(
-        "Constant is never used",
-        Severity.MEDIUM,
+        `Constant ${name} is never used`,
+        Severity.LOW,
         ref,
         {
           suggestion: "Consider removing the constant",
@@ -379,8 +379,8 @@ export class NeverAccessedVariables extends DataflowDetector {
         const isAccessed = accessedVariables.has(name);
         if (!isAccessed) {
           const msg = isWritten
-            ? "Write-only variable"
-            : "Variable is never accessed";
+            ? `Write-only variable: ${name}`
+            : `Variable ${name} is never accessed`;
           const suggestion = isWritten
             ? "The variable value should be accessed"
             : "Consider removing the variable";

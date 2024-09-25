@@ -49,7 +49,7 @@ export class DumpIsUsed extends ASTDetector {
   ): MistiTactWarning[] {
     if (expr.kind === "static_call" && expr.function.text === "dump") {
       acc.push(
-        this.makeWarning("Found Dump Usage", Severity.INFO, expr.loc, {
+        this.makeWarning("Found `dump` usage", Severity.INFO, expr.loc, {
           suggestion:
             "Using `dump` in production code can sometimes indicate complex code that requires additional review",
         }),

@@ -57,10 +57,12 @@ export class DivideBeforeMultiply extends SouffleDetector {
         );
       }
       return this.makeWarning(
-        "Divide Before Multiply",
+        "Division operation comes before multiplication",
         Severity.HIGH,
         fact.data,
         {
+          extraDescription:
+            "Performing division before multiplication can lead to unexpected results due to precision loss and rounding errors",
           suggestion:
             "Consider rearranging the operations: division should follow multiplication",
         },

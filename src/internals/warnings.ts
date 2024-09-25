@@ -1,4 +1,5 @@
 import { MistiContext } from "./context";
+import { InternalException } from "./exceptions";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import * as path from "path";
 
@@ -11,6 +12,44 @@ export enum Severity {
   MEDIUM,
   HIGH,
   CRITICAL,
+}
+
+/**
+ * Returns string representation of `Severity` optionally wrapped in ANSI escape
+ * sequences making them colorful for visual overload.
+ */
+export function severityToString(
+  s: Severity,
+  { colorize = false }: Partial<{ colorize: boolean }>,
+): string {
+  const colors = {
+    reset: "\x1b[0m",
+    bold: "\x1b[1m",
+    low: "\x1b[32m", // Green
+    medium: "\x1b[33m", // Yellow
+    high: "\x1b[31m", // Red
+    critical: "\x1b[35m", // Magenta
+  };
+  switch (s) {
+    case Severity.INFO:
+      return colorize ? `${colors.bold}[INFO]${colors.reset}` : "[INFO]";
+    case Severity.LOW:
+      return colorize
+        ? `${colors.bold}${colors.low}[LOW]${colors.reset}`
+        : "[LOW]";
+    case Severity.MEDIUM:
+      return colorize
+        ? `${colors.bold}${colors.medium}[MEDIUM]${colors.reset}`
+        : "[MEDIUM]";
+    case Severity.HIGH:
+      return colorize
+        ? `${colors.bold}${colors.high}[HIGH]${colors.reset}`
+        : "[HIGH]";
+    case Severity.CRITICAL:
+      return colorize
+        ? `${colors.bold}${colors.critical}[CRITICAL]${colors.reset}`
+        : "[CRITICAL]";
+  }
 }
 
 /**
@@ -58,7 +97,10 @@ export class MistiTactWarning {
       docURL: string;
       suggestion: string;
     }> = {},
-  ): MistiTactWarning {
+  ): MistiTactWarning | never {
+    if (description.length === 0) {
+      throw InternalException.make("description cannot be empty");
+    }
     const {
       extraDescription = undefined,
       docURL = undefined,
@@ -82,13 +124,13 @@ export class MistiTactWarning {
         })()
       : "";
     const extraDescriptionStr =
-      extraDescription === undefined ? "" : `: ${extraDescription}`;
-    const suggestionStr =
-      suggestion === undefined ? "" : `\nHelp: ${suggestion}`;
+      extraDescription === undefined ? "" : extraDescription + "\n";
+    const suggestionStr = suggestion === undefined ? "" : `Help: ${suggestion}`;
     const docURLStr = docURL === undefined ? "" : `\nSee: ${docURL}`;
     const msg = [
-      pos,
       description,
+      "\n",
+      pos,
       extraDescriptionStr,
       suggestionStr,
       docURLStr,

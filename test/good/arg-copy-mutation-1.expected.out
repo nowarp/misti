@@ -1,17 +1,19 @@
+[HIGH] ArgCopyMutation: Function argument m is mutated
 test/good/arg-copy-mutation-1.tact:5:9:
   4 |         // Bad cases:
 > 5 |         m.set(3, 3);
               ^
   6 |         m.del(3);
-Function argument m is mutated: Mutating function arguments has no effect outside the function due to call-by-value semantics
+Mutating function arguments has no effect outside the function due to call-by-value semantics
 Help: Return the modified value or use the contract's state to avoid unnecessary mutations
 See: https://nowarp.io/tools/misti/docs/detectors/ArgCopyMutation
 
+[HIGH] ArgCopyMutation: Function argument m is mutated
 test/good/arg-copy-mutation-1.tact:6:9:
   5 |         m.set(3, 3);
 > 6 |         m.del(3);
               ^
   7 | 
-Function argument m is mutated: Mutating function arguments has no effect outside the function due to call-by-value semantics
+Mutating function arguments has no effect outside the function due to call-by-value semantics
 Help: Return the modified value or use the contract's state to avoid unnecessary mutations
 See: https://nowarp.io/tools/misti/docs/detectors/ArgCopyMutation

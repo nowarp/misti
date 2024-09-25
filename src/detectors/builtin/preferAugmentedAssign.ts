@@ -86,8 +86,8 @@ export class PreferAugmentedAssign extends ASTDetector {
       const suggestedChange = `${prettyPrint(stmt.path)} ${stmt.expression.op}= ${suggestedRhs}`;
       acc.push(
         this.makeWarning(
-          "Prefer Augmented Assignment",
-          Severity.LOW,
+          `Prefer augmented assignment: ${suggestedChange}`,
+          Severity.INFO,
           stmt.loc,
           {
             suggestion: `Consider using augmented assignment instead: ${suggestedChange}`,
