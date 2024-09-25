@@ -1,12 +1,9 @@
 import { CLIOptions, DUMP_STDOUT_PATH } from "./options";
+import { SingleContractProjectManager } from "./singleContract";
 import { Detector, findBuiltInDetector } from "../detectors/detector";
 import { ASTDumper } from "../internals/astDump";
 import { MistiContext } from "../internals/context";
-import {
-  ExecutionException,
-  InternalException,
-  tryMsg,
-} from "../internals/exceptions";
+import { ExecutionException, InternalException } from "../internals/exceptions";
 import { CompilationUnit, ProjectName } from "../internals/ir";
 import { createIR } from "../internals/ir/builders/tactIRBuilder";
 import { GraphvizDumper, JSONDumper } from "../internals/irDump";
@@ -275,7 +272,6 @@ export class Driver {
       const projectWarnings: MistiTactWarning[] = Array.from(
         detectorsMap.values(),
       ).flat();
-      projectWarnings.sort((a, b) => b.severity - a.severity);
       projectWarnings.forEach((err) => {
         if (!reported.has(err.msg)) {
           acc.push(err);
@@ -284,8 +280,11 @@ export class Driver {
       });
       return acc;
     }, []);
-    const formattedWarnings = collectedWarnings.reduce((acc, err, index) => {
-      const isLastWarning = index === collectedWarnings.length - 1;
+    const sortedWarnings = collectedWarnings.sort(
+      (a, b) => b.severity - a.severity,
+    );
+    const formattedWarnings = sortedWarnings.reduce((acc, err, index) => {
+      const isLastWarning = index === sortedWarnings.length - 1;
       acc.push(this.formatWarning(err, !isLastWarning));
       return acc;
     }, [] as string[]);
