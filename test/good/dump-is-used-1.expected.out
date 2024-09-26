@@ -1,8 +1,8 @@
 [INFO] DumpIsUsed: Found `dump` usage
-test/good/dump-is-used-1.tact:2:5:
-  1 | fun test() {
-> 2 |     dump(42); // Should be highlighted
+test/good/dump-is-used-1.tact:4:5:
+  3 |     let a: Int = 42;
+> 4 |     dump(a);
           ^
-  3 | }
+  5 | 
 Help: Using `dump` in production code can sometimes indicate complex code that requires additional review
 See: https://nowarp.io/tools/misti/docs/detectors/DumpIsUsed

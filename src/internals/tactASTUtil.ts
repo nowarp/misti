@@ -883,3 +883,10 @@ export class SrcInfoSet<T> {
     );
   }
 }
+
+/**
+ * Returns true iff the input expression represents a primitive literal.
+ */
+export function isPrimitiveLiteral(expr: AstExpression): boolean {
+  return ["null", "boolean", "number", "string"].includes(expr.kind);
+}

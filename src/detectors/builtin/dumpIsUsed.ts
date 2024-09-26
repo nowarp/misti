@@ -1,11 +1,14 @@
 import { CompilationUnit } from "../../internals/ir";
-import { foldExpressions } from "../../internals/tactASTUtil";
+import {
+  foldExpressions,
+  isPrimitiveLiteral,
+} from "../../internals/tactASTUtil";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
- * An optional detector that highlights all the `dump` function calls.
+ * An optional detector that highlights all the `dump` debug prints.
  *
  * ## Why is it bad?
  * The `dump` function is a debug print that shouldn't be in the final code.
@@ -47,7 +50,12 @@ export class DumpIsUsed extends ASTDetector {
     acc: MistiTactWarning[],
     expr: AstExpression,
   ): MistiTactWarning[] {
-    if (expr.kind === "static_call" && expr.function.text === "dump") {
+    if (
+      expr.kind === "static_call" &&
+      expr.function.text === "dump" &&
+      // Sort out calls with literal arguments: `dump("myFun")` or `dump(42)`
+      !(expr.args.length === 1 && isPrimitiveLiteral(expr.args[0]))
+    ) {
       acc.push(
         this.makeWarning("Found `dump` usage", Severity.INFO, expr.loc, {
           suggestion:
