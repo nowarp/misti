@@ -97,10 +97,19 @@ export function processTactProjects(
     .forEach(callback);
 }
 
-/***
+/**
  * Resets IDs, making the names and IDs in the expected dump files consistent when adding new tests.
  */
 export function resetIds(): void {
   __DANGER_resetNodeId();
   IdxGenerator.__reset();
+}
+
+/**
+ * Processes CLI arguments in order to run the specified test for a single file.
+ *
+ * Example usage: yarn test tactIR.spec.ts <filepath>
+ */
+export function getFilePathArg(): string | undefined {
+  return process.argv.find((arg) => path.resolve(arg).includes(GOOD_DIR));
 }

@@ -5,6 +5,7 @@ import {
   processTactFiles,
   processTactProjects,
   resetIds,
+  getFilePathArg,
 } from "./testUtil";
 import { executeMisti } from "../src/cli";
 import fs from "fs";
@@ -33,16 +34,39 @@ function runTestForFile(filePath: string, nameBase: string, testName: string) {
   });
 }
 
-processTactFiles(GOOD_DIR, (file) => {
-  const contractName = file.replace(".tact", "");
-  const contractPath = path.join(GOOD_DIR, file);
-  const nameBase = path.join(GOOD_DIR, contractName);
+function processSingleFile(filePath: string) {
+  const contractName = path.basename(filePath).replace(".tact", "");
+  const contractPath = path.resolve(filePath);
+  const nameBase = path.join(path.dirname(contractPath), contractName);
   runTestForFile(contractPath, nameBase, contractName);
-});
+}
 
-processTactProjects(GOOD_DIR, (projectDir) => {
+function processProjectDir(projectDir: string) {
   const projectName = path.basename(projectDir);
   const projectConfigPath = path.join(projectDir, TACT_CONFIG_NAME);
   const nameBase = path.join(projectDir, projectName);
   runTestForFile(projectConfigPath, nameBase, projectName);
-});
+}
+
+const filePathArg = getFilePathArg();
+if (filePathArg) {
+  // Run test for a single file
+  const fullPath = path.resolve(filePathArg);
+  const stats = fs.statSync(fullPath);
+  if (stats.isFile()) {
+    processSingleFile(fullPath);
+  } else if (stats.isDirectory()) {
+    processProjectDir(fullPath);
+  } else {
+    throw new Error("Invalid file path argument");
+  }
+} else {
+  // Run all tests
+  processTactFiles(GOOD_DIR, (file) => {
+    const filePath = path.join(GOOD_DIR, file);
+    processSingleFile(filePath);
+  });
+  processTactProjects(GOOD_DIR, (projectDir) => {
+    processProjectDir(projectDir);
+  });
+}

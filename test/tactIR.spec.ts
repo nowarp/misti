@@ -1,8 +1,14 @@
-import { GOOD_DIR, TAP, processTactFiles, resetIds } from "./testUtil";
+import {
+  GOOD_DIR,
+  TAP,
+  processTactFiles,
+  resetIds,
+  getFilePathArg,
+} from "./testUtil";
 import { Runner } from "../src/cli";
 import path from "path";
 
-processTactFiles(GOOD_DIR, (file) => {
+function processSingleFile(file: string) {
   const contractName = file.replace(".tact", "");
   const filePath = path.join(GOOD_DIR, file);
   const nameBase = path.join(GOOD_DIR, contractName);
@@ -30,4 +36,16 @@ processTactFiles(GOOD_DIR, (file) => {
       await TAP.from(nameBase, "dot", "cfg.dot").run();
     });
   });
-});
+}
+
+const filePathArg = getFilePathArg();
+if (filePathArg) {
+  // Run test for a single file
+  const fullPath = path.relative(GOOD_DIR, filePathArg);
+  processSingleFile(fullPath);
+} else {
+  // Run all tests
+  processTactFiles(GOOD_DIR, (file) => {
+    processSingleFile(file);
+  });
+}
