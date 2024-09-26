@@ -66,7 +66,7 @@ export class ZeroAddress extends ASTDetector {
         acc.push(
           this.makeWarning(
             "Using zero address",
-            Severity.MEDIUM,
+            Severity.LOW,
             expr.args[1].loc,
             {
               suggestion: [
