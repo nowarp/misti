@@ -1,3 +1,4 @@
+import { Severity, parseSeverity } from "../internals/warnings";
 import { Option } from "commander";
 
 export const DUMP_STDOUT_PATH = "-";
@@ -15,6 +16,7 @@ export interface CLIOptions {
   tactStdlibPath?: string;
   verbose?: boolean;
   quiet?: boolean;
+  minSeverity?: Severity;
   detectors?: string[];
   suppress?: string[];
   allDetectors?: boolean;
@@ -59,6 +61,12 @@ export const cliOptions = [
   new Option("--tact-stdlib-path <PATH>", "Path to the Tact standard library."),
   new Option("-v, --verbose", "Enable verbose output.").default(false),
   new Option("-q, --quiet", "Suppress output.").default(false),
+  new Option(
+    "-m, --min-severity <info|low|medium|high|critical>",
+    "Minimum level of severity to report.",
+  )
+    .default(undefined)
+    .argParser(parseSeverity),
   new Option(
     "-D, --detectors <name|path:name>",
     "A comma-separated list of detectors to enable.",

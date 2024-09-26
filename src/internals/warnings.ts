@@ -7,11 +7,18 @@ import * as path from "path";
  * Enumerates the levels of severity that can be assigned to detected findings.
  */
 export enum Severity {
-  INFO,
+  INFO = 1,
   LOW,
   MEDIUM,
   HIGH,
   CRITICAL,
+}
+
+/**
+ * Parses string input to corresponding Severity enum value.
+ */
+export function parseSeverity(value: string): Severity {
+  return Severity[value.toUpperCase() as keyof typeof Severity];
 }
 
 /**

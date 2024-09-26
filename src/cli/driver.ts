@@ -8,7 +8,11 @@ import { CompilationUnit, ProjectName } from "../internals/ir";
 import { createIR } from "../internals/ir/builders/tactIRBuilder";
 import { GraphvizDumper, JSONDumper } from "../internals/irDump";
 import { Logger } from "../internals/logger";
-import { MistiTactWarning, severityToString } from "../internals/warnings";
+import {
+  MistiTactWarning,
+  severityToString,
+  Severity,
+} from "../internals/warnings";
 import fs from "fs";
 import JSONbig from "json-bigint";
 import path from "path";
@@ -43,6 +47,8 @@ export class Driver {
   private dumpConfig: boolean;
   private colorizeOutput: boolean;
   private tactConfigPath: string;
+  /** Minimum severity level to report warnings. */
+  private minSeverity: Severity;
 
   private constructor(tactPath: string, options: CLIOptions) {
     const singleContract = tactPath.endsWith(".tact");
@@ -68,6 +74,7 @@ export class Driver {
     this.dumpOutput = options.dumpOutput || DUMP_STDOUT_PATH;
     this.dumpConfig = options.dumpConfig ?? false;
     this.colorizeOutput = options.colors ?? true;
+    this.minSeverity = options.minSeverity ?? Severity.INFO;
   }
 
   /**
@@ -272,10 +279,10 @@ export class Driver {
       const projectWarnings: MistiTactWarning[] = Array.from(
         detectorsMap.values(),
       ).flat();
-      projectWarnings.forEach((err) => {
-        if (!reported.has(err.msg)) {
-          acc.push(err);
-          reported.add(err.msg);
+      projectWarnings.forEach((warn) => {
+        if (!reported.has(warn.msg) && warn.severity >= this.minSeverity) {
+          acc.push(warn);
+          reported.add(warn.msg);
         }
       });
       return acc;
@@ -283,9 +290,9 @@ export class Driver {
     const sortedWarnings = collectedWarnings.sort(
       (a, b) => b.severity - a.severity,
     );
-    const formattedWarnings = sortedWarnings.reduce((acc, err, index) => {
+    const formattedWarnings = sortedWarnings.reduce((acc, warn, index) => {
       const isLastWarning = index === sortedWarnings.length - 1;
-      acc.push(this.formatWarning(err, !isLastWarning));
+      acc.push(this.formatWarning(warn, !isLastWarning));
       return acc;
     }, [] as string[]);
     return {
@@ -429,6 +436,7 @@ export class Runner {
       tactStdlibPath: undefined,
       verbose: false,
       quiet: false,
+      minSeverity: undefined,
       detectors: undefined,
       suppress: undefined,
       allDetectors: false,
