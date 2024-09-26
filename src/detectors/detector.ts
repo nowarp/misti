@@ -311,6 +311,13 @@ const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  OptimalMathFunction: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/optimalMathFunction").then(
+        (module) => new module.OptimalMathFunction(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**
