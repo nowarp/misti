@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - ANSI escape sequences to colorize output and the `--no-colors` CLI option to disable it
 - Driver in a single-contract mode tries to copy all the .tact and .fc files to resolve imports
+- Short CLI options. See: https://nowarp.io/tools/misti/docs/next/tutorial/cli
 
 ### Changed
 - Warnings now have more comprehensive descriptions and are sorted by severity

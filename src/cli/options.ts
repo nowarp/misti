@@ -42,7 +42,7 @@ export const cliOptions = [
     "--dump-config",
     "Dump the Misti JSON configuration file in use.",
   ).default(false),
-  new Option("--no-colors", "Disables ANSI colors in the output.").default(
+  new Option("-C, --no-colors", "Disables ANSI colors in the output.").default(
     undefined,
   ),
   new Option("--souffle-binary <PATH>", "Path to the Soufflé binary.").default(
@@ -57,10 +57,10 @@ export const cliOptions = [
     "Generate human-readable, but more verbose, Soufflé files.",
   ).default(false),
   new Option("--tact-stdlib-path <PATH>", "Path to the Tact standard library."),
-  new Option("--verbose", "Enable verbose output.").default(false),
-  new Option("--quiet", "Suppress output.").default(false),
+  new Option("-v, --verbose", "Enable verbose output.").default(false),
+  new Option("-q, --quiet", "Suppress output.").default(false),
   new Option(
-    "--detectors <name|path:name>",
+    "-D, --detectors <name|path:name>",
     "A comma-separated list of detectors to enable.",
   )
     .argParser((value) => {
@@ -74,7 +74,7 @@ export const cliOptions = [
     })
     .default(undefined),
   new Option(
-    "--suppress <names>",
+    "-s, --suppress <names>",
     "A comma-separated list of names of detectors to suppress.",
   )
     .argParser((value) => {
@@ -88,10 +88,10 @@ export const cliOptions = [
     })
     .default(undefined),
   new Option(
-    "--all-detectors",
+    "-A, --all-detectors",
     "Enable all the available built-in detectors.",
   ).default(false),
-  new Option("--config <PATH>", "Path to the Misti configuration file."),
+  new Option("-c, --config <PATH>", "Path to the Misti configuration file."),
   new Option("--new-detector <PATH>", "Creates a new custom detector.").default(
     undefined,
   ),
