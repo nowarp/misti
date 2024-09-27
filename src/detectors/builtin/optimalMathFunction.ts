@@ -13,7 +13,7 @@ const REPLACEMENTS: Record<string, string> = {
 };
 
 /**
- * A detector that highlights standard library math function calls with more gas-efficient alternatives.
+ * A detector that highlights standard library math function calls that have more gas-efficient alternatives.
  *
  * ## Why is it bad?
  * Tact supports `log2`/`pow2` functions, which are more gas-efficient than `log(x, 2)`/`pow(x, 2)`.
