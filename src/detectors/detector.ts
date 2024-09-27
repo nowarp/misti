@@ -318,6 +318,13 @@ const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  DuplicatedCondition: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/duplicatedCondition").then(
+        (module) => new module.DuplicatedCondition(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**

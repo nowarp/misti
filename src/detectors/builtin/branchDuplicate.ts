@@ -1,8 +1,12 @@
 import { CompilationUnit } from "../../internals/ir";
-import { foldExpressions, foldStatements } from "../../internals/tactASTUtil";
+import {
+  foldExpressions,
+  foldStatements,
+  nodesAreEqual,
+  statementsAreEqual,
+} from "../../internals/tactASTUtil";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
-import { AstComparator } from "@tact-lang/compiler/dist/";
 import {
   AstCondition,
   AstExpression,
@@ -67,7 +71,7 @@ export class BranchDuplicate extends ASTDetector {
   ): MistiTactWarning[] {
     if (
       expr.kind === "conditional" &&
-      this.nodesAreEqual(expr.thenBranch, expr.elseBranch)
+      nodesAreEqual(expr.thenBranch, expr.elseBranch)
     ) {
       acc.push(this.createWarning(expr.loc));
     }
@@ -111,31 +115,11 @@ export class BranchDuplicate extends ASTDetector {
     return conditions.some((condition) =>
       condition.falseStatements === null
         ? false
-        : this.statementsAreEqual(
+        : statementsAreEqual(
             condition.trueStatements,
             condition.falseStatements || [],
           ),
     );
-  }
-
-  private nodesAreEqual(
-    node1: AstExpression | AstStatement,
-    node2: AstExpression | AstStatement,
-  ): boolean {
-    return AstComparator.make({ sort: true, canonicalize: false }).compare(
-      node1,
-      node2,
-    );
-  }
-
-  private statementsAreEqual(
-    stmts1: AstStatement[],
-    stmts2: AstStatement[],
-  ): boolean {
-    if (stmts1.length !== stmts2.length) return false;
-    return stmts1.every((stmt, i) => {
-      return this.nodesAreEqual(stmt, stmts2[i]);
-    });
   }
 
   private createWarning(loc: SrcInfo): MistiTactWarning {

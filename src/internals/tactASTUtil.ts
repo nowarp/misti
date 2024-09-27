@@ -1,4 +1,5 @@
 import { InternalException } from "./exceptions";
+import { AstComparator } from "@tact-lang/compiler/dist/";
 import {
   AstExpression,
   AstNode,
@@ -889,4 +890,30 @@ export class SrcInfoSet<T> {
  */
 export function isPrimitiveLiteral(expr: AstExpression): boolean {
   return ["null", "boolean", "number", "string"].includes(expr.kind);
+}
+
+/**
+ * Checks if the AST of two nodes is equal using the Tact AST comparison API.
+ */
+export function nodesAreEqual(
+  node1: AstExpression | AstStatement,
+  node2: AstExpression | AstStatement,
+): boolean {
+  return AstComparator.make({ sort: true, canonicalize: false }).compare(
+    node1,
+    node2,
+  );
+}
+
+/**
+ * Checks if the AST of two lists of statements is equal using the Tact AST comparison API.
+ */
+export function statementsAreEqual(
+  stmts1: AstStatement[],
+  stmts2: AstStatement[],
+): boolean {
+  if (stmts1.length !== stmts2.length) return false;
+  return stmts1.every((stmt, i) => {
+    return nodesAreEqual(stmt, stmts2[i]);
+  });
 }
