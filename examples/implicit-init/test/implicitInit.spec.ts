@@ -1,4 +1,4 @@
-import { Driver } from "../../../src/cli";
+import { Driver, MistiResultWarnings } from "../../../src/cli";
 import path from "path";
 
 describe("ImplicitInit Detector Tests", () => {
@@ -15,6 +15,6 @@ describe("ImplicitInit Detector Tests", () => {
     expect(driver.detectors[0].id).toBe("ImplicitInit");
 
     const result = await driver.execute();
-    expect(result.warningsFound).toBe(1);
+    expect((result as MistiResultWarnings).warnings.length).toBe(1);
   });
 });

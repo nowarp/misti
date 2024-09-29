@@ -1,4 +1,5 @@
-export { MistiResult, Runner, Driver } from "./driver";
+export { Runner, Driver } from "./driver";
+export * from "./result";
 export { DUMP_STDOUT_PATH, CLIOptions, cliOptions } from "./options";
 export {
   createMistiCommand,

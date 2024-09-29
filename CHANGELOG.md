@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Warnings now have more comprehensive descriptions and are sorted by severity
 - `DumpIsUsed`: Report only `dump` calls with non-literal arguments
+- Misti API to execute the driver programmatically
 
 ## [0.3.1] - 2024-09-24
 

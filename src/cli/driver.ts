@@ -1,4 +1,5 @@
 import { CLIOptions, DUMP_STDOUT_PATH } from "./options";
+import { MistiResult } from "./result";
 import { SingleContractProjectManager } from "./singleContract";
 import { Detector, findBuiltInDetector } from "../detectors/detector";
 import { ASTDumper } from "../internals/astDump";
@@ -16,22 +17,6 @@ import {
 import fs from "fs";
 import JSONbig from "json-bigint";
 import path from "path";
-
-export interface MistiResult {
-  /**
-   * Number of warnings reported.
-   */
-  warningsFound: number;
-  /**
-   * A string representing the output of Misti. It could be an warning report or
-   * the requested information, e.g., the results of executing internal tools.
-   */
-  output?: string;
-  /**
-   * Error output when Misti cannot complete the requested operation.
-   */
-  error?: string;
-}
 
 /**
  * Manages the initialization and execution of detectors for analyzing compilation units.
@@ -247,15 +232,15 @@ export class Driver {
     );
     if (this.dumpCFG !== undefined) {
       const output = await this.getCFGDump(cus);
-      return { warningsFound: 0, output };
+      return { kind: "tool", output: [{ name: "dumpCfg", output }] };
     }
     if (this.dumpAST === true) {
       const output = await this.getASTDump(cus);
-      return { warningsFound: 0, output };
+      return { kind: "tool", output: [{ name: "dumpAst", output }] };
     }
     if (this.dumpConfig === true) {
       const output = this.getConfigDump();
-      return { warningsFound: 0, output };
+      return { kind: "tool", output: [{ name: "dumpConfig", output }] };
     }
 
     const allWarnings = await (async () => {
@@ -296,8 +281,8 @@ export class Driver {
       return acc;
     }, [] as string[]);
     return {
-      warningsFound: formattedWarnings.length,
-      output: formattedWarnings.join("\n"),
+      kind: "warnings",
+      warnings: formattedWarnings,
     };
   }
 
@@ -466,7 +451,7 @@ export class Runner {
       }
       const error = result.join("\n");
       new Logger().error(error);
-      this.result = { warningsFound: 0, error };
+      this.result = { kind: "error", error };
     }
   }
 

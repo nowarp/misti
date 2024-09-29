@@ -1,7 +1,10 @@
-import { MistiResult, Runner } from "./driver";
+import { Runner } from "./driver";
 import { cliOptions } from "./options";
+import { MistiResult, resultToString } from "./result";
 import { createDetector } from "../createDetector";
 import { ExecutionException } from "../internals/exceptions";
+import { InternalException } from "../internals/exceptions";
+import { unreachable } from "../internals/util";
 import { MISTI_VERSION, TACT_VERSION } from "../version";
 import { Command } from "commander";
 
@@ -64,19 +67,35 @@ export async function runMistiCommand(
  */
 export async function executeMisti(args: string[]): Promise<string> {
   const result = await runMistiCommand(args);
-  return result?.output ?? "";
+  return result ? resultToString(result) : "";
 }
 
 /**
- * Reports warnings found by Misti.
+ * Prints Misti execution result.
  */
-export function report(result?: MistiResult) {
-  if (
-    RUNNER !== undefined &&
-    result !== undefined &&
-    result.output !== undefined
-  ) {
-    // Use the configured logger to report the found errors
-    RUNNER.getDriver().ctx.logger.error(result.output);
+export function report(result?: MistiResult): void {
+  if (RUNNER === undefined) {
+    throw InternalException.make(
+      "Report function called before runner was initialized",
+    );
+  }
+  if (result === undefined) {
+    throw InternalException.make("No result");
+  }
+  const logger = RUNNER.getDriver().ctx.logger;
+  const text = resultToString(result);
+  switch (result.kind) {
+    case "warnings":
+      logger.warn(text);
+      break;
+    case "error":
+      logger.error(text);
+      break;
+    case "tool":
+    case "ok":
+      logger.info(text);
+      break;
+    default:
+      unreachable(result);
   }
 }

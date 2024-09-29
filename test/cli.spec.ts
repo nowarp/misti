@@ -71,7 +71,7 @@ describe("CLI Argument Parsing", () => {
     const result = await runMistiCommand(args);
     expect(
       result !== undefined &&
-        result.error !== undefined &&
+        result.kind === "error" &&
         result.error.includes("non-empty list of detectors"),
     );
   });
