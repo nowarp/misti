@@ -57,7 +57,7 @@ export function resultToString(result: MistiResult): string {
       return "No errors found";
     case "error":
       return `Misti execution failed:\n${result.error}`;
-    case "warnings": {
+    case "warnings":
       return result.warnings
         .map(
           (warning, index) =>
@@ -65,12 +65,13 @@ export function resultToString(result: MistiResult): string {
         )
         .join("")
         .trim();
-    }
     case "tool":
-      const aggregatedOutput = result.output.reduce((acc, tool) => {
-        return acc + `${tool.name}:\n${tool.output}\n\n`;
-      }, "");
-      return aggregatedOutput.trim();
+      return result.output.length === 1
+        ? result.output[0].output.trim()
+        : result.output
+            .map((tool) => `${tool.name}:\n${tool.output}`)
+            .join("\n\n")
+            .trim();
     default:
       unreachable(result);
   }
