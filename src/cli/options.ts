@@ -9,6 +9,7 @@ export interface CLIOptions {
   dumpIncludeStdlib?: boolean;
   dumpOutput?: string;
   dumpConfig?: boolean;
+  outputFormat?: "json" | "plain";
   colors?: boolean;
   soufflePath?: string;
   souffleBinary?: string;
@@ -44,6 +45,10 @@ export const cliOptions = [
     "--dump-config",
     "Dump the Misti JSON configuration file in use.",
   ).default(false),
+  new Option(
+    "-o, --output-format <json|plain>",
+    "Set the output format for all tools and warnings",
+  ).default(undefined),
   new Option("-C, --no-colors", "Disables ANSI colors in the output.").default(
     undefined,
   ),

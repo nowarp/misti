@@ -34,6 +34,7 @@ export class Driver {
   private tactConfigPath: string;
   /** Minimum severity level to report warnings. */
   private minSeverity: Severity;
+  private outputFormat: "plain" | "json";
 
   private constructor(tactPath: string, options: CLIOptions) {
     const singleContract = tactPath.endsWith(".tact");
@@ -60,6 +61,7 @@ export class Driver {
     this.dumpConfig = options.dumpConfig ?? false;
     this.colorizeOutput = options.colors ?? true;
     this.minSeverity = options.minSeverity ?? Severity.INFO;
+    this.outputFormat = options.outputFormat ?? "plain";
   }
 
   /**
@@ -360,10 +362,32 @@ export class Driver {
    * Returns string representation of the warning.
    */
   private formatWarning(warn: MistiTactWarning, addNewline: boolean): string {
-    const severity = severityToString(warn.severity, {
-      colorize: this.colorizeOutput,
-    });
-    return `${severity} ${warn.detectorId}: ${warn.msg}${addNewline && !warn.msg.endsWith("\n") ? "\n" : ""}`;
+    if (this.outputFormat === "json") {
+      let file = warn.loc.file;
+      if (file && file.startsWith("/tmp/misti/temp-")) {
+        file = file.replace(/^\/tmp\/misti\/temp-[^/]+\//, "");
+      }
+      const lc = warn.loc.interval.getLineAndColumn() as {
+        lineNum: number;
+        colNum: number;
+      };
+      return JSONbig.stringify({
+        file,
+        line: lc.lineNum,
+        col: lc.colNum,
+        detectorId: warn.detectorId,
+        severity: severityToString(warn.severity, {
+          colorize: false,
+          brackets: false,
+        }),
+        message: warn.msg,
+      });
+    } else {
+      const severity = severityToString(warn.severity, {
+        colorize: this.colorizeOutput,
+      });
+      return `${severity} ${warn.detectorId}: ${warn.msg}${addNewline && !warn.msg.endsWith("\n") ? "\n" : ""}`;
+    }
   }
 
   /**
@@ -414,6 +438,7 @@ export class Runner {
       dumpIncludeStdlib: false,
       dumpOutput: DUMP_STDOUT_PATH,
       dumpConfig: undefined,
+      outputFormat: undefined,
       colors: undefined,
       souffleBinary: undefined,
       soufflePath: undefined,

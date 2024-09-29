@@ -27,7 +27,10 @@ export function parseSeverity(value: string): Severity {
  */
 export function severityToString(
   s: Severity,
-  { colorize = false }: Partial<{ colorize: boolean }>,
+  {
+    colorize = false,
+    brackets = true,
+  }: Partial<{ colorize: boolean; brackets: boolean }>,
 ): string {
   const colors = {
     reset: "\x1b[0m",
@@ -37,25 +40,27 @@ export function severityToString(
     high: "\x1b[31m", // Red
     critical: "\x1b[35m", // Magenta
   };
+  const severityString = (text: string, color?: string): string => {
+    let result = text;
+    if (brackets) {
+      result = `[${result}]`;
+    }
+    if (colorize && color) {
+      result = `${colors.bold}${color}${result}${colors.reset}`;
+    }
+    return result;
+  };
   switch (s) {
     case Severity.INFO:
-      return colorize ? `${colors.bold}[INFO]${colors.reset}` : "[INFO]";
+      return severityString("INFO");
     case Severity.LOW:
-      return colorize
-        ? `${colors.bold}${colors.low}[LOW]${colors.reset}`
-        : "[LOW]";
+      return severityString("LOW", colors.low);
     case Severity.MEDIUM:
-      return colorize
-        ? `${colors.bold}${colors.medium}[MEDIUM]${colors.reset}`
-        : "[MEDIUM]";
+      return severityString("MEDIUM", colors.medium);
     case Severity.HIGH:
-      return colorize
-        ? `${colors.bold}${colors.high}[HIGH]${colors.reset}`
-        : "[HIGH]";
+      return severityString("HIGH", colors.high);
     case Severity.CRITICAL:
-      return colorize
-        ? `${colors.bold}${colors.critical}[CRITICAL]${colors.reset}`
-        : "[CRITICAL]";
+      return severityString("CRITICAL", colors.critical);
   }
 }
 

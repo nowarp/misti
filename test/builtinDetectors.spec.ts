@@ -70,3 +70,44 @@ if (filePathArg) {
     processProjectDir(projectDir);
   });
 }
+
+describe("JSON output test for a single file", () => {
+  it("should generate valid JSON output for never-accessed-1.tact", async () => {
+    const filePath = path.resolve(__dirname, "good", "never-accessed-1.tact");
+
+    const output = await executeMisti([
+      "--all-detectors",
+      "--no-colors",
+      "--output-format",
+      "json",
+      filePath,
+    ]);
+
+    const jsonOutput = output
+      .trim()
+      .split("\n")
+      .map((line) => JSON.parse(line));
+
+    expect(jsonOutput.length).toBeGreaterThan(0);
+
+    const firstWarning = jsonOutput[0];
+    expect(firstWarning).toMatchObject({
+      file: expect.stringContaining("never-accessed-1.tact"),
+      line: expect.any(Number),
+      col: expect.any(Number),
+      detectorId: "NeverAccessedVariables",
+      severity: "MEDIUM",
+      message: expect.stringContaining("Write-only variable: a"),
+    });
+
+    expect(firstWarning.message).toContain(
+      "test/good/never-accessed-1.tact:2:5:",
+    );
+    expect(firstWarning.message).toContain(
+      "Help: The variable value should be accessed",
+    );
+    expect(firstWarning.message).toContain(
+      "See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables",
+    );
+  });
+});
