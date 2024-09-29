@@ -58,11 +58,13 @@ export function resultToString(result: MistiResult): string {
     case "error":
       return `Misti execution failed:\n${result.error}`;
     case "warnings": {
-      const out = [`Misti found ${result.warnings.length} warnings:`];
-      result.warnings.forEach((warning, index) => {
-        out.push(warning + (index < result.warnings.length - 1 ? "\n" : ""));
-      });
-      return out.join("\n");
+      return result.warnings
+        .map(
+          (warning, index) =>
+            warning + (index < result.warnings.length - 1 ? "\n" : ""),
+        )
+        .join("")
+        .trim();
     }
     case "tool":
       const aggregatedOutput = result.output.reduce((acc, tool) => {
