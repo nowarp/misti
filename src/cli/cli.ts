@@ -74,7 +74,7 @@ export async function runMistiCommand(
  */
 export async function executeMisti(args: string[]): Promise<string> {
   if (RUNNER === undefined) {
-    throw InternalException.make("Function requiers Runner to be initialized");
+    throw InternalException.make("Function requires Runner to be initialized");
   }
   const result = await runMistiCommand(args);
   const driver = RUNNER.getDriver();
