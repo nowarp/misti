@@ -62,7 +62,7 @@ describe("CLI Argument Parsing", () => {
         verbose: false,
       }),
     );
-    expect(actualOptions!.dumpCfg).toBeUndefined();
+    expect(actualOptions!.verbose).toBeUndefined();
     runnerMakeSpy.mockRestore();
   });
 

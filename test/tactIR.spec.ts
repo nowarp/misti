@@ -7,6 +7,15 @@ import {
 } from "./testUtil";
 import { Runner } from "../src/cli";
 import path from "path";
+import fs from "fs";
+
+function moveGeneratedFile(contractName: string, format: string) {
+  const generatedFile = path.join(GOOD_DIR, `dumpCfg.${format}`);
+  const targetFile = path.join(GOOD_DIR, `${contractName}.cfg.${format}`);
+  if (fs.existsSync(generatedFile)) {
+    fs.renameSync(generatedFile, targetFile);
+  }
+}
 
 function processSingleFile(file: string) {
   const contractName = file.replace(".tact", "");
@@ -16,23 +25,23 @@ function processSingleFile(file: string) {
     it(`should produce correct CFG JSON output for ${contractName}`, async () => {
       resetIds();
       const runner = await Runner.make(filePath, {
-        dumpCfg: "json",
-        dumpIncludeStdlib: false,
-        dumpOutput: GOOD_DIR,
+        tools: [{ className: "DumpCfg", options: { format: "json" } }],
+        outputPath: GOOD_DIR,
         quiet: true,
       });
       await runner.run();
+      moveGeneratedFile(contractName, "json");
       await TAP.from(nameBase, "json", "cfg.json").run();
     });
     it(`should produce correct CFG DOT output for ${contractName}`, async () => {
       resetIds();
       const runner = await Runner.make(filePath, {
-        dumpCfg: "dot",
-        dumpIncludeStdlib: false,
-        dumpOutput: GOOD_DIR,
+        tools: [{ className: "DumpCfg", options: { format: "dot" } }],
+        outputPath: GOOD_DIR,
         quiet: true,
       });
       await runner.run();
+      moveGeneratedFile(contractName, "dot");
       await TAP.from(nameBase, "dot", "cfg.dot").run();
     });
   });

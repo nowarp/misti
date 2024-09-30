@@ -5,5 +5,5 @@ export {
   createMistiCommand,
   runMistiCommand,
   executeMisti,
-  report,
+  handleMistiResult,
 } from "./cli";

@@ -1,8 +1,53 @@
-import { InternalException } from "./exceptions";
-import { BasicBlock, CFG, CompilationUnit } from "./ir";
+import { Tool } from "./tool";
+import { ToolOutput } from "../cli/result";
+import { InternalException } from "../internals/exceptions";
+import { BasicBlock, CFG, CompilationUnit } from "../internals/ir";
+import { unreachable } from "../internals/util";
 import { AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 import JSONbig from "json-bigint";
+
+export interface DumpCfgOptions extends Record<string, unknown> {
+  format: "dot" | "json";
+  dumpStdlib: boolean;
+}
+
+/**
+ * A tool that dumps the CFG of the given compilation unit.
+ */
+export class DumpCfg extends Tool<DumpCfgOptions> {
+  get defaultOptions(): DumpCfgOptions {
+    return {
+      format: "json",
+      dumpStdlib: false,
+    };
+  }
+
+  run(cu: CompilationUnit): ToolOutput | never {
+    switch (this.options.format) {
+      case "dot":
+        return this.makeOutput(
+          GraphvizDumper.dumpCU(cu, this.options.dumpStdlib),
+        );
+      case "json":
+        return this.makeOutput(JSONDumper.dumpCU(cu, this.options.dumpStdlib));
+      default:
+        throw unreachable(this.options.format);
+    }
+  }
+
+  getDescription(): string {
+    return "Dumps the Control Flow Graph (CFG)";
+  }
+
+  getOptionDescriptions(): Record<keyof DumpCfgOptions, string> {
+    return {
+      format: "The output format for the CFG dump: <dot|json>",
+      dumpStdlib:
+        "Whether to include standard library definitions in the dump.",
+    };
+  }
+}
 
 /**
  * Class responsible for generating a Graphviz dot representation of a CompilationUnit.
@@ -10,7 +55,7 @@ import JSONbig from "json-bigint";
  * The graphviz representation uses the following colors:
  * * `lightgrey`: standard library functions
  */
-export class GraphvizDumper {
+class GraphvizDumper {
   /**
    * Generates a Graphviz dot format string for a given CompilationUnit.
    * @param cu The compilation unit to be dumped.
@@ -130,7 +175,7 @@ export class GraphvizDumper {
 /**
  * Class responsible for generating a JSON representation of a CompilationUnit.
  */
-export class JSONDumper {
+class JSONDumper {
   /**
    * Generates a JSON format string for a given CompilationUnit.
    * @param cu The compilation unit to be dumped.

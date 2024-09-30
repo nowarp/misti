@@ -24,6 +24,7 @@ export class MistiContext {
     );
     this.config = new MistiConfig({
       detectors: options.detectors,
+      tools: options.tools,
       allDetectors: options.allDetectors,
       configPath: options.config,
     });

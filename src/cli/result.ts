@@ -1,4 +1,8 @@
+import { OutputFormat } from "../cli/options";
 import { unreachable } from "../internals/util";
+import fs from "fs";
+import JSONbig from "json-bigint";
+import path from "path";
 
 /**
  * MistiResultOK represents the result of a Misti operation that did not find any warnings.
@@ -51,7 +55,13 @@ export type MistiResult =
 /**
  * Converts a MistiResult object to a readable string based on its kind.
  */
-export function resultToString(result: MistiResult): string {
+export function resultToString(
+  result: MistiResult,
+  outputFormat: OutputFormat,
+): string {
+  if (outputFormat === "json") {
+    return JSONbig.stringify(result, null, 2);
+  }
   switch (result.kind) {
     case "ok":
       return "No errors found";
@@ -72,6 +82,45 @@ export function resultToString(result: MistiResult): string {
             .map((tool) => `${tool.name}:\n${tool.output}`)
             .join("\n\n")
             .trim();
+    default:
+      unreachable(result);
+  }
+}
+
+export type ResultReport = { type: "error" | "ok"; message: string } | null;
+
+/**
+ * Saves the result of a Misti operation to files.
+ * @param result The result of a Misti operation.
+ * @param outputPath The path to save the result to.
+ * @returns The report of the result.
+ */
+export function saveResultToFiles(
+  result: MistiResult,
+  outputPath: string,
+): ResultReport {
+  switch (result.kind) {
+    case "ok":
+      return { type: "ok", message: "No errors found" };
+    case "error":
+      return {
+        type: "error",
+        message: `Misti execution failed:\n${result.error}`,
+      };
+    case "warnings":
+      fs.writeFileSync(
+        path.join(outputPath, "warnings.out"),
+        result.warnings.join("\n"),
+      );
+      return null;
+    case "tool":
+      result.output.forEach((tool) => {
+        fs.writeFileSync(
+          path.join(outputPath, `${tool.name}.out`),
+          tool.output,
+        );
+      });
+      return null;
     default:
       unreachable(result);
   }

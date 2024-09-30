@@ -1,19 +1,18 @@
-import { CLIOptions, DUMP_STDOUT_PATH } from "./options";
-import { MistiResult } from "./result";
+import { CLIOptions, OutputFormat, DUMP_STDOUT_PATH } from "./options";
+import { MistiResult, ToolOutput } from "./result";
 import { SingleContractProjectManager } from "./singleContract";
 import { Detector, findBuiltInDetector } from "../detectors/detector";
-import { ASTDumper } from "../internals/astDump";
 import { MistiContext } from "../internals/context";
 import { ExecutionException, InternalException } from "../internals/exceptions";
 import { CompilationUnit, ProjectName } from "../internals/ir";
 import { createIR } from "../internals/ir/builders/tactIRBuilder";
-import { GraphvizDumper, JSONDumper } from "../internals/irDump";
 import { Logger } from "../internals/logger";
 import {
   MistiTactWarning,
   severityToString,
   Severity,
 } from "../internals/warnings";
+import { Tool, findBuiltInTool } from "../tools/tool";
 import fs from "fs";
 import JSONbig from "json-bigint";
 import path from "path";
@@ -24,17 +23,14 @@ import path from "path";
 export class Driver {
   ctx: MistiContext;
   detectors: Detector[] = [];
-  private suppressedDetectorNames: Set<string>;
-  private dumpCFG?: "json" | "dot";
-  private dumpAST: boolean;
-  private dumpCFGStdlib: boolean;
-  private dumpOutput: string;
-  private dumpConfig: boolean;
-  private colorizeOutput: boolean;
-  private tactConfigPath: string;
+  tools: Tool<any>[] = [];
+  outputPath: string;
+  suppressedDetectorNames: Set<string>;
+  colorizeOutput: boolean;
+  tactConfigPath: string;
   /** Minimum severity level to report warnings. */
-  private minSeverity: Severity;
-  private outputFormat: "plain" | "json";
+  minSeverity: Severity;
+  outputFormat: OutputFormat;
 
   private constructor(tactPath: string, options: CLIOptions) {
     const singleContract = tactPath.endsWith(".tact");
@@ -53,15 +49,11 @@ export class Driver {
       : path.resolve(tactPath); // Tact supports absolute paths only
 
     this.ctx = new MistiContext(tactPath, options);
-    this.dumpCFG = options.dumpCfg;
     this.suppressedDetectorNames = new Set(options.suppress ?? []);
-    this.dumpAST = options.dumpAst || false;
-    this.dumpCFGStdlib = options.dumpIncludeStdlib || false;
-    this.dumpOutput = options.dumpOutput || DUMP_STDOUT_PATH;
-    this.dumpConfig = options.dumpConfig ?? false;
     this.colorizeOutput = options.colors ?? true;
     this.minSeverity = options.minSeverity ?? Severity.INFO;
     this.outputFormat = options.outputFormat ?? "plain";
+    this.outputPath = options.outputPath ?? DUMP_STDOUT_PATH;
   }
 
   /**
@@ -74,6 +66,7 @@ export class Driver {
   ): Promise<Driver> {
     const driver = new Driver(tactPath, options);
     await driver.initializeDetectors();
+    await driver.initializeTools();
     if (!driver.ctx.souffleAvailable) {
       this.warnOnDisabledDetectors(driver);
     }
@@ -160,67 +153,28 @@ export class Driver {
   }
 
   /**
-   * Generic method to collect and output dumps.
+   * Initializes all built-in tools specified in the configuration.
+   * @throws Error if a tool cannot be found or initialized.
    */
-  private async getDump(
-    cus: Map<ProjectName, CompilationUnit>,
-    dumpFunction: (cu: CompilationUnit, includeStdlib: boolean) => string,
-    outputExtension: string,
-    includeStdlib: boolean,
-  ): Promise<string> {
-    const results: string[] = [];
-    const promises = Array.from(cus.entries()).reduce((acc, [name, cu]) => {
-      const dump = dumpFunction(cu, includeStdlib);
-      if (this.dumpOutput === DUMP_STDOUT_PATH) {
-        results.push(dump);
-      } else {
-        const filename = `${name}${outputExtension}`;
-        const filepath = path.join(this.dumpOutput, filename);
-        const promise = fs.promises
-          .writeFile(filepath, dump, "utf8")
-          .then(() => {
-            this.ctx.logger.debug(`Dump has been saved at ${filepath}`);
-          });
-        acc.push(promise);
+  async initializeTools(): Promise<void> {
+    const toolPromises = this.ctx.config.tools.map(async (config) => {
+      const tool = await findBuiltInTool(
+        this.ctx,
+        config.className,
+        config.options || {},
+      );
+      if (!tool) {
+        throw ExecutionException.make(
+          `Built-in tool ${config.className} not found`,
+        );
       }
-      return acc;
-    }, [] as Promise<void>[]);
-    await Promise.all(promises);
-    return results.join("\n");
-  }
+      return tool;
+    });
 
-  /**
-   * Collects output of the Control Flow Graph (CFG) dump functions.
-   */
-  private async getCFGDump(
-    cus: Map<ProjectName, CompilationUnit>,
-  ): Promise<string> {
-    const dumpFunction =
-      this.dumpCFG === "dot"
-        ? (cu: CompilationUnit, includeStdlib: boolean) =>
-            GraphvizDumper.dumpCU.call(GraphvizDumper, cu, includeStdlib)
-        : (cu: CompilationUnit, includeStdlib: boolean) =>
-            JSONDumper.dumpCU(cu, includeStdlib);
-    const outputExtension = this.dumpCFG === "dot" ? ".dot" : ".json";
-    return this.getDump(cus, dumpFunction, outputExtension, this.dumpCFGStdlib);
-  }
-
-  /**
-   * Dumps AST of the input source.
-   */
-  private async getASTDump(
-    cus: Map<ProjectName, CompilationUnit>,
-  ): Promise<string> {
-    const dumpFunction = (cu: CompilationUnit, includeStdlib: boolean) =>
-      ASTDumper.dumpCU.call(ASTDumper, cu, includeStdlib);
-    return this.getDump(cus, dumpFunction, ".ast.json", this.dumpCFGStdlib);
-  }
-
-  /**
-   * Returns a string representing the Misti config in use.
-   */
-  private getConfigDump(spaces: number = 2): string {
-    return JSON.stringify(this.ctx.config, null, spaces);
+    this.tools = await Promise.all(toolPromises);
+    this.ctx.logger.debug(
+      `Enabled tools (${this.tools.length}): ${this.tools.map((t) => t.id).join(", ")}`,
+    );
   }
 
   /**
@@ -232,19 +186,9 @@ export class Driver {
       this.ctx,
       this.tactConfigPath,
     );
-    if (this.dumpCFG !== undefined) {
-      const output = await this.getCFGDump(cus);
-      return { kind: "tool", output: [{ name: "dumpCfg", output }] };
+    if (this.tools.length > 0) {
+      return this.executeTools(cus);
     }
-    if (this.dumpAST === true) {
-      const output = await this.getASTDump(cus);
-      return { kind: "tool", output: [{ name: "dumpAst", output }] };
-    }
-    if (this.dumpConfig === true) {
-      const output = this.getConfigDump();
-      return { kind: "tool", output: [{ name: "dumpConfig", output }] };
-    }
-
     const allWarnings = await (async () => {
       const warningsMap = new Map<ProjectName, MistiTactWarning[]>();
       await Promise.all(
@@ -285,6 +229,34 @@ export class Driver {
     return {
       kind: "warnings",
       warnings: formattedWarnings,
+    };
+  }
+
+  /**
+   * Executes all initialized tools on the compilation units.
+   * @param cus Map of compilation units
+   * @returns MistiResult containing tool outputs
+   */
+  private async executeTools(
+    cus: Map<ProjectName, CompilationUnit>,
+  ): Promise<MistiResult> {
+    const toolOutputs = await Promise.all(
+      Array.from(cus.values()).flatMap((cu) =>
+        this.tools.map((tool) => {
+          try {
+            return tool.run(cu);
+          } catch (error) {
+            this.ctx.logger.error(`Error executing tool ${tool.id}: ${error}`);
+            return null;
+          }
+        }),
+      ),
+    );
+    return {
+      kind: "tool",
+      output: toolOutputs.filter(
+        (output): output is ToolOutput => output !== null,
+      ),
     };
   }
 
@@ -434,10 +406,8 @@ export class Runner {
   public static async make(
     tactPath: string,
     options: CLIOptions = {
-      dumpCfg: undefined,
-      dumpIncludeStdlib: false,
-      dumpOutput: DUMP_STDOUT_PATH,
-      dumpConfig: undefined,
+      tools: undefined,
+      outputPath: undefined,
       outputFormat: undefined,
       colors: undefined,
       souffleBinary: undefined,
@@ -509,15 +479,23 @@ export class Runner {
         `Please choose only one option: --verbose or --quiet`,
       );
     }
-    if (options.dumpCfg !== undefined && options.dumpAst === true) {
-      throw ExecutionException.make(
-        `Please choose only one option: --dump-cfg or --dump-ast`,
-      );
-    }
     if (options.allDetectors === true && options.detectors !== undefined) {
       throw ExecutionException.make(
         `--detectors and --all-detectors cannot be used simultaneously`,
       );
+    }
+    // Check for duplicate tool class names
+    if (options.tools && options.tools.length > 0) {
+      const toolClassNames = options.tools.map((tool) => tool.className);
+      const uniqueClassNames = new Set(toolClassNames);
+      if (toolClassNames.length !== uniqueClassNames.size) {
+        const duplicates = toolClassNames.filter(
+          (name, index) => toolClassNames.indexOf(name) !== index,
+        );
+        throw ExecutionException.make(
+          `Duplicate tool class names found: ${duplicates.join(", ")}. Each tool must have a unique class name.`,
+        );
+      }
     }
   }
 }

@@ -1,22 +1,24 @@
 import { ExecutionException } from "./exceptions";
+import { ToolConfig, DetectorConfig } from "../cli/options";
 import { getAllDetectors, getEnabledDetectors } from "../detectors/detector";
 import * as fs from "fs";
 import { z } from "zod";
-
-interface DetectorConfig {
-  modulePath?: string; // Used only for custom out-of-tree detectors
-  className: string;
-}
 
 const DetectorConfigSchema = z.object({
   modulePath: z.string().optional(),
   className: z.string(),
 });
 
+const ToolConfigSchema = z.object({
+  className: z.string(),
+  options: z.record(z.unknown()).optional(),
+});
+
 const VerbositySchema = z.enum(["quiet", "debug", "default"]);
 
 const ConfigSchema = z.object({
   detectors: z.array(DetectorConfigSchema),
+  tools: z.array(ToolConfigSchema),
   ignoredProjects: z.array(z.string()).optional(),
   soufflePath: z.string().optional(),
   souffleVerbose: z.boolean().optional(),
@@ -30,6 +32,7 @@ const ConfigSchema = z.object({
  */
 export class MistiConfig {
   public detectors: DetectorConfig[];
+  public tools: ToolConfig[];
   public ignoredProjects: string[];
   public soufflePath: string = "/tmp/misti/souffle";
   public souffleVerbose?: boolean;
@@ -41,12 +44,14 @@ export class MistiConfig {
     params: Partial<{
       configPath?: string;
       detectors?: string[];
+      tools?: ToolConfig[];
       allDetectors: boolean;
     }> = {},
   ) {
     const {
       configPath = undefined,
       detectors = undefined,
+      tools = undefined,
       allDetectors = false,
     } = params;
     let configData;
@@ -70,10 +75,18 @@ export class MistiConfig {
           detectors: this.createDetectorConfigs(detectors, allDetectors),
         };
       }
+      // Override tools if `--tools` is set
+      if (tools !== undefined) {
+        configData = {
+          ...configData,
+          tools: tools || [],
+        };
+      }
     } else {
-      // Use default detectors if no config file is provided
+      // Use default detectors and tools if no config file is provided
       configData = {
         detectors: this.createDetectorConfigs(detectors, allDetectors),
+        tools: tools || [],
         ignoredProjects: [],
         soufflePath: "/tmp/misti/souffle",
         souffleVerbose: false,
@@ -86,6 +99,7 @@ export class MistiConfig {
     try {
       const parsedConfig = ConfigSchema.parse(configData);
       this.detectors = parsedConfig.detectors;
+      this.tools = parsedConfig.tools;
       this.ignoredProjects = parsedConfig.ignoredProjects || [];
       this.tactStdlibPath = parsedConfig.tactStdlibPath;
       this.unusedPrefix = parsedConfig.unusedPrefix;
