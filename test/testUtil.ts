@@ -113,3 +113,11 @@ export function resetIds(): void {
 export function getFilePathArg(): string | undefined {
   return process.argv.find((arg) => path.resolve(arg).includes(GOOD_DIR));
 }
+
+export function moveGeneratedFile(contractName: string, format: string) {
+  const generatedFile = path.join(GOOD_DIR, `dumpCfg.${format}`);
+  const targetFile = path.join(GOOD_DIR, `${contractName}.cfg.${format}`);
+  if (fs.existsSync(generatedFile)) {
+    fs.renameSync(generatedFile, targetFile);
+  }
+}

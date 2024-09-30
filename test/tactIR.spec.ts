@@ -4,18 +4,10 @@ import {
   processTactFiles,
   resetIds,
   getFilePathArg,
+  moveGeneratedFile,
 } from "./testUtil";
 import { Runner } from "../src/cli";
 import path from "path";
-import fs from "fs";
-
-function moveGeneratedFile(contractName: string, format: string) {
-  const generatedFile = path.join(GOOD_DIR, `dumpCfg.${format}`);
-  const targetFile = path.join(GOOD_DIR, `${contractName}.cfg.${format}`);
-  if (fs.existsSync(generatedFile)) {
-    fs.renameSync(generatedFile, targetFile);
-  }
-}
 
 function processSingleFile(file: string) {
   const contractName = file.replace(".tact", "");

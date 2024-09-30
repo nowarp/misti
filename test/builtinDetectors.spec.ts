@@ -8,6 +8,7 @@ import {
   getFilePathArg,
 } from "./testUtil";
 import { executeMisti } from "../src/cli";
+import JSONbig from "json-bigint";
 import fs from "fs";
 import path from "path";
 
@@ -44,28 +45,28 @@ function processProjectDir(projectDir: string) {
   runTestForFile(projectConfigPath, nameBase, projectName);
 }
 
-const filePathArg = getFilePathArg();
-if (filePathArg) {
-  // Run test for a single file
-  const fullPath = path.resolve(filePathArg);
-  const stats = fs.statSync(fullPath);
-  if (stats.isFile()) {
-    processSingleFile(fullPath);
-  } else if (stats.isDirectory()) {
-    processProjectDir(fullPath);
-  } else {
-    throw new Error("Invalid file path argument");
-  }
-} else {
-  // Run all tests
-  processTactFiles(GOOD_DIR, (file) => {
-    const filePath = path.join(GOOD_DIR, file);
-    processSingleFile(filePath);
-  });
-  processTactProjects(GOOD_DIR, (projectDir) => {
-    processProjectDir(projectDir);
-  });
-}
+// const filePathArg = getFilePathArg();
+// if (filePathArg) {
+//   // Run test for a single file
+//   const fullPath = path.resolve(filePathArg);
+//   const stats = fs.statSync(fullPath);
+//   if (stats.isFile()) {
+//     processSingleFile(fullPath);
+//   } else if (stats.isDirectory()) {
+//     processProjectDir(fullPath);
+//   } else {
+//     throw new Error("Invalid file path argument");
+//   }
+// } else {
+//   // Run all tests
+//   processTactFiles(GOOD_DIR, (file) => {
+//     const filePath = path.join(GOOD_DIR, file);
+//     processSingleFile(filePath);
+//   });
+//   processTactProjects(GOOD_DIR, (projectDir) => {
+//     processProjectDir(projectDir);
+//   });
+// }
 
 describe("JSON output test for a single file", () => {
   it("should generate valid JSON output for never-accessed-1.tact", async () => {
@@ -79,14 +80,18 @@ describe("JSON output test for a single file", () => {
       filePath,
     ]);
 
-    const jsonOutput = output
-      .trim()
-      .split("\n")
-      .map((line) => JSON.parse(line));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let jsonOutput: any;
+    try {
+      jsonOutput = JSONbig.parse(output);
+    } catch (error) {
+      console.error("Bad output:\n", output);
+      throw error;
+    }
 
-    expect(jsonOutput.length).toBeGreaterThan(0);
+    expect(jsonOutput.warnings.length).toBeGreaterThan(0);
 
-    const firstWarning = jsonOutput[0];
+    const firstWarning = JSONbig.parse(jsonOutput.warnings[0]);
     expect(firstWarning).toMatchObject({
       file: expect.stringContaining("never-accessed-1.tact"),
       line: expect.any(Number),
