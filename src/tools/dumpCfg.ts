@@ -7,7 +7,7 @@ import { AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 import JSONbig from "json-bigint";
 
-export interface DumpCfgOptions extends Record<string, unknown> {
+interface DumpCfgOptions extends Record<string, unknown> {
   format: "dot" | "json";
   dumpStdlib: boolean;
 }

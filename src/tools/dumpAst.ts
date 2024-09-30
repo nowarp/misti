@@ -4,7 +4,7 @@ import { CompilationUnit } from "../internals/ir";
 import { unreachable } from "../internals/util";
 import JSONbig from "json-bigint";
 
-export interface DumpAstOptions extends Record<string, unknown> {
+interface DumpAstOptions extends Record<string, unknown> {
   format: "json";
   dumpStdlib: boolean;
 }

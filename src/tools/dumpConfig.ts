@@ -3,7 +3,7 @@ import { ToolOutput } from "../cli/result";
 import { CompilationUnit } from "../internals/ir";
 import JSONbig from "json-bigint";
 
-export interface DumpConfigOptions extends Record<string, unknown> {}
+interface DumpConfigOptions extends Record<string, unknown> {}
 
 /**
  * A tool that dumps the Misti configuration file in use.
