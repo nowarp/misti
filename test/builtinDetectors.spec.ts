@@ -24,7 +24,7 @@ function runTestForFile(filePath: string, nameBase: string, testName: string) {
   describe(`Testing built-in detectors for ${testName}`, () => {
     it(`should generate the expected warnings for ${testName}`, async () => {
       resetIds();
-      const output = await executeMisti(["--all-detectors", filePath]);
+      const output = await executeMisti(["--all-detectors", "--no-colors", filePath]);
       fs.writeFileSync(outputFilePath, output);
       await TAP.from(nameBase, actualSuffix, "expected.out").run();
     }, 30000);
@@ -45,28 +45,28 @@ function processProjectDir(projectDir: string) {
   runTestForFile(projectConfigPath, nameBase, projectName);
 }
 
-// const filePathArg = getFilePathArg();
-// if (filePathArg) {
-//   // Run test for a single file
-//   const fullPath = path.resolve(filePathArg);
-//   const stats = fs.statSync(fullPath);
-//   if (stats.isFile()) {
-//     processSingleFile(fullPath);
-//   } else if (stats.isDirectory()) {
-//     processProjectDir(fullPath);
-//   } else {
-//     throw new Error("Invalid file path argument");
-//   }
-// } else {
-//   // Run all tests
-//   processTactFiles(GOOD_DIR, (file) => {
-//     const filePath = path.join(GOOD_DIR, file);
-//     processSingleFile(filePath);
-//   });
-//   processTactProjects(GOOD_DIR, (projectDir) => {
-//     processProjectDir(projectDir);
-//   });
-// }
+const filePathArg = getFilePathArg();
+if (filePathArg) {
+  // Run test for a single file
+  const fullPath = path.resolve(filePathArg);
+  const stats = fs.statSync(fullPath);
+  if (stats.isFile()) {
+    processSingleFile(fullPath);
+  } else if (stats.isDirectory()) {
+    processProjectDir(fullPath);
+  } else {
+    throw new Error("Invalid file path argument");
+  }
+} else {
+  // Run all tests
+  processTactFiles(GOOD_DIR, (file) => {
+    const filePath = path.join(GOOD_DIR, file);
+    processSingleFile(filePath);
+  });
+  processTactProjects(GOOD_DIR, (projectDir) => {
+    processProjectDir(projectDir);
+  });
+}
 
 describe("JSON output test for a single file", () => {
   it("should generate valid JSON output for never-accessed-1.tact", async () => {
