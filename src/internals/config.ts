@@ -17,8 +17,8 @@ const ToolConfigSchema = z.object({
 const VerbositySchema = z.enum(["quiet", "debug", "default"]);
 
 const ConfigSchema = z.object({
-  detectors: z.array(DetectorConfigSchema),
-  tools: z.array(ToolConfigSchema),
+  detectors: z.array(DetectorConfigSchema).optional(),
+  tools: z.array(ToolConfigSchema).optional(),
   ignoredProjects: z.array(z.string()).optional(),
   soufflePath: z.string().optional(),
   souffleVerbose: z.boolean().optional(),
@@ -98,8 +98,8 @@ export class MistiConfig {
 
     try {
       const parsedConfig = ConfigSchema.parse(configData);
-      this.detectors = parsedConfig.detectors;
-      this.tools = parsedConfig.tools;
+      this.detectors = parsedConfig.detectors || [];
+      this.tools = parsedConfig.tools || [];
       this.ignoredProjects = parsedConfig.ignoredProjects || [];
       this.tactStdlibPath = parsedConfig.tactStdlibPath;
       this.unusedPrefix = parsedConfig.unusedPrefix;
