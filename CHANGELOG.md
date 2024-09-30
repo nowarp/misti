@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `OptimalMathFunction` detector: Issue [#146](https://github.com/nowarp/misti/issues/146)
 - `DuplicatedCondition` detector: Issue [#147](https://github.com/nowarp/misti/issues/147)
+- Introduces Misti tools – additional modules that can be used alongside detectors to cover various user tasks beyond warning generation: PR [#154](https://github.com/nowarp/misti/pull/154)
 - Misti execution result in the JSON format using `--output json`/`-o json`: Issue [#123](https://github.com/nowarp/misti/issues/123)
 - ANSI escape sequences to colorize output and the `--no-colors` CLI option to disable it
 - Driver in a single-contract mode tries to copy all the .tact and .fc files to resolve imports
