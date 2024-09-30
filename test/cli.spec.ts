@@ -25,8 +25,8 @@ describe("CLI Argument Parsing", () => {
     runnerMakeSpy.mockRestore(); // restore the original method
   });
 
-  it("should initialize driver with correct options when --dump-cfg is provided", async () => {
-    const args = ["--dump-cfg", "json", TACT_CONFIG_PATH];
+  it("should initialize driver with correct options when --output-format is provided", async () => {
+    const args = ["--output-format", "json", TACT_CONFIG_PATH];
     const runnerMakeSpy = jest.spyOn(Runner, "make");
     runnerMakeSpy.mockImplementation(async (): Promise<Runner> => {
       return {
@@ -39,7 +39,7 @@ describe("CLI Argument Parsing", () => {
     expect(runnerMakeSpy).toHaveBeenCalledWith(
       TACT_CONFIG_PATH,
       expect.objectContaining({
-        dumpCfg: "json",
+        outputFormat: "json",
       }),
     );
     runnerMakeSpy.mockRestore();
@@ -62,7 +62,7 @@ describe("CLI Argument Parsing", () => {
         verbose: false,
       }),
     );
-    expect(actualOptions!.verbose).toBeUndefined();
+    expect(actualOptions!.outputFormat).toBeUndefined();
     runnerMakeSpy.mockRestore();
   });
 
