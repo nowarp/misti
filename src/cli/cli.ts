@@ -73,11 +73,8 @@ export async function runMistiCommand(
  * Executes Misti with the given options capturing output.
  */
 export async function executeMisti(args: string[]): Promise<string> {
-  if (RUNNER === undefined) {
-    throw InternalException.make("Function requires Runner to be initialized");
-  }
   const result = await runMistiCommand(args);
-  const driver = RUNNER.getDriver();
+  const driver = RUNNER!.getDriver();
   return result ? resultToString(result, driver.outputFormat) : "";
 }
 
