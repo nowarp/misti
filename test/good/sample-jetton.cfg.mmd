@@ -19,19 +19,19 @@ subgraph SampleJetton__receive_internal_simple_1855
     SampleJetton__receive_internal_simple_1855_161 --> SampleJetton__receive_internal_simple_1855_163
     SampleJetton__receive_internal_simple_1855_163 --> SampleJetton__receive_internal_simple_1855_165
 end
-subgraph SampleJetton__receive_internal_comment_1880_Mint: 100
-    SampleJetton__receive_internal_comment_1880_Mint: 100_167["let ctx: Context = context()"]
-    SampleJetton__receive_internal_comment_1880_Mint: 100_168["require(self.mintable, 'Can't Mint Anymore')"]
-    SampleJetton__receive_internal_comment_1880_Mint: 100_170["self.mint(ctx.sender, 100, self.owner)"]:::exitNode
-    SampleJetton__receive_internal_comment_1880_Mint: 100_167 --> SampleJetton__receive_internal_comment_1880_Mint: 100_168
-    SampleJetton__receive_internal_comment_1880_Mint: 100_168 --> SampleJetton__receive_internal_comment_1880_Mint: 100_170
+subgraph SampleJetton__receive_internal_comment_1880_Mint__100
+    SampleJetton__receive_internal_comment_1880_Mint__100_167["let ctx: Context = context()"]
+    SampleJetton__receive_internal_comment_1880_Mint__100_168["require(self.mintable, 'Can't Mint Anymore')"]
+    SampleJetton__receive_internal_comment_1880_Mint__100_170["self.mint(ctx.sender, 100, self.owner)"]:::exitNode
+    SampleJetton__receive_internal_comment_1880_Mint__100_167 --> SampleJetton__receive_internal_comment_1880_Mint__100_168
+    SampleJetton__receive_internal_comment_1880_Mint__100_168 --> SampleJetton__receive_internal_comment_1880_Mint__100_170
 end
-subgraph SampleJetton__receive_internal_comment_1903_Owner: MintClose
-    SampleJetton__receive_internal_comment_1903_Owner: MintClose_172["let ctx: Context = context()"]
-    SampleJetton__receive_internal_comment_1903_Owner: MintClose_173["require(ctx.sender == self.owner, 'Not Owner')"]
-    SampleJetton__receive_internal_comment_1903_Owner: MintClose_175["self.mintable = false"]:::exitNode
-    SampleJetton__receive_internal_comment_1903_Owner: MintClose_172 --> SampleJetton__receive_internal_comment_1903_Owner: MintClose_173
-    SampleJetton__receive_internal_comment_1903_Owner: MintClose_173 --> SampleJetton__receive_internal_comment_1903_Owner: MintClose_175
+subgraph SampleJetton__receive_internal_comment_1903_Owner__MintClose
+    SampleJetton__receive_internal_comment_1903_Owner__MintClose_172["let ctx: Context = context()"]
+    SampleJetton__receive_internal_comment_1903_Owner__MintClose_173["require(ctx.sender == self.owner, 'Not Owner')"]
+    SampleJetton__receive_internal_comment_1903_Owner__MintClose_175["self.mintable = false"]:::exitNode
+    SampleJetton__receive_internal_comment_1903_Owner__MintClose_172 --> SampleJetton__receive_internal_comment_1903_Owner__MintClose_173
+    SampleJetton__receive_internal_comment_1903_Owner__MintClose_173 --> SampleJetton__receive_internal_comment_1903_Owner__MintClose_175
 end
 subgraph JettonDefaultWallet__init_2908
     JettonDefaultWallet__init_2908_178["self.balance = 0"]

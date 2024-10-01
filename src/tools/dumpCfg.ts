@@ -100,16 +100,21 @@ class MermaidDumper {
     cfg: CFG,
     prefix: string,
   ): string {
-    let output = `subgraph ${prefix}\n`;
-    if (cfg.origin == "stdlib") {
-      output += `style ${prefix} fill:#D3D3D3\n`;
-    }
+    const sanitizedPrefix = prefix.replace(/[^a-zA-Z0-9_]/g, "_");
+    let output = `subgraph ${sanitizedPrefix}\n`;
     cfg.forEachBasicBlock(cu.ast, (stmt, node) => {
+      const nodeId = `${sanitizedPrefix}_${node.idx}`;
+      const summary = ppSummary(stmt, {
+        escapeType: "specialChars",
+        wrapInQuotes: true,
+      });
       const style = node.isExit() ? `:::exitNode` : "";
-      output += `    ${prefix}_${node.idx}[${ppSummary(stmt, { escapeType: "specialChars", wrapInQuotes: true })}]${style}\n`;
+      output += `    ${nodeId}[${summary}]${style}\n`;
     });
     cfg.forEachEdge((edge) => {
-      output += `    ${prefix}_${edge.src} --> ${prefix}_${edge.dst}\n`;
+      const srcId = `${sanitizedPrefix}_${edge.src}`;
+      const dstId = `${sanitizedPrefix}_${edge.dst}`;
+      output += `    ${srcId} --> ${dstId}\n`;
     });
     output += `end\n`;
     return output;
