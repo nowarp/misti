@@ -18,7 +18,7 @@ export class SingleContractProjectManager {
    *                otherwise, copies only the main contract file.
    * @returns Path to the created Tact project configuration.
    */
-  public generate(copyAll = false): string {
+  public generate(copyAll = true): string {
     const contractDir = path.dirname(this.contractPath);
     const contractName = this.extractContractName();
     const rootDir = this.findRootDir(contractDir);

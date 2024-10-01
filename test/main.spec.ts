@@ -3,7 +3,7 @@ import { execSync } from "child_process";
 describe("Misti `main` tests", () => {
   function sanitizeYarnOutput(output: string): string {
     const lines = output.split("\n");
-    return lines.slice(2, -1).join("\n").trim();
+    return lines.slice(1).join("\n").trim();
   }
 
   it("should produce the same output for `yarn misti` and `./bin/misti`", () => {

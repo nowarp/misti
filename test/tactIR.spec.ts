@@ -5,8 +5,19 @@ import {
   resetIds,
   getFilePathArg,
 } from "./testUtil";
-import { Runner } from "../src/cli";
+import { runMistiCommand, handleMistiResult } from "../src/cli";
 import path from "path";
+import * as fs from "fs";
+
+function moveGeneratedFile(projectName: string, format: string) {
+  const generatedFile = path.join(GOOD_DIR, `${projectName}.DumpCfg.out`);
+  const targetFile = path.join(GOOD_DIR, `${projectName}.${format}`);
+  if (fs.existsSync(generatedFile)) {
+    fs.renameSync(generatedFile, targetFile);
+  } else {
+    throw new Error(`File ${generatedFile} was not generated`);
+  }
+}
 
 function processSingleFile(file: string) {
   const contractName = file.replace(".tact", "");
@@ -15,24 +26,30 @@ function processSingleFile(file: string) {
   describe(`Testing CFG dump for ${contractName}`, () => {
     it(`should produce correct CFG JSON output for ${contractName}`, async () => {
       resetIds();
-      const runner = await Runner.make(filePath, {
-        dumpCfg: "json",
-        dumpIncludeStdlib: false,
-        dumpOutput: GOOD_DIR,
-        quiet: true,
-      });
-      await runner.run();
+      const result = await runMistiCommand([
+        "--output-path",
+        GOOD_DIR,
+        "-t",
+        "DumpCfg:format=json",
+        "--no-colors",
+        filePath,
+      ]);
+      handleMistiResult(result);
+      moveGeneratedFile(contractName, "json");
       await TAP.from(nameBase, "json", "cfg.json").run();
     });
     it(`should produce correct CFG DOT output for ${contractName}`, async () => {
       resetIds();
-      const runner = await Runner.make(filePath, {
-        dumpCfg: "dot",
-        dumpIncludeStdlib: false,
-        dumpOutput: GOOD_DIR,
-        quiet: true,
-      });
-      await runner.run();
+      const result = await runMistiCommand([
+        "-t",
+        "DumpCfg:format=dot",
+        "--output-path",
+        GOOD_DIR,
+        "--no-colors",
+        filePath,
+      ]);
+      handleMistiResult(result);
+      moveGeneratedFile(contractName, "dot");
       await TAP.from(nameBase, "dot", "cfg.dot").run();
     });
   });

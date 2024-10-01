@@ -1,5 +1,6 @@
 import { TACT_VERSION, MISTI_VERSION } from "../version";
 import { AstNode, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
+import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 import * as fs from "fs";
 import JSONbig from "json-bigint";
 import * as path from "path";
@@ -65,19 +66,39 @@ export class TactException {
 }
 
 /**
+ * Attempts to pretty-print the input, falling back to JSON stringification if it fails.
+ * @param input The object to pretty-print or stringify.
+ * @returns A string representation of the input.
+ */
+function prettyPrintOrStringify(input: unknown): string {
+  try {
+    return `AST:\n${prettyPrint(input as AstNode)}`;
+  } catch (error) {
+    try {
+      return JSONbig.stringify(input, null, 2);
+    } catch (jsonError) {
+      return `[Unable to stringify object: ${jsonError}]`;
+    }
+  }
+}
+
+/**
  * Internal error, typically caused by a bug in Misti or incorrect API usage.
  */
 export class InternalException {
   private constructor() {}
   static make(
     msg: string,
-    params: Partial<{
+    {
+      loc = undefined,
+      node = undefined,
+      generateReport = true,
+    }: Partial<{
       loc: SrcInfo;
-      node: AstNode;
+      node: unknown;
       generateReport: boolean;
     }> = {},
   ): Error {
-    const { loc = undefined, node = undefined, generateReport = true } = params;
     const locStr = makeLocationString(loc);
     const errorKind = `Internal Misti Error${locStr}:`;
     const fullMsg = [
@@ -85,7 +106,7 @@ export class InternalException {
       msg,
       ...(node === undefined
         ? []
-        : [`${SEPARATOR}AST node:\n${JSONbig.stringify(node, null, 2)}`]),
+        : [`${SEPARATOR}${prettyPrintOrStringify(node)}`]),
       SEPARATOR,
       getCurrentStackTrace(),
       SEPARATOR,
