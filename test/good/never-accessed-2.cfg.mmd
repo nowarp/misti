@@ -1,0 +1,13 @@
+graph TD
+subgraph FieldTest__init_1692
+    FieldTest__init_1692_143["self.f1 = sender()"]:::exitNode
+end
+subgraph FieldTest__use_f1
+    FieldTest__use_f1_144["return self.f1"]:::exitNode
+end
+subgraph FieldTest__forEachUse
+    FieldTest__forEachUse_145["let foreachmap: map&lt;Address, Address&gt; = self.foreachmap"]
+    FieldTest__forEachUse_146["foreach ((_, _) of foreachmap)"]
+    FieldTest__forEachUse_145 --> FieldTest__forEachUse_146
+    FieldTest__forEachUse_146 --> FieldTest__forEachUse_146
+end

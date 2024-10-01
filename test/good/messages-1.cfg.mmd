@@ -1,0 +1,9 @@
+graph TD
+subgraph A__receive_internal_comment_1685_increment
+    A__receive_internal_comment_1685_increment_142["self.val = self.val + 1"]
+    A__receive_internal_comment_1685_increment_143["self.reply(M{value: self.val}.toCell())"]:::exitNode
+    A__receive_internal_comment_1685_increment_142 --> A__receive_internal_comment_1685_increment_143
+end
+subgraph A__receive_internal_comment_1700_query
+    A__receive_internal_comment_1700_query_145["self.reply(M{value: self.val}.toCell())"]:::exitNode
+end

@@ -24,34 +24,25 @@ function processSingleFile(file: string) {
   const filePath = path.join(GOOD_DIR, file);
   const nameBase = path.join(GOOD_DIR, contractName);
   describe(`Testing CFG dump for ${contractName}`, () => {
-    it(`should produce correct CFG JSON output for ${contractName}`, async () => {
-      resetIds();
-      const result = await runMistiCommand([
-        "--output-path",
-        GOOD_DIR,
-        "-t",
-        "DumpCfg:format=json",
-        "--no-colors",
-        filePath,
-      ]);
-      handleMistiResult(result);
-      moveGeneratedFile(contractName, "json");
-      await TAP.from(nameBase, "json", "cfg.json").run();
-    });
-    it(`should produce correct CFG DOT output for ${contractName}`, async () => {
-      resetIds();
-      const result = await runMistiCommand([
-        "-t",
-        "DumpCfg:format=dot",
-        "--output-path",
-        GOOD_DIR,
-        "--no-colors",
-        filePath,
-      ]);
-      handleMistiResult(result);
-      moveGeneratedFile(contractName, "dot");
-      await TAP.from(nameBase, "dot", "cfg.dot").run();
-    });
+    const testCfgDump = (format: string, extension: string) => {
+      it(`should produce correct CFG ${format.toUpperCase()} output for ${contractName}`, async () => {
+        resetIds();
+        const result = await runMistiCommand([
+          "--output-path",
+          GOOD_DIR,
+          "-t",
+          `DumpCfg:format=${format}`,
+          "--no-colors",
+          filePath,
+        ]);
+        handleMistiResult(result);
+        moveGeneratedFile(contractName, extension);
+        await TAP.from(nameBase, extension, `cfg.${extension}`).run();
+      });
+    };
+    testCfgDump("json", "json");
+    testCfgDump("dot", "dot");
+    testCfgDump("mmd", "mmd");
   });
 }
 

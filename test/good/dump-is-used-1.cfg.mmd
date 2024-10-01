@@ -1,0 +1,14 @@
+graph TD
+subgraph test
+    test_141["let a: Int = 42"]
+    test_142["dump(a)"]
+    test_144["dump(42)"]
+    test_146["dump('test is called')"]
+    test_148["dump(false)"]
+    test_150["dump(null)"]:::exitNode
+    test_141 --> test_142
+    test_142 --> test_144
+    test_144 --> test_146
+    test_146 --> test_148
+    test_148 --> test_150
+end

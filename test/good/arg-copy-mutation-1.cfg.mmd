@@ -1,0 +1,14 @@
+graph TD
+subgraph Test__test
+    Test__test_141["m.set(3, 3)"]
+    Test__test_142["m.del(3)"]
+    Test__test_144["a += 1"]
+    Test__test_146["a = 42"]
+    Test__test_148["let _b: Int? = m.get(3)"]
+    Test__test_150["self.m.set(3, 3)"]:::exitNode
+    Test__test_141 --> Test__test_142
+    Test__test_142 --> Test__test_144
+    Test__test_144 --> Test__test_146
+    Test__test_146 --> Test__test_148
+    Test__test_148 --> Test__test_150
+end

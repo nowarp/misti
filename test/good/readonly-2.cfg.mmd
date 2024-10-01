@@ -1,0 +1,10 @@
+graph TD
+subgraph test
+    test_141["let a: Int = 10"]
+    test_142["repeat (a)"]
+    test_145["repeat (a)"]
+    test_141 --> test_142
+    test_142 --> test_142
+    test_142 --> test_145
+    test_145 --> test_145
+end

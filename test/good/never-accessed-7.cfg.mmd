@@ -1,0 +1,8 @@
+graph TD
+subgraph test1
+    test1_141["let a: Int = 20"]
+    test1_142["let b: Int = 22"]
+    test1_144["return b"]:::exitNode
+    test1_141 --> test1_142
+    test1_142 --> test1_144
+end

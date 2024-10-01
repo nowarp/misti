@@ -135,9 +135,11 @@ docs
 test/good/**/*.config.json
 test/good/**/*.json
 test/good/**/*.dot
+test/good/**/*.mmd
 test/good/**/*.actual.out
 !test/good/**/*.cfg.json
 !test/good/**/*.cfg.dot
+!test/good/**/*.cfg.mmd
 
 # Generated code
 src/version-info.ts

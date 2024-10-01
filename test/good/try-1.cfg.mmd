@@ -1,0 +1,10 @@
+graph TD
+subgraph test
+    test_141["let a: Int = 42"]
+    test_142["try"]
+    test_144["a += 1"]
+    test_146["return 42"]:::exitNode
+    test_141 --> test_142
+    test_142 --> test_144
+    test_144 --> test_146
+end
