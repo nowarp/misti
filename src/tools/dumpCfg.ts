@@ -8,7 +8,7 @@ import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 import JSONbig from "json-bigint";
 
 interface DumpCfgOptions extends Record<string, unknown> {
-  format: "dot" | "json";
+  format: "dot" | "json" | "mmd";
   dumpStdlib: boolean;
 }
 
@@ -30,6 +30,11 @@ export class DumpCfg extends Tool<DumpCfgOptions> {
           cu,
           GraphvizDumper.dumpCU(cu, this.options.dumpStdlib),
         );
+      case "mmd":
+        return this.makeOutput(
+          cu,
+          MermaidDumper.dumpCU(cu, this.options.dumpStdlib),
+        );
       case "json":
         return this.makeOutput(
           cu,
@@ -50,6 +55,69 @@ export class DumpCfg extends Tool<DumpCfgOptions> {
       dumpStdlib:
         "Whether to include standard library definitions in the dump.",
     };
+  }
+}
+
+/**
+ * Class responsible for generating a Mermaid diagram representation of a CompilationUnit.
+ */
+class MermaidDumper {
+  /**
+   * Generates a Mermaid diagram format string for a given CompilationUnit.
+   * @param cu The compilation unit to be dumped.
+   * @param dumpStdlib If true, the standard library definitions will be included in the dump.
+   * @returns The Mermaid diagram representation of the compilation unit.
+   */
+  public static dumpCU(cu: CompilationUnit, dumpStdlib: boolean): string {
+    let diagram = `graph TD\n`;
+    cu.functions.forEach((cfg) => {
+      if (!dumpStdlib && cfg.origin == "stdlib") {
+        return;
+      }
+      diagram += this.dumpCFG(cu, cfg, cfg.name);
+    });
+    cu.contracts.forEach((contract) => {
+      contract.methods.forEach((cfg) => {
+        if (!dumpStdlib && cfg.origin == "stdlib") {
+          return;
+        }
+        diagram += this.dumpCFG(cu, cfg, `${contract.name}__${cfg.name}`);
+      });
+    });
+    // Mermaid does not support global connections in the same way as Graphviz,
+    // so function calls between different CFGs are not represented here.
+    return diagram;
+  }
+
+  /**
+   * Generates a Mermaid diagram format string for a given CFG.
+   * @param cfg The CFG to be dumped.
+   * @param prefix A prefix to uniquely identify nodes across multiple CFGs.
+   * @returns The Mermaid diagram representation of the CFG.
+   */
+  private static dumpCFG(
+    cu: CompilationUnit,
+    cfg: CFG,
+    prefix: string,
+  ): string {
+    const sanitizedPrefix = prefix.replace(/[^a-zA-Z0-9_]/g, "_");
+    let output = `subgraph ${sanitizedPrefix}\n`;
+    cfg.forEachBasicBlock(cu.ast, (stmt, node) => {
+      const nodeId = `${sanitizedPrefix}_${node.idx}`;
+      const summary = ppSummary(stmt, {
+        escapeType: "specialChars",
+        wrapInQuotes: true,
+      });
+      const style = node.isExit() ? `:::exitNode` : "";
+      output += `    ${nodeId}[${summary}]${style}\n`;
+    });
+    cfg.forEachEdge((edge) => {
+      const srcId = `${sanitizedPrefix}_${edge.src}`;
+      const dstId = `${sanitizedPrefix}_${edge.dst}`;
+      output += `    ${srcId} --> ${dstId}\n`;
+    });
+    output += `end\n`;
+    return output;
   }
 }
 
@@ -129,50 +197,13 @@ class GraphvizDumper {
     }
     cfg.forEachBasicBlock(cu.ast, (stmt, node) => {
       const color = node.isExit() ? ',style=filled,fillcolor="#66A7DB"' : "";
-      output += `        "${prefix}_${node.idx}" [label="${this.ppSummary(stmt)}"${color}];\n`;
+      output += `        "${prefix}_${node.idx}" [label="${ppSummary(stmt, { escapeType: "doubleQuotes", wrapInQuotes: false })}"${color}];\n`;
     });
     cfg.forEachEdge((edge) => {
       output += `        "${prefix}_${edge.src}" -> "${prefix}_${edge.dst}";\n`;
     });
     output += "    }\n";
     return output;
-  }
-
-  /**
-   * Formats a summary of some statements defined within nodes in order to get more concise graphical representation.
-   */
-  private static ppSummary(stmt: AstStatement): string {
-    const removeTrailingSemicolon = (str: string): string =>
-      str.replace(/;$/, "");
-    const escapeDoubleQuotes = (str: string): string =>
-      str.replace(/"/g, '\\"');
-    const result = (() => {
-      switch (stmt.kind) {
-        case "statement_let":
-        case "statement_return":
-        case "statement_expression":
-        case "statement_assign":
-        case "statement_augmentedassign":
-          return prettyPrint(stmt);
-        case "statement_condition":
-          return `if (${prettyPrint(stmt.condition)})`;
-        case "statement_while":
-          return `while (${prettyPrint(stmt.condition)})`;
-        case "statement_until":
-          return `until (${prettyPrint(stmt.condition)})`;
-        case "statement_repeat":
-          return `repeat (${prettyPrint(stmt.iterations)})`;
-        case "statement_try":
-          return "try";
-        case "statement_try_catch":
-          return `try ... catch (${prettyPrint(stmt.catchName)})`;
-        case "statement_foreach":
-          return `foreach ((${prettyPrint(stmt.keyName)}, ${prettyPrint(stmt.valueName)}) of ${prettyPrint(stmt.map)})`;
-        default:
-          throw InternalException.make("Unsupported statement", { node: stmt });
-      }
-    })();
-    return escapeDoubleQuotes(removeTrailingSemicolon(result));
   }
 }
 
@@ -244,4 +275,58 @@ class JSONDumper {
       edges: edges,
     };
   }
+}
+
+/**
+ * Formats a summary of some statements defined within nodes for a more concise graphical representation.
+ */
+function ppSummary(
+  stmt: AstStatement,
+  options?: {
+    escapeType?: "specialChars" | "doubleQuotes";
+    wrapInQuotes?: boolean;
+  },
+): string {
+  options = options || {};
+  const escapeType = options.escapeType || "specialChars";
+  const wrapInQuotes =
+    options.wrapInQuotes !== undefined ? options.wrapInQuotes : true;
+  const removeTrailingSemicolon = (str: string): string =>
+    str.replace(/;$/, "");
+  const escapeFunction =
+    escapeType === "specialChars"
+      ? (str: string): string =>
+          str.replace(/"/g, "'").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      : (str: string): string => str.replace(/"/g, '\\"');
+
+  const result = (() => {
+    switch (stmt.kind) {
+      case "statement_let":
+      case "statement_return":
+      case "statement_expression":
+      case "statement_assign":
+      case "statement_augmentedassign":
+        return prettyPrint(stmt);
+      case "statement_condition":
+        return `if (${prettyPrint(stmt.condition)})`;
+      case "statement_while":
+        return `while (${prettyPrint(stmt.condition)})`;
+      case "statement_until":
+        return `until (${prettyPrint(stmt.condition)})`;
+      case "statement_repeat":
+        return `repeat (${prettyPrint(stmt.iterations)})`;
+      case "statement_try":
+        return "try";
+      case "statement_try_catch":
+        return `try ... catch (${prettyPrint(stmt.catchName)})`;
+      case "statement_foreach":
+        return `foreach ((${prettyPrint(stmt.keyName)}, ${prettyPrint(
+          stmt.valueName,
+        )}) of ${prettyPrint(stmt.map)})`;
+      default:
+        throw InternalException.make("Unsupported statement", { node: stmt });
+    }
+  })();
+  const processedResult = escapeFunction(removeTrailingSemicolon(result));
+  return wrapInQuotes ? `"${processedResult}"` : processedResult;
 }

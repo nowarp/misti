@@ -1,0 +1,6 @@
+graph TD
+subgraph test
+    test_141["let a: Int = 42"]
+    test_142["return a == 42 ? a + 44 : a + 43"]:::exitNode
+    test_141 --> test_142
+end

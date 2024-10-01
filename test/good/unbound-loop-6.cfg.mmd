@@ -1,0 +1,11 @@
+graph TD
+subgraph Test__receive_internal_comment_1678_test
+    Test__receive_internal_comment_1678_test_141["let s: S = S{a: 1}"]
+    Test__receive_internal_comment_1678_test_142["let i: Int = 0"]
+    Test__receive_internal_comment_1678_test_144["while (i &lt; s.a)"]
+    Test__receive_internal_comment_1678_test_146["i += 1"]
+    Test__receive_internal_comment_1678_test_141 --> Test__receive_internal_comment_1678_test_142
+    Test__receive_internal_comment_1678_test_142 --> Test__receive_internal_comment_1678_test_144
+    Test__receive_internal_comment_1678_test_144 --> Test__receive_internal_comment_1678_test_146
+    Test__receive_internal_comment_1678_test_146 --> Test__receive_internal_comment_1678_test_144
+end

@@ -1,0 +1,17 @@
+graph TD
+subgraph toCall
+    toCall_142["return 42"]:::exitNode
+end
+subgraph test
+    test_143["pow(3, 2)"]
+    test_144["pow(3, 1 + 1)"]
+    test_146["pow(3, TWO)"]
+    test_148["pow(3, ONE + ONE)"]
+    test_150["pow(toCall(), toCall())"]
+    test_152["pow(toCall(), toCall() + 1)"]:::exitNode
+    test_143 --> test_144
+    test_144 --> test_146
+    test_146 --> test_148
+    test_148 --> test_150
+    test_150 --> test_152
+end

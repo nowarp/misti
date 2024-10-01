@@ -1,0 +1,7 @@
+graph TD
+subgraph test
+    test_141["let m: map&lt;Int, Int&gt; = emptyMap()"]
+    test_142["foreach ((k, v) of m)"]
+    test_141 --> test_142
+    test_142 --> test_142
+end

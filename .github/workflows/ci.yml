@@ -39,9 +39,15 @@ jobs:
         sudo apt install souffle
 
     - name: Install npm dependencies
-      run: yarn install
+      run: yarn install && npm install -g @mermaid-js/mermaid-cli
 
-    - name: Validate expected dot files
+    - name: Validate expected Mermaid diagrams
+      run: |
+        for file in test/good/*.mmd; do
+          mmdc -i "$file" -o /tmp/skip.svg || exit 1
+        done
+
+    - name: Validate expected Graphviz files
       run: |
         for file in test/good/*.dot; do
           dot -Tdot "$file" -o /dev/null || exit 1
