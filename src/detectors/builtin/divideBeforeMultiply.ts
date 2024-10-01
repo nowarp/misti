@@ -4,7 +4,7 @@ import {
   foldExpressions,
   forEachExpression,
   forEachStatement,
-} from "../../internals/tactASTUtil";
+} from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { SouffleDetector } from "../detector";
 import { SouffleContext, atom, body, relation, rule } from "@nowarp/souffle";

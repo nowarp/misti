@@ -7,7 +7,7 @@ import {
   SrcInfoSet,
   extractPath,
   forEachExpression,
-} from "../../internals/tactASTUtil";
+} from "../../internals/tact";
 import { Transfer } from "../../internals/transfer";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector, WarningsBehavior } from "../detector";

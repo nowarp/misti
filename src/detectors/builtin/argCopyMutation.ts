@@ -3,7 +3,7 @@ import {
   foldStatements,
   collectMutations,
   mutationNames,
-} from "../../internals/tactASTUtil";
+} from "../../internals/tact";
 import { intersection } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";

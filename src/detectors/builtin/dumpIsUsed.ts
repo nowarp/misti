@@ -1,8 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
-import {
-  foldExpressions,
-  isPrimitiveLiteral,
-} from "../../internals/tactASTUtil";
+import { foldExpressions, isPrimitiveLiteral } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";

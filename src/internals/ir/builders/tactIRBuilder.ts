@@ -20,7 +20,7 @@ import {
   InternalException,
   TactException,
 } from "../../exceptions";
-import { formatPosition } from "../../tactASTUtil";
+import { formatPosition } from "../../tact";
 import {
   ConfigProject,
   Config as TactConfig,

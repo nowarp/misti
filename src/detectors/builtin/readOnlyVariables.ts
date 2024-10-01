@@ -1,6 +1,6 @@
 import { InternalException } from "../../internals/exceptions";
 import { BasicBlock, CFG, CompilationUnit } from "../../internals/ir";
-import { extractPath, forEachExpression } from "../../internals/tactASTUtil";
+import { extractPath, forEachExpression } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { SouffleDetector, WarningsBehavior } from "../detector";
 import { SouffleContext, atom, body, relation, rule } from "@nowarp/souffle";

@@ -3,7 +3,7 @@ import {
   foldExpressions,
   foldStatements,
   nodesAreEqual,
-} from "../../internals/tactASTUtil";
+} from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import {

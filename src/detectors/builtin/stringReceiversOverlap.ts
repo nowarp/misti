@@ -1,10 +1,7 @@
 import { BasicBlock, CFG, CompilationUnit } from "../../internals/ir";
 import { JoinSemilattice } from "../../internals/lattice";
 import { WorklistSolver } from "../../internals/solver/";
-import {
-  forEachExpression,
-  forEachStatement,
-} from "../../internals/tactASTUtil";
+import { forEachExpression, forEachStatement } from "../../internals/tact";
 import { Transfer } from "../../internals/transfer";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";

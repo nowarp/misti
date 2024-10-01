@@ -1,4 +1,4 @@
-import { removeSelf } from "../src/internals/tactASTUtil";
+import { removeSelf } from "../src/internals/tact";
 import {
   AstExpression,
   AstId,

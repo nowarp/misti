@@ -1,5 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
-import { foldExpressions } from "../../internals/tactASTUtil";
+import { foldExpressions } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import { evalConstantExpression } from "@tact-lang/compiler/dist/constEval";

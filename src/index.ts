@@ -3,7 +3,7 @@ export * from "./detectors/detector";
 export * from "./tools/";
 export * from "./internals/warnings";
 export * from "./internals/transfer";
-export * from "./internals/tactASTUtil";
+export * from "./internals/tact";
 export * from "./internals/logger";
 export * from "./internals/lattice";
 export * from "./internals/exceptions";

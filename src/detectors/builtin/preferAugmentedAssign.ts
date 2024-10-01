@@ -1,5 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
-import { foldStatements } from "../../internals/tactASTUtil";
+import { foldStatements } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import {
