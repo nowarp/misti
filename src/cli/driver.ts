@@ -24,7 +24,7 @@ import fs from "fs";
 import JSONbig from "json-bigint";
 import path from "path";
 
-const DUMP_STDOUT_PATH = "-";
+export const DUMP_STDOUT_PATH = "-";
 
 /**
  * Manages the initialization and execution of detectors for analyzing compilation units.

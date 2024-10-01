@@ -1,4 +1,4 @@
-import { Runner } from "./driver";
+import { Runner, DUMP_STDOUT_PATH } from "./driver";
 import { cliOptions } from "./options";
 import { OutputFormat } from "../cli";
 import { createDetector } from "../createDetector";
@@ -89,7 +89,7 @@ export function handleMistiResult(result?: MistiResult): void {
   if (result === undefined) throw InternalException.make("No result");
   const driver = RUNNER.getDriver();
   const logger = driver.ctx.logger;
-  driver.outputPath
+  driver.outputPath && driver.outputPath !== DUMP_STDOUT_PATH
     ? handleOutputToFile(result, driver.outputPath, logger)
     : handleOutputToConsole(result, driver.outputFormat, logger);
 }

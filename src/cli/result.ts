@@ -1,4 +1,6 @@
+import { DUMP_STDOUT_PATH } from "./driver";
 import { OutputFormat } from "../cli/types";
+import { InternalException } from "../internals/exceptions";
 import { unreachable } from "../internals/util";
 import fs from "fs";
 import JSONbig from "json-bigint";
@@ -119,6 +121,9 @@ export function saveResultToFiles(
   result: MistiResult,
   outputPath: string,
 ): ResultReport {
+  if (outputPath === DUMP_STDOUT_PATH) {
+    throw InternalException.make(`Incorrect output path: ${outputPath}`);
+  }
   switch (result.kind) {
     case "ok":
       return { kind: "ok" };
