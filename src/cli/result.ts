@@ -1,4 +1,4 @@
-import { OutputFormat } from "../cli/options";
+import { OutputFormat } from "../cli/types";
 import { unreachable } from "../internals/util";
 import fs from "fs";
 import JSONbig from "json-bigint";

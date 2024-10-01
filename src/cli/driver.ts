@@ -1,6 +1,7 @@
-import { CLIOptions, OutputFormat, DUMP_STDOUT_PATH } from "./options";
+import { CLIOptions } from "./options";
 import { MistiResult, ToolOutput } from "./result";
 import { SingleContractProjectManager } from "./singleContract";
+import { OutputFormat } from "./types";
 import { Detector, findBuiltInDetector } from "../detectors/detector";
 import { MistiContext } from "../internals/context";
 import { ExecutionException, InternalException } from "../internals/exceptions";
@@ -16,6 +17,8 @@ import { Tool, findBuiltInTool } from "../tools/tool";
 import fs from "fs";
 import JSONbig from "json-bigint";
 import path from "path";
+
+const DUMP_STDOUT_PATH = "-";
 
 /**
  * Manages the initialization and execution of detectors for analyzing compilation units.

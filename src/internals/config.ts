@@ -1,5 +1,5 @@
 import { ExecutionException } from "./exceptions";
-import { ToolConfig, DetectorConfig } from "../cli/options";
+import { ToolConfig, DetectorConfig } from "../cli";
 import { getAllDetectors, getEnabledDetectors } from "../detectors/detector";
 import * as fs from "fs";
 import { z } from "zod";
