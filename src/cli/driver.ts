@@ -1,5 +1,11 @@
 import { CLIOptions } from "./options";
-import { MistiResult, ToolOutput } from "./result";
+import {
+  MistiResult,
+  ToolOutput,
+  MistiResultWarnings,
+  MistiResultTool,
+  WarningOutput,
+} from "./result";
 import { SingleContractProjectManager } from "./singleContract";
 import { OutputFormat } from "./types";
 import { Detector, findBuiltInDetector } from "../detectors/detector";
@@ -189,9 +195,19 @@ export class Driver {
       this.ctx,
       this.tactConfigPath,
     );
-    if (this.tools.length > 0) {
-      return this.executeTools(cus);
-    }
+    return this.tools.length > 0
+      ? this.executeTools(cus)
+      : this.executeAnalysis(cus);
+  }
+
+  /**
+   * Executes all the initialized detectors on the compilation units.
+   * @param cus Map of compilation units
+   * @returns MistiResult containing detectors output
+   */
+  private async executeAnalysis(
+    cus: Map<ProjectName, CompilationUnit>,
+  ): Promise<MistiResultWarnings> {
     const allWarnings = await (async () => {
       const warningsMap = new Map<ProjectName, MistiTactWarning[]>();
       await Promise.all(
@@ -207,42 +223,47 @@ export class Driver {
       allWarnings,
     );
     const reported = new Set<string>();
-    const collectedWarnings: MistiTactWarning[] = Array.from(
-      filteredWarnings.values(),
-    ).reduce((acc: MistiTactWarning[], detectorsMap) => {
+    const warningsOutput: WarningOutput[] = [];
+    for (const [projectName, detectorsMap] of filteredWarnings.entries()) {
       const projectWarnings: MistiTactWarning[] = Array.from(
         detectorsMap.values(),
       ).flat();
+      const collectedWarnings: MistiTactWarning[] = [];
       projectWarnings.forEach((warn) => {
         if (!reported.has(warn.msg) && warn.severity >= this.minSeverity) {
-          acc.push(warn);
+          collectedWarnings.push(warn);
           reported.add(warn.msg);
         }
       });
-      return acc;
-    }, []);
-    const sortedWarnings = collectedWarnings.sort(
-      (a, b) => b.severity - a.severity,
-    );
-    const formattedWarnings = sortedWarnings.reduce((acc, warn, index) => {
-      const isLastWarning = index === sortedWarnings.length - 1;
-      acc.push(this.formatWarning(warn, !isLastWarning));
-      return acc;
-    }, [] as string[]);
+      if (collectedWarnings.length > 0) {
+        const sortedWarnings = collectedWarnings.sort(
+          (a, b) => b.severity - a.severity,
+        );
+        const formattedWarnings = sortedWarnings.reduce((acc, warn, index) => {
+          const isLastWarning = index === sortedWarnings.length - 1;
+          acc.push(this.formatWarning(warn, !isLastWarning));
+          return acc;
+        }, [] as string[]);
+        warningsOutput.push({
+          projectName,
+          warnings: formattedWarnings,
+        });
+      }
+    }
     return {
       kind: "warnings",
-      warnings: formattedWarnings,
+      warnings: warningsOutput,
     };
   }
 
   /**
-   * Executes all initialized tools on the compilation units.
+   * Executes all the initialized tools on the compilation units.
    * @param cus Map of compilation units
    * @returns MistiResult containing tool outputs
    */
   private async executeTools(
     cus: Map<ProjectName, CompilationUnit>,
-  ): Promise<MistiResult> {
+  ): Promise<MistiResultTool> {
     const toolOutputs = await Promise.all(
       Array.from(cus.values()).flatMap((cu) =>
         this.tools.map((tool) => {

@@ -52,9 +52,10 @@ export abstract class Tool<T extends Record<string, unknown>> {
   /**
    * Makes a ToolOutput from the given output.
    */
-  protected makeOutput(output: string): ToolOutput {
+  protected makeOutput(cu: CompilationUnit, output: string): ToolOutput {
     return {
       name: this.id,
+      projectName: cu.projectName,
       output,
     };
   }

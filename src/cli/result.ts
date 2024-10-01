@@ -11,15 +11,23 @@ export type MistiResultOK = {
   kind: "ok";
 };
 
+export type WarningOutput = {
+  /**
+   * Project that has been checked.
+   */
+  projectName: string;
+  /**
+   * Warnings found by Misti.
+   */
+  warnings: string[];
+};
+
 /**
  * MistiResultWarnings represents the result of a Misti operation that found warnings.
  */
 export type MistiResultWarnings = {
   kind: "warnings";
-  /**
-   * Warnings found by Misti.
-   */
-  warnings: string[];
+  warnings: WarningOutput[];
 };
 
 /**
@@ -34,7 +42,14 @@ export type MistiResultError = {
 };
 
 export type ToolOutput = {
+  /**
+   * Name of the tool.
+   */
   name: string;
+  /**
+   * Project this tool was executed for.
+   */
+  projectName: string;
   output: string;
 };
 
@@ -69,11 +84,8 @@ export function resultToString(
       return `Misti execution failed:\n${result.error}`;
     case "warnings":
       return result.warnings
-        .map(
-          (warning, index) =>
-            warning + (index < result.warnings.length - 1 ? "\n" : ""),
-        )
-        .join("")
+        .flatMap((warningOutput) => warningOutput.warnings)
+        .join("\n")
         .trim();
     case "tool":
       return result.output.length === 1
@@ -87,10 +99,18 @@ export function resultToString(
   }
 }
 
-export type ResultReport = { type: "error" | "ok"; message: string } | null;
+export type ResultReport =
+  | { kind: "ok" }
+  | { kind: "error"; message: string }
+  | null;
 
 /**
  * Saves the result of a Misti operation to files.
+ *
+ * The names of the files follow the following format:
+ * - <project-name>.warnings.out
+ * - <project-name>.<tool-name>.out
+ *
  * @param result The result of a Misti operation.
  * @param outputPath The path to save the result to.
  * @returns The report of the result.
@@ -101,22 +121,24 @@ export function saveResultToFiles(
 ): ResultReport {
   switch (result.kind) {
     case "ok":
-      return { type: "ok", message: "No errors found" };
+      return { kind: "ok" };
     case "error":
       return {
-        type: "error",
-        message: `Misti execution failed:\n${result.error}`,
+        kind: "error",
+        message: result.error,
       };
     case "warnings":
-      fs.writeFileSync(
-        path.join(outputPath, "warnings.out"),
-        result.warnings.join("\n"),
-      );
+      result.warnings.forEach((warn) => {
+        fs.writeFileSync(
+          path.join(outputPath, `${warn.projectName}.warnings.out`),
+          warn.warnings.join("\n"),
+        );
+      });
       return null;
     case "tool":
       result.output.forEach((tool) => {
         fs.writeFileSync(
-          path.join(outputPath, `${tool.name}.out`),
+          path.join(outputPath, `${tool.projectName}.${tool.name}.out`),
           tool.output,
         );
       });

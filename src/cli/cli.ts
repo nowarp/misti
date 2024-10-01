@@ -1,5 +1,6 @@
 import { Runner } from "./driver";
 import { cliOptions } from "./options";
+import { OutputFormat } from "../cli";
 import { createDetector } from "../createDetector";
 import { ExecutionException } from "../internals/exceptions";
 import { InternalException } from "../internals/exceptions";
@@ -8,6 +9,7 @@ import { generateToolsHelpMessage } from "../tools/tool";
 import { MISTI_VERSION, TACT_VERSION } from "../version";
 import { MistiResult, resultToString } from "./result";
 import { saveResultToFiles, ResultReport } from "./result";
+import { Logger } from "../internals/logger";
 import { Command } from "commander";
 
 /**
@@ -70,7 +72,7 @@ export async function runMistiCommand(
 }
 
 /**
- * Executes Misti with the given options capturing output.
+ * Executes Misti with the given options capturing output as text.
  */
 export async function executeMisti(args: string[]): Promise<string> {
   const result = await runMistiCommand(args);
@@ -81,46 +83,62 @@ export async function executeMisti(args: string[]): Promise<string> {
 /**
  * Handles Misti execution result by either logging to console or saving to file.
  */
-export function handleMistiResult(
-  result?: MistiResult,
-  outputPath?: string,
-): void {
+export function handleMistiResult(result?: MistiResult): void {
   if (RUNNER === undefined)
     throw InternalException.make("Function requires Runner to be initialized");
   if (result === undefined) throw InternalException.make("No result");
-
   const driver = RUNNER.getDriver();
   const logger = driver.ctx.logger;
+  driver.outputPath
+    ? handleOutputToFile(result, driver.outputPath, logger)
+    : handleOutputToConsole(result, driver.outputFormat, logger);
+}
 
-  if (outputPath) {
-    const report: ResultReport = saveResultToFiles(result, outputPath);
-    if (report) {
-      switch (report.type) {
-        case "error":
-          logger.error(report.message);
-          break;
-        case "ok":
-          logger.info(report.message);
-          break;
-        default:
-          unreachable(report.type);
-      }
-    }
-  } else {
-    const text = resultToString(result, driver.outputFormat);
-    switch (result.kind) {
-      case "warnings":
-        logger.warn(text);
-        break;
+/**
+ * Handles saving the result to a file and logging the outcome.
+ */
+function handleOutputToFile(
+  result: MistiResult,
+  outputPath: string,
+  logger: Logger,
+): void {
+  const report: ResultReport = saveResultToFiles(result, outputPath);
+  if (report) {
+    switch (report.kind) {
       case "error":
-        logger.error(text);
+        logger.error("Misti execution error:");
+        logger.error(report.message);
         break;
-      case "tool":
       case "ok":
-        logger.info(text);
+        logger.info("No errors found");
         break;
       default:
-        unreachable(result);
+        unreachable(report);
     }
+  }
+}
+
+/**
+ * Handles logging the result to the console.
+ */
+function handleOutputToConsole(
+  result: MistiResult,
+  outputFormat: OutputFormat,
+  logger: Logger,
+): void {
+  const text = resultToString(result, outputFormat);
+  switch (result.kind) {
+    case "warnings":
+      logger.warn(text);
+      break;
+    case "error":
+      logger.error(text);
+      break;
+    case "tool":
+    case "ok":
+      logger.info(text);
+      break;
+    default:
+      unreachable(result);
   }
 }

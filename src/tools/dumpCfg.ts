@@ -27,10 +27,14 @@ export class DumpCfg extends Tool<DumpCfgOptions> {
     switch (this.options.format) {
       case "dot":
         return this.makeOutput(
+          cu,
           GraphvizDumper.dumpCU(cu, this.options.dumpStdlib),
         );
       case "json":
-        return this.makeOutput(JSONDumper.dumpCU(cu, this.options.dumpStdlib));
+        return this.makeOutput(
+          cu,
+          JSONDumper.dumpCU(cu, this.options.dumpStdlib),
+        );
       default:
         throw unreachable(this.options.format);
     }

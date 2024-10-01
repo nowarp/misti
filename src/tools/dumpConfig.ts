@@ -13,8 +13,8 @@ export class DumpConfig extends Tool<DumpConfigOptions> {
     return {} as DumpConfigOptions;
   }
 
-  run(_cu: CompilationUnit): ToolOutput | never {
-    return this.makeOutput(JSONbig.stringify(this.ctx.config));
+  run(cu: CompilationUnit): ToolOutput | never {
+    return this.makeOutput(cu, JSONbig.stringify(this.ctx.config));
   }
 
   getDescription(): string {

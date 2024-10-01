@@ -95,7 +95,7 @@ describe("JSON output test for a single file", () => {
 
     expect(jsonOutput.warnings.length).toBeGreaterThan(0);
 
-    const firstWarning = JSONbig.parse(jsonOutput.warnings[0]);
+    const firstWarning = JSONbig.parse(jsonOutput.warnings[0].warnings[0]);
     expect(firstWarning).toMatchObject({
       file: expect.stringContaining("never-accessed-1.tact"),
       line: expect.any(Number),

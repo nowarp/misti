@@ -23,7 +23,7 @@ export class DumpAst extends Tool<DumpAstOptions> {
   run(cu: CompilationUnit): ToolOutput | never {
     switch (this.options.format) {
       case "json":
-        return this.makeOutput(this.dumpJSON(cu));
+        return this.makeOutput(cu, this.dumpJSON(cu));
       default:
         throw unreachable(this.options.format);
     }
