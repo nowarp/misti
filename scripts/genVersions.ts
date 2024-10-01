@@ -1,18 +1,39 @@
 /**
- * Generates Misti and Tact versions in src/version-info.ts
+ * Generates Misti and Tact versions in `src/version-info.ts`.
  *
- * This needed to avoid reading them from package.json in runtime in order to
- * simplify building the distribution package.
+ * This is needed to avoid reading them from `package.json` at runtime to simplify
+ * building the distribution package.
+ *
+ * **Note:** If the `MISTI_RELEASE` environment variable is set to `'1'`, the Git
+ * revision will not be included in the version string.
  *
  * @packageDocumentation
  */
 
 import * as fs from "fs";
 import * as path from "path";
+import { execSync } from "child_process";
 
 const packageJsonPath = path.join(__dirname, "..", "package.json");
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
-const MISTI_VERSION: string = packageJson.version;
+const packageVersion: string = packageJson.version;
+
+// Initialize MISTI_VERSION with packageVersion
+let MISTI_VERSION: string = packageVersion;
+
+if (process.env.MISTI_RELEASE !== '1') {
+  // Retrieve the Git revision number
+  let gitRevision = "unknown";
+  try {
+    gitRevision = execSync("git rev-parse --short HEAD").toString().trim();
+  } catch (error) {
+    console.warn("Could not retrieve Git revision:", error);
+  }
+
+  // Combine the package version with the Git revision
+  MISTI_VERSION = `${packageVersion}-${gitRevision}`;
+}
+
 const TACT_COMPILER_VERSION: string =
   packageJson.dependencies["@tact-lang/compiler"];
 

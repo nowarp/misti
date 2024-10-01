@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI: `--min-severity/-m` option to filter warnings
 
 ### Changed
+- Include Git revision number to non-release version numbers
 - Warnings now have more comprehensive descriptions and are sorted by severity
 - `DumpIsUsed`: Report only `dump` calls with non-literal arguments
 - Misti API to execute the driver programmatically

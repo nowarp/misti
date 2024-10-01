@@ -85,8 +85,8 @@
   },
   "release-it": {
     "hooks": {
-      "before:release": "yarn clean && yarn gen && yarn build",
-      "after:bump": "yarn gen && yarn build"
+      "before:release": "MISTI_RELEASE=1 yarn clean && yarn gen && yarn build",
+      "after:bump": "MISTI_RELEASE=1 yarn gen && yarn build"
     },
     "github": {
       "release": true
