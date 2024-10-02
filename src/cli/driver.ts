@@ -195,6 +195,12 @@ export class Driver {
       this.ctx,
       this.tactConfigPath,
     );
+    if (this.detectors.length === 0 && this.tools.length === 0) {
+      this.ctx.logger.warn(
+        "Nothing to execute. Please specify at least one detector or tool.",
+      );
+      return { kind: "ok" };
+    }
     return this.tools.length > 0
       ? this.executeTools(cus)
       : this.executeAnalysis(cus);

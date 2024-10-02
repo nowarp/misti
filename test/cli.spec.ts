@@ -1,8 +1,8 @@
-import { runMistiCommand } from "../src/cli";
-import { Runner } from "../src/cli";
+import { runMistiCommand, Runner } from "../src/cli";
 import path from "path";
 
 const TACT_CONFIG_PATH = path.join(__dirname, "./tact.config.json");
+const MISTI_CONFIG_PATH = path.join(__dirname, "./misti.config.json");
 
 describe("CLI Argument Parsing", () => {
   it("should initialize driver with correct options when --verbose is provided", async () => {
@@ -81,5 +81,11 @@ describe("CLI Argument Parsing", () => {
     await expect(runMistiCommand(args)).rejects.toThrow(
       "`<TACT_CONFIG_PATH|TACT_FILE_PATH>` is required",
     );
+  });
+
+  it("should return ok when no tools and detectors are specified", async () => {
+    const args = ["--config", MISTI_CONFIG_PATH, TACT_CONFIG_PATH];
+    const result = await runMistiCommand(args);
+    expect(result).toEqual({ kind: "ok" });
   });
 });
