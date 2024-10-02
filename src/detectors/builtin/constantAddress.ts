@@ -37,6 +37,8 @@ import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
  * ```
  */
 export class ConstantAddress extends ASTDetector {
+  severity = Severity.INFO;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(
@@ -58,7 +60,7 @@ export class ConstantAddress extends ASTDetector {
         expr.args[0].kind === "string"
       ) {
         acc.push(
-          this.makeWarning("Found constant address", Severity.INFO, expr.loc, {
+          this.makeWarning("Found constant address", expr.loc, {
             suggestion:
               "Using hardcoded addresses can sometimes indicate poor contract design",
           }),

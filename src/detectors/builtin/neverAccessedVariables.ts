@@ -175,6 +175,8 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
  * ```
  */
 export class NeverAccessedVariables extends DataflowDetector {
+  severity = Severity.MEDIUM;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return [
       ...this.checkFields(cu),
@@ -198,14 +200,9 @@ export class NeverAccessedVariables extends DataflowDetector {
       if (this.skipUnused(name)) {
         return acc;
       }
-      const err = this.makeWarning(
-        `Field ${name} is never used`,
-        Severity.MEDIUM,
-        ref,
-        {
-          suggestion: "Consider creating a constant instead of field",
-        },
-      );
+      const err = this.makeWarning(`Field ${name} is never used`, ref, {
+        suggestion: "Consider creating a constant instead of field",
+      });
       acc.push(err);
       return acc;
     }, [] as MistiTactWarning[]);
@@ -304,14 +301,9 @@ export class NeverAccessedVariables extends DataflowDetector {
       if (this.skipUnused(name)) {
         return acc;
       }
-      const err = this.makeWarning(
-        `Constant ${name} is never used`,
-        Severity.LOW,
-        ref,
-        {
-          suggestion: "Consider removing the constant",
-        },
-      );
+      const err = this.makeWarning(`Constant ${name} is never used`, ref, {
+        suggestion: "Consider removing the constant",
+      });
       acc.push(err);
       return acc;
     }, [] as MistiTactWarning[]);
@@ -385,14 +377,9 @@ export class NeverAccessedVariables extends DataflowDetector {
             ? "The variable value should be accessed"
             : "Consider removing the variable";
           warnings.push(
-            this.makeWarning(
-              msg,
-              Severity.MEDIUM,
-              declaredVariables.get(name)!,
-              {
-                suggestion,
-              },
-            ),
+            this.makeWarning(msg, declaredVariables.get(name)!, {
+              suggestion,
+            }),
           );
         }
       });

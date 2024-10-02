@@ -49,6 +49,8 @@ import {
  * ```
  */
 export class ArgCopyMutation extends ASTDetector {
+  severity = Severity.HIGH;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.ast.getFunctions()).reduce((acc, fun) => {
       if (fun.kind === "contract_init" || fun.kind === "function_def") {
@@ -99,7 +101,6 @@ export class ArgCopyMutation extends ASTDetector {
       acc.push(
         this.makeWarning(
           `Function argument${foundMutations.length === 1 ? ` ${mut} is` : `s ${mut} are`} mutated`,
-          Severity.HIGH,
           stmt.loc,
           {
             extraDescription:

@@ -43,6 +43,8 @@ import {
  * ```
  */
 export class UnboundLoops extends SouffleDetector {
+  severity = Severity.HIGH;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const program = this.createSouffleContext(cu);
     this.addDecls(program);
@@ -55,17 +57,12 @@ export class UnboundLoops extends SouffleDetector {
           `AST position for fact ${fact} is not available`,
         );
       }
-      return this.makeWarning(
-        "Found unbounded loop",
-        Severity.HIGH,
-        fact.data,
-        {
-          suggestion:
-            "Consider changing the variable inside the loop to ensure it terminates",
-          extraDescription:
-            "The condition variable doesn't change inside the loop",
-        },
-      );
+      return this.makeWarning("Found unbounded loop", fact.data, {
+        suggestion:
+          "Consider changing the variable inside the loop to ensure it terminates",
+        extraDescription:
+          "The condition variable doesn't change inside the loop",
+      });
     });
   }
 

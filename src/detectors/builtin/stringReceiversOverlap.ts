@@ -171,6 +171,8 @@ class StringReceiversOverlapTransfer implements Transfer<TaintState> {
  * ```
  */
 export class StringReceiversOverlap extends DataflowDetector {
+  severity = Severity.HIGH;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const stringReceivers = this.getStringReceiverNames(cu);
     let warnings: MistiTactWarning[] = [];
@@ -297,7 +299,6 @@ export class StringReceiversOverlap extends DataflowDetector {
         const stringReceiverSignature = `receiver("${argName}")`;
         const warn = this.makeWarning(
           `${genericReceiverSignature} overlaps with ${stringReceiverSignature}`,
-          Severity.HIGH,
           condition.loc,
           {
             extraDescription: `The highlighted condition might never be executed`,

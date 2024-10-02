@@ -33,6 +33,8 @@ import {
  * ```
  */
 export class FieldDoubleInit extends ASTDetector {
+  severity = Severity.MEDIUM;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.ast.getContracts()).reduce(
       (acc, contract) => acc.concat(this.checkContract(contract)),
@@ -76,7 +78,6 @@ export class FieldDoubleInit extends ASTDetector {
         acc.push(
           this.makeWarning(
             `Field ${stmt.path.field.text} is initialized twice`,
-            Severity.MEDIUM,
             stmt.loc,
             {
               suggestion:

@@ -49,6 +49,8 @@ const REPLACEMENTS: Record<string, { replacement: string; rationale: string }> =
  * ```
  */
 export class PreferredStdlibApi extends ASTDetector {
+  severity = Severity.INFO;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(
@@ -70,7 +72,6 @@ export class PreferredStdlibApi extends ASTDetector {
         acc.push(
           this.makeWarning(
             `${funName} has a safer alternative: ${replacementInfo.replacement}`,
-            Severity.LOW,
             expr.loc,
             {
               extraDescription: replacementInfo.rationale,

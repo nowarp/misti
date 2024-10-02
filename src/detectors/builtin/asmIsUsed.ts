@@ -17,11 +17,13 @@ import { ASTDetector } from "../detector";
  * ```
  */
 export class AsmIsUsed extends ASTDetector {
+  severity = Severity.INFO;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       if (node.kind === "asm_function_def") {
         acc.push(
-          this.makeWarning("asm function is used", Severity.INFO, node.loc, {
+          this.makeWarning("asm function is used", node.loc, {
             suggestion:
               "Using TVM assembly is a potentially dangerous operation that requires additional review",
           }),

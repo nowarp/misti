@@ -29,6 +29,8 @@ const REPLACEMENTS: Record<string, string> = {
  * ```
  */
 export class OptimalMathFunction extends ASTDetector {
+  severity = Severity.LOW;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(
@@ -67,7 +69,6 @@ export class OptimalMathFunction extends ASTDetector {
         acc.push(
           this.makeWarning(
             `Use more gas-efficient function: ${suggestedFun}(${prettyPrint(firstArg)})`,
-            Severity.LOW,
             expr.loc,
             {
               suggestion: "Choose more gas-efficient function",

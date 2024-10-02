@@ -53,6 +53,8 @@ const DontSuggestKinds = new Set<string>([
  * ```
  */
 export class PreferAugmentedAssign extends ASTDetector {
+  severity = Severity.INFO;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(
@@ -87,7 +89,6 @@ export class PreferAugmentedAssign extends ASTDetector {
       acc.push(
         this.makeWarning(
           `Prefer augmented assignment: ${suggestedChange}`,
-          Severity.INFO,
           stmt.loc,
           {
             suggestion: `Consider using augmented assignment instead: ${suggestedChange}`,

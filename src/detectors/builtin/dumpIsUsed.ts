@@ -33,6 +33,8 @@ import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
  * ```
  */
 export class DumpIsUsed extends ASTDetector {
+  severity = Severity.INFO;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(
@@ -54,7 +56,7 @@ export class DumpIsUsed extends ASTDetector {
       !(expr.args.length === 1 && isPrimitiveLiteral(expr.args[0]))
     ) {
       acc.push(
-        this.makeWarning("Found `dump` usage", Severity.INFO, expr.loc, {
+        this.makeWarning("Found `dump` usage", expr.loc, {
           suggestion:
             "Using `dump` in production code can sometimes indicate complex code that requires additional review",
         }),

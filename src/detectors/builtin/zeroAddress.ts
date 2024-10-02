@@ -42,6 +42,8 @@ import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
  * ```
  */
 export class ZeroAddress extends ASTDetector {
+  severity = Severity.LOW;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(
@@ -64,17 +66,12 @@ export class ZeroAddress extends ASTDetector {
         expr.args[1].value === 0n
       ) {
         acc.push(
-          this.makeWarning(
-            "Using zero address",
-            Severity.LOW,
-            expr.args[1].loc,
-            {
-              suggestion: [
-                "Consider changing code to avoid using it.",
-                "For example, you could pass the address during the deployment.",
-              ].join(" "),
-            },
-          ),
+          this.makeWarning("Using zero address", expr.args[1].loc, {
+            suggestion: [
+              "Consider changing code to avoid using it.",
+              "For example, you could pass the address during the deployment.",
+            ].join(" "),
+          }),
         );
       }
     }

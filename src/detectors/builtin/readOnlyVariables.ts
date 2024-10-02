@@ -37,6 +37,8 @@ import {
  * ```
  */
 export class ReadOnlyVariables extends SouffleDetector {
+  severity = Severity.MEDIUM;
+
   get shareImportedWarnings(): WarningsBehavior {
     // Read-only constants/fields from imported files will be reported iff they
     // are reported in each of the projects (CompilationUnit).
@@ -57,14 +59,9 @@ export class ReadOnlyVariables extends SouffleDetector {
       if (this.skipUnused(fact.data.contents)) {
         return undefined;
       }
-      return this.makeWarning(
-        "Read-only variable",
-        Severity.MEDIUM,
-        fact.data,
-        {
-          suggestion: "Consider creating a constant instead",
-        },
-      );
+      return this.makeWarning("Read-only variable", fact.data, {
+        suggestion: "Consider creating a constant instead",
+      });
     });
   }
 

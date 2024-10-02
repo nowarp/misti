@@ -45,6 +45,8 @@ import {
  * ```
  */
 export class DivideBeforeMultiply extends SouffleDetector {
+  severity = Severity.HIGH;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const program = this.createSouffleContext(cu);
     this.addDecls(program);
@@ -58,7 +60,6 @@ export class DivideBeforeMultiply extends SouffleDetector {
       }
       return this.makeWarning(
         "Division operation comes before multiplication",
-        Severity.HIGH,
         fact.data,
         {
           extraDescription:

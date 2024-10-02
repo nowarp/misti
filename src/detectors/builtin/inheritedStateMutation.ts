@@ -54,6 +54,8 @@ import { AstStatement, AstNode } from "@tact-lang/compiler/dist/grammar/ast";
  * ```
  */
 export class InheritedStateMutation extends ASTDetector {
+  severity = Severity.LOW;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.ast.getContracts()).reduce((acc, contract) => {
       const contractAst = cu.ast.getContract(contract.id);
@@ -103,7 +105,6 @@ export class InheritedStateMutation extends ASTDetector {
       acc.push(
         this.makeWarning(
           `Inherited trait field${foundMutations.length === 1 ? ` ${mut} is` : `s ${mut} are`} mutated`,
-          Severity.LOW,
           stmt.loc,
           {
             extraDescription:

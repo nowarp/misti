@@ -42,6 +42,8 @@ import {
  * ```
  */
 export class BranchDuplicate extends ASTDetector {
+  severity = Severity.HIGH;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       const ternaryWarnings = foldExpressions(
@@ -125,7 +127,6 @@ export class BranchDuplicate extends ASTDetector {
   private createWarning(loc: SrcInfo): MistiTactWarning {
     return this.makeWarning(
       "Duplicated code in conditional branches is detected",
-      Severity.HIGH,
       loc,
       {
         suggestion:

@@ -44,6 +44,8 @@ import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
  * ```
  */
 export class DuplicatedCondition extends ASTDetector {
+  severity = Severity.HIGH;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       const exprWarnings = foldExpressions(
@@ -108,7 +110,7 @@ export class DuplicatedCondition extends ASTDetector {
             desc = `Conditions ${lhsStr} and ${rhsStr} are equal`;
           }
           acc.push(
-            this.makeWarning(desc, Severity.HIGH, lhs.loc, {
+            this.makeWarning(desc, lhs.loc, {
               suggestion:
                 "Consider removing an extra condition or changing it.",
             }),
