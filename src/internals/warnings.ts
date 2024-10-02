@@ -30,7 +30,7 @@ export function severityToString(
   {
     colorize = false,
     brackets = true,
-  }: Partial<{ colorize: boolean; brackets: boolean }>,
+  }: Partial<{ colorize: boolean; brackets: boolean }> = {},
 ): string {
   const colors = {
     reset: "\x1b[0m",

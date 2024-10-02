@@ -1,4 +1,6 @@
 import { DetectorKind } from "../src/detectors/detector";
+import { Severity, parseSeverity, severityToString } from "../src/internals/warnings";
+import { PropertyDeclaration } from "typescript";
 import {
   ClassDeclaration,
   SyntaxKind,
@@ -16,6 +18,7 @@ import {
 } from "typescript";
 import fs from "fs-extra";
 import * as path from "path";
+import { BuiltInDetectors } from "../src/detectors/detector";
 
 /**
  * Expose the internal TypeScript APIs used within the script.
@@ -31,7 +34,9 @@ declare module "typescript" {
 type DetectorDoc = {
   className: string;
   kind: DetectorKind;
+  severity: Severity;
   markdown: string;
+  enabledByDefault: boolean;
 };
 
 export function extendsDetector(
@@ -110,6 +115,24 @@ function extractKindValue(
   return undefined;
 }
 
+function extractSeverityValue(node: ClassDeclaration): Severity {
+  for (const member of node.members) {
+    if (
+      member.kind === SyntaxKind.PropertyDeclaration &&
+      (member as PropertyDeclaration).name.getText() === "severity"
+    ) {
+      const propertyDeclaration = member as PropertyDeclaration;
+      if (propertyDeclaration.initializer) {
+        const severityValue = propertyDeclaration.initializer
+          .getText()
+          .split(".")[1];
+        return parseSeverity(severityValue);
+      }
+    }
+  }
+  throw new Error(`Severity not found for detector ${node.name?.getText()}`);
+}
+
 export function processFile(
   fileName: string,
   program: Program,
@@ -127,9 +150,11 @@ export function processFile(
         const className = node.name.getText();
         const docComment = getJSDocComments(node);
         const kind = extractKindValue(node, checker)!;
+        const severity = extractSeverityValue(node);
+        const enabledByDefault = BuiltInDetectors[className]?.enabledByDefault ?? false;
 
         const markdown = `# ${className}\n${docComment}\n`;
-        results.push({ className, markdown, kind });
+        results.push({ className, markdown, kind, severity, enabledByDefault });
       }
     }
     forEachChild(node, visit);
@@ -137,6 +162,10 @@ export function processFile(
 
   visit(sourceFile);
   return results;
+}
+
+function capitalize(word: string): string {
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 }
 
 export function processDirectory(
@@ -153,17 +182,24 @@ export function processDirectory(
     module: 1, // CommonJS
   });
 
-  fileNames.forEach((fileName) => {
-    processFile(fileName, program).forEach(({ className, markdown, kind }) => {
-      const markdownPath = `${className}.md`;
-      const dest = path.join(outputDirectory, markdownPath);
-      // Prints detectors info in the following format:
-      // - [StringReceiversOverlap](./detectors/StringReceiversOverlap) (requires Soufflé)
-      console.log(
-        `- [${className}](./detectors/${markdownPath})${kind === "souffle" ? " (requires Soufflé)" : ""}`,
-      );
-      fs.outputFileSync(dest, markdown);
-    });
+  console.log("| #  | Detector | Severity | Requires Soufflé | Enabled by default |");
+  console.log("|----|-----------|-----------|--------------------|---------------------|");
+
+  fileNames.forEach((fileName, index) => {
+    processFile(fileName, program).forEach(
+      ({ className, markdown, kind, severity, enabledByDefault }) => {
+        const markdownPath = `${className}.md`;
+        const dest = path.join(outputDirectory, markdownPath);
+
+        const requiresSouffle = kind === "souffle" ? "✔" : "";
+        const enabledByDefaultStr = enabledByDefault ? "✔" : "";
+        console.log(
+          `| ${index + 1}  | [${className}](./detectors/${markdownPath}) | ${capitalize(severityToString(severity, { brackets: false }))} | ${requiresSouffle} | ${enabledByDefaultStr} |`
+        );
+
+        fs.outputFileSync(dest, markdown);
+      },
+    );
   });
 }
 
