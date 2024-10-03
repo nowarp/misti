@@ -54,6 +54,13 @@ import { createNodeFileSystem } from "@tact-lang/compiler/dist/vfs/createNodeFil
 import fs from "fs";
 import path from "path";
 
+type FunctionType =
+  | AstFunctionDef
+  | AstContractInit
+  | AstReceiver
+  | AstAsmFunctionDef
+  | AstNativeFunctionDecl;
+
 /**
  * Generates a unique name used to identify receive functions in CFG.
  */
@@ -145,44 +152,51 @@ class TactASTStoreBuilder {
     private ctx: MistiContext,
     private ast: AstStore,
   ) {
-    this.ast.functions.forEach((func) => {
-      this.programEntries.add(func.id);
-      if (definedInStdlib(this.ctx, func.loc)) {
-        this.stdlibIds.add(func.id);
-      }
-      switch (func.kind) {
-        case "function_def":
-          this.processFunction(func);
-          break;
-        case "asm_function_def":
-          this.asmFunctions.set(func.id, func);
-          break;
-        case "native_function_decl":
-          this.nativeFunctions.set(func.id, func);
-          break;
-        default:
-          throw InternalException.make("Unsupported top-level function", {
-            node: func,
-          });
-      }
-    });
-    this.ast.constants.forEach((constant) => {
-      if (definedInStdlib(this.ctx, constant.loc)) {
-        this.stdlibIds.add(constant.id);
-      }
-      this.programEntries.add(constant.id);
-      this.constants.set(constant.id, constant);
-    });
-    this.ast.types.forEach((type) => {
-      if (definedInStdlib(this.ctx, type.loc)) {
-        this.stdlibIds.add(type.id);
-      }
-      this.programEntries.add(type.id);
-      this.processType(type);
-    });
+    this.processAstElements(this.ast.functions, this.processFunctionElement);
+    this.processAstElements(this.ast.constants, this.processConstantElement);
+    this.processAstElements(this.ast.types, this.processTypeElement);
   }
   public static make(ctx: MistiContext, ast: AstStore): TactASTStoreBuilder {
     return new TactASTStoreBuilder(ctx, ast);
+  }
+
+  private processAstElements<T extends { id: number; loc: SrcInfo }>(
+    elements: T[],
+    processor: (element: T) => void,
+  ): void {
+    elements.forEach((element) => {
+      this.programEntries.add(element.id);
+      if (definedInStdlib(this.ctx, element.loc)) {
+        this.stdlibIds.add(element.id);
+      }
+      processor.call(this, element);
+    });
+  }
+
+  private processFunctionElement(func: FunctionType): void {
+    switch (func.kind) {
+      case "function_def":
+        this.processFunction(func);
+        break;
+      case "asm_function_def":
+        this.asmFunctions.set(func.id, func);
+        break;
+      case "native_function_decl":
+        this.nativeFunctions.set(func.id, func);
+        break;
+      default:
+        throw InternalException.make("Unsupported top-level function", {
+          node: func,
+        });
+    }
+  }
+
+  private processConstantElement(constant: AstConstantDef): void {
+    this.constants.set(constant.id, constant);
+  }
+
+  private processTypeElement(type: AstTypeDecl): void {
+    this.processType(type);
   }
 
   public build(): TactASTStore {
