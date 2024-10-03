@@ -1,4 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
+import { collectFields } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import {
@@ -54,13 +55,10 @@ export class FieldDoubleInit extends ASTDetector {
     }
 
     // Fields initialized in their declarations.
-    const initializedInDecl: Set<string> = contract.declarations.reduce(
-      (acc, decl) => {
-        if (decl.kind === "field_decl" && decl.initializer !== null)
-          acc.add(decl.name.text);
-        return acc;
-      },
-      new Set<string>(),
+    const initializedInDecl = new Set(
+      collectFields(contract, {
+        initialized: true,
+      }).keys(),
     );
     if (initializedInDecl.size === 0) {
       return [];

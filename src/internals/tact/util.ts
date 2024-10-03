@@ -3,6 +3,8 @@ import { AstComparator } from "@tact-lang/compiler/dist/";
 import {
   AstExpression,
   AstId,
+  AstFieldDecl,
+  AstContract,
   AstFieldAccess,
   AstStatement,
   AstMethodCall,
@@ -276,4 +278,22 @@ export function statementsAreEqual(
   return stmts1.every((stmt, i) => {
     return nodesAreEqual(stmt, stmts2[i]);
   });
+}
+
+/**
+ * Collects declarations of all the contract fields.
+ */
+export function collectFields(
+  contract: AstContract,
+  { initialized = false }: Partial<{ initialized: boolean }> = {},
+): Map<string, AstFieldDecl> {
+  return contract.declarations.reduce((acc, decl) => {
+    if (
+      decl.kind === "field_decl" &&
+      (!initialized || decl.initializer !== null)
+    ) {
+      acc.set(decl.name.text, decl);
+    }
+    return acc;
+  }, new Map<string, AstFieldDecl>());
 }
