@@ -1,4 +1,4 @@
-[LOW] NeverAccessedVariables: Constant UNUSED is never used
+[MEDIUM] NeverAccessedVariables: Constant UNUSED is never used
 test/good/imports-2/constants.tact:3:1:
   2 | const USED_IN_SECOND: Int = 2;
 > 3 | const UNUSED: Int = 3;
