@@ -174,6 +174,9 @@ class TactASTStoreBuilder {
       this.constants.set(constant.id, constant);
     });
     this.ast.types.forEach((type) => {
+      if (definedInStdlib(this.ctx, type.loc)) {
+        this.stdlibIds.add(type.id);
+      }
       this.programEntries.add(type.id);
       this.processType(type);
     });
