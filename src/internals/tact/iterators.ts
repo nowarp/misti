@@ -198,6 +198,217 @@ export function forEachExpression(
 }
 
 /**
+ * Recursively searches for an expression in an ASTNode that satisfies the predicate.
+ * @param node The node to traverse.
+ * @param predicate The predicate function to test each expression.
+ * @returns The first expression that satisfies the predicate, or null if none found.
+ */
+export function findInExpressions(
+  node: AstNode,
+  predicate: (expr: AstExpression) => boolean,
+): AstExpression | null {
+  function traverseExpression(expr: AstExpression): AstExpression | null {
+    if (predicate(expr)) {
+      return expr;
+    }
+
+    switch (expr.kind) {
+      case "op_binary":
+        return traverseExpression(expr.left) || traverseExpression(expr.right);
+      case "op_unary":
+        return traverseExpression(expr.operand);
+      case "field_access":
+        return traverseExpression(expr.aggregate);
+      case "method_call":
+        return (
+          traverseExpression(expr.self) ||
+          expr.args.reduce<AstExpression | null>(
+            (found, arg) => found || traverseExpression(arg),
+            null,
+          )
+        );
+      case "static_call":
+        return expr.args.reduce<AstExpression | null>(
+          (found, arg) => found || traverseExpression(arg),
+          null,
+        );
+      case "struct_instance":
+        return expr.args.reduce<AstExpression | null>(
+          (found, param) => found || traverseExpression(param.initializer),
+          null,
+        );
+      case "init_of":
+        return expr.args.reduce<AstExpression | null>(
+          (found, arg) => found || traverseExpression(arg),
+          null,
+        );
+      case "conditional":
+        return (
+          traverseExpression(expr.condition) ||
+          traverseExpression(expr.thenBranch) ||
+          traverseExpression(expr.elseBranch)
+        );
+      case "string":
+      case "number":
+      case "boolean":
+      case "id":
+      case "null":
+        // Primitives and non-composite expressions don't require further traversal
+        return null;
+      default:
+        throw InternalException.make("Unsupported expression", { node: expr });
+    }
+  }
+
+  function traverseStatement(stmt: AstStatement): AstExpression | null {
+    switch (stmt.kind) {
+      case "statement_assign":
+      case "statement_augmentedassign":
+        return (
+          traverseExpression(stmt.path) || traverseExpression(stmt.expression)
+        );
+      case "statement_let":
+      case "statement_expression":
+        return traverseExpression(stmt.expression);
+      case "statement_return":
+        return stmt.expression ? traverseExpression(stmt.expression) : null;
+      case "statement_condition":
+        return (
+          traverseExpression(stmt.condition) ||
+          stmt.trueStatements.reduce<AstExpression | null>(
+            (found, s) => found || traverseStatement(s),
+            null,
+          ) ||
+          (stmt.falseStatements
+            ? stmt.falseStatements.reduce<AstExpression | null>(
+                (found, s) => found || traverseStatement(s),
+                null,
+              )
+            : null) ||
+          (stmt.elseif ? traverseStatement(stmt.elseif) : null)
+        );
+      case "statement_while":
+      case "statement_until":
+        return (
+          traverseExpression(stmt.condition) ||
+          stmt.statements.reduce<AstExpression | null>(
+            (found, s) => found || traverseStatement(s),
+            null,
+          )
+        );
+      case "statement_repeat":
+        return (
+          traverseExpression(stmt.iterations) ||
+          stmt.statements.reduce<AstExpression | null>(
+            (found, s) => found || traverseStatement(s),
+            null,
+          )
+        );
+      case "statement_try":
+      case "statement_foreach":
+        return stmt.statements.reduce<AstExpression | null>(
+          (found, s) => found || traverseStatement(s),
+          null,
+        );
+      case "statement_try_catch":
+        return (
+          stmt.statements.reduce<AstExpression | null>(
+            (found, s) => found || traverseStatement(s),
+            null,
+          ) ||
+          stmt.catchStatements.reduce<AstExpression | null>(
+            (found, s) => found || traverseStatement(s),
+            null,
+          )
+        );
+      default:
+        throw InternalException.make("Unsupported statement", { node: stmt });
+    }
+  }
+
+  function traverseNode(node: AstNode): AstExpression | null {
+    switch (node.kind) {
+      case "module":
+        return node.items.reduce<AstExpression | null>(
+          (found, item) => found || traverseNode(item),
+          null,
+        );
+      case "native_function_decl":
+      case "struct_decl":
+      case "message_decl":
+      case "primitive_type_decl":
+        // These node types do not require further traversal
+        return null;
+      case "function_def":
+      case "contract_init":
+      case "receiver":
+        return node.statements.reduce<AstExpression | null>(
+          (found, stmt) => found || traverseStatement(stmt),
+          null,
+        );
+      case "contract":
+      case "trait": {
+        for (const decl of node.declarations) {
+          const result = traverseNode(decl);
+          if (result) return result;
+        }
+        return null;
+      }
+      case "field_decl":
+        return node.initializer ? traverseExpression(node.initializer) : null;
+      case "constant_def":
+        return traverseExpression(node.initializer);
+      case "import":
+        return traverseExpression(node.path);
+      case "statement_assign":
+      case "statement_augmentedassign":
+      case "statement_let":
+      case "statement_return":
+      case "statement_expression":
+      case "statement_condition":
+      case "statement_while":
+      case "statement_until":
+      case "statement_repeat":
+      case "statement_try":
+      case "statement_try_catch":
+      case "statement_foreach":
+        return traverseStatement(node);
+      case "op_binary":
+      case "op_unary":
+      case "field_access":
+      case "method_call":
+      case "static_call":
+      case "struct_instance":
+      case "init_of":
+      case "conditional":
+      case "string":
+      case "number":
+      case "boolean":
+      case "id":
+      case "null":
+        return traverseExpression(node);
+      case "struct_field_initializer":
+        return traverseExpression(node.initializer);
+      case "typed_parameter":
+      case "type_id":
+      case "map_type":
+      case "bounced_message_type":
+      case "func_id":
+      case "function_decl":
+      case "optional_type":
+      case "constant_decl":
+      case "asm_function_def":
+        // Do nothing
+        return null;
+      default:
+        throw InternalException.make("Unsupported node", { node });
+    }
+  }
+
+  return traverseNode(node);
+}
+
+/**
  * Recursively iterates over each expression in an ASTNode and applies a callback to each expression.
  * @param node The node to traverse.
  * @param acc The initial value of the accumulator.
