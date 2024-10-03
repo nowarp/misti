@@ -28,12 +28,13 @@ import { MistiTactWarning, Severity } from "../../src/internals/warnings";
  * ```
  */
 export class ImplicitInit extends ASTDetector {
+  severity = Severity.INFO;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.contracts).reduce((foundErrors, [_, contract]) => {
       if (!cu.findMethodCFGByName(contract.name, "init")) {
         const err = this.makeWarning(
           `Contract ${contract.name} doesn't define an init function`,
-          Severity.INFO,
           contract.ref,
         );
         foundErrors.push(err);
