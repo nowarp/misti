@@ -1,15 +1,35 @@
 import { ExecutionException, tryMsg } from "../internals/exceptions";
 import fs from "fs";
+import os from "os";
 import path from "path";
 
 /**
  * Encapsulates logic of handling single Tact contracts without user-defined configuration.
  */
 export class SingleContractProjectManager {
-  private constructor(private contractPath: string) {}
+  /**
+   * Path to the created temporary directory.
+   */
+  private tempDirPath: string;
+
+  private constructor(private contractPath: string) {
+    this.tempDirPath = this.createTempDir();
+  }
 
   static fromContractPath(contractPath: string): SingleContractProjectManager {
     return new SingleContractProjectManager(contractPath);
+  }
+
+  /**
+   * Cleans up the created temporary directory structure.
+   * This method should be called after using this class.
+   */
+  public cleanup(): void {
+    try {
+      if (fs.existsSync(this.tempDirPath)) {
+        fs.rmSync(this.tempDirPath, { recursive: true, force: true });
+      }
+    } catch (_) {}
   }
 
   /**
@@ -22,22 +42,21 @@ export class SingleContractProjectManager {
     const contractDir = path.dirname(this.contractPath);
     const contractName = this.extractContractName();
     const rootDir = this.findRootDir(contractDir);
-    const tempDir = this.createTempDir();
 
     let relativeContractPath: string;
 
     if (rootDir) {
-      this.copyContractFiles(copyAll, this.contractPath, tempDir, rootDir);
+      this.copyContractFiles(copyAll, this.contractPath, rootDir);
       relativeContractPath = path.join(
         "./",
         path.relative(rootDir, this.contractPath),
       );
     } else {
-      this.copyContractFiles(copyAll, this.contractPath, tempDir, null);
+      this.copyContractFiles(copyAll, this.contractPath, null);
       relativeContractPath = `./${path.basename(this.contractPath)}`;
     }
 
-    const configPath = path.join(tempDir, "tact.config.json");
+    const configPath = path.join(this.tempDirPath, "tact.config.json");
     this.createConfig(configPath, relativeContractPath, contractName);
 
     return configPath;
@@ -47,29 +66,27 @@ export class SingleContractProjectManager {
    * Copies contract files to the temporary directory.
    * @param copyAll If true, copies all .tact and .fc files; otherwise, copies only the main contract file.
    * @param srcPath Path to the source contract file.
-   * @param tempDir Path to the temporary directory.
    * @param rootDir Root directory containing .git or node_modules, or null if not found.
    */
   private copyContractFiles(
     copyAll: boolean,
     srcPath: string,
-    tempDir: string,
     rootDir: string | null,
   ): void {
     if (copyAll) {
       const sourceDir = rootDir || path.dirname(srcPath);
-      this.copyFiles(sourceDir, tempDir, sourceDir);
+      this.copyFiles(sourceDir, sourceDir);
     } else {
       let destPath: string;
       if (rootDir) {
         const relativePath = path.relative(rootDir, srcPath);
-        destPath = path.join(tempDir, relativePath);
+        destPath = path.join(this.tempDirPath, relativePath);
         const destDirPath = path.dirname(destPath);
         if (!fs.existsSync(destDirPath)) {
           fs.mkdirSync(destDirPath, { recursive: true });
         }
       } else {
-        destPath = path.join(tempDir, path.basename(srcPath));
+        destPath = path.join(this.tempDirPath, path.basename(srcPath));
       }
       fs.copyFileSync(srcPath, destPath);
     }
@@ -79,18 +96,17 @@ export class SingleContractProjectManager {
    * Recursively copies .tact and .fc files from the source directory to the temporary
    * directory, preserving directory structure relative to the root directory.
    * @param srcDir Source directory to copy files from.
-   * @param tempDir Temporary directory to copy files to.
    * @param rootDir Root directory to calculate relative paths.
    */
-  private copyFiles(srcDir: string, tempDir: string, rootDir: string): void {
+  private copyFiles(srcDir: string, rootDir: string): void {
     const entries = fs.readdirSync(srcDir, { withFileTypes: true });
     for (const entry of entries) {
       const srcPath = path.join(srcDir, entry.name);
       const relativePath = path.relative(rootDir, srcPath);
-      const destPath = path.join(tempDir, relativePath);
+      const destPath = path.join(this.tempDirPath, relativePath);
 
       if (entry.isDirectory()) {
-        this.copyFiles(srcPath, tempDir, rootDir);
+        this.copyFiles(srcPath, rootDir);
       } else if (entry.isFile()) {
         if ([".tact", ".fc"].includes(path.extname(entry.name))) {
           const destDirPath = path.dirname(destPath);
@@ -172,12 +188,20 @@ export class SingleContractProjectManager {
 
   /**
    * Creates a temporary directory for the single contract project configuration.
+   *
+   * @throws If the temporary directory already exists and not empty.
    * @returns Path to the created temporary directory.
    */
   private createTempDir(): string {
-    const baseDir = path.join("/tmp", "misti");
+    const baseDir = path.join(os.tmpdir(), "misti");
     fs.mkdirSync(baseDir, { recursive: true });
     const tempDirPrefix = path.join(baseDir, "temp-");
-    return fs.mkdtempSync(tempDirPrefix);
+    const temp = fs.mkdtempSync(tempDirPrefix);
+    if (fs.existsSync(temp) && fs.readdirSync(temp).length > 0) {
+      throw ExecutionException.make(
+        `Temporary directory is not empty: ${temp}`,
+      );
+    }
+    return temp;
   }
 }

@@ -40,6 +40,9 @@ export class Driver {
   /** Minimum severity level to report warnings. */
   minSeverity: Severity;
   outputFormat: OutputFormat;
+  singleContractProjectManager: SingleContractProjectManager | undefined;
+  /** Driver could be executed only once. */
+  executed: boolean = false;
 
   private constructor(tactPath: string, options: CLIOptions) {
     const singleContract = tactPath.endsWith(".tact");
@@ -54,7 +57,11 @@ export class Driver {
     // Tact internals expect as an input a configuration file. Thus we have to
     // create a dummy config for a single contract with default options.
     this.tactConfigPath = singleContract
-      ? SingleContractProjectManager.fromContractPath(tactPath).generate()
+      ? (() => {
+          this.singleContractProjectManager =
+            SingleContractProjectManager.fromContractPath(tactPath);
+          return this.singleContractProjectManager.generate();
+        })()
       : path.resolve(tactPath); // Tact supports absolute paths only
 
     this.ctx = new MistiContext(tactPath, options);
@@ -188,22 +195,37 @@ export class Driver {
 
   /**
    * Executes checks on all compilation units and reports found warnings sorted by severity.
-   * @returns True if any warnings were found, otherwise false.
    */
   public async execute(): Promise<MistiResult> {
-    const cus: Map<ProjectName, CompilationUnit> = createIR(
-      this.ctx,
-      this.tactConfigPath,
-    );
-    if (this.detectors.length === 0 && this.tools.length === 0) {
-      this.ctx.logger.warn(
-        "Nothing to execute. Please specify at least one detector or tool.",
+    try {
+      if (this.executed) {
+        throw InternalException.make("Driver cannot be executed twice");
+      }
+      this.executed = true;
+      const cus: Map<ProjectName, CompilationUnit> = createIR(
+        this.ctx,
+        this.tactConfigPath,
       );
-      return { kind: "ok" };
+      if (this.detectors.length === 0 && this.tools.length === 0) {
+        this.ctx.logger.warn(
+          "Nothing to execute. Please specify at least one detector or tool.",
+        );
+        return { kind: "ok" };
+      }
+      const result =
+        this.tools.length > 0
+          ? await this.executeTools(cus)
+          : await this.executeAnalysis(cus);
+      return result;
+    } finally {
+      if (this.singleContractProjectManager) {
+        try {
+          this.singleContractProjectManager.cleanup();
+        } catch (error) {
+          throw error;
+        }
+      }
     }
-    return this.tools.length > 0
-      ? this.executeTools(cus)
-      : this.executeAnalysis(cus);
   }
 
   /**
