@@ -10,87 +10,117 @@
           "cfg": {
             "nodes": [
               {
-                "id": 141,
+                "id": 142,
                 "stmtID": 1670,
                 "srcEdges": [],
                 "dstEdges": [
-                  143
+                  144
                 ]
               },
               {
-                "id": 142,
+                "id": 143,
                 "stmtID": 1675,
                 "srcEdges": [
-                  143
+                  144
                 ],
                 "dstEdges": [
-                  145
+                  146
                 ]
               },
               {
-                "id": 144,
+                "id": 145,
                 "stmtID": 1678,
                 "srcEdges": [
-                  145
+                  146
                 ],
                 "dstEdges": [
-                  147
+                  148
                 ]
               },
               {
-                "id": 146,
+                "id": 147,
                 "stmtID": 1681,
                 "srcEdges": [
-                  147
+                  148
                 ],
                 "dstEdges": [
-                  149
+                  150
                 ]
               },
               {
-                "id": 148,
+                "id": 149,
                 "stmtID": 1689,
                 "srcEdges": [
-                  149
+                  150
                 ],
                 "dstEdges": [
-                  151
+                  152
                 ]
               },
               {
-                "id": 150,
+                "id": 151,
                 "stmtID": 1697,
                 "srcEdges": [
-                  151
+                  152
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 143,
-                "src": 141,
-                "dst": 142
-              },
-              {
-                "id": 145,
+                "id": 144,
                 "src": 142,
-                "dst": 144
+                "dst": 143
               },
               {
-                "id": 147,
-                "src": 144,
-                "dst": 146
+                "id": 146,
+                "src": 143,
+                "dst": 145
               },
               {
-                "id": 149,
-                "src": 146,
-                "dst": 148
+                "id": 148,
+                "src": 145,
+                "dst": 147
               },
               {
-                "id": 151,
-                "src": 148,
-                "dst": 150
+                "id": 150,
+                "src": 147,
+                "dst": 149
+              },
+              {
+                "id": 152,
+                "src": 149,
+                "dst": 151
+              }
+            ]
+          }
+        },
+        {
+          "name": "Test.testOnce",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 153,
+                "stmtID": 1710,
+                "srcEdges": [],
+                "dstEdges": [
+                  155
+                ]
+              },
+              {
+                "id": 154,
+                "stmtID": 1716,
+                "srcEdges": [
+                  155
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 155,
+                "src": 153,
+                "dst": 154
               }
             ]
           }

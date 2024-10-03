@@ -15,4 +15,10 @@ contract Test {
         // OK: Modifying contract fields
         self.m.set(3, 3);
     }
+
+    // To ensure we report the argument once per function
+    fun testOnce(m: map<Int, Int>) {
+        m.set(1, 1);
+        m.set(2, 2);
+    }
 }

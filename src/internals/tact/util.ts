@@ -1,9 +1,13 @@
 import { forEachExpression } from "./iterators";
+import { unreachable } from "../util";
 import { AstComparator } from "@tact-lang/compiler/dist/";
 import {
   AstExpression,
   AstId,
+  AstContractInit,
   AstFieldDecl,
+  AstFunctionDef,
+  AstReceiver,
   AstContract,
   AstFieldAccess,
   AstStatement,
@@ -13,6 +17,7 @@ import {
   idText,
   tryExtractPath,
 } from "@tact-lang/compiler/dist/grammar/ast";
+import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 import { Interval as RawInterval } from "ohm-js";
 import * as path from "path";
 
@@ -296,4 +301,22 @@ export function collectFields(
     }
     return acc;
   }, new Map<string, AstFieldDecl>());
+}
+
+/**
+ * Returns the human-readable name of the function.
+ */
+export function funName(
+  fun: AstReceiver | AstContractInit | AstFunctionDef,
+): string {
+  switch (fun.kind) {
+    case "contract_init":
+      return "init";
+    case "receiver":
+      return prettyPrint(fun).split("\n")[0].slice(0, -3);
+    case "function_def":
+      return idText(fun.name);
+    default:
+      unreachable(fun);
+  }
 }
