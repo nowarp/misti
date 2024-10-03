@@ -56,11 +56,11 @@ export class ArgCopyMutation extends ASTDetector {
       if (fun.kind === "contract_init" || fun.kind === "function_def") {
         return acc.concat(
           foldStatements(fun, [] as MistiTactWarning[], (acc, stmt) => {
-            return this.findArgCopyMutations(
-              acc,
-              stmt,
-              this.collectInterestingArgs(fun),
-            );
+            const interestingArgs = this.collectInterestingArgs(fun);
+            if (interestingArgs.length === 0) {
+              return acc;
+            }
+            return this.findArgCopyMutations(acc, stmt, interestingArgs);
           }),
         );
       }
