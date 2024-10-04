@@ -176,7 +176,7 @@ export class StringReceiversOverlap extends DataflowDetector {
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const stringReceivers = this.getStringReceiverNames(cu);
     let warnings: MistiTactWarning[] = [];
-    cu.forEachCFG(cu.ast, (cfg: CFG) => {
+    cu.forEachCFG((cfg: CFG) => {
       const node = cu.ast.getFunction(cfg.id);
       if (node !== undefined && node.kind === "receiver") {
         const arg = this.findGenericReceiverArg(node);

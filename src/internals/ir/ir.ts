@@ -78,10 +78,9 @@ export class CompilationUnit {
   /**
    * Iterates over all CFGs in a Compilation Unit, and applies a callback to CFG.
    *
-   * @param astStore The store containing the AST nodes.
    * @param callback The function to apply to each CFG.
    */
-  forEachCFG(astStore: TactASTStore, callback: (cfg: CFG) => void) {
+  forEachCFG(callback: (cfg: CFG) => void) {
     this.functions.forEach((cfg, _) => {
       callback(cfg);
     });

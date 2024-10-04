@@ -340,7 +340,7 @@ export class NeverAccessedVariables extends DataflowDetector {
   checkVariables(cu: CompilationUnit): MistiTactWarning[] {
     const warnings: MistiTactWarning[] = [];
     const traversedFunctions = new Set<string>();
-    cu.forEachCFG(cu.ast, (cfg: CFG) => {
+    cu.forEachCFG((cfg: CFG) => {
       if (cfg.origin === "stdlib" || traversedFunctions.has(cfg.name)) {
         return;
       }
