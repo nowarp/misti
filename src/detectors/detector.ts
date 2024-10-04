@@ -336,6 +336,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  EnsurePrgSeed: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/ensurePrgSeed").then(
+        (module) => new module.EnsurePrgSeed(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**
