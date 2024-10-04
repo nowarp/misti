@@ -1,3 +1,12 @@
+[MEDIUM] EnsurePrgSeed: PRG seed should be initialized before using nativeRandom
+test/good/preferred-stdlib-api.tact:15:16:
+  14 |     fun getInt(): Int {
+> 15 |         return nativeRandom(); // Bad: prefer `randomInt`
+                      ^
+  16 |     }
+Help: Use `nativePrepareRandom`, `nativeRandomize`, `nativeRandomizeLt` to initialize the PRG seed or choose the safer `randomInt` function
+See: https://nowarp.io/tools/misti/docs/detectors/EnsurePrgSeed
+
 [INFO] PreferredStdlibApi: nativeSendMessage has a safer alternative: send
 test/good/preferred-stdlib-api.tact:11:9:
   10 |         let body: Cell = pkg.loadRef();
