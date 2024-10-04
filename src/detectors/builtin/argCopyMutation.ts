@@ -1,10 +1,12 @@
-import { CompilationUnit } from "../../internals/ir";
+import { InternalException } from "../../internals/exceptions";
+import { CompilationUnit, FunctionName } from "../../internals/ir";
 import {
   foldStatements,
   collectMutations,
   mutationNames,
   funName,
 } from "../../internals/tact";
+import { findInExpressions } from "../../internals/tact/iterators";
 import { intersection } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
@@ -53,37 +55,23 @@ export class ArgCopyMutation extends ASTDetector {
   severity = Severity.HIGH;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+    const returnStatements = this.collectReturnStatements(cu);
     return Array.from(cu.ast.getFunctions()).reduce((acc, fun) => {
       if (fun.kind === "contract_init" || fun.kind === "function_def") {
-        const mutations = foldStatements(
-          fun,
-          new Map<string, AstStatement[]>(),
-          (acc, stmt) => {
-            const interestingArgs = this.collectInterestingArgs(fun);
-            if (interestingArgs.length === 0) {
-              return acc;
-            }
-            const stmtMutations = this.findArgCopyMutations(
-              stmt,
-              interestingArgs,
-            );
-            return Array.from(stmtMutations.entries()).reduce(
-              (newAcc, [argName, mutationStmts]) => {
-                const existingStmts = newAcc.get(argName) || [];
-                return newAcc.set(argName, [
-                  ...existingStmts,
-                  ...mutationStmts,
-                ]);
-              },
-              new Map(acc),
-            );
-          },
-        );
-        Array.from(mutations.keys()).forEach((argName) => {
-          const argMutationStatements = mutations.get(argName)!;
+        this.collectMutations(fun).forEach((argMutationStatements, argName) => {
+          // If all the return statements use the modified argument, it won't be reported
+          if (
+            fun.kind === "function_def" &&
+            this.usedInAllReturns(
+              argName,
+              returnStatements.get(idText(fun.name))!,
+            )
+          ) {
+            return;
+          }
           const occurrencesStr =
             argMutationStatements.length > 1
-              ? ` (${argMutationStatements.length} more times)`
+              ? ` (${argMutationStatements.length - 1} more times)`
               : "";
           acc.push(
             this.makeWarning(
@@ -98,10 +86,91 @@ export class ArgCopyMutation extends ASTDetector {
             ),
           );
         });
-        return acc.concat();
       }
       return acc;
     }, [] as MistiTactWarning[]);
+  }
+
+  /**
+   * Checks if the argument is used in all return statements.
+   * @param argName The name of the argument to check.
+   * @param returnStatements The return statements to check.
+   * @returns `true` if the argument is used in all return statements, `false` otherwise.
+   */
+  private usedInAllReturns(
+    argName: string,
+    returnStatements: AstStatement[],
+  ): boolean {
+    if (returnStatements.length === 0) {
+      return false;
+    }
+    return returnStatements.every((stmt) => {
+      if (stmt.kind !== "statement_return" || !stmt.expression) {
+        return false;
+      }
+      const foundArg = findInExpressions(
+        stmt.expression,
+        (expr) => expr.kind === "id" && expr.text === argName,
+      );
+      return foundArg !== null;
+    });
+  }
+
+  /**
+   * Collects all return statements from the given compilation unit.
+   * @param cu The compilation unit to analyze.
+   * @returns A map of function names to their return statements.
+   */
+  private collectReturnStatements(
+    cu: CompilationUnit,
+  ): Map<FunctionName, AstStatement[]> {
+    return cu.foldCFGs(new Map<FunctionName, AstStatement[]>(), (acc, cfg) => {
+      acc.set(
+        cfg.name,
+        cfg.getExitNodes().reduce((acc, bb) => {
+          const stmt = cu.ast.getStatement(bb.stmtID);
+          if (!stmt) {
+            throw InternalException.make(
+              `Cannot find a statement for BB #${bb.idx}`,
+            );
+          }
+          // Filter out throw statements
+          if (stmt.kind === "statement_return") {
+            acc.push(stmt);
+          }
+          return acc;
+        }, [] as AstStatement[]),
+      );
+      return acc;
+    });
+  }
+
+  /**
+   * Collects mutations of function arguments within a given statement.
+   * @param fun The function to analyze.
+   * @returns A map of argument names to the statements where they are mutated.
+   */
+  private collectMutations(
+    fun: AstFunctionDef | AstContractInit,
+  ): Map<string, AstStatement[]> {
+    return foldStatements(
+      fun,
+      new Map<string, AstStatement[]>(),
+      (acc, stmt) => {
+        const interestingArgs = this.collectInterestingArgs(fun);
+        if (interestingArgs.length === 0) {
+          return acc;
+        }
+        const stmtMutations = this.findArgCopyMutations(stmt, interestingArgs);
+        return Array.from(stmtMutations.entries()).reduce(
+          (newAcc, [argName, mutationStmts]) => {
+            const existingStmts = newAcc.get(argName) || [];
+            return newAcc.set(argName, [...existingStmts, ...mutationStmts]);
+          },
+          new Map(acc),
+        );
+      },
+    );
   }
 
   /**

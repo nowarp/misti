@@ -92,6 +92,27 @@ export class CompilationUnit {
   }
 
   /**
+   * Performs a fold operation over all CFGs in the Compilation Unit.
+   *
+   * @param init The initial value of the accumulator.
+   * @param callback A function that takes the current accumulator and a CFG,
+   *                 and returns a new accumulator value.
+   * @returns The final accumulated value.
+   */
+  foldCFGs<T>(init: T, callback: (acc: T, cfg: CFG) => T): T {
+    let acc = init;
+    this.functions.forEach((cfg) => {
+      acc = callback(acc, cfg);
+    });
+    this.contracts.forEach((contract) => {
+      contract.methods.forEach((cfg) => {
+        acc = callback(acc, cfg);
+      });
+    });
+    return acc;
+  }
+
+  /**
    * Iterates over all CFGs in a Compilation Unit, and applies a callback to each
    * basic block in every CFG.
    *

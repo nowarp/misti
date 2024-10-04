@@ -244,6 +244,14 @@ export class CFG {
       callback(cfgEdge);
     });
   }
+
+  /**
+   * Returns a list of all exit nodes in the CFG.
+   * @returns An array of BasicBlocks that are exit nodes.
+   */
+  public getExitNodes(): BasicBlock[] {
+    return this.nodes.filter((node) => node.isExit());
+  }
 }
 
 /**

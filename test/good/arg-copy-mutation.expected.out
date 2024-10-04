@@ -1,0 +1,29 @@
+[HIGH] ArgCopyMutation: Function test argument m is mutated
+test/good/arg-copy-mutation.tact:6:9:
+  5 |     fun test(a: Int, m: map<Int, Int>) {
+> 6 |         m.set(3, 3); // Bad
+              ^
+  7 | 
+Mutating function arguments has no effect outside the function due to call-by-value semantics
+Help: Return the modified value or use the contract's state to avoid unnecessary mutations
+See: https://nowarp.io/tools/misti/docs/detectors/ArgCopyMutation
+
+[HIGH] ArgCopyMutation: Function testOnce argument m is mutated (1 more times)
+test/good/arg-copy-mutation.tact:21:9:
+  20 |     fun testOnce(m: map<Int, Int>) {
+> 21 |         m.set(1, 1);
+               ^
+  22 |         m.set(2, 2);
+Mutating function arguments has no effect outside the function due to call-by-value semantics
+Help: Return the modified value or use the contract's state to avoid unnecessary mutations
+See: https://nowarp.io/tools/misti/docs/detectors/ArgCopyMutation
+
+[HIGH] ArgCopyMutation: Function testReturn2 argument m is mutated
+test/good/arg-copy-mutation.tact:40:9:
+  39 |     fun testReturn2(m: map<Int, Int>): map<Int, Int> {
+> 40 |         m.set(3, 3); // Bad
+               ^
+  41 |         if (WHATEVER == 0) {
+Mutating function arguments has no effect outside the function due to call-by-value semantics
+Help: Return the modified value or use the contract's state to avoid unnecessary mutations
+See: https://nowarp.io/tools/misti/docs/detectors/ArgCopyMutation

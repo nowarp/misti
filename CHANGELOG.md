@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DumpIsUsed`: Report only `dump` calls with non-literal arguments
 - Misti API to execute the driver programmatically
 - `ArgCopyMutation`: Report once per function: Issue [#150](https://github.com/nowarp/misti/issues/150)
+- `ArgCopyMutation`: Don't report arguments returned from the function: Issue [#149](https://github.com/nowarp/misti/issues/149)
 
 ## [0.3.1] - 2024-09-24
 
