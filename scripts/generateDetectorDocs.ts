@@ -204,8 +204,8 @@ export function processDirectory(
 }
 
 const args = process.argv.slice(2);
-let outputDirectory: string = ".";
-const outputDirIndex = args.indexOf("--output-directory");
+let outputDirectory: string = "/tmp";
+const outputDirIndex = args.indexOf("-o");
 if (outputDirIndex !== -1 && outputDirIndex + 1 < args.length) {
   outputDirectory = args[outputDirIndex + 1];
 }
