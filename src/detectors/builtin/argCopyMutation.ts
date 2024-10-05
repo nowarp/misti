@@ -154,7 +154,6 @@ export class ArgCopyMutation extends ASTDetector {
   ): Map<string, AstStatement[]> {
     return foldStatements(
       fun,
-      new Map<string, AstStatement[]>(),
       (acc, stmt) => {
         const interestingArgs = this.collectInterestingArgs(fun);
         if (interestingArgs.length === 0) {
@@ -169,6 +168,7 @@ export class ArgCopyMutation extends ASTDetector {
           new Map(acc),
         );
       },
+      new Map<string, AstStatement[]>(),
     );
   }
 

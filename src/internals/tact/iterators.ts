@@ -430,8 +430,8 @@ export function hasInExpressions(
  */
 export function foldExpressions<T>(
   node: AstNode,
-  acc: T,
   callback: (acc: T, expr: AstExpression) => T,
+  acc: T,
 ): T {
   function traverseExpression(acc: T, expr: AstExpression): T {
     acc = callback(acc, expr);
@@ -755,8 +755,8 @@ export function forEachStatement(
  */
 export function foldStatements<T>(
   node: AstNode,
-  acc: T,
   callback: (acc: T, stmt: AstStatement) => T,
+  acc: T,
 ): T {
   function traverseStatement(acc: T, stmt: AstStatement): T {
     acc = callback(acc, stmt);

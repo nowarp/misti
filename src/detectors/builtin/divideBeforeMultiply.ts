@@ -289,7 +289,7 @@ export class DivideBeforeMultiply extends SouffleDetector {
       }
       return acc;
     };
-    return foldExpressions(node, [], isId);
+    return foldExpressions(node, isId, []);
   }
 
   /**

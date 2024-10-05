@@ -81,7 +81,6 @@ export class UnusedOptional extends ASTDetector {
     return Array.from(
       foldStatements(
         fun,
-        new Map<string, UnusedVarInfo>(),
         (unusedOptionalVars, stmt) => {
           if (
             stmt.kind === "statement_let" &&
@@ -102,6 +101,7 @@ export class UnusedOptional extends ASTDetector {
           );
           return unusedOptionalVars;
         },
+        new Map<string, UnusedVarInfo>(),
       ).values(),
     ).map(({ name, originalType }) =>
       this.makeWarning(`Unused optional modifier: ${idText(name)}`, name.loc, {

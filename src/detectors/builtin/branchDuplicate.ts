@@ -48,17 +48,17 @@ export class BranchDuplicate extends ASTDetector {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       const ternaryWarnings = foldExpressions(
         node,
-        [] as MistiTactWarning[],
         (acc, expr) => {
           return this.checkTernary(acc, expr);
         },
+        [] as MistiTactWarning[],
       );
       const conditionWarnings = foldStatements(
         node,
-        [] as MistiTactWarning[],
         (acc, stmt) => {
           return this.checkConditional(acc, stmt);
         },
+        [] as MistiTactWarning[],
       );
       return acc.concat([...conditionWarnings, ...ternaryWarnings]);
     }, [] as MistiTactWarning[]);

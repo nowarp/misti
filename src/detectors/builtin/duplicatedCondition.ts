@@ -51,21 +51,21 @@ export class DuplicatedCondition extends ASTDetector {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       const exprWarnings = foldExpressions(
         node,
-        [] as MistiTactWarning[],
         (acc, expr) => {
           return expr.kind === "conditional"
             ? this.checkConditionalExpression(acc, expr)
             : acc;
         },
+        [] as MistiTactWarning[],
       );
       const stmtWarnings = foldStatements(
         node,
-        [] as MistiTactWarning[],
         (acc, stmt) => {
           return stmt.kind === "statement_condition"
             ? this.checkConditionalStatement(acc, stmt)
             : acc;
         },
+        [] as MistiTactWarning[],
       );
       return acc.concat(...stmtWarnings, ...exprWarnings);
     }, [] as MistiTactWarning[]);

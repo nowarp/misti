@@ -58,9 +58,13 @@ export class PreferAugmentedAssign extends ASTDetector {
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(
-        foldStatements(node, [] as MistiTactWarning[], (acc, expr) => {
-          return this.findAugmentedAssignReplacements(acc, expr);
-        }),
+        foldStatements(
+          node,
+          (acc, expr) => {
+            return this.findAugmentedAssignReplacements(acc, expr);
+          },
+          [] as MistiTactWarning[],
+        ),
       );
     }, [] as MistiTactWarning[]);
   }

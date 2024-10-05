@@ -71,13 +71,17 @@ export class InheritedStateMutation extends ASTDetector {
       }
       const inheritedFieldNames = inheritedFields.map((f) => f.name.text);
       const check = (node: AstNode): MistiTactWarning[] =>
-        foldStatements(node, [] as MistiTactWarning[], (acc, stmt) => {
-          return this.findInheritedFieldAssignments(
-            acc,
-            stmt,
-            inheritedFieldNames,
-          );
-        });
+        foldStatements(
+          node,
+          (acc, stmt) => {
+            return this.findInheritedFieldAssignments(
+              acc,
+              stmt,
+              inheritedFieldNames,
+            );
+          },
+          [] as MistiTactWarning[],
+        );
       const contractWarnings = contract.declarations.reduce((acc, decl) => {
         // Skip init functions since we cannot access self to use setters
         return decl.kind === "function_def" || decl.kind === "receiver"

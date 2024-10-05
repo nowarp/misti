@@ -56,36 +56,41 @@ export class FalseCondition extends ASTDetector {
   private checkFunction(
     fun: AstFunctionDef | AstReceiver | AstContractInit,
   ): MistiTactWarning[] {
-    return foldStatements(fun, [] as MistiTactWarning[], (acc, stmt) => {
-      forEachExpression(stmt, (expr) => {
-        if (
-          expr.kind === "conditional" &&
-          this.constEvalToFalse(expr.condition)
-        ) {
-          acc.push(this.warnCondition(expr));
-        }
-      });
-      if (stmt.kind === "statement_condition") {
-        collectConditions(stmt, { nonEmpty: true }).forEach((cond) => {
-          if (this.constEvalToFalse(cond)) acc.push(this.warnCondition(cond));
+    return foldStatements(
+      fun,
+      (acc, stmt) => {
+        forEachExpression(stmt, (expr) => {
+          if (
+            expr.kind === "conditional" &&
+            this.constEvalToFalse(expr.condition)
+          ) {
+            acc.push(this.warnCondition(expr));
+          }
         });
-      }
-      if (
-        (stmt.kind === "statement_while" || stmt.kind === "statement_until") &&
-        stmt.statements.length > 0 &&
-        this.constEvalToFalse(stmt.condition)
-      ) {
-        acc.push(this.warnCondition(stmt.condition));
-      }
-      if (
-        stmt.kind === "statement_repeat" &&
-        stmt.statements.length > 0 &&
-        this.constEvalToZero(stmt.iterations)
-      ) {
-        acc.push(this.warnCondition(stmt.iterations, true));
-      }
-      return acc;
-    });
+        if (stmt.kind === "statement_condition") {
+          collectConditions(stmt, { nonEmpty: true }).forEach((cond) => {
+            if (this.constEvalToFalse(cond)) acc.push(this.warnCondition(cond));
+          });
+        }
+        if (
+          (stmt.kind === "statement_while" ||
+            stmt.kind === "statement_until") &&
+          stmt.statements.length > 0 &&
+          this.constEvalToFalse(stmt.condition)
+        ) {
+          acc.push(this.warnCondition(stmt.condition));
+        }
+        if (
+          stmt.kind === "statement_repeat" &&
+          stmt.statements.length > 0 &&
+          this.constEvalToZero(stmt.iterations)
+        ) {
+          acc.push(this.warnCondition(stmt.iterations, true));
+        }
+        return acc;
+      },
+      [] as MistiTactWarning[],
+    );
   }
 
   private warnCondition(

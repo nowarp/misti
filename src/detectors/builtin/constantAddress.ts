@@ -42,9 +42,13 @@ export class ConstantAddress extends ASTDetector {
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(
-        foldExpressions(node, [] as MistiTactWarning[], (acc, expr) => {
-          return this.findConstantAddress(acc, expr);
-        }),
+        foldExpressions(
+          node,
+          (acc, expr) => {
+            return this.findConstantAddress(acc, expr);
+          },
+          [] as MistiTactWarning[],
+        ),
       );
     }, [] as MistiTactWarning[]);
   }
