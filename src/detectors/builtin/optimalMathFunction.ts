@@ -1,9 +1,7 @@
 import { CompilationUnit } from "../../internals/ir";
-import { foldExpressions } from "../../internals/tact";
+import { foldExpressions, constEval } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
-import { evalConstantExpression } from "@tact-lang/compiler/dist/constEval";
-import { CompilerContext } from "@tact-lang/compiler/dist/context";
 import { AstExpression, idText } from "@tact-lang/compiler/dist/grammar/ast";
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
@@ -45,12 +43,10 @@ export class OptimalMathFunction extends ASTDetector {
    * Checks whether the given expression could be constantly evaluated to 2.
    */
   private constEvalTo2(expr: AstExpression): boolean {
-    try {
-      const value = evalConstantExpression(expr, new CompilerContext());
-      return typeof value === "bigint" && value === 2n;
-    } catch (_) {
-      return false;
-    }
+    return constEval(
+      expr,
+      (value) => typeof value === "bigint" && value === 2n,
+    );
   }
 
   private findSuboptimalCall(

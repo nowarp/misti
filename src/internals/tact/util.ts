@@ -1,6 +1,8 @@
 import { forEachExpression } from "./iterators";
 import { unreachable } from "../util";
 import { AstComparator } from "@tact-lang/compiler/dist/";
+import { evalConstantExpression } from "@tact-lang/compiler/dist/constEval";
+import { CompilerContext } from "@tact-lang/compiler/dist/context";
 import {
   AstExpression,
   AstId,
@@ -16,6 +18,7 @@ import {
   isSelfId,
   idText,
   tryExtractPath,
+  AstCondition,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 import { Interval as RawInterval } from "ohm-js";
@@ -319,4 +322,40 @@ export function funName(
     default:
       unreachable(fun);
   }
+}
+
+/**
+ * Evaluates the given expression to a constant value and checks if the value satisfies the predicate.
+ * @param expr The expression to evaluate.
+ * @param predicate The predicate to check.
+ * @returns True if the expression can be evaluated to a constant value that satisfies the predicate, false otherwise.
+ */
+export function constEval(
+  expr: AstExpression,
+  predicate: (value: any) => boolean,
+): boolean {
+  try {
+    const value = evalConstantExpression(expr, new CompilerContext());
+    return predicate(value);
+  } catch (_) {
+    return false;
+  }
+}
+
+/**
+ * Collects all the conditions from the conditional, including `if` and `else if` statements.
+ */
+export function collectConditions(
+  node: AstCondition,
+  { nonEmpty = false }: Partial<{ nonEmpty: boolean }> = {},
+): AstExpression[] {
+  const conditions: AstExpression[] = nonEmpty
+    ? node.trueStatements.length > 0
+      ? [node.condition]
+      : []
+    : [node.condition];
+  if (node.elseif) {
+    conditions.push(...collectConditions(node.elseif));
+  }
+  return conditions;
 }

@@ -1,0 +1,236 @@
+{
+  "projectName": "false-condition",
+  "functions": [
+    {
+      "name": "test",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 141,
+            "stmtID": 1653,
+            "srcEdges": [],
+            "dstEdges": [
+              143
+            ]
+          },
+          {
+            "id": 142,
+            "stmtID": 1655,
+            "srcEdges": [
+              143,
+              144
+            ],
+            "dstEdges": [
+              144,
+              146
+            ]
+          },
+          {
+            "id": 145,
+            "stmtID": 1657,
+            "srcEdges": [
+              146,
+              147
+            ],
+            "dstEdges": [
+              147,
+              149
+            ]
+          },
+          {
+            "id": 148,
+            "stmtID": 1659,
+            "srcEdges": [
+              149,
+              150
+            ],
+            "dstEdges": [
+              150,
+              152
+            ]
+          },
+          {
+            "id": 151,
+            "stmtID": 1663,
+            "srcEdges": [
+              152
+            ],
+            "dstEdges": [
+              154
+            ]
+          },
+          {
+            "id": 153,
+            "stmtID": 1662,
+            "srcEdges": [
+              154
+            ],
+            "dstEdges": [
+              156
+            ]
+          },
+          {
+            "id": 155,
+            "stmtID": 1673,
+            "srcEdges": [
+              156
+            ],
+            "dstEdges": [
+              158
+            ]
+          },
+          {
+            "id": 157,
+            "stmtID": 1666,
+            "srcEdges": [
+              158
+            ],
+            "dstEdges": [
+              160
+            ]
+          },
+          {
+            "id": 159,
+            "stmtID": 1677,
+            "srcEdges": [
+              160,
+              163
+            ],
+            "dstEdges": [
+              162,
+              165
+            ]
+          },
+          {
+            "id": 161,
+            "stmtID": 1676,
+            "srcEdges": [
+              162
+            ],
+            "dstEdges": [
+              163
+            ]
+          },
+          {
+            "id": 164,
+            "stmtID": 1681,
+            "srcEdges": [
+              165,
+              168
+            ],
+            "dstEdges": [
+              167,
+              170
+            ]
+          },
+          {
+            "id": 166,
+            "stmtID": 1680,
+            "srcEdges": [
+              167
+            ],
+            "dstEdges": [
+              168
+            ]
+          },
+          {
+            "id": 169,
+            "stmtID": 1688,
+            "srcEdges": [
+              170
+            ],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 143,
+            "src": 141,
+            "dst": 142
+          },
+          {
+            "id": 144,
+            "src": 142,
+            "dst": 142
+          },
+          {
+            "id": 146,
+            "src": 142,
+            "dst": 145
+          },
+          {
+            "id": 147,
+            "src": 145,
+            "dst": 145
+          },
+          {
+            "id": 149,
+            "src": 145,
+            "dst": 148
+          },
+          {
+            "id": 150,
+            "src": 148,
+            "dst": 148
+          },
+          {
+            "id": 152,
+            "src": 148,
+            "dst": 151
+          },
+          {
+            "id": 154,
+            "src": 151,
+            "dst": 153
+          },
+          {
+            "id": 156,
+            "src": 153,
+            "dst": 155
+          },
+          {
+            "id": 158,
+            "src": 155,
+            "dst": 157
+          },
+          {
+            "id": 160,
+            "src": 157,
+            "dst": 159
+          },
+          {
+            "id": 162,
+            "src": 159,
+            "dst": 161
+          },
+          {
+            "id": 163,
+            "src": 161,
+            "dst": 159
+          },
+          {
+            "id": 165,
+            "src": 159,
+            "dst": 164
+          },
+          {
+            "id": 167,
+            "src": 164,
+            "dst": 166
+          },
+          {
+            "id": 168,
+            "src": 166,
+            "dst": 164
+          },
+          {
+            "id": 170,
+            "src": 164,
+            "dst": 169
+          }
+        ]
+      }
+    }
+  ],
+  "contracts": []
+}

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DuplicatedCondition` detector: Issue [#147](https://github.com/nowarp/misti/issues/147)
 - `UnusedOptional` detector: Issue [#86](https://github.com/nowarp/misti/issues/86)
 - `EnsurePrgSeed` detector: Issue [#151](https://github.com/nowarp/misti/issues/151)
+- `FalseCondition` detector: Issue [#93](https://github.com/nowarp/misti/issues/93)
 - CFG Dump: Mermaid output: Issue [#141](https://github.com/nowarp/misti/issues/141)
 - Introduces Misti tools – additional modules that can be used alongside detectors to cover various user tasks beyond warning generation: PR [#154](https://github.com/nowarp/misti/pull/154)
 - Misti execution result in the JSON format using `--output json`/`-o json`: Issue [#123](https://github.com/nowarp/misti/issues/123)

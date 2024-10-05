@@ -343,6 +343,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  FalseCondition: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/falseCondition").then(
+        (module) => new module.FalseCondition(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**

@@ -3,6 +3,7 @@ import {
   foldExpressions,
   foldStatements,
   nodesAreEqual,
+  collectConditions,
 } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
@@ -82,7 +83,7 @@ export class DuplicatedCondition extends ASTDetector {
     acc: MistiTactWarning[],
     stmt: AstCondition,
   ): MistiTactWarning[] {
-    const allConditions = this.collectConditionalStatements(stmt);
+    const allConditions = collectConditions(stmt);
     return this.checkConditions(acc, allConditions);
   }
 
@@ -132,17 +133,6 @@ export class DuplicatedCondition extends ASTDetector {
     }
     if (node.elseBranch && node.elseBranch.kind === "conditional") {
       conditions.push(...this.collectConditionalExpressions(node.elseBranch));
-    }
-    return conditions;
-  }
-
-  /**
-   * Collects all the conditions from the conditional statement.
-   */
-  private collectConditionalStatements(node: AstCondition): AstExpression[] {
-    const conditions: AstExpression[] = [node.condition];
-    if (node.elseif) {
-      conditions.push(...this.collectConditionalStatements(node.elseif));
     }
     return conditions;
   }
