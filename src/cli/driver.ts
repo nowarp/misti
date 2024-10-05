@@ -572,7 +572,7 @@ export class Runner {
       options.enabledDetectors !== undefined
     ) {
       throw ExecutionException.make(
-        `--detectors and --all-detectors cannot be used simultaneously`,
+        `--enabled-detectors and --all-detectors cannot be used simultaneously`,
       );
     }
     // Check for duplicate tool class names

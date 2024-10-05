@@ -83,7 +83,7 @@ export class MistiConfig {
           throw err;
         }
       }
-      // Override detectors if `--detectors` is set
+      // Override detectors if `--enabled-detectors` is set
       if (detectors !== undefined) {
         configData = {
           ...configData,

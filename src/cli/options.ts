@@ -72,28 +72,28 @@ export const cliOptions = [
     .default(undefined)
     .argParser(parseSeverity),
   new Option(
-    "-de, --enable-detector <name|path:name>",
+    "-de, --enabled-detectors <name|path:name>",
     "A comma-separated list of detectors to enable.",
   )
     .argParser((value) => {
       const detectors = value.split(",").map((detector) => detector.trim());
       if (detectors.length === 0) {
         throw new Error(
-          "The --detectors option requires a non-empty list of detector names.",
+          "The --enabled-detectors option requires a non-empty list of detector names.",
         );
       }
       return detectors;
     })
     .default(undefined),
   new Option(
-    "-dd, --disable-detector <names>",
+    "-dd, --disabled-detectors <names>",
     "A comma-separated list of names of detectors to disable.",
   )
     .argParser((value) => {
       const detectors = value.split(",").map((detector) => detector.trim());
       if (detectors.length === 0) {
         throw new Error(
-          "The --disable-detector option requires a non-empty list of detector names.",
+          "The --disabled-detectors option requires a non-empty list of detector names.",
         );
       }
       return detectors;

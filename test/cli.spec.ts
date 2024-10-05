@@ -66,8 +66,8 @@ describe("CLI Argument Parsing", () => {
     runnerMakeSpy.mockRestore();
   });
 
-  it("should return an error when invalid --detectors option is provided", async () => {
-    const args = ["--detectors", "", TACT_CONFIG_PATH];
+  it("should return an error when invalid --enabled-detectors option is provided", async () => {
+    const args = ["--enabled-detectors", "", TACT_CONFIG_PATH];
     const result = await runMistiCommand(args);
     expect(
       result !== undefined &&
