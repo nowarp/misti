@@ -15,8 +15,8 @@ export interface CLIOptions {
   verbose?: boolean;
   quiet?: boolean;
   minSeverity?: Severity;
-  detectors?: string[];
-  suppress?: string[];
+  enabledDetectors?: string[];
+  disabledDetectors?: string[];
   allDetectors?: boolean;
   config?: string;
 }
@@ -72,7 +72,7 @@ export const cliOptions = [
     .default(undefined)
     .argParser(parseSeverity),
   new Option(
-    "-D, --detectors <name|path:name>",
+    "-de, --enable-detector <name|path:name>",
     "A comma-separated list of detectors to enable.",
   )
     .argParser((value) => {
@@ -86,14 +86,14 @@ export const cliOptions = [
     })
     .default(undefined),
   new Option(
-    "-s, --suppress <names>",
-    "A comma-separated list of names of detectors to suppress.",
+    "-dd, --disable-detector <names>",
+    "A comma-separated list of names of detectors to disable.",
   )
     .argParser((value) => {
       const detectors = value.split(",").map((detector) => detector.trim());
       if (detectors.length === 0) {
         throw new Error(
-          "The --suppress option requires a non-empty list of detector names.",
+          "The --disable-detector option requires a non-empty list of detector names.",
         );
       }
       return detectors;

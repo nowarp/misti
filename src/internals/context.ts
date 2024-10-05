@@ -23,7 +23,7 @@ export class MistiContext {
       options.souffleBinary ?? "souffle",
     );
     this.config = new MistiConfig({
-      detectors: options.detectors,
+      detectors: options.enabledDetectors,
       tools: options.tools,
       allDetectors: options.allDetectors,
       configPath: options.config,

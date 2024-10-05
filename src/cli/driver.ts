@@ -34,7 +34,7 @@ export class Driver {
   detectors: Detector[] = [];
   tools: Tool<any>[] = [];
   outputPath: string;
-  suppressedDetectorNames: Set<string>;
+  disabledDetectors: Set<string>;
   colorizeOutput: boolean;
   tactConfigPath: string;
   /** Minimum severity level to report warnings. */
@@ -65,7 +65,7 @@ export class Driver {
       : path.resolve(tactPath); // Tact supports absolute paths only
 
     this.ctx = new MistiContext(tactPath, options);
-    this.suppressedDetectorNames = new Set(options.suppress ?? []);
+    this.disabledDetectors = new Set(options.disabledDetectors ?? []);
     this.colorizeOutput = options.colors ?? true;
     this.minSeverity = options.minSeverity ?? Severity.INFO;
     this.outputFormat = options.outputFormat ?? "plain";
@@ -119,7 +119,7 @@ export class Driver {
     const detectorPromises = this.ctx.config.detectors.reduce<
       Promise<Detector>[]
     >((acc, config) => {
-      if (this.suppressedDetectorNames.has(config.className)) {
+      if (this.disabledDetectors.has(config.className)) {
         this.ctx.logger.debug(`Suppressed detector: ${config.className}`);
         return acc;
       }
@@ -505,8 +505,8 @@ export class Runner {
       verbose: false,
       quiet: false,
       minSeverity: undefined,
-      detectors: undefined,
-      suppress: undefined,
+      enabledDetectors: undefined,
+      disabledDetectors: undefined,
       allDetectors: false,
       config: undefined,
     },
@@ -567,7 +567,10 @@ export class Runner {
         `Please choose only one option: --verbose or --quiet`,
       );
     }
-    if (options.allDetectors === true && options.detectors !== undefined) {
+    if (
+      options.allDetectors === true &&
+      options.enabledDetectors !== undefined
+    ) {
       throw ExecutionException.make(
         `--detectors and --all-detectors cannot be used simultaneously`,
       );
@@ -582,6 +585,17 @@ export class Runner {
         );
         throw ExecutionException.make(
           `Duplicate tool class names found: ${duplicates.join(", ")}. Each tool must have a unique class name.`,
+        );
+      }
+    }
+    // Check for intersection between enabledDetectors and disabledDetectors
+    if (options.enabledDetectors && options.disabledDetectors) {
+      const enabledSet = new Set(options.enabledDetectors);
+      const disabledSet = new Set(options.disabledDetectors);
+      const intersection = [...enabledSet].filter((x) => disabledSet.has(x));
+      if (intersection.length > 0) {
+        throw ExecutionException.make(
+          `Detectors cannot be both enabled and disabled. Conflicting detectors: ${intersection.join(", ")}`,
         );
       }
     }
