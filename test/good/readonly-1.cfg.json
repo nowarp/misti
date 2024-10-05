@@ -6,31 +6,97 @@
       "cfg": {
         "nodes": [
           {
-            "id": 141,
+            "id": 142,
             "stmtID": 1655,
             "srcEdges": [],
             "dstEdges": [
-              143
+              144
             ]
           },
           {
-            "id": 142,
+            "id": 143,
             "stmtID": 1657,
             "srcEdges": [
-              143
+              144
             ],
             "dstEdges": []
           }
         ],
         "edges": [
           {
-            "id": 143,
-            "src": 141,
-            "dst": 142
+            "id": 144,
+            "src": 142,
+            "dst": 143
           }
         ]
       }
     }
   ],
-  "contracts": []
+  "contracts": [
+    {
+      "name": "Test",
+      "methods": [
+        {
+          "name": "Test.test",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 145,
+                "stmtID": 1679,
+                "srcEdges": [],
+                "dstEdges": [
+                  147
+                ]
+              },
+              {
+                "id": 146,
+                "stmtID": 1685,
+                "srcEdges": [
+                  147
+                ],
+                "dstEdges": [
+                  149
+                ]
+              },
+              {
+                "id": 148,
+                "stmtID": 1684,
+                "srcEdges": [
+                  149
+                ],
+                "dstEdges": [
+                  151
+                ]
+              },
+              {
+                "id": 150,
+                "stmtID": 1687,
+                "srcEdges": [
+                  151
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 147,
+                "src": 145,
+                "dst": 146
+              },
+              {
+                "id": 149,
+                "src": 146,
+                "dst": 148
+              },
+              {
+                "id": 151,
+                "src": 148,
+                "dst": 150
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
 }

@@ -409,6 +409,19 @@ export function findInExpressions(
 }
 
 /**
+ * Returns true if there are any nested expressions matching the given predicate.
+ * @param node The node to traverse.
+ * @param predicate The predicate function to test each expression.
+ * @returns The first expression that satisfies the predicate, or null if none found.
+ */
+export function hasInExpressions(
+  node: AstNode,
+  predicate: (expr: AstExpression) => boolean,
+): boolean {
+  return null !== findInExpressions(node, predicate);
+}
+
+/**
  * Recursively iterates over each expression in an ASTNode and applies a callback to each expression.
  * @param node The node to traverse.
  * @param acc The initial value of the accumulator.

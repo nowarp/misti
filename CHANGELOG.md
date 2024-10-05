@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ArgCopyMutation`: Don't report arguments returned from the function: Issue [#149](https://github.com/nowarp/misti/issues/149)
 - Rename CLI options: `--suppress` -> `--disable-detectors`; `--detectors` -> `--enable-detectors`
 
+### Fixed
+- `ReadOnlyVariables`: Don't suggest creating constants from variables resulted from fields and method calls: Issue [#148](https://github.com/nowarp/misti/issues/148)
+
 ## [0.3.1] - 2024-09-24
 
 ### Fixed

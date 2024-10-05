@@ -6,7 +6,7 @@ import {
   mutationNames,
   funName,
 } from "../../internals/tact";
-import { findInExpressions } from "../../internals/tact/iterators";
+import { hasInExpressions } from "../../internals/tact/iterators";
 import { intersection } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
@@ -108,11 +108,10 @@ export class ArgCopyMutation extends ASTDetector {
       if (stmt.kind !== "statement_return" || !stmt.expression) {
         return false;
       }
-      const foundArg = findInExpressions(
+      return hasInExpressions(
         stmt.expression,
         (expr) => expr.kind === "id" && expr.text === argName,
       );
-      return foundArg !== null;
     });
   }
 

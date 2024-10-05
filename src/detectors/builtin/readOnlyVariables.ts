@@ -1,6 +1,10 @@
 import { InternalException } from "../../internals/exceptions";
 import { BasicBlock, CFG, CompilationUnit } from "../../internals/ir";
-import { extractPath, forEachExpression } from "../../internals/tact";
+import {
+  extractPath,
+  forEachExpression,
+  hasInExpressions,
+} from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { SouffleDetector, WarningsBehavior } from "../detector";
 import { SouffleContext, atom, body, relation, rule } from "@nowarp/souffle";
@@ -154,7 +158,17 @@ export class ReadOnlyVariables extends SouffleDetector {
           // XXX: When the variable appears in any other case, it won't be reported.
           // This will changed fixed when #69 is implemented.
           case "statement_let":
-            ctx.addFact("varDecl", [stmt.name.text, funName], stmt.name.loc);
+            // Don't add variables resulted from method calls and field accesses,
+            // since we cannot even replace them with constants.
+            if (
+              !hasInExpressions(
+                stmt.expression,
+                (expr) =>
+                  expr.kind === "method_call" || expr.kind === "field_access",
+              )
+            ) {
+              ctx.addFact("varDecl", [stmt.name.text, funName], stmt.name.loc);
+            }
             track(funName, stmt.expression, "skip");
             break;
           case "statement_assign":

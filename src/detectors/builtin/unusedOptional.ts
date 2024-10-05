@@ -1,7 +1,7 @@
 import { CompilationUnit } from "../../internals/ir";
 import {
   forEachExpression,
-  findInExpressions,
+  hasInExpressions,
   foldStatements,
   collectFields,
 } from "../../internals/tact";
@@ -123,11 +123,9 @@ export class UnusedOptional extends ASTDetector {
       stmt.kind === "statement_assign" ||
       stmt.kind === "statement_augmentedassign"
     ) {
-      const found =
-        undefined !==
-        findInExpressions(stmt.path, (expr) => {
-          return expr.kind === "id" || expr.kind === "field_access";
-        });
+      const found = hasInExpressions(stmt.path, (expr) => {
+        return expr.kind === "id" || expr.kind === "field_access";
+      });
       if (found) {
         if (stmt.path.kind === "id") {
           unusedOptionalVars.delete(idText(stmt.path));
