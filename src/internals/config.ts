@@ -1,6 +1,10 @@
 import { ExecutionException } from "./exceptions";
 import { ToolConfig, DetectorConfig } from "../cli";
-import { getAllDetectors, getEnabledDetectors } from "../detectors/detector";
+import {
+  getAllDetectors,
+  getEnabledDetectors,
+  DetectorName,
+} from "../detectors/detector";
 import * as fs from "fs";
 import { z } from "zod";
 
@@ -14,11 +18,17 @@ const ToolConfigSchema = z.object({
   options: z.record(z.unknown()).optional(),
 });
 
+const WarningSuppressionSchema = z.object({
+  detector: z.string(),
+  position: z.string(),
+});
+
 const VerbositySchema = z.enum(["quiet", "debug", "default"]);
 
 const ConfigSchema = z.object({
   detectors: z.array(DetectorConfigSchema).optional(),
   tools: z.array(ToolConfigSchema).optional(),
+  suppressions: z.array(WarningSuppressionSchema).optional(),
   ignoredProjects: z.array(z.string()).optional(),
   soufflePath: z.string().optional(),
   souffleVerbose: z.boolean().optional(),
@@ -27,12 +37,20 @@ const ConfigSchema = z.object({
   verbosity: VerbositySchema.optional().default("default"),
 });
 
+export type WarningSuppression = {
+  detector: DetectorName;
+  file: string;
+  line: number;
+  col: number;
+};
+
 /**
  * Represents content of the Misti configuration file (misti.config.json).
  */
 export class MistiConfig {
   public detectors: DetectorConfig[];
   public tools: ToolConfig[];
+  public suppressions: WarningSuppression[];
   public ignoredProjects: string[];
   public soufflePath: string = "/tmp/misti/souffle";
   public souffleVerbose?: boolean;
@@ -40,20 +58,17 @@ export class MistiConfig {
   public unusedPrefix: string;
   public verbosity: "quiet" | "debug" | "default";
 
-  constructor(
-    params: Partial<{
-      configPath?: string;
-      detectors?: string[];
-      tools?: ToolConfig[];
-      allDetectors: boolean;
-    }> = {},
-  ) {
-    const {
-      configPath = undefined,
-      detectors = undefined,
-      tools = undefined,
-      allDetectors = false,
-    } = params;
+  constructor({
+    configPath = undefined,
+    detectors = undefined,
+    tools = undefined,
+    allDetectors = false,
+  }: Partial<{
+    configPath?: string;
+    detectors?: string[];
+    tools?: ToolConfig[];
+    allDetectors: boolean;
+  }> = {}) {
     let configData;
     if (configPath) {
       try {
@@ -100,6 +115,7 @@ export class MistiConfig {
       const parsedConfig = ConfigSchema.parse(configData);
       this.detectors = parsedConfig.detectors || [];
       this.tools = parsedConfig.tools || [];
+      this.suppressions = this.parseSuppressions(parsedConfig.suppressions);
       this.ignoredProjects = parsedConfig.ignoredProjects || [];
       this.tactStdlibPath = parsedConfig.tactStdlibPath;
       this.unusedPrefix = parsedConfig.unusedPrefix;
@@ -142,5 +158,36 @@ export class MistiConfig {
     return (allDetectors ? getAllDetectors : getEnabledDetectors)().map(
       (name) => ({ className: name }),
     );
+  }
+
+  /**
+   * Parses the suppressions from the configuration file.
+   */
+  private parseSuppressions(
+    suppressions: { detector: string; position: string }[] | undefined,
+  ): WarningSuppression[] {
+    if (!suppressions) return [];
+    return suppressions.map(({ detector, position }) => {
+      const parts = position.split(":");
+      if (parts.length !== 3) {
+        throw ExecutionException.make(
+          `Invalid suppression position format: ${position}. Expected format: fileName:line:column`,
+        );
+      }
+      const [file, lineStr, colStr] = parts;
+      const line = parseInt(lineStr, 10);
+      const col = parseInt(colStr, 10);
+      if (isNaN(line) || isNaN(col)) {
+        throw ExecutionException.make(
+          `Invalid line or column number in suppression position: ${position}`,
+        );
+      }
+      return {
+        detector: detector as DetectorName,
+        file,
+        line,
+        col,
+      };
+    });
   }
 }

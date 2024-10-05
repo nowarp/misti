@@ -35,4 +35,18 @@ describe("Config class", () => {
       "Failed to read file",
     );
   });
+
+  it("should parse suppressions correctly", () => {
+    const configWithSuppressions = JSON.stringify({
+      detectors: [{ className: "ReadOnlyVariables" }],
+      suppressions: [
+        { detector: "ReadOnlyVariables", position: "file.tact:10:5" },
+      ],
+    });
+    (fs.readFileSync as jest.Mock).mockReturnValue(configWithSuppressions);
+    const configInstance = new MistiConfig({ configPath: MOCK_CONFIG_PATH });
+    expect(configInstance.suppressions).toEqual([
+      { detector: "ReadOnlyVariables", file: "file.tact", line: 10, col: 5 },
+    ]);
+  });
 });

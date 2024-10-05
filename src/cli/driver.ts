@@ -246,10 +246,9 @@ export class Driver {
       );
       return warningsMap;
     })();
-    const filteredWarnings = this.filterImportedWarnings(
-      Array.from(cus.keys()),
-      allWarnings,
-    );
+    const filteredWarnings: Map<ProjectName, MistiTactWarning[]> =
+      this.filterImportedWarnings(Array.from(cus.keys()), allWarnings);
+    this.filterSuppressedWarnings(filteredWarnings);
     const reported = new Set<string>();
     const warningsOutput: WarningOutput[] = [];
     for (const [projectName, detectorsMap] of filteredWarnings.entries()) {
@@ -380,6 +379,43 @@ export class Driver {
     }
 
     return filteredWarnings;
+  }
+
+  /**
+   * Filters out the warnings suppressed in the configuration files.
+   * Mutates the input map removing suppressed warnings.
+   */
+  private filterSuppressedWarnings(
+    warnings: Map<ProjectName, MistiTactWarning[]>,
+  ): void {
+    this.ctx.config.suppressions.forEach((suppression) => {
+      let suppressionUsed = false;
+      warnings.forEach((projectWarnings, projectName) => {
+        const filteredWarnings = projectWarnings.filter((warning) => {
+          const lc = warning.loc.interval.getLineAndColumn() as {
+            lineNum: number;
+            colNum: number;
+          };
+          if (
+            warning.detectorId === suppression.detector &&
+            warning.loc.file &&
+            warning.loc.file.includes(suppression.file) &&
+            lc.lineNum === suppression.line &&
+            lc.colNum === suppression.col
+          ) {
+            suppressionUsed = true;
+            return false;
+          }
+          return true;
+        });
+        warnings.set(projectName, filteredWarnings);
+      });
+      if (!suppressionUsed) {
+        this.ctx.logger.warn(
+          `Unused suppression: ${suppression.detector} at ${suppression.file}:${suppression.line}`,
+        );
+      }
+    });
   }
 
   /**

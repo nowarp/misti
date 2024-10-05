@@ -30,6 +30,28 @@
         "additionalProperties": false
       }
     },
+    "suppressions": {
+      "type": "array",
+      "description": "List of warning suppressions",
+      "items": {
+        "type": "object",
+        "properties": {
+          "detector": {
+            "type": "string",
+            "description": "The name of the detector"
+          },
+          "position": {
+            "type": "string",
+            "description": "The position of the suppression in the format 'fileName:line:column'"
+          }
+        },
+        "required": [
+          "detector",
+          "position"
+        ],
+        "additionalProperties": false
+      }
+    },
     "ignoredProjects": {
       "type": "array",
       "description": "List of Tact projects that will be ignored by the analyzer",
