@@ -1,4 +1,5 @@
 import { InternalException } from "../exceptions";
+import { unreachable } from "../util";
 import {
   AstExpression,
   AstNode,
@@ -21,10 +22,13 @@ export function extractPath(path: AstExpression): string {
  * Recursively iterates over each expression in an ASTNode and applies a callback to each expression.
  * @param node The node to traverse.
  * @param callback The callback function to apply to each expression.
+ * @param flatStmts If true, only traverse statement expressions at the current
+ *                  level without going into nested statements.
  */
 export function forEachExpression(
   node: AstNode,
   callback: (expr: AstExpression) => void,
+  { flatStmts = false }: Partial<{ flatStmts: boolean }> = {},
 ): void {
   function traverseExpression(expr: AstExpression): void {
     callback(expr);
@@ -68,7 +72,7 @@ export function forEachExpression(
         // Primitives and non-composite expressions don't require further traversal
         break;
       default:
-        throw InternalException.make("Unsupported expression", { node: expr });
+        unreachable(expr);
     }
   }
 
@@ -88,30 +92,32 @@ export function forEachExpression(
         break;
       case "statement_condition":
         traverseExpression(stmt.condition);
-        stmt.trueStatements.forEach(traverseStatement);
-        if (stmt.falseStatements)
+        if (!flatStmts) stmt.trueStatements.forEach(traverseStatement);
+        if (!flatStmts && stmt.falseStatements)
           stmt.falseStatements.forEach(traverseStatement);
-        if (stmt.elseif) traverseStatement(stmt.elseif);
+        if (!flatStmts && stmt.elseif) traverseStatement(stmt.elseif);
         break;
       case "statement_while":
       case "statement_until":
         traverseExpression(stmt.condition);
-        stmt.statements.forEach(traverseStatement);
+        if (!flatStmts) stmt.statements.forEach(traverseStatement);
         break;
       case "statement_repeat":
         traverseExpression(stmt.iterations);
-        stmt.statements.forEach(traverseStatement);
+        if (!flatStmts) stmt.statements.forEach(traverseStatement);
         break;
       case "statement_try":
       case "statement_foreach":
-        stmt.statements.forEach(traverseStatement);
+        if (!flatStmts) stmt.statements.forEach(traverseStatement);
         break;
       case "statement_try_catch":
-        stmt.statements.forEach(traverseStatement);
-        stmt.catchStatements.forEach(traverseStatement);
+        if (!flatStmts) {
+          stmt.statements.forEach(traverseStatement);
+          stmt.catchStatements.forEach(traverseStatement);
+        }
         break;
       default:
-        throw InternalException.make("Unsupported statement", { node: stmt });
+        unreachable(stmt);
     }
   }
 
@@ -190,7 +196,7 @@ export function forEachExpression(
         // Do nothing
         break;
       default:
-        throw InternalException.make("Unsupported node", { node });
+        unreachable(node);
     }
   }
 
@@ -256,7 +262,7 @@ export function findInExpressions(
         // Primitives and non-composite expressions don't require further traversal
         return null;
       default:
-        throw InternalException.make("Unsupported expression", { node: expr });
+        unreachable(expr);
     }
   }
 
@@ -322,7 +328,7 @@ export function findInExpressions(
           )
         );
       default:
-        throw InternalException.make("Unsupported statement", { node: stmt });
+        unreachable(stmt);
     }
   }
 
@@ -401,7 +407,7 @@ export function findInExpressions(
         // Do nothing
         return null;
       default:
-        throw InternalException.make("Unsupported node", { node });
+        unreachable(node);
     }
   }
 
@@ -482,7 +488,7 @@ export function foldExpressions<T>(
         // Primitives and non-composite expressions don't require further traversal
         break;
       default:
-        throw InternalException.make("Unsupported expression", { node: expr });
+        unreachable(expr);
     }
     return acc;
   }
@@ -545,7 +551,7 @@ export function foldExpressions<T>(
         });
         break;
       default:
-        throw InternalException.make("Unsupported statement");
+        unreachable(stmt);
     }
     return acc;
   }
@@ -631,7 +637,7 @@ export function foldExpressions<T>(
         // Do nothing
         break;
       default:
-        throw InternalException.make("Unsupported node", { node });
+        unreachable(node);
     }
     return acc;
   }
@@ -677,7 +683,7 @@ export function forEachStatement(
         stmt.catchStatements.forEach(traverseStatement);
         break;
       default:
-        throw InternalException.make("Unsupported statement", { node: stmt });
+        unreachable(stmt);
     }
   }
 
@@ -733,13 +739,16 @@ export function forEachStatement(
       case "constant_def":
       case "constant_decl":
       case "field_decl":
+      case "func_id":
+      case "function_decl":
+      case "optional_type":
       case "import":
       case "primitive_type_decl":
       case "asm_function_def":
         // Do nothing
         break;
       default:
-        throw InternalException.make("Unsupported node", { node });
+        unreachable(node);
     }
   }
 
@@ -751,15 +760,19 @@ export function forEachStatement(
  * @param node The node to traverse.
  * @param acc The initial value of the accumulator.
  * @param callback The callback function to apply to each statement, also passes the accumulator.
+ * @param flatStmts If true, only traverse statements at the current level without
+ *                  going into nested statements.
  * @returns The final value of the accumulator after processing all statements.
  */
 export function foldStatements<T>(
   node: AstNode,
   callback: (acc: T, stmt: AstStatement) => T,
   acc: T,
+  { flatStmts = false }: Partial<{ flatStmts: boolean }> = {},
 ): T {
   function traverseStatement(acc: T, stmt: AstStatement): T {
     acc = callback(acc, stmt);
+    if (flatStmts) return acc;
 
     switch (stmt.kind) {
       case "statement_let":
@@ -791,7 +804,7 @@ export function foldStatements<T>(
         );
         break;
       default:
-        throw InternalException.make("Unsupported statement", { node: stmt });
+        unreachable(stmt);
     }
     return acc;
   }
@@ -854,6 +867,8 @@ export function foldStatements<T>(
       case "message_decl":
       case "constant_def":
       case "constant_decl":
+      case "func_id":
+      case "optional_type":
       case "field_decl":
       case "import":
       case "primitive_type_decl":
@@ -861,7 +876,7 @@ export function foldStatements<T>(
         // Do nothing
         break;
       default:
-        throw InternalException.make("Unsupported node", { node });
+        unreachable(node);
     }
     return acc;
   }
