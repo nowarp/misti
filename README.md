@@ -18,8 +18,12 @@ Misti is a static analysis tool designed for smart contracts on the [TON blockch
 ```bash
 yarn add @nowarp/misti
 ```
+3. Install and Build the Project
+Navigate to the project directory, install dependencies, generate required files, and build the project:
+```bash
+cd misti && yarn install && yarn gen && yarn build
 
-3. Run Misti by specifying a Tact project configuration:
+4. Run Misti by specifying a Tact project configuration:
 ```bash
 npx misti test/projects/simple/tactConfig.json
 ```
