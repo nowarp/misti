@@ -21,7 +21,7 @@ yarn add @nowarp/misti
 
 3. Run Misti by specifying a Tact project configuration:
 ```bash
-npx misti test/projects/simple/tactConfig.json
+npx misti path/to/your/tact.config.json
 ```
 
 ## Resources
