@@ -117,10 +117,14 @@ export type MutatedElement = AstId | AstFieldAccess;
  * Collects mutations local or state mutations within the statements.
  *
  * @param The statement to analyze
+ * @param flatStmts If true, only traverse statements at the current level without
+ *                  going into nested statements. It should be used when calling this function
+ *                  inside one of the iterators.
  * @returns Mutated fields and local identifiers, including nested fields of mutated structure instances
  */
 export function collectMutations(
   stmt: AstStatement,
+  { flatStmts = false }: Partial<{ flatStmts: boolean }> = {},
 ):
   | { mutatedFields: MutatedElement[]; mutatedLocals: MutatedElement[] }
   | undefined {
@@ -128,21 +132,25 @@ export function collectMutations(
   const mutatedLocals: MutatedElement[] = [];
 
   const handleMethodCallsMutations = (): void => {
-    forEachExpression(stmt, (expr: AstExpression) => {
-      if (expr.kind === "method_call" && isStdlibMutationMethod(expr)) {
-        if (isSelfAccess(expr.self)) {
-          // Field mutation
-          const mutated = removeSelf(expr);
-          if (mutated) {
-            mutatedFields.push(mutated);
+    forEachExpression(
+      stmt,
+      (expr: AstExpression) => {
+        if (expr.kind === "method_call" && isStdlibMutationMethod(expr)) {
+          if (isSelfAccess(expr.self)) {
+            // Field mutation
+            const mutated = removeSelf(expr);
+            if (mutated) {
+              mutatedFields.push(mutated);
+            }
+          } else {
+            // Local mutation
+            if (expr.self.kind === "field_access" || expr.self.kind === "id")
+              mutatedLocals.push(expr.self);
           }
-        } else {
-          // Local mutation
-          if (expr.self.kind === "field_access" || expr.self.kind === "id")
-            mutatedLocals.push(expr.self);
         }
-      }
-    });
+      },
+      { flatStmts },
+    );
   };
   handleMethodCallsMutations();
 

@@ -200,7 +200,7 @@ export class ArgCopyMutation extends ASTDetector {
     stmt: AstStatement,
     argNames: string[],
   ): Map<string, AstStatement[]> {
-    const mutations = collectMutations(stmt);
+    const mutations = collectMutations(stmt, { flatStmts: true });
     const foundMutations = mutations
       ? intersection(argNames, mutationNames(mutations.mutatedLocals))
       : [];

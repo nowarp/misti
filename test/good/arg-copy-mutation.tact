@@ -22,6 +22,13 @@ contract Test {
         m.set(2, 2);
     }
 
+    // Test the warning position: it should point out to `set`
+    fun testForeach(m: map<Int, Int>) {
+        foreach(key, value in m) { // No warning here
+            m.set(3, 3); // Bad
+        }
+    }
+
     fun id(m: map<Int, Int>): map<Int, Int> {
         return m;
     }
