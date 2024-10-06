@@ -24,6 +24,8 @@ yarn add @nowarp/misti
 npx misti path/to/your/tact.config.json
 ```
 
+See the [configuration page](https://nowarp.io/tools/misti/docs/tutorial/getting-started/) for details on available options.
+
 ## Resources
 - **[Misti Documentation](https://nowarp.github.io/tools/misti/)**: Comprehensive guide on detectors, architecture, and development.
 - **[Misti API Reference](https://nowarp.github.io/tools/misti/api)**: Useful for contributors or developers creating custom detectors.
