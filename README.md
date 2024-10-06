@@ -16,7 +16,7 @@ Misti is a static analysis tool designed for smart contracts on the [TON blockch
 
 2. Misti is distributed via npm and should be added to your Tact project [in the same way](https://github.com/tact-lang/tact?tab=readme-ov-file#installation) as Tact itself:
 ```bash
-yarn add @nowarp/misti
+cd misti && yarn install && yarn gen && yarn build
 ```
 
 3. Run Misti by specifying a Tact project configuration:
