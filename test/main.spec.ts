@@ -9,7 +9,7 @@ describe("Misti `main` tests", () => {
   it("should produce the same output for `yarn misti` and `./bin/misti`", () => {
     // Run `yarn misti`
     const yarnMistiOutput = execSync(
-      "yarn misti test/good/never-accessed-1.tact",
+      "yarn misti test/good/never-accessed.tact",
     )
       .toString()
       .trim();
@@ -17,7 +17,7 @@ describe("Misti `main` tests", () => {
     // Run `yarn build && ./bin/misti`
     execSync("yarn build");
     const binMistiOutput = execSync(
-      "./bin/misti test/good/never-accessed-1.tact",
+      "./bin/misti test/good/never-accessed.tact",
     )
       .toString()
       .trim();
