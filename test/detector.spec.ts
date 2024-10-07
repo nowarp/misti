@@ -58,6 +58,18 @@ describe("Common detectors functionality", () => {
           detector: "NeverAccessedVariables",
           position: "test/good/never-accessed.tact:31:5",
         },
+        {
+          detector: "NeverAccessedVariables",
+          position: "test/good/never-accessed.tact:2:5",
+        },
+        {
+          detector: "NeverAccessedVariables",
+          position: "test/good/never-accessed.tact:24:5",
+        },
+        {
+          detector: "NeverAccessedVariables",
+          position: "test/good/never-accessed.tact:71:9",
+        },
       ],
     };
 
