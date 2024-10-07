@@ -56,7 +56,7 @@ jobs:
     - name: Check broken links
       uses: lycheeverse/lychee-action@v1
       with:
-        args: src/ test/ examples/ bin/ benchmarks/ scripts/ README.md RELEASE.md CONTRIBUTING.md HACKING.md
+        args: src/ test/ examples/ bin/ benchmarks/ scripts/ README.md RELEASE.md
         output: /tmp/lychee.txt
         fail: true
 
