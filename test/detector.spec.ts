@@ -33,7 +33,7 @@ describe("Common detectors functionality", () => {
       message: expect.stringContaining("Write-only variable: a"),
     });
     expect(firstWarning.message).toContain(
-      "test/good/never-accessed-1.tact:2:5:",
+      "test/good/never-accessed.tact:2:5:",
     );
     expect(firstWarning.message).toContain(
       "Help: The variable value should be accessed",
