@@ -1,0 +1,94 @@
+digraph "unbound-loop" {
+    node [shape=box];
+    subgraph "cluster_test1" {
+        label="test1";
+        "test1_151" [label="let a: Int = 20"];
+        "test1_152" [label="while (a > 10)"];
+        "test1_155" [label="return a",style=filled,fillcolor="#66A7DB"];
+        "test1_151" -> "test1_152";
+        "test1_152" -> "test1_152";
+        "test1_152" -> "test1_155";
+    }
+    subgraph "cluster_test2" {
+        label="test2";
+        "test2_157" [label="let a: Int = 20"];
+        "test2_158" [label="until (a > 10)"];
+        "test2_161" [label="return a",style=filled,fillcolor="#66A7DB"];
+        "test2_157" -> "test2_158";
+        "test2_158" -> "test2_158";
+        "test2_158" -> "test2_161";
+    }
+    subgraph "cluster_test3" {
+        label="test3";
+        "test3_163" [label="let a: Int = 20"];
+        "test3_164" [label="while (a > 10)"];
+        "test3_166" [label="a += 1"];
+        "test3_169" [label="return a",style=filled,fillcolor="#66A7DB"];
+        "test3_163" -> "test3_164";
+        "test3_164" -> "test3_166";
+        "test3_166" -> "test3_164";
+        "test3_164" -> "test3_169";
+    }
+    subgraph "cluster_test4" {
+        label="test4";
+        "test4_171" [label="let a: Int = 10"];
+        "test4_172" [label="repeat (a)"];
+        "test4_175" [label="return a",style=filled,fillcolor="#66A7DB"];
+        "test4_171" -> "test4_172";
+        "test4_172" -> "test4_172";
+        "test4_172" -> "test4_175";
+    }
+    subgraph "cluster_test5" {
+        label="test5";
+        "test5_177" [label="let i: Int = 0"];
+        "test5_178" [label="while (i > 0)"];
+        "test5_177" -> "test5_178";
+        "test5_178" -> "test5_178";
+    }
+    subgraph "cluster_test6" {
+        label="test6";
+        "test6_181" [label="let i: Int = 0"];
+        "test6_182" [label="while (10 < i)"];
+        "test6_181" -> "test6_182";
+        "test6_182" -> "test6_182";
+    }
+    subgraph "cluster_test7" {
+        label="test7";
+        "test7_185" [label="let i: Bool = false"];
+        "test7_186" [label="while (i)"];
+        "test7_185" -> "test7_186";
+        "test7_186" -> "test7_186";
+    }
+    subgraph "cluster_test8" {
+        label="test8";
+        "test8_189" [label="let i: Bool = true"];
+        "test8_190" [label="while (!i)"];
+        "test8_189" -> "test8_190";
+        "test8_190" -> "test8_190";
+    }
+    subgraph "cluster_fn" {
+        label="fn";
+    }
+    subgraph "cluster_test9" {
+        label="test9";
+        "test9_193" [label="let a: Int = 20"];
+        "test9_194" [label="while (a > 10)"];
+        "test9_196" [label="fn(a)"];
+        "test9_199" [label="return a",style=filled,fillcolor="#66A7DB"];
+        "test9_193" -> "test9_194";
+        "test9_194" -> "test9_196";
+        "test9_196" -> "test9_194";
+        "test9_194" -> "test9_199";
+    }
+    subgraph "cluster_Test__receive_internal_comment_1790_test" {
+        label="Test__receive_internal_comment_1790_test";
+        "Test__receive_internal_comment_1790_test_201" [label="let s: S = S{a: 1}"];
+        "Test__receive_internal_comment_1790_test_202" [label="let i: Int = 0"];
+        "Test__receive_internal_comment_1790_test_204" [label="while (i < s.a)"];
+        "Test__receive_internal_comment_1790_test_206" [label="i += 1"];
+        "Test__receive_internal_comment_1790_test_201" -> "Test__receive_internal_comment_1790_test_202";
+        "Test__receive_internal_comment_1790_test_202" -> "Test__receive_internal_comment_1790_test_204";
+        "Test__receive_internal_comment_1790_test_204" -> "Test__receive_internal_comment_1790_test_206";
+        "Test__receive_internal_comment_1790_test_206" -> "Test__receive_internal_comment_1790_test_204";
+    }
+}

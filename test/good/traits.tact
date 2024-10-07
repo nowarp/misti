@@ -8,14 +8,14 @@ contract TestContract with T {
   override const something: Int = 42;
 }
 
-trait V {
+trait Z {
   a: Int;
   get fun getter(): Int {
-      return self.a + 1; // a is used
+      return self.a + 1;
   }
 }
 
-contract TestContract with V {
+contract TestContractF {
     a: Int = 42;
     fun test() {}
 }
@@ -23,15 +23,15 @@ contract TestContract with V {
 trait TParent {
   a: Int;
   fun getA(): Int {
-      return self.a; // a is used
+      return self.a;
   }
 }
 
 trait TChild with TParent {
-  a: Int;
+  a: Int; // Declare 'a' to satisfy TParent's requirement
 }
 
-contract TestContract with TChild {
+contract TestContractT with TChild {
     a: Int = 19;
     fun test(): Int {
         return self.getA();

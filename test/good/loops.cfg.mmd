@@ -1,0 +1,49 @@
+graph TD
+subgraph test1
+    test1_144["let sum: Int = 0"]
+    test1_145["let i: Int = 0"]
+    test1_147["while (i &lt; 10)"]
+    test1_149["i = i + 1"]
+    test1_151["sum = sum + i"]
+    test1_154["return sum"]:::exitNode
+    test1_144 --> test1_145
+    test1_145 --> test1_147
+    test1_147 --> test1_149
+    test1_149 --> test1_151
+    test1_151 --> test1_147
+    test1_147 --> test1_154
+end
+subgraph test2
+    test2_156["let sum: Int = 0"]
+    test2_157["let i: Int = 0"]
+    test2_159["until (i &lt; 10)"]
+    test2_161["i = i + 1"]
+    test2_163["sum = sum + i"]
+    test2_166["return sum"]:::exitNode
+    test2_156 --> test2_157
+    test2_157 --> test2_159
+    test2_159 --> test2_161
+    test2_161 --> test2_163
+    test2_163 --> test2_159
+    test2_159 --> test2_166
+end
+subgraph test3
+    test3_168["let sum: Int = 0"]
+    test3_169["let i: Int = 0"]
+    test3_171["repeat (10)"]
+    test3_173["i = i + 1"]
+    test3_175["sum = sum + i"]
+    test3_178["return sum"]:::exitNode
+    test3_168 --> test3_169
+    test3_169 --> test3_171
+    test3_171 --> test3_173
+    test3_173 --> test3_175
+    test3_175 --> test3_171
+    test3_171 --> test3_178
+end
+subgraph test4
+    test4_180["let m: map&lt;Int, Int&gt; = emptyMap()"]
+    test4_181["foreach ((k, v) of m)"]
+    test4_180 --> test4_181
+    test4_181 --> test4_181
+end

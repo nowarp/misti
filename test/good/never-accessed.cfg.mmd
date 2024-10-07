@@ -1,0 +1,60 @@
+graph TD
+subgraph test1
+    test1_151["let a: Int = 20"]
+    test1_152["if (true)"]
+    test1_154["a = 42"]
+    test1_156["return 42"]:::exitNode
+    test1_151 --> test1_152
+    test1_152 --> test1_154
+    test1_154 --> test1_156
+end
+subgraph test2
+    test2_158["while (true)"]
+    test2_159["let a: Int = 0"]
+    test2_158 --> test2_159
+    test2_159 --> test2_158
+end
+subgraph test3
+    test3_162["let a: Int = 20"]
+    test3_163["let b: Int = 22"]
+    test3_165["let c: Int = 24"]
+    test3_167["if (true)"]
+    test3_169["c = a + b"]
+    test3_171["return c"]:::exitNode
+    test3_162 --> test3_163
+    test3_163 --> test3_165
+    test3_165 --> test3_167
+    test3_167 --> test3_169
+    test3_169 --> test3_171
+end
+subgraph test4
+    test4_173["let a: Int = 20"]
+    test4_174["let b: Int = 22"]
+    test4_176["return b"]:::exitNode
+    test4_173 --> test4_174
+    test4_174 --> test4_176
+end
+subgraph FieldTest1__init_1751
+    FieldTest1__init_1751_178["self.f1 = sender()"]:::exitNode
+end
+subgraph FieldTest1__use_f1
+    FieldTest1__use_f1_179["return self.f1"]:::exitNode
+end
+subgraph FieldTest1__forEachUse
+    FieldTest1__forEachUse_180["let foreachmap: map&lt;Address, Address&gt; = self.foreachmap"]
+    FieldTest1__forEachUse_181["foreach ((_, _) of foreachmap)"]
+    FieldTest1__forEachUse_180 --> FieldTest1__forEachUse_181
+    FieldTest1__forEachUse_181 --> FieldTest1__forEachUse_181
+end
+subgraph FieldTest2__init_1763
+    FieldTest2__init_1763_185["self.f1 = sender()"]:::exitNode
+end
+subgraph ConstantFieldTest__test
+    ConstantFieldTest__test_187["send(SendParameters{to: sender(), bounce: true, value: self.val, mode: SendRemainingValue + SendIgnoreErrors})"]:::exitNode
+end
+subgraph TestContract__receive_internal_fallback_1801
+    TestContract__receive_internal_fallback_1801_189["let test: Int = 123"]:::exitNode
+end
+subgraph TestContract2__receive_internal_fallback_1808
+    TestContract2__receive_internal_fallback_1808_191["let _test: Int = 123"]:::exitNode
+end

@@ -1,7 +1,0 @@
-Misti execution failed:
-Compilation error: ../../../../var/folders/vp/kzqvq7715ln9r_vglmcbnw980000gn/T/misti/temp-NtWVen/test/good/traits.tact:18:1: Type "TestContract" already exists
-Line 18, col 1:
-  17 | 
-> 18 | contract TestContract with V {
-       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  19 |     a: Int = 42;
