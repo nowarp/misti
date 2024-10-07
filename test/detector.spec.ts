@@ -26,8 +26,8 @@ describe("Common detectors functionality", () => {
     const firstWarning = JSONbig.parse(jsonOutput.warnings[0].warnings[0]);
     expect(firstWarning).toMatchObject({
       file: expect.stringContaining("never-accessed.tact"),
-      line: expect.any(Number),
-      col: expect.any(Number),
+      line: 2,
+      col: 5,
       detectorId: "NeverAccessedVariables",
       severity: "MEDIUM",
       message: expect.stringContaining("Write-only variable: a"),
@@ -55,10 +55,11 @@ describe("Common detectors functionality", () => {
       suppressions: [
         {
           detector: "NeverAccessedVariables",
-          position: "never-accessed.tact:2:5",
+          position: "test/good/never-accessed.tact:2:5", // Suppressing "Write-only variable: a"
         },
       ],
     };
+
     fs.writeFileSync(configPath, JSON.stringify(mockConfig, null, 2));
     const filePath = path.resolve(__dirname, "good", "never-accessed.tact");
     const output = await executeMisti([
@@ -70,7 +71,6 @@ describe("Common detectors functionality", () => {
       configPath,
       filePath,
     ]);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let jsonOutput: { warnings: any };
     try {
       jsonOutput = JSONbig.parse(output);
