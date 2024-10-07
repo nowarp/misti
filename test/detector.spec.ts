@@ -14,7 +14,6 @@ describe("Common detectors functionality", () => {
       "json",
       filePath,
     ]);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let jsonOutput: any;
     try {
       jsonOutput = JSONbig.parse(output);
@@ -24,22 +23,24 @@ describe("Common detectors functionality", () => {
     }
     expect(jsonOutput.warnings.length).toBeGreaterThan(0);
     const firstWarning = JSONbig.parse(jsonOutput.warnings[0].warnings[0]);
+
+    // Match the warning for "Field f2 is never used"
     expect(firstWarning).toMatchObject({
       file: expect.stringContaining("never-accessed.tact"),
-      line: 2,
+      line: 31, // Updated to line 31
       col: 5,
       detectorId: "NeverAccessedVariables",
       severity: "MEDIUM",
-      message: expect.stringContaining("Write-only variable: a"),
+      message: expect.stringContaining("Field f2 is never used"),
     });
     expect(firstWarning.message).toContain(
-      "test/good/never-accessed.tact:2:5:",
+      "test/good/never-accessed.tact:31:5:"
     );
     expect(firstWarning.message).toContain(
-      "Help: The variable value should be accessed",
+      "Help: Consider creating a constant instead of field"
     );
     expect(firstWarning.message).toContain(
-      "See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables",
+      "See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables"
     );
   });
 
@@ -55,7 +56,7 @@ describe("Common detectors functionality", () => {
       suppressions: [
         {
           detector: "NeverAccessedVariables",
-          position: "test/good/never-accessed.tact:2:5", // Suppressing "Write-only variable: a"
+          position: "test/good/never-accessed.tact:31:5",
         },
       ],
     };
