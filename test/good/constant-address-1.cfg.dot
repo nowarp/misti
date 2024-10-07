@@ -1,7 +1,0 @@
-digraph "constant-address-1" {
-    node [shape=box];
-    subgraph "cluster_Main__init_1662" {
-        label="Main__init_1662";
-        "Main__init_1662_141" [label="self.proxy = address(\"UQBKgXCNLPexWhs2L79kiARR1phGH1LwXxRbNsCFF9doczSI\")",style=filled,fillcolor="#66A7DB"];
-    }
-}

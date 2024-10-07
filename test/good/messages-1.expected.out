@@ -1,8 +1,0 @@
-[INFO] PreferAugmentedAssign: Prefer augmented assignment: self.val += 1
-test/good/messages-1.tact:8:9:
-  7 |     receive("increment") {
-> 8 |         self.val = self.val + 1;
-              ^
-  9 |         self.reply(M{value: self.val}.toCell());
-Help: Consider using augmented assignment instead: self.val += 1
-See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign

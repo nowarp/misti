@@ -1,8 +1,0 @@
-[INFO] DumpIsUsed: Found `dump` usage
-test/good/try-3.tact:6:9:
-  5 |     } catch (err) {
-> 6 |         dump(err);
-              ^
-  7 |     }
-Help: Using `dump` in production code can sometimes indicate complex code that requires additional review
-See: https://nowarp.io/tools/misti/docs/detectors/DumpIsUsed

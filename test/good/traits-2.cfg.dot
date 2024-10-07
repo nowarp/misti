@@ -1,6 +1,0 @@
-digraph "traits-2" {
-    node [shape=box];
-    subgraph "cluster_TestContract__test" {
-        label="TestContract__test";
-    }
-}

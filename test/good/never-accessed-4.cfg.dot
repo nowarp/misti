@@ -1,7 +1,0 @@
-digraph "never-accessed-4" {
-    node [shape=box];
-    subgraph "cluster_ConstantFieldTest__test" {
-        label="ConstantFieldTest__test";
-        "ConstantFieldTest__test_141" [label="send(SendParameters{to: sender(), bounce: true, value: self.val, mode: SendRemainingValue + SendIgnoreErrors})",style=filled,fillcolor="#66A7DB"];
-    }
-}

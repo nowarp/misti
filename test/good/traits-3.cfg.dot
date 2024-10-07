@@ -1,7 +1,0 @@
-digraph "traits-3" {
-    node [shape=box];
-    subgraph "cluster_TestContract__test" {
-        label="TestContract__test";
-        "TestContract__test_141" [label="return self.getA()",style=filled,fillcolor="#66A7DB"];
-    }
-}

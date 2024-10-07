@@ -1,4 +1,4 @@
-fun test(): Int {
+fun test1(): Int {
     // OK: Accept empty conditions
     if (false) {}
     while (false) {}

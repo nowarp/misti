@@ -1,0 +1,4 @@
+Misti execution failed:
+Execution Error:
+Unable to parse config file at /Users/mac/Desktop/misti/test/good/never-accessed.expected.out:
+SyntaxError: Unexpected token 'M', "[MEDIUM] Ne"... is not valid JSON
