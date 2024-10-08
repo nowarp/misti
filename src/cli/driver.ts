@@ -14,6 +14,7 @@ import { ExecutionException, InternalException } from "../internals/exceptions";
 import { CompilationUnit, ProjectName } from "../internals/ir";
 import { createIR } from "../internals/ir/builders/tactIRBuilder";
 import { Logger } from "../internals/logger";
+import { unreachable } from "../internals/util";
 import {
   MistiTactWarning,
   severityToString,
@@ -370,9 +371,7 @@ export class Driver {
             projectWarnings.push(warn);
             break;
           default:
-            throw InternalException.make(
-              `Unsupported imported warnings behavior: ${behavior}`,
-            );
+            unreachable(behavior);
         }
       }
       filteredWarnings.set(projectName, projectWarnings);

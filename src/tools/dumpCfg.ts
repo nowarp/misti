@@ -1,6 +1,5 @@
 import { Tool } from "./tool";
 import { ToolOutput } from "../cli/result";
-import { InternalException } from "../internals/exceptions";
 import { BasicBlock, CFG, CompilationUnit } from "../internals/ir";
 import { unreachable } from "../internals/util";
 import { AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
@@ -324,7 +323,7 @@ function ppSummary(
           stmt.valueName,
         )}) of ${prettyPrint(stmt.map)})`;
       default:
-        throw InternalException.make("Unsupported statement", { node: stmt });
+        unreachable(stmt);
     }
   })();
   const processedResult = escapeFunction(removeTrailingSemicolon(result));

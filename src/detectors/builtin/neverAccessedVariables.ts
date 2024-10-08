@@ -1,5 +1,4 @@
 import { MistiContext } from "../../internals/context";
-import { InternalException } from "../../internals/exceptions";
 import { BasicBlock, CFG, CompilationUnit } from "../../internals/ir";
 import { JoinSemilattice } from "../../internals/lattice";
 import { WorklistSolver } from "../../internals/solver/";
@@ -9,6 +8,7 @@ import {
   forEachExpression,
 } from "../../internals/tact";
 import { Transfer } from "../../internals/transfer";
+import { unreachable } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector, WarningsBehavior } from "../detector";
 import {
@@ -136,9 +136,7 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
         stmt.statements.forEach((s) => this.processStatements(outState, s));
         break;
       default:
-        throw InternalException.make(`Unsupported statement`, {
-          node: stmt,
-        });
+        unreachable(stmt);
     }
   }
 }

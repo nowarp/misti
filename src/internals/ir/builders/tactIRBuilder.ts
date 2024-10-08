@@ -21,6 +21,7 @@ import {
   TactException,
 } from "../../exceptions";
 import { formatPosition } from "../../tact";
+import { unreachable } from "../../util";
 import {
   ConfigProject,
   Config as TactConfig,
@@ -54,13 +55,6 @@ import { createNodeFileSystem } from "@tact-lang/compiler/dist/vfs/createNodeFil
 import fs from "fs";
 import path from "path";
 
-type FunctionType =
-  | AstFunctionDef
-  | AstContractInit
-  | AstReceiver
-  | AstAsmFunctionDef
-  | AstNativeFunctionDecl;
-
 /**
  * Generates a unique name used to identify receive functions in CFG.
  */
@@ -81,9 +75,7 @@ function generateReceiveName(receive: AstReceiver): string {
     case "external-comment":
       return `receive_external_comment_${receive.id}_${receive.selector.comment.value}`;
     default:
-      throw InternalException.make("Unsupported receive selector type", {
-        node: receive,
-      });
+      unreachable(receive.selector);
   }
 }
 
@@ -173,7 +165,9 @@ class TactASTStoreBuilder {
     });
   }
 
-  private processFunctionElement(func: FunctionType): void {
+  private processFunctionElement(
+    func: AstFunctionDef | AstNativeFunctionDecl | AstAsmFunctionDef,
+  ): void {
     switch (func.kind) {
       case "function_def":
         this.processFunction(func);
@@ -185,9 +179,7 @@ class TactASTStoreBuilder {
         this.nativeFunctions.set(func.id, func);
         break;
       default:
-        throw InternalException.make("Unsupported top-level function", {
-          node: func,
-        });
+        unreachable(func);
     }
   }
 
@@ -235,9 +227,7 @@ class TactASTStoreBuilder {
         this.processContract(type);
         break;
       default:
-        throw InternalException.make("Unsupported AST type declaration", {
-          node: type,
-        });
+        unreachable(type);
     }
   }
 
@@ -263,9 +253,7 @@ class TactASTStoreBuilder {
         case "function_decl":
           break;
         default:
-          throw InternalException.make("Unsupported trait declaration", {
-            node: decl,
-          });
+          unreachable(decl);
       }
     }
   }
@@ -290,9 +278,7 @@ class TactASTStoreBuilder {
           this.contractConstants.add(decl.id);
           break;
         default:
-          throw InternalException.make("Unsupported contract declaration", {
-            node: decl,
-          });
+          unreachable(decl);
       }
     }
   }
@@ -334,7 +320,7 @@ class TactASTStoreBuilder {
         stmt.catchStatements.forEach((s) => this.processStmt(s));
         break;
       default:
-        throw InternalException.make("Unsupported statement", { node: stmt });
+        unreachable(stmt);
     }
   }
 }
@@ -639,7 +625,7 @@ export class TactIRBuilder {
       case "id":
         break;
       default:
-        throw InternalException.make("Unsupported expression", { node: expr });
+        unreachable(expr);
     }
     return parentCalls;
   }
@@ -793,7 +779,7 @@ export class TactIRBuilder {
         // No need to connect return statements to subsequent basic blocks
         lastBBIdxes = [];
       } else {
-        throw InternalException.make("Unsupported statement", { node: stmt });
+        unreachable(stmt);
       }
     });
 
