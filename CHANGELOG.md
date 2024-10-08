@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2024-10-08
+
 ### Added
 - `OptimalMathFunction` detector: Issue [#146](https://github.com/nowarp/misti/issues/146)
 - `DuplicatedCondition` detector: Issue [#147](https://github.com/nowarp/misti/issues/147)
