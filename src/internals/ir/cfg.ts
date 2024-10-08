@@ -13,11 +13,11 @@ import { AstStatement, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 export type EntryOrigin = "user" | "stdlib";
 
 /**
- * Represents an edge in a Control Flow Graph (CFG), connecting two nodes.
+ * Represents an edge in a Control Flow Graph (CFG), connecting two basic blocks.
  * Each edge signifies a potential flow of control from one statement to another.
  *
- * @param src The index of the source node from which the control flow originates.
- * @param dst The index of the destination node to which the control flow goes.
+ * @param src The index of the source block from which the control flow originates.
+ * @param dst The index of the destination block to which the control flow goes.
  */
 export class Edge {
   public idx: EdgeIdx;
@@ -38,7 +38,7 @@ export type BasicBlockKind =
    */
   | { kind: "regular" }
   /**
-   * Represents a node that contains function calls in its expressions.
+   * Represents a block that contains function calls in its expressions.
    * `callees` refers to unique indices of the callee within the CFG.
    * Functions which definitions are not available in the current
    * compilation unit are omitted.
@@ -54,10 +54,10 @@ export type BasicBlockKind =
  * statement in the source code.
  * Basic blocks are connected by edges that represent the flow of control between statements.
  *
- * @param stmtID The unique identifier of the statement this node represents.
+ * @param stmtID The unique identifier of the statement this block represents.
  * @param kind Kind of the basic block representing ways it behave.
- * @param srcEdges A set of indices for edges incoming to this node, representing control flows leading into this statement.
- * @param dstEdges A set of indices for edges outgoing from this node, representing potential control flows out of this statement.
+ * @param srcEdges A set of indices for edges incoming to this block, representing control flows leading into this statement.
+ * @param dstEdges A set of indices for edges outgoing from this block, representing potential control flows out of this statement.
  */
 export class BasicBlock {
   public idx: BasicBlockIdx;
@@ -93,14 +93,14 @@ export class CFG {
   public idx: CFGIdx;
 
   /**
-   * Map from unique node indices to nodes indices in the `this.nodes`.
+   * Map from unique basic block indices to array indices in the `this.bbs`.
    */
-  private nodesMap: Map<BasicBlockIdx, number>;
+  private bbsMap: Map<BasicBlockIdx, number>;
 
   /**
-   * Map from unique node indices to nodes indices in the `this.edges`.
+   * Map from unique edge indices to array indices in the `this.edges`.
    */
-  private edgesMap: Map<BasicBlockIdx, number>;
+  private edgesMap: Map<EdgeIdx, number>;
 
   /**
    * Creates an instance of CFG.
@@ -108,7 +108,7 @@ export class CFG {
    * @param id AST ID.
    * @param kind Indicates whether this CFG represents a standalone function or a method or a receive method belonging to a contract.
    * @param origin Indicates whether the function was defined in users code or in standard library.
-   * @param nodes Map of node indices to nodes in the CFG that come in the reverse order.
+   * @param nodes Map of block indices to basic blocks in the CFG that come in the reverse order.
    * @param edges Map of edge indices to edges in the CFG that come in the reverse order.
    * @param ref AST reference that corresponds to the function definition.
    * @param idx An optional unique index. If not set, a new one will be chosen automatically.
@@ -124,8 +124,8 @@ export class CFG {
     idx: CFGIdx | undefined = undefined,
   ) {
     this.idx = idx ? idx : IdxGenerator.next();
-    this.nodesMap = new Map();
-    this.initializeMapping(this.nodesMap, nodes);
+    this.bbsMap = new Map();
+    this.initializeMapping(this.bbsMap, nodes);
     this.edgesMap = new Map();
     this.initializeMapping(this.edgesMap, edges);
   }
@@ -141,15 +141,12 @@ export class CFG {
 
   /**
    * Retrieves a basic block from the CFG based on its unique index.
-   * @param idx The index of the node to retrieve.
+   * @param idx The index of the basic block to retrieve.
    * @returns The basic block if found, otherwise undefined.
    */
   public getBasicBlock(idx: BasicBlockIdx): BasicBlock | undefined {
-    const nodesIdx = this.nodesMap.get(idx);
-    if (nodesIdx === undefined) {
-      return undefined;
-    }
-    return this.nodes[nodesIdx];
+    const bbsIdx = this.bbsMap.get(idx);
+    return bbsIdx === undefined ? undefined : this.nodes[bbsIdx];
   }
 
   /**
@@ -159,10 +156,7 @@ export class CFG {
    */
   public getEdge(idx: EdgeIdx): Edge | undefined {
     const edgesIdx = this.edgesMap.get(idx);
-    if (edgesIdx === undefined) {
-      return undefined;
-    }
-    return this.edges[edgesIdx];
+    return edgesIdx === undefined ? undefined : this.edges[edgesIdx];
   }
 
   private traverseBasicBlocks(
@@ -190,34 +184,32 @@ export class CFG {
   }
 
   /**
-   * Returns successors for the given node.
-   * @returns A list of predecessor nodes or `undefined` if any of the node indexes cannot be found in this CFG.
+   * Returns successors for the given block.
+   * @returns A list of predecessor blocks or `undefined` if any of the indices cannot be found in this CFG.
    */
-  public getSuccessors(nodeIdx: BasicBlockIdx): BasicBlock[] | undefined {
-    const node = this.getBasicBlock(nodeIdx);
-    if (node === undefined) {
-      return undefined;
-    }
-    return this.traverseBasicBlocks(node.dstEdges, false);
+  public getSuccessors(bbIdx: BasicBlockIdx): BasicBlock[] | undefined {
+    const bb = this.getBasicBlock(bbIdx);
+    return bb === undefined
+      ? undefined
+      : this.traverseBasicBlocks(bb.dstEdges, false);
   }
 
   /**
-   * Returns predecessors for the given node.
-   * @returns A list of predecessor nodes or `undefined` if any of the node indexes cannot be found in this CFG.
+   * Returns predecessors for the given block.
+   * @returns A list of predecessor blocks or `undefined` if any of the indices cannot be found in this CFG.
    */
-  public getPredecessors(nodeIdx: BasicBlockIdx): BasicBlock[] | undefined {
-    const node = this.getBasicBlock(nodeIdx);
-    if (node === undefined) {
-      return undefined;
-    }
-    return this.traverseBasicBlocks(node.srcEdges, true);
+  public getPredecessors(bbIdx: BasicBlockIdx): BasicBlock[] | undefined {
+    const bb = this.getBasicBlock(bbIdx);
+    return bb === undefined
+      ? undefined
+      : this.traverseBasicBlocks(bb.srcEdges, true);
   }
 
   /**
    * Iterates over all basic blocks in a CFG, applying a callback to each node.
-   * The callback can perform any operation, such as analyzing or transforming the node.
+   * The callback can perform any operation, such as analyzing or transforming the basic block.
    * @param astStore The store containing the AST nodes.
-   * @param callback The function to apply to each node.
+   * @param callback The function to apply to each block.
    */
   public forEachBasicBlock(
     astStore: TactASTStore,
@@ -247,34 +239,34 @@ export class CFG {
 
   /**
    * Returns a list of all exit nodes in the CFG.
-   * @returns An array of BasicBlocks that are exit nodes.
+   * @returns An array of `BasicBlock` that are exit nodes.
    */
   public getExitNodes(): BasicBlock[] {
-    return this.nodes.filter((node) => node.isExit());
+    return this.nodes.filter((bb) => bb.isExit());
   }
 }
 
 /**
- * An utility function that extracts node's predecessors.
+ * An utility function that extracts basic block's predecessors.
  */
-export function getPredecessors(cfg: CFG, node: BasicBlock): BasicBlock[] {
-  const predecessors = cfg.getPredecessors(node.idx);
+export function getPredecessors(cfg: CFG, bb: BasicBlock): BasicBlock[] {
+  const predecessors = cfg.getPredecessors(bb.idx);
   if (predecessors === undefined) {
     throw InternalException.make(
-      `Incorrect definition in the CFG: BB #${node.idx} has an undefined predecessor`,
+      `Incorrect definition in the CFG: BB #${bb.idx} has an undefined predecessor`,
     );
   }
   return predecessors;
 }
 
 /**
- * An utility function that extracts node's successors.
+ * An utility function that extracts basic blocks's successors.
  */
-export function getSuccessors(cfg: CFG, node: BasicBlock): BasicBlock[] {
-  const successors = cfg.getSuccessors(node.idx);
+export function getSuccessors(cfg: CFG, bb: BasicBlock): BasicBlock[] {
+  const successors = cfg.getSuccessors(bb.idx);
   if (successors === undefined) {
     throw InternalException.make(
-      `Incorrect definition in the CFG: BB #${node.idx} has an undefined predecessor`,
+      `Incorrect definition in the CFG: BB #${bb.idx} has an undefined predecessor`,
     );
   }
   return successors;
