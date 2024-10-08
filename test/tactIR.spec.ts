@@ -35,7 +35,7 @@ function processSingleFile(file: string) {
           "--no-colors",
           filePath,
         ]);
-        handleMistiResult(result);
+        handleMistiResult(result![0], result![1]);
         moveGeneratedFile(contractName, extension);
         await TAP.from(nameBase, extension, `cfg.${extension}`).run();
       });

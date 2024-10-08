@@ -1,4 +1,4 @@
-import { runMistiCommand, Runner } from "../src/cli";
+import { Driver, MistiResult, runMistiCommand } from "../src/cli";
 import path from "path";
 
 const TACT_CONFIG_PATH = path.join(__dirname, "./tact.config.json");
@@ -7,63 +7,57 @@ const MISTI_CONFIG_PATH = path.join(__dirname, "./misti.config.json");
 describe("CLI Argument Parsing", () => {
   it("should initialize driver with correct options when --verbose is provided", async () => {
     const args = ["--verbose", TACT_CONFIG_PATH];
-    const runnerMakeSpy = jest.spyOn(Runner, "make");
-    runnerMakeSpy.mockImplementation(async (): Promise<Runner> => {
+    const driverMakeSpy = jest.spyOn(Driver, "create");
+    driverMakeSpy.mockImplementation(async (): Promise<Driver> => {
       return {
-        run: jest.fn(),
-        getResult: jest.fn(),
-        getDriver: jest.fn(),
-      } as unknown as Runner;
+        execute: jest.fn(),
+      } as unknown as Driver;
     });
     await runMistiCommand(args);
-    expect(runnerMakeSpy).toHaveBeenCalledWith(
+    expect(driverMakeSpy).toHaveBeenCalledWith(
       TACT_CONFIG_PATH,
       expect.objectContaining({
         verbose: true,
       }),
     );
-    runnerMakeSpy.mockRestore(); // restore the original method
+    driverMakeSpy.mockRestore(); // restore the original method
   });
 
   it("should initialize driver with correct options when --output-format is provided", async () => {
     const args = ["--output-format", "json", TACT_CONFIG_PATH];
-    const runnerMakeSpy = jest.spyOn(Runner, "make");
-    runnerMakeSpy.mockImplementation(async (): Promise<Runner> => {
+    const driverMakeSpy = jest.spyOn(Driver, "create");
+    driverMakeSpy.mockImplementation(async (): Promise<Driver> => {
       return {
-        run: jest.fn(),
-        getResult: jest.fn(),
-        getDriver: jest.fn(),
-      } as unknown as Runner;
+        execute: jest.fn(),
+      } as unknown as Driver;
     });
     await runMistiCommand(args);
-    expect(runnerMakeSpy).toHaveBeenCalledWith(
+    expect(driverMakeSpy).toHaveBeenCalledWith(
       TACT_CONFIG_PATH,
       expect.objectContaining({
         outputFormat: "json",
       }),
     );
-    runnerMakeSpy.mockRestore();
+    driverMakeSpy.mockRestore();
   });
 
   it("should initialize driver with default options when no options are provided", async () => {
     const args = [TACT_CONFIG_PATH];
-    const runnerMakeSpy = jest.spyOn(Runner, "make");
-    runnerMakeSpy.mockImplementation(async (): Promise<Runner> => {
+    const driverMakeSpy = jest.spyOn(Driver, "create");
+    driverMakeSpy.mockImplementation(async (): Promise<Driver> => {
       return {
-        run: jest.fn(),
-        getResult: jest.fn(),
-        getDriver: jest.fn(),
-      } as unknown as Runner;
+        execute: jest.fn(),
+      } as unknown as Driver;
     });
     await runMistiCommand(args);
-    const actualOptions = runnerMakeSpy.mock.calls[0][1];
+    const actualOptions = driverMakeSpy.mock.calls[0][1];
     expect(actualOptions).toEqual(
       expect.objectContaining({
         verbose: false,
       }),
     );
     expect(actualOptions!.outputFormat).toBeUndefined();
-    runnerMakeSpy.mockRestore();
+    driverMakeSpy.mockRestore();
   });
 
   it("should return an error when invalid --enabled-detectors option is provided", async () => {
@@ -71,8 +65,8 @@ describe("CLI Argument Parsing", () => {
     const result = await runMistiCommand(args);
     expect(
       result !== undefined &&
-        result.kind === "error" &&
-        result.error.includes("non-empty list of detectors"),
+        result[1].kind === "error" &&
+        result[1].error.includes("non-empty list of detectors"),
     );
   });
 
@@ -86,6 +80,6 @@ describe("CLI Argument Parsing", () => {
   it("should return ok when no tools and detectors are specified", async () => {
     const args = ["--config", MISTI_CONFIG_PATH, TACT_CONFIG_PATH];
     const result = await runMistiCommand(args);
-    expect(result).toEqual({ kind: "ok" });
+    expect((result as [Driver, MistiResult])[1]).toEqual({ kind: "ok" });
   });
 });

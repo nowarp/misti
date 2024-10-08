@@ -79,8 +79,25 @@ export class Driver {
    */
   public static async create(
     tactPath: string,
-    options: CLIOptions,
+    options: CLIOptions = {
+      tools: undefined,
+      outputPath: undefined,
+      outputFormat: undefined,
+      colors: undefined,
+      souffleBinary: undefined,
+      soufflePath: undefined,
+      souffleVerbose: undefined,
+      tactStdlibPath: undefined,
+      verbose: false,
+      quiet: false,
+      minSeverity: undefined,
+      enabledDetectors: undefined,
+      disabledDetectors: undefined,
+      allDetectors: false,
+      config: undefined,
+    },
   ): Promise<Driver> {
+    this.checkCLIOptions(options);
     const driver = new Driver(tactPath, options);
     await driver.initializeDetectors();
     await driver.initializeTools();
@@ -88,6 +105,50 @@ export class Driver {
       this.warnOnDisabledDetectors(driver);
     }
     return driver;
+  }
+
+  /**
+   * Check CLI options for ambiguities.
+   * @throws If Misti cannot be executed with the given options
+   */
+  private static checkCLIOptions(options: CLIOptions): void | never {
+    if (options.verbose === true && options.quiet === true) {
+      throw ExecutionException.make(
+        `Please choose only one option: --verbose or --quiet`,
+      );
+    }
+    if (
+      options.allDetectors === true &&
+      options.enabledDetectors !== undefined
+    ) {
+      throw ExecutionException.make(
+        `--enabled-detectors and --all-detectors cannot be used simultaneously`,
+      );
+    }
+    // Check for duplicate tool class names
+    if (options.tools && options.tools.length > 0) {
+      const toolClassNames = options.tools.map((tool) => tool.className);
+      const uniqueClassNames = new Set(toolClassNames);
+      if (toolClassNames.length !== uniqueClassNames.size) {
+        const duplicates = toolClassNames.filter(
+          (name, index) => toolClassNames.indexOf(name) !== index,
+        );
+        throw ExecutionException.make(
+          `Duplicate tool class names found: ${duplicates.join(", ")}. Each tool must have a unique class name.`,
+        );
+      }
+    }
+    // Check for intersection between enabledDetectors and disabledDetectors
+    if (options.enabledDetectors && options.disabledDetectors) {
+      const enabledSet = new Set(options.enabledDetectors);
+      const disabledSet = new Set(options.disabledDetectors);
+      const intersection = [...enabledSet].filter((x) => disabledSet.has(x));
+      if (intersection.length > 0) {
+        throw ExecutionException.make(
+          `Detectors cannot be both enabled and disabled. Conflicting detectors: ${intersection.join(", ")}`,
+        );
+      }
+    }
   }
 
   /**
@@ -195,9 +256,31 @@ export class Driver {
   }
 
   /**
-   * Executes checks on all compilation units and reports found warnings sorted by severity.
+   * Entry point of code analysis and tools execution.
    */
   public async execute(): Promise<MistiResult> {
+    try {
+      return await this.executeImpl();
+    } catch (err) {
+      const result = [] as string[];
+      if (err instanceof Error) {
+        result.push(err.message);
+        if (err.stack !== undefined && process.env.MISTI_TRACE === "1") {
+          result.push(err.stack);
+        }
+      } else {
+        result.push(`An error occurred:\n${JSONbig.stringify(err)}`);
+      }
+      const error = result.join("\n");
+      new Logger().error(error);
+      return { kind: "error", error };
+    }
+  }
+
+  /**
+   * Executes checks on all compilation units and reports found warnings sorted by severity.
+   */
+  private async executeImpl(): Promise<MistiResult> {
     try {
       if (this.executed) {
         throw InternalException.make("Driver cannot be executed twice");
@@ -473,130 +556,6 @@ export class Driver {
       throw InternalException.make(
         `${cu.projectName} execution error:\n${error}`,
       );
-    }
-  }
-}
-
-/**
- * Provides an API to manage the driver instance and store the execution result.
- */
-export class Runner {
-  private constructor(
-    private readonly driver: Driver,
-    private result: MistiResult | undefined = undefined,
-  ) {}
-
-  /**
-   * @param tactPath Path to Tact project configuration or to a single Tact contract.
-   * @param options CLI options.
-   */
-  public static async make(
-    tactPath: string,
-    options: CLIOptions = {
-      tools: undefined,
-      outputPath: undefined,
-      outputFormat: undefined,
-      colors: undefined,
-      souffleBinary: undefined,
-      soufflePath: undefined,
-      souffleVerbose: undefined,
-      tactStdlibPath: undefined,
-      verbose: false,
-      quiet: false,
-      minSeverity: undefined,
-      enabledDetectors: undefined,
-      disabledDetectors: undefined,
-      allDetectors: false,
-      config: undefined,
-    },
-  ): Promise<Runner> {
-    this.checkCLIOptions(options);
-    const driver = await Driver.create(tactPath, options);
-    return new Runner(driver);
-  }
-
-  /**
-   * Entry point of code analysis. Saves MistiResult to an object accessible in `this.getResult()`.
-   */
-  public async run(): Promise<void> {
-    try {
-      this.result = await this.driver.execute();
-    } catch (err) {
-      const result = [] as string[];
-      if (err instanceof Error) {
-        result.push(err.message);
-        if (err.stack !== undefined && process.env.MISTI_TRACE === "1") {
-          result.push(err.stack);
-        }
-      } else {
-        result.push(`An error occurred:\n${JSONbig.stringify(err)}`);
-      }
-      const error = result.join("\n");
-      new Logger().error(error);
-      this.result = { kind: "error", error };
-    }
-  }
-
-  /**
-   * Returns the result of the execution.
-   * @throws If the runner hasn't been executed.
-   */
-  public getResult(): MistiResult | never {
-    if (this.result !== undefined) {
-      return this.result;
-    } else {
-      throw InternalException.make("Runner hasn't been executed");
-    }
-  }
-
-  /**
-   * Returns the driver object in use.
-   */
-  public getDriver(): Driver {
-    return this.driver;
-  }
-
-  /**
-   * Check CLI options for ambiguities.
-   * @throws If Misti cannot be executed with the given options
-   */
-  private static checkCLIOptions(options: CLIOptions): void | never {
-    if (options.verbose === true && options.quiet === true) {
-      throw ExecutionException.make(
-        `Please choose only one option: --verbose or --quiet`,
-      );
-    }
-    if (
-      options.allDetectors === true &&
-      options.enabledDetectors !== undefined
-    ) {
-      throw ExecutionException.make(
-        `--enabled-detectors and --all-detectors cannot be used simultaneously`,
-      );
-    }
-    // Check for duplicate tool class names
-    if (options.tools && options.tools.length > 0) {
-      const toolClassNames = options.tools.map((tool) => tool.className);
-      const uniqueClassNames = new Set(toolClassNames);
-      if (toolClassNames.length !== uniqueClassNames.size) {
-        const duplicates = toolClassNames.filter(
-          (name, index) => toolClassNames.indexOf(name) !== index,
-        );
-        throw ExecutionException.make(
-          `Duplicate tool class names found: ${duplicates.join(", ")}. Each tool must have a unique class name.`,
-        );
-      }
-    }
-    // Check for intersection between enabledDetectors and disabledDetectors
-    if (options.enabledDetectors && options.disabledDetectors) {
-      const enabledSet = new Set(options.enabledDetectors);
-      const disabledSet = new Set(options.disabledDetectors);
-      const intersection = [...enabledSet].filter((x) => disabledSet.has(x));
-      if (intersection.length > 0) {
-        throw ExecutionException.make(
-          `Detectors cannot be both enabled and disabled. Conflicting detectors: ${intersection.join(", ")}`,
-        );
-      }
     }
   }
 }
