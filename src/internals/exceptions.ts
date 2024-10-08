@@ -4,6 +4,7 @@ import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 import * as fs from "fs";
 import JSONbig from "json-bigint";
 import * as path from "path";
+import { ZodError } from "zod";
 
 const REPORTS_DIR = "/tmp/misti/reports";
 const SEPARATOR =
@@ -217,5 +218,31 @@ export function tryMsg(callback: () => void, message: string) {
       throw err;
     }
     throw new Error(`${message}: ${err.message}`);
+  }
+}
+
+/**
+ * Throws an ExecutionException with a human-readable ZodError message.
+ * @param err The ZodError to throw.
+ */
+export function throwZodError(
+  err: unknown,
+  {
+    msg = undefined,
+    help = undefined,
+  }: Partial<{ msg: string; help: string }> = {},
+): never {
+  if (err instanceof ZodError) {
+    const formattedErrors = err.errors
+      .map((e) => {
+        const path = e.path.length ? e.path.join(" > ") : "root";
+        return `- ${e.message} at ${path}`;
+      })
+      .join("\n");
+    throw ExecutionException.make(
+      `${msg ? msg + "\n" : ""}${formattedErrors}${help ? "\n\n" + help : ""}`,
+    );
+  } else {
+    throw err;
   }
 }

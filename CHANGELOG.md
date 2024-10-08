@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Driver in a single-contract mode tries to copy all the .tact and .fc files to resolve imports
 - Short CLI options. See: https://nowarp.io/tools/misti/docs/next/tutorial/cli
 - CLI: `--min-severity/-m` option to filter warnings
+- More informative error messages when an incorrect Misti or Tact configuration file is set
 
 ### Changed
 - Include Git revision number to non-release version numbers

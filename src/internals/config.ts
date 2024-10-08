@@ -33,7 +33,7 @@ const ConfigSchema = z.object({
   soufflePath: z.string().optional(),
   souffleVerbose: z.boolean().optional(),
   tactStdlibPath: z.string().optional(),
-  unusedPrefix: z.string().default("_"),
+  unusedPrefix: z.string().optional().default("_"),
   verbosity: VerbositySchema.optional().default("default"),
 });
 

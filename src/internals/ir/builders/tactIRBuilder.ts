@@ -19,6 +19,7 @@ import {
   ExecutionException,
   InternalException,
   TactException,
+  throwZodError,
 } from "../../exceptions";
 import { formatPosition } from "../../tact";
 import { unreachable } from "../../util";
@@ -844,9 +845,13 @@ class TactConfigManager {
     try {
       return parseConfig(fs.readFileSync(resolvedPath, "utf8"));
     } catch (err) {
-      throw ExecutionException.make(
-        `Unable to parse config file at ${resolvedPath}:\n${err}`,
-      );
+      throwZodError(err, {
+        msg: `Incorrect Tact Project file ${resolvedPath}:`,
+        help: [
+          `Ensure ${resolvedPath} is a Tact Project file.`,
+          "See https://docs.tact-lang.org/book/config/ for additional information.",
+        ].join(" "),
+      });
     }
   }
 

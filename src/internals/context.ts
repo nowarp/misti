@@ -1,6 +1,7 @@
 import { MistiConfig } from "./config";
 import { DebugLogger, Logger, QuietLogger, TraceLogger } from "./logger";
 import { CLIOptions } from "../cli";
+import { throwZodError } from "./exceptions";
 import { execSync } from "child_process";
 
 /**
@@ -22,12 +23,19 @@ export class MistiContext {
     this.souffleAvailable = this.checkSouffleInstallation(
       options.souffleBinary ?? "souffle",
     );
-    this.config = new MistiConfig({
-      detectors: options.enabledDetectors,
-      tools: options.tools,
-      allDetectors: options.allDetectors,
-      configPath: options.config,
-    });
+    try {
+      this.config = new MistiConfig({
+        detectors: options.enabledDetectors,
+        tools: options.tools,
+        allDetectors: options.allDetectors,
+        configPath: options.config,
+      });
+    } catch (err) {
+      throwZodError(err, {
+        msg: `Error parsing Misti Configuration${options.config ? " " + options.config : ""}`,
+        help: "See: https://nowarp.io/tools/misti/docs/tutorial/configuration/",
+      });
+    }
 
     // Prioritize CLI options to configuration file values
     if (options.soufflePath !== undefined) {
