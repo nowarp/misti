@@ -1,8 +1,0 @@
-[MEDIUM] NeverAccessedVariables: Variable a is never accessed
-test/good/never-accessed-7.tact:2:5:
-  1 | fun test1(): Int {
-> 2 |     let a: Int = 20; // never-accessed variable
-          ^
-  3 |     let b: Int = 22; // read-only variable
-Help: Consider removing the variable
-See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables

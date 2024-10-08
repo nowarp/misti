@@ -1,0 +1,81 @@
+graph TD
+subgraph test1
+    test1_151["let a: Int = 20"]
+    test1_152["while (a &gt; 10)"]
+    test1_155["return a"]:::exitNode
+    test1_151 --> test1_152
+    test1_152 --> test1_152
+    test1_152 --> test1_155
+end
+subgraph test2
+    test2_157["let a: Int = 20"]
+    test2_158["until (a &gt; 10)"]
+    test2_161["return a"]:::exitNode
+    test2_157 --> test2_158
+    test2_158 --> test2_158
+    test2_158 --> test2_161
+end
+subgraph test3
+    test3_163["let a: Int = 20"]
+    test3_164["while (a &gt; 10)"]
+    test3_166["a += 1"]
+    test3_169["return a"]:::exitNode
+    test3_163 --> test3_164
+    test3_164 --> test3_166
+    test3_166 --> test3_164
+    test3_164 --> test3_169
+end
+subgraph test4
+    test4_171["let a: Int = 10"]
+    test4_172["repeat (a)"]
+    test4_175["return a"]:::exitNode
+    test4_171 --> test4_172
+    test4_172 --> test4_172
+    test4_172 --> test4_175
+end
+subgraph test5
+    test5_177["let i: Int = 0"]
+    test5_178["while (i &gt; 0)"]
+    test5_177 --> test5_178
+    test5_178 --> test5_178
+end
+subgraph test6
+    test6_181["let i: Int = 0"]
+    test6_182["while (10 &lt; i)"]
+    test6_181 --> test6_182
+    test6_182 --> test6_182
+end
+subgraph test7
+    test7_185["let i: Bool = false"]
+    test7_186["while (i)"]
+    test7_185 --> test7_186
+    test7_186 --> test7_186
+end
+subgraph test8
+    test8_189["let i: Bool = true"]
+    test8_190["while (!i)"]
+    test8_189 --> test8_190
+    test8_190 --> test8_190
+end
+subgraph fn
+end
+subgraph test9
+    test9_193["let a: Int = 20"]
+    test9_194["while (a &gt; 10)"]
+    test9_196["fn(a)"]
+    test9_199["return a"]:::exitNode
+    test9_193 --> test9_194
+    test9_194 --> test9_196
+    test9_196 --> test9_194
+    test9_194 --> test9_199
+end
+subgraph Test__receive_internal_comment_1790_test
+    Test__receive_internal_comment_1790_test_201["let s: S = S{a: 1}"]
+    Test__receive_internal_comment_1790_test_202["let i: Int = 0"]
+    Test__receive_internal_comment_1790_test_204["while (i &lt; s.a)"]
+    Test__receive_internal_comment_1790_test_206["i += 1"]
+    Test__receive_internal_comment_1790_test_201 --> Test__receive_internal_comment_1790_test_202
+    Test__receive_internal_comment_1790_test_202 --> Test__receive_internal_comment_1790_test_204
+    Test__receive_internal_comment_1790_test_204 --> Test__receive_internal_comment_1790_test_206
+    Test__receive_internal_comment_1790_test_206 --> Test__receive_internal_comment_1790_test_204
+end

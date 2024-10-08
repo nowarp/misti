@@ -1,8 +1,0 @@
-[MEDIUM] NeverAccessedVariables: Variable test is never accessed
-test/good/never-accessed-8.tact:3:9:
-  2 |     receive() {
-> 3 |         let test: Int = 123; // should be reported
-              ^
-  4 |     }
-Help: Consider removing the variable
-See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables

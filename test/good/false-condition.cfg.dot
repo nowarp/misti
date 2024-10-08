@@ -1,36 +1,36 @@
 digraph "false-condition" {
     node [shape=box];
-    subgraph "cluster_test" {
-        label="test";
-        "test_141" [label="if (false)"];
-        "test_142" [label="while (false)"];
-        "test_145" [label="until (false)"];
-        "test_148" [label="repeat (0)"];
-        "test_151" [label="if (false)"];
-        "test_153" [label="return 1",style=filled,fillcolor="#66A7DB"];
-        "test_155" [label="if (false)"];
-        "test_157" [label="return 1",style=filled,fillcolor="#66A7DB"];
-        "test_159" [label="while (false)"];
-        "test_161" [label="return 1",style=filled,fillcolor="#66A7DB"];
-        "test_164" [label="repeat (0)"];
-        "test_166" [label="return 1",style=filled,fillcolor="#66A7DB"];
-        "test_169" [label="return false && true ? 1 : 2",style=filled,fillcolor="#66A7DB"];
-        "test_141" -> "test_142";
-        "test_142" -> "test_142";
-        "test_142" -> "test_145";
-        "test_145" -> "test_145";
-        "test_145" -> "test_148";
-        "test_148" -> "test_148";
-        "test_148" -> "test_151";
-        "test_151" -> "test_153";
-        "test_153" -> "test_155";
-        "test_155" -> "test_157";
-        "test_157" -> "test_159";
-        "test_159" -> "test_161";
-        "test_161" -> "test_159";
-        "test_159" -> "test_164";
-        "test_164" -> "test_166";
-        "test_166" -> "test_164";
-        "test_164" -> "test_169";
+    subgraph "cluster_test1" {
+        label="test1";
+        "test1_141" [label="if (false)"];
+        "test1_142" [label="while (false)"];
+        "test1_145" [label="until (false)"];
+        "test1_148" [label="repeat (0)"];
+        "test1_151" [label="if (false)"];
+        "test1_153" [label="return 1",style=filled,fillcolor="#66A7DB"];
+        "test1_155" [label="if (false)"];
+        "test1_157" [label="return 1",style=filled,fillcolor="#66A7DB"];
+        "test1_159" [label="while (false)"];
+        "test1_161" [label="return 1",style=filled,fillcolor="#66A7DB"];
+        "test1_164" [label="repeat (0)"];
+        "test1_166" [label="return 1",style=filled,fillcolor="#66A7DB"];
+        "test1_169" [label="return false && true ? 1 : 2",style=filled,fillcolor="#66A7DB"];
+        "test1_141" -> "test1_142";
+        "test1_142" -> "test1_142";
+        "test1_142" -> "test1_145";
+        "test1_145" -> "test1_145";
+        "test1_145" -> "test1_148";
+        "test1_148" -> "test1_148";
+        "test1_148" -> "test1_151";
+        "test1_151" -> "test1_153";
+        "test1_153" -> "test1_155";
+        "test1_155" -> "test1_157";
+        "test1_157" -> "test1_159";
+        "test1_159" -> "test1_161";
+        "test1_161" -> "test1_159";
+        "test1_159" -> "test1_164";
+        "test1_164" -> "test1_166";
+        "test1_166" -> "test1_164";
+        "test1_164" -> "test1_169";
     }
 }

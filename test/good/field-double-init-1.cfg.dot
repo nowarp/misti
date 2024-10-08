@@ -1,7 +1,0 @@
-digraph "field-double-init-1" {
-    node [shape=box];
-    subgraph "cluster_Test__init_1664" {
-        label="Test__init_1664";
-        "Test__init_1664_141" [label="self.a = x",style=filled,fillcolor="#66A7DB"];
-    }
-}

@@ -1,8 +1,0 @@
-[MEDIUM] ReadOnlyVariables: Read-only variable
-test/good/unbound-loop-6.tact:7:13:
-  6 |     receive("test") {
-> 7 |         let s: S = S {
-                  ^
-  8 |             a: 1,
-Help: Consider creating a constant instead
-See: https://nowarp.io/tools/misti/docs/detectors/ReadOnlyVariables

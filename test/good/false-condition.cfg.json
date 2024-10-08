@@ -2,7 +2,7 @@
   "projectName": "false-condition",
   "functions": [
     {
-      "name": "test",
+      "name": "test1",
       "cfg": {
         "nodes": [
           {

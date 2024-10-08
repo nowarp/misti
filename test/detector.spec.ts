@@ -5,8 +5,8 @@ import path from "path";
 import os from "os";
 
 describe("Common detectors functionality", () => {
-  it("should generate valid JSON output for never-accessed-1.tact", async () => {
-    const filePath = path.resolve(__dirname, "good", "never-accessed-1.tact");
+  it("should generate valid JSON output for never-accessed.tact", async () => {
+    const filePath = path.resolve(__dirname, "good", "never-accessed.tact");
     const output = await executeMisti([
       "--all-detectors",
       "--no-colors",
@@ -14,7 +14,6 @@ describe("Common detectors functionality", () => {
       "json",
       filePath,
     ]);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let jsonOutput: any;
     try {
       jsonOutput = JSONbig.parse(output);
@@ -24,19 +23,21 @@ describe("Common detectors functionality", () => {
     }
     expect(jsonOutput.warnings.length).toBeGreaterThan(0);
     const firstWarning = JSONbig.parse(jsonOutput.warnings[0].warnings[0]);
+
+    // Match the warning for "Field f2 is never used"
     expect(firstWarning).toMatchObject({
-      file: expect.stringContaining("never-accessed-1.tact"),
-      line: expect.any(Number),
-      col: expect.any(Number),
+      file: expect.stringContaining("never-accessed.tact"),
+      line: 31, // Updated to line 31
+      col: 5,
       detectorId: "NeverAccessedVariables",
       severity: "MEDIUM",
-      message: expect.stringContaining("Write-only variable: a"),
+      message: expect.stringContaining("Field f2 is never used"),
     });
     expect(firstWarning.message).toContain(
-      "test/good/never-accessed-1.tact:2:5:",
+      "test/good/never-accessed.tact:31:5:",
     );
     expect(firstWarning.message).toContain(
-      "Help: The variable value should be accessed",
+      "Help: Consider creating a constant instead of field",
     );
     expect(firstWarning.message).toContain(
       "See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables",
@@ -55,12 +56,25 @@ describe("Common detectors functionality", () => {
       suppressions: [
         {
           detector: "NeverAccessedVariables",
-          position: "never-accessed-1.tact:2:5",
+          position: "test/good/never-accessed.tact:31:5",
+        },
+        {
+          detector: "NeverAccessedVariables",
+          position: "test/good/never-accessed.tact:2:5",
+        },
+        {
+          detector: "NeverAccessedVariables",
+          position: "test/good/never-accessed.tact:24:5",
+        },
+        {
+          detector: "NeverAccessedVariables",
+          position: "test/good/never-accessed.tact:71:9",
         },
       ],
     };
+
     fs.writeFileSync(configPath, JSON.stringify(mockConfig, null, 2));
-    const filePath = path.resolve(__dirname, "good", "never-accessed-1.tact");
+    const filePath = path.resolve(__dirname, "good", "never-accessed.tact");
     const output = await executeMisti([
       "--all-detectors",
       "--no-colors",
@@ -70,7 +84,6 @@ describe("Common detectors functionality", () => {
       configPath,
       filePath,
     ]);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let jsonOutput: { warnings: any };
     try {
       jsonOutput = JSONbig.parse(output);

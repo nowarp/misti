@@ -1,9 +1,0 @@
-[HIGH] DivideBeforeMultiply: Division operation comes before multiplication
-test/good/div-before-mul-1.tact:5:21:
-  4 |   let c: Int = 2;
-> 5 |   let result: Int = a / b * c; // error: Division before multiplication
-                          ^
-  6 |   return result;
-Performing division before multiplication can lead to unexpected results due to precision loss and rounding errors
-Help: Consider rearranging the operations: division should follow multiplication
-See: https://nowarp.io/tools/misti/docs/detectors/DivideBeforeMultiply

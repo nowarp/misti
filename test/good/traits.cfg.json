@@ -1,0 +1,56 @@
+{
+  "projectName": "traits",
+  "functions": [],
+  "contracts": [
+    {
+      "name": "TestContract",
+      "methods": [
+        {
+          "name": "TestContract.getter",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 143,
+                "stmtID": 1662,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "TestContractF",
+      "methods": [
+        {
+          "name": "TestContractF.test",
+          "cfg": {
+            "nodes": [],
+            "edges": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "TestContractT",
+      "methods": [
+        {
+          "name": "TestContractT.test",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 146,
+                "stmtID": 1720,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        }
+      ]
+    }
+  ]
+}

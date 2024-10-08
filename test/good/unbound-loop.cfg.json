@@ -1,0 +1,529 @@
+{
+  "projectName": "unbound-loop",
+  "functions": [
+    {
+      "name": "test1",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 151,
+            "stmtID": 1655,
+            "srcEdges": [],
+            "dstEdges": [
+              153
+            ]
+          },
+          {
+            "id": 152,
+            "stmtID": 1659,
+            "srcEdges": [
+              153,
+              154
+            ],
+            "dstEdges": [
+              154,
+              156
+            ]
+          },
+          {
+            "id": 155,
+            "stmtID": 1661,
+            "srcEdges": [
+              156
+            ],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 153,
+            "src": 151,
+            "dst": 152
+          },
+          {
+            "id": 154,
+            "src": 152,
+            "dst": 152
+          },
+          {
+            "id": 156,
+            "src": 152,
+            "dst": 155
+          }
+        ]
+      }
+    },
+    {
+      "name": "test2",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 157,
+            "stmtID": 1668,
+            "srcEdges": [],
+            "dstEdges": [
+              159
+            ]
+          },
+          {
+            "id": 158,
+            "stmtID": 1672,
+            "srcEdges": [
+              159,
+              160
+            ],
+            "dstEdges": [
+              160,
+              162
+            ]
+          },
+          {
+            "id": 161,
+            "stmtID": 1674,
+            "srcEdges": [
+              162
+            ],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 159,
+            "src": 157,
+            "dst": 158
+          },
+          {
+            "id": 160,
+            "src": 158,
+            "dst": 158
+          },
+          {
+            "id": 162,
+            "src": 158,
+            "dst": 161
+          }
+        ]
+      }
+    },
+    {
+      "name": "test3",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 163,
+            "stmtID": 1681,
+            "srcEdges": [],
+            "dstEdges": [
+              165
+            ]
+          },
+          {
+            "id": 164,
+            "stmtID": 1688,
+            "srcEdges": [
+              165,
+              168
+            ],
+            "dstEdges": [
+              167,
+              170
+            ]
+          },
+          {
+            "id": 166,
+            "stmtID": 1687,
+            "srcEdges": [
+              167
+            ],
+            "dstEdges": [
+              168
+            ]
+          },
+          {
+            "id": 169,
+            "stmtID": 1690,
+            "srcEdges": [
+              170
+            ],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 165,
+            "src": 163,
+            "dst": 164
+          },
+          {
+            "id": 167,
+            "src": 164,
+            "dst": 166
+          },
+          {
+            "id": 168,
+            "src": 166,
+            "dst": 164
+          },
+          {
+            "id": 170,
+            "src": 164,
+            "dst": 169
+          }
+        ]
+      }
+    },
+    {
+      "name": "test4",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 171,
+            "stmtID": 1697,
+            "srcEdges": [],
+            "dstEdges": [
+              173
+            ]
+          },
+          {
+            "id": 172,
+            "stmtID": 1699,
+            "srcEdges": [
+              173,
+              174
+            ],
+            "dstEdges": [
+              174,
+              176
+            ]
+          },
+          {
+            "id": 175,
+            "stmtID": 1701,
+            "srcEdges": [
+              176
+            ],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 173,
+            "src": 171,
+            "dst": 172
+          },
+          {
+            "id": 174,
+            "src": 172,
+            "dst": 172
+          },
+          {
+            "id": 176,
+            "src": 172,
+            "dst": 175
+          }
+        ]
+      }
+    },
+    {
+      "name": "test5",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 177,
+            "stmtID": 1707,
+            "srcEdges": [],
+            "dstEdges": [
+              179
+            ]
+          },
+          {
+            "id": 178,
+            "stmtID": 1711,
+            "srcEdges": [
+              179,
+              180
+            ],
+            "dstEdges": [
+              180
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "id": 179,
+            "src": 177,
+            "dst": 178
+          },
+          {
+            "id": 180,
+            "src": 178,
+            "dst": 178
+          }
+        ]
+      }
+    },
+    {
+      "name": "test6",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 181,
+            "stmtID": 1717,
+            "srcEdges": [],
+            "dstEdges": [
+              183
+            ]
+          },
+          {
+            "id": 182,
+            "stmtID": 1721,
+            "srcEdges": [
+              183,
+              184
+            ],
+            "dstEdges": [
+              184
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "id": 183,
+            "src": 181,
+            "dst": 182
+          },
+          {
+            "id": 184,
+            "src": 182,
+            "dst": 182
+          }
+        ]
+      }
+    },
+    {
+      "name": "test7",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 185,
+            "stmtID": 1727,
+            "srcEdges": [],
+            "dstEdges": [
+              187
+            ]
+          },
+          {
+            "id": 186,
+            "stmtID": 1729,
+            "srcEdges": [
+              187,
+              188
+            ],
+            "dstEdges": [
+              188
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "id": 187,
+            "src": 185,
+            "dst": 186
+          },
+          {
+            "id": 188,
+            "src": 186,
+            "dst": 186
+          }
+        ]
+      }
+    },
+    {
+      "name": "test8",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 189,
+            "stmtID": 1735,
+            "srcEdges": [],
+            "dstEdges": [
+              191
+            ]
+          },
+          {
+            "id": 190,
+            "stmtID": 1738,
+            "srcEdges": [
+              191,
+              192
+            ],
+            "dstEdges": [
+              192
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "id": 191,
+            "src": 189,
+            "dst": 190
+          },
+          {
+            "id": 192,
+            "src": 190,
+            "dst": 190
+          }
+        ]
+      }
+    },
+    {
+      "name": "fn",
+      "cfg": {
+        "nodes": [],
+        "edges": []
+      }
+    },
+    {
+      "name": "test9",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 193,
+            "stmtID": 1750,
+            "srcEdges": [],
+            "dstEdges": [
+              195
+            ]
+          },
+          {
+            "id": 194,
+            "stmtID": 1758,
+            "srcEdges": [
+              195,
+              198
+            ],
+            "dstEdges": [
+              197,
+              200
+            ]
+          },
+          {
+            "id": 196,
+            "stmtID": 1757,
+            "srcEdges": [
+              197
+            ],
+            "dstEdges": [
+              198
+            ]
+          },
+          {
+            "id": 199,
+            "stmtID": 1760,
+            "srcEdges": [
+              200
+            ],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 195,
+            "src": 193,
+            "dst": 194
+          },
+          {
+            "id": 197,
+            "src": 194,
+            "dst": 196
+          },
+          {
+            "id": 198,
+            "src": 196,
+            "dst": 194
+          },
+          {
+            "id": 200,
+            "src": 194,
+            "dst": 199
+          }
+        ]
+      }
+    }
+  ],
+  "contracts": [
+    {
+      "name": "Test",
+      "methods": [
+        {
+          "name": "Test.receive_internal_comment_1790_test",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 201,
+                "stmtID": 1776,
+                "srcEdges": [],
+                "dstEdges": [
+                  203
+                ]
+              },
+              {
+                "id": 202,
+                "stmtID": 1780,
+                "srcEdges": [
+                  203
+                ],
+                "dstEdges": [
+                  205
+                ]
+              },
+              {
+                "id": 204,
+                "stmtID": 1789,
+                "srcEdges": [
+                  205,
+                  208
+                ],
+                "dstEdges": [
+                  207
+                ]
+              },
+              {
+                "id": 206,
+                "stmtID": 1788,
+                "srcEdges": [
+                  207
+                ],
+                "dstEdges": [
+                  208
+                ]
+              }
+            ],
+            "edges": [
+              {
+                "id": 203,
+                "src": 201,
+                "dst": 202
+              },
+              {
+                "id": 205,
+                "src": 202,
+                "dst": 204
+              },
+              {
+                "id": 207,
+                "src": 204,
+                "dst": 206
+              },
+              {
+                "id": 208,
+                "src": 206,
+                "dst": 204
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
