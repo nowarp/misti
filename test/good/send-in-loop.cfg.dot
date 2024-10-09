@@ -1,0 +1,55 @@
+digraph "send-in-loop" {
+    node [shape=box];
+    subgraph "cluster_Test__tWhile" {
+        label="Test__tWhile";
+        "Test__tWhile_145" [label="let i: Int = 0"];
+        "Test__tWhile_146" [label="while (i < 10)"];
+        "Test__tWhile_148" [label="send(SendParameters{to: sender(), value: i})"];
+        "Test__tWhile_150" [label="i = i + 1"];
+        "Test__tWhile_145" -> "Test__tWhile_146";
+        "Test__tWhile_146" -> "Test__tWhile_148";
+        "Test__tWhile_148" -> "Test__tWhile_150";
+        "Test__tWhile_150" -> "Test__tWhile_146";
+    }
+    subgraph "cluster_Test__tRepeat" {
+        label="Test__tRepeat";
+        "Test__tRepeat_153" [label="repeat (10)"];
+        "Test__tRepeat_154" [label="send(SendParameters{to: sender(), value: 0})"];
+        "Test__tRepeat_153" -> "Test__tRepeat_154";
+        "Test__tRepeat_154" -> "Test__tRepeat_153";
+    }
+    subgraph "cluster_Test__tUntil" {
+        label="Test__tUntil";
+        "Test__tUntil_157" [label="let i: Int = 0"];
+        "Test__tUntil_158" [label="until (i == 10)"];
+        "Test__tUntil_160" [label="send(SendParameters{to: sender(), value: i})"];
+        "Test__tUntil_162" [label="i = i + 1"];
+        "Test__tUntil_157" -> "Test__tUntil_158";
+        "Test__tUntil_158" -> "Test__tUntil_160";
+        "Test__tUntil_160" -> "Test__tUntil_162";
+        "Test__tUntil_162" -> "Test__tUntil_158";
+    }
+    subgraph "cluster_Test__tForeach" {
+        label="Test__tForeach";
+        "Test__tForeach_165" [label="let m: map<Int, Int> = emptyMap()"];
+        "Test__tForeach_166" [label="foreach ((k, v) of m)"];
+        "Test__tForeach_168" [label="send(SendParameters{to: sender(), value: v})"];
+        "Test__tForeach_165" -> "Test__tForeach_166";
+        "Test__tForeach_166" -> "Test__tForeach_168";
+        "Test__tForeach_168" -> "Test__tForeach_166";
+    }
+    subgraph "cluster_Test__tNested" {
+        label="Test__tNested";
+        "Test__tNested_171" [label="let i: Int = 0"];
+        "Test__tNested_172" [label="while (i < 10)"];
+        "Test__tNested_174" [label="repeat (10)"];
+        "Test__tNested_176" [label="send(SendParameters{to: sender(), value: i})"];
+        "Test__tNested_179" [label="i = i + 1"];
+        "Test__tNested_171" -> "Test__tNested_172";
+        "Test__tNested_172" -> "Test__tNested_174";
+        "Test__tNested_174" -> "Test__tNested_176";
+        "Test__tNested_176" -> "Test__tNested_174";
+        "Test__tNested_174" -> "Test__tNested_179";
+        "Test__tNested_179" -> "Test__tNested_172";
+    }
+}

@@ -1,0 +1,48 @@
+graph TD
+subgraph Test__tWhile
+    Test__tWhile_145["let i: Int = 0"]
+    Test__tWhile_146["while (i &lt; 10)"]
+    Test__tWhile_148["send(SendParameters{to: sender(), value: i})"]
+    Test__tWhile_150["i = i + 1"]
+    Test__tWhile_145 --> Test__tWhile_146
+    Test__tWhile_146 --> Test__tWhile_148
+    Test__tWhile_148 --> Test__tWhile_150
+    Test__tWhile_150 --> Test__tWhile_146
+end
+subgraph Test__tRepeat
+    Test__tRepeat_153["repeat (10)"]
+    Test__tRepeat_154["send(SendParameters{to: sender(), value: 0})"]
+    Test__tRepeat_153 --> Test__tRepeat_154
+    Test__tRepeat_154 --> Test__tRepeat_153
+end
+subgraph Test__tUntil
+    Test__tUntil_157["let i: Int = 0"]
+    Test__tUntil_158["until (i == 10)"]
+    Test__tUntil_160["send(SendParameters{to: sender(), value: i})"]
+    Test__tUntil_162["i = i + 1"]
+    Test__tUntil_157 --> Test__tUntil_158
+    Test__tUntil_158 --> Test__tUntil_160
+    Test__tUntil_160 --> Test__tUntil_162
+    Test__tUntil_162 --> Test__tUntil_158
+end
+subgraph Test__tForeach
+    Test__tForeach_165["let m: map&lt;Int, Int&gt; = emptyMap()"]
+    Test__tForeach_166["foreach ((k, v) of m)"]
+    Test__tForeach_168["send(SendParameters{to: sender(), value: v})"]
+    Test__tForeach_165 --> Test__tForeach_166
+    Test__tForeach_166 --> Test__tForeach_168
+    Test__tForeach_168 --> Test__tForeach_166
+end
+subgraph Test__tNested
+    Test__tNested_171["let i: Int = 0"]
+    Test__tNested_172["while (i &lt; 10)"]
+    Test__tNested_174["repeat (10)"]
+    Test__tNested_176["send(SendParameters{to: sender(), value: i})"]
+    Test__tNested_179["i = i + 1"]
+    Test__tNested_171 --> Test__tNested_172
+    Test__tNested_172 --> Test__tNested_174
+    Test__tNested_174 --> Test__tNested_176
+    Test__tNested_176 --> Test__tNested_174
+    Test__tNested_174 --> Test__tNested_179
+    Test__tNested_179 --> Test__tNested_172
+end

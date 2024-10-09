@@ -14,21 +14,20 @@ import {
   AstStatementUntil,
   AstStatementForEach,
   AstFunctionDef,
-  AstAsmFunctionDef,
+  AstReceiver,
+  AstContractInit,
+  idText,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
- * A detector that identifies send function calls inside loops and loops that may cause out-of-gas exceptions.
+ * A detector that identifies send function calls inside loops.
  *
  * ## Why is it bad?
  * **Send Functions Inside Loops:**
- * - **Unexpected Behavior:** Multiple sends may occur, leading to unintended contract interactions.
- * - **High Gas Consumption:** Loops with send calls can consume excessive gas, potentially causing out-of-gas exceptions.
- * - **Reentrancy Vulnerabilities:** Sending messages within loops might open up reentrancy attack vectors.
+ * - **Unexpected Behavior:** Multiple sends within a loop may result in sending messages multiple times, which could be unintended. For example, sending funds repeatedly might deplete contract balances or cause logic errors.
+ * - **High Gas Consumption:** Loops with send calls can consume excessive gas.
  *
- * **Loops with Excessive Iterations:**
- * - **Out-of-Gas Exceptions:** Loops with a large number of iterations may consume all available gas.
- * - **Denial of Service:** Excessive gas consumption can be exploited to create DoS attacks.
+ * **Recommendation:** Refactor the code to avoid calling send functions inside loops.
  *
  * ## Example
  * ```tact
@@ -36,20 +35,15 @@ import {
  * while (i < limit) {
  *   send(SendParameters{ to: recipient, ... });
  * }
- *
- * // Loop with excessive iterations
- * repeat (1_000_001) {
- *   // ...
- * }
  * ```
- *
- * **Recommendation:** Refactor the code to avoid calling send functions inside loops and reduce the number of loop iterations.
  */
 export class SendInLoop extends ASTDetector {
   severity = Severity.HIGH;
 
-  private functionDefinitions: Map<string, AstFunctionDef | AstAsmFunctionDef> =
-    new Map();
+  private functionDefinitions: Map<
+    string,
+    AstFunctionDef | AstReceiver | AstContractInit
+  > = new Map();
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const warnings: MistiTactWarning[] = [];
@@ -59,14 +53,22 @@ export class SendInLoop extends ASTDetector {
   }
 
   /**
-   * Collects function definitions from the compilation unit.
+   * Collects function definitions, receivers, and contract initializers from the compilation unit.
    */
   private collectFunctionDefinitions(cu: CompilationUnit): void {
     for (const node of cu.ast.getProgramEntries()) {
-      if (node.kind === "function_def" || node.kind === "asm_function_def") {
-        const func = node as AstFunctionDef | AstAsmFunctionDef; // Updated type
-        const funcName = func.name.text; // Accessing 'name' is now valid
+      if (node.kind === "function_def") {
+        const func = node as AstFunctionDef;
+        const funcName = idText(func.name);
         this.functionDefinitions.set(funcName, func);
+      } else if (node.kind === "receiver") {
+        const receiver = node as AstReceiver;
+        const funcName = `receiver_${receiver.selector.kind}`;
+        this.functionDefinitions.set(funcName, receiver);
+      } else if (node.kind === "contract_init") {
+        const init = node as AstContractInit;
+        const funcName = "contract_init";
+        this.functionDefinitions.set(funcName, init);
       }
     }
   }
@@ -86,12 +88,13 @@ export class SendInLoop extends ASTDetector {
           return accumulatedWarnings;
         },
         warnings,
+        { flatStmts: true },
       );
     }
   }
 
   /**
-   * Analyzes a statement to detect issues.
+   * Analyzes a statement to detect send function calls inside loops.
    */
   private analyzeStatement(
     statement: AstStatement,
@@ -100,7 +103,7 @@ export class SendInLoop extends ASTDetector {
     analyzedFunctions: Set<string> = new Set(),
   ): void {
     if (this.isLoopStatement(statement)) {
-      this.handleLoopStatement(statement, warnings);
+      this.handleLoopStatement(statement, warnings, analyzedFunctions);
     } else if (this.isConditionalStatement(statement)) {
       this.handleConditionalStatement(
         statement,
@@ -126,15 +129,16 @@ export class SendInLoop extends ASTDetector {
   }
 
   /**
-   * Handles loop statements by analyzing their body statements and checking for potential issues.
+   * Handles loop statements by analyzing their body statements for send function calls.
    */
   private handleLoopStatement(
     statement: AstStatement,
     warnings: MistiTactWarning[],
+    analyzedFunctions: Set<string>,
   ): void {
     const loopStatements = this.getLoopBodyStatements(statement);
     for (const stmt of loopStatements) {
-      this.analyzeStatement(stmt, warnings, true);
+      this.analyzeStatement(stmt, warnings, true, analyzedFunctions);
     }
   }
 
@@ -234,10 +238,16 @@ export class SendInLoop extends ASTDetector {
         if (!analyzedFunctions.has(functionName)) {
           analyzedFunctions.add(functionName);
           const func = this.functionDefinitions.get(functionName)!;
-          if ("statements" in func) {
-            for (const stmt of func.statements) {
-              this.analyzeStatement(stmt, warnings, true, analyzedFunctions);
-            }
+          let statements: AstStatement[] = [];
+          if (func.kind === "function_def") {
+            statements = func.statements;
+          } else if (func.kind === "receiver") {
+            statements = func.statements;
+          } else if (func.kind === "contract_init") {
+            statements = func.statements;
+          }
+          for (const stmt of statements) {
+            this.analyzeStatement(stmt, warnings, true, analyzedFunctions);
           }
           analyzedFunctions.delete(functionName);
         }
@@ -321,9 +331,9 @@ export class SendInLoop extends ASTDetector {
    */
   private extractFunctionName(expr: AstExpression): string | null {
     if (expr.kind === "static_call" && expr.function.kind === "id") {
-      return expr.function.text;
+      return idText(expr.function);
     } else if (expr.kind === "method_call" && expr.method.kind === "id") {
-      return expr.method.text;
+      return idText(expr.method);
     }
     return null;
   }
@@ -340,7 +350,10 @@ export class SendInLoop extends ASTDetector {
       "self.notify",
       "nativeSendMessage",
     ];
-    return sendFunctions.includes(functionName);
+    return (
+      sendFunctions.includes(functionName) &&
+      !this.functionDefinitions.has(functionName)
+    );
   }
 
   /**
@@ -382,19 +395,5 @@ export class SendInLoop extends ASTDetector {
       statement.kind === "statement_try" ||
       statement.kind === "statement_try_catch"
     );
-  }
-
-  /**
-   * Determines if a condition is always true.
-   */
-  private isConditionAlwaysTrue(condition: AstExpression): boolean {
-    // Check for 'while (true)'
-    if (condition.kind === "boolean" && condition.value === true) {
-      return true;
-    }
-    if (condition.kind === "id" && condition.text === "true") {
-      return true;
-    }
-    return false;
   }
 }
