@@ -48,7 +48,8 @@ import {
 export class SendInLoop extends ASTDetector {
   severity = Severity.HIGH;
 
-  private functionDefinitions: Map<string, AstFunctionDef | AstAsmFunctionDef> = new Map();
+  private functionDefinitions: Map<string, AstFunctionDef | AstAsmFunctionDef> =
+    new Map();
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const warnings: MistiTactWarning[] = [];
@@ -73,7 +74,10 @@ export class SendInLoop extends ASTDetector {
   /**
    * Collects warnings by traversing the AST of the compilation unit.
    */
-  private collectWarnings(cu: CompilationUnit, warnings: MistiTactWarning[]): void {
+  private collectWarnings(
+    cu: CompilationUnit,
+    warnings: MistiTactWarning[],
+  ): void {
     for (const node of cu.ast.getProgramEntries()) {
       foldStatements(
         node,
@@ -98,9 +102,19 @@ export class SendInLoop extends ASTDetector {
     if (this.isLoopStatement(statement)) {
       this.handleLoopStatement(statement, warnings);
     } else if (this.isConditionalStatement(statement)) {
-      this.handleConditionalStatement(statement, warnings, inLoop, analyzedFunctions);
+      this.handleConditionalStatement(
+        statement,
+        warnings,
+        inLoop,
+        analyzedFunctions,
+      );
     } else if (this.isTryCatchStatement(statement)) {
-      this.handleTryCatchStatement(statement, warnings, inLoop, analyzedFunctions);
+      this.handleTryCatchStatement(
+        statement,
+        warnings,
+        inLoop,
+        analyzedFunctions,
+      );
     } else if (statement.kind === "statement_expression") {
       this.handleExpressionStatement(
         statement as AstStatementExpression,
@@ -114,7 +128,10 @@ export class SendInLoop extends ASTDetector {
   /**
    * Handles loop statements by analyzing their body statements and checking for potential issues.
    */
-  private handleLoopStatement(statement: AstStatement, warnings: MistiTactWarning[]): void {
+  private handleLoopStatement(
+    statement: AstStatement,
+    warnings: MistiTactWarning[],
+  ): void {
     const loopStatements = this.getLoopBodyStatements(statement);
     for (const stmt of loopStatements) {
       this.analyzeStatement(stmt, warnings, true);
@@ -140,7 +157,12 @@ export class SendInLoop extends ASTDetector {
       }
     }
     if (condition.elseif) {
-      this.analyzeStatement(condition.elseif, warnings, inLoop, analyzedFunctions);
+      this.analyzeStatement(
+        condition.elseif,
+        warnings,
+        inLoop,
+        analyzedFunctions,
+      );
     }
   }
 
@@ -179,7 +201,11 @@ export class SendInLoop extends ASTDetector {
     analyzedFunctions: Set<string>,
   ): void {
     if (inLoop) {
-      this.checkForSendFunctions(statement.expression, warnings, analyzedFunctions);
+      this.checkForSendFunctions(
+        statement.expression,
+        warnings,
+        analyzedFunctions,
+      );
     }
   }
 
@@ -208,7 +234,7 @@ export class SendInLoop extends ASTDetector {
         if (!analyzedFunctions.has(functionName)) {
           analyzedFunctions.add(functionName);
           const func = this.functionDefinitions.get(functionName)!;
-          if ('statements' in func) { 
+          if ("statements" in func) {
             for (const stmt of func.statements) {
               this.analyzeStatement(stmt, warnings, true, analyzedFunctions);
             }
@@ -232,25 +258,61 @@ export class SendInLoop extends ASTDetector {
       // Arguments
       if (expr.args && Array.isArray(expr.args)) {
         for (const arg of expr.args) {
-          this.checkForSendFunctionsInExpression(arg, warnings, analyzedFunctions);
+          this.checkForSendFunctionsInExpression(
+            arg,
+            warnings,
+            analyzedFunctions,
+          );
         }
       }
     } else if (expr.kind === "op_binary") {
-      this.checkForSendFunctionsInExpression(expr.left, warnings, analyzedFunctions);
-      this.checkForSendFunctionsInExpression(expr.right, warnings, analyzedFunctions);
+      this.checkForSendFunctionsInExpression(
+        expr.left,
+        warnings,
+        analyzedFunctions,
+      );
+      this.checkForSendFunctionsInExpression(
+        expr.right,
+        warnings,
+        analyzedFunctions,
+      );
     } else if (expr.kind === "op_unary") {
-      this.checkForSendFunctionsInExpression(expr.operand, warnings, analyzedFunctions);
+      this.checkForSendFunctionsInExpression(
+        expr.operand,
+        warnings,
+        analyzedFunctions,
+      );
     } else if (expr.kind === "field_access") {
-      this.checkForSendFunctionsInExpression(expr.aggregate, warnings, analyzedFunctions);
+      this.checkForSendFunctionsInExpression(
+        expr.aggregate,
+        warnings,
+        analyzedFunctions,
+      );
     } else if (expr.kind === "struct_instance") {
       // Handle struct instance initializers
       for (const initializer of expr.args) {
-        this.checkForSendFunctionsInExpression(initializer.initializer, warnings, analyzedFunctions);
+        this.checkForSendFunctionsInExpression(
+          initializer.initializer,
+          warnings,
+          analyzedFunctions,
+        );
       }
     } else if (expr.kind === "conditional") {
-      this.checkForSendFunctionsInExpression(expr.condition, warnings, analyzedFunctions);
-      this.checkForSendFunctionsInExpression(expr.thenBranch, warnings, analyzedFunctions);
-      this.checkForSendFunctionsInExpression(expr.elseBranch, warnings, analyzedFunctions);
+      this.checkForSendFunctionsInExpression(
+        expr.condition,
+        warnings,
+        analyzedFunctions,
+      );
+      this.checkForSendFunctionsInExpression(
+        expr.thenBranch,
+        warnings,
+        analyzedFunctions,
+      );
+      this.checkForSendFunctionsInExpression(
+        expr.elseBranch,
+        warnings,
+        analyzedFunctions,
+      );
     }
   }
 
@@ -321,8 +383,6 @@ export class SendInLoop extends ASTDetector {
       statement.kind === "statement_try_catch"
     );
   }
-
- 
 
   /**
    * Determines if a condition is always true.
