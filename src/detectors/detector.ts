@@ -350,6 +350,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  SendInLoop: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/sendInLoop").then(
+        (module) => new module.SendInLoop(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**

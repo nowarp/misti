@@ -1,8 +1,8 @@
 import { executeMisti } from "../src/cli";
-import JSONbig from "json-bigint";
 import fs from "fs";
-import path from "path";
+import JSONbig from "json-bigint";
 import os from "os";
+import path from "path";
 
 describe("Common detectors functionality", () => {
   it("should generate valid JSON output for never-accessed.tact", async () => {
