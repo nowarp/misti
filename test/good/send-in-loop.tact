@@ -2,11 +2,35 @@ message Msg {
     a: Int;
 }
 
+contract T {
+    fun tWhile(){
+        let x: Int = 10;
+while (x > 0) {
+  // Bad: x is not changed due looping
+  send(SendParameters{ to: sender(), value: x });
+}
+    }
+}
+
+contract Z {
+    fun zWhile(){
+        let x: Int = 10;
+        while (x > 0) {
+            // OK: Should not trigger!
+            send(SendParameters{ to: sender(), value: x });
+            x = x - 1; // Decrement inside the loop
+        }
+    }
+}
+
+
 contract SendInLoopExamples {
     owner: Address;
+    a: Int;
 
     init(owner: Address) {
         self.owner = owner;
+        self.a = 0;
     }
 
     // Example 1: Send function inside a while loop
@@ -59,7 +83,6 @@ contract SendInLoopExamples {
     }
 
     // Example 4: Send function inside a loop within an if condition
-
     fun exampleLoopInIfCondition(flag: Bool) {
         if (flag) {
             let i = 0;
@@ -76,11 +99,10 @@ contract SendInLoopExamples {
         }
     }
 
-    // Example 5: Send function inside a potentially infinite loop
-
+    // Example 5: Send function inside a loop with adjusted condition
     fun exampleInfiniteLoop() {
         let i = 0;
-        while (true) {
+        while (i < 10) { // Adjusted condition to prevent infinite loop
             i += 1;
             send(SendParameters{
                 to: self.owner,
@@ -89,14 +111,10 @@ contract SendInLoopExamples {
                 mode: SendRemainingValue,
                 body: Msg{ a: i }.toCell()
             });
-            if (i >= 10) {
-                // Missing break; loop condition is always true
-            }
         }
     }
 
     // Example 6: Send function inside a loop within a try-catch block
-
     fun exampleTryCatchLoop() {
         try {
             let i = 0;
@@ -115,20 +133,8 @@ contract SendInLoopExamples {
         }
     }
 
-    // Example 7: Loop that may cause out-of-gas exception
-
-    fun exampleOutOfGasLoop() {
-        let i = 0;
-        repeat (1_000_001) {
-            i += 1;
-            // Optional: send function here if you want to test send in large loops
-            // send(SendParameters{ ... });
-        }
-        dump(i);
-    }
 
     // Example 8: Send function outside of loops (should not trigger warning)
-    
     fun exampleNoLoop() {
         send(SendParameters{
             to: self.owner,
@@ -137,5 +143,62 @@ contract SendInLoopExamples {
             mode: SendRemainingValue,
             body: Msg{ a: 0 }.toCell()
         });
+    }
+
+}
+
+contract Test {
+    fun tWhile() { 
+        let i: Int = 0;
+        while (i < 10) {
+            send(SendParameters{
+                to: sender(),
+                value: i,
+            });
+            i = i + 1;
+        }
+    }
+
+    fun tRepeat() { 
+        repeat (10) {
+            send(SendParameters{
+                to: sender(),
+                value: 0,
+            });
+        }
+    }
+
+    fun tUntil() {
+        let i: Int = 0;
+        do {
+            send(SendParameters{
+                to: sender(),
+                value: i,
+            });
+            i = i + 1;
+        } until (i == 10);
+    }
+
+    fun tForeach() {
+        let m: map<Int, Int> = emptyMap();
+        foreach (k, v in m) {
+            send(SendParameters{
+                to: sender(),
+                value: v,
+            });
+        }
+    }
+
+    fun tNested() {
+        let i: Int = 0;
+        while (i < 10) {
+            repeat (10) {
+                send(SendParameters{
+                    to: sender(),
+                    value: i,
+                });
+            }
+            i = i + 1;
+        }
     }
 }

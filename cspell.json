@@ -100,7 +100,9 @@
     "Dont",
     "consteval",
     "Georgiy",
-    "Komarov"
+    "Komarov",
+    "Reentrancy",
+    "reentrancy"
   ],
   "flagWords": [],
   "ignorePaths": [
