@@ -1,0 +1,71 @@
+[HIGH] SendInLoop: Send function 'send' called inside a loop
+test/good/send-in-loop.tact:5:13:
+  4 |         while (i < 10) {
+> 5 |             send(SendParameters{
+                  ^
+  6 |                 to: sender(),
+Help: Consider refactoring to avoid calling send functions inside loops.
+See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
+
+[HIGH] SendInLoop: Send function 'send' called inside a loop
+test/good/send-in-loop.tact:15:13:
+  14 |         repeat (10) {
+> 15 |             send(SendParameters{
+                   ^
+  16 |                 to: sender(),
+Help: Consider refactoring to avoid calling send functions inside loops.
+See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
+
+[HIGH] SendInLoop: Send function 'send' called inside a loop
+test/good/send-in-loop.tact:25:13:
+  24 |         do {
+> 25 |             send(SendParameters{
+                   ^
+  26 |                 to: sender(),
+Help: Consider refactoring to avoid calling send functions inside loops.
+See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
+
+[HIGH] SendInLoop: Send function 'send' called inside a loop
+test/good/send-in-loop.tact:36:13:
+  35 |         foreach (k, v in m) {
+> 36 |             send(SendParameters{
+                   ^
+  37 |                 to: sender(),
+Help: Consider refactoring to avoid calling send functions inside loops.
+See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
+
+[HIGH] SendInLoop: Send function 'send' called inside a loop
+test/good/send-in-loop.tact:47:17:
+  46 |             repeat (10) {
+> 47 |                 send(SendParameters{
+                       ^
+  48 |                     to: sender(),
+Help: Consider refactoring to avoid calling send functions inside loops.
+See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
+test/good/send-in-loop.tact:9:13:
+   8 |             });
+>  9 |             i = i + 1;
+                   ^
+  10 |         }
+Help: Consider using augmented assignment instead: i += 1
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
+test/good/send-in-loop.tact:29:13:
+  28 |             });
+> 29 |             i = i + 1;
+                   ^
+  30 |         } until (i == 10);
+Help: Consider using augmented assignment instead: i += 1
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
+test/good/send-in-loop.tact:52:13:
+  51 |             }
+> 52 |             i = i + 1;
+                   ^
+  53 |         }
+Help: Consider using augmented assignment instead: i += 1
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
