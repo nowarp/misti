@@ -1,8 +1,5 @@
 import { Driver } from "./driver";
-import {
-  cliOptions,
-  STDOUT_PATH,
-} from "./options";
+import { cliOptions, STDOUT_PATH } from "./options";
 import { OutputFormat } from "../cli";
 import { createDetector } from "../createDetector";
 import { unreachable } from "../internals/util";
