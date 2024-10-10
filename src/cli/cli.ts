@@ -50,7 +50,7 @@ export function createMistiCommand(): Command {
 export async function runMistiCommand(
   args: string[],
   command: Command = createMistiCommand(),
-): Promise<[Driver, MistiResult] | undefined> {
+): Promise<[Driver, MistiResult]> {
   if (args.length === 0) command.help();
   await command.parseAsync(args, { from: "user" });
   const driver = await Driver.create(command.args[0], command.opts());
