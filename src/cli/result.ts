@@ -1,4 +1,4 @@
-import { DUMP_STDOUT_PATH } from "./driver";
+import { STDOUT_PATH } from "./options";
 import { OutputFormat } from "../cli/types";
 import { InternalException } from "../internals/exceptions";
 import { unreachable } from "../internals/util";
@@ -121,7 +121,7 @@ export function saveResultToFiles(
   result: MistiResult,
   outputPath: string,
 ): ResultReport {
-  if (outputPath === DUMP_STDOUT_PATH) {
+  if (outputPath === STDOUT_PATH) {
     throw InternalException.make(`Incorrect output path: ${outputPath}`);
   }
   switch (result.kind) {

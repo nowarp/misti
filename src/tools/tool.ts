@@ -146,7 +146,7 @@ export function hasBuiltInTool(name: string): boolean {
 export async function generateToolsHelpMessage(): Promise<string> {
   let helpMessage = "Available tools:\n\n";
   for (const [toolName, toolEntry] of Object.entries(BuiltInTools)) {
-    const tool = await toolEntry.loader(new MistiContext("", {}), {});
+    const tool = await toolEntry.loader(new MistiContext(""), {});
     helpMessage += `* ${toolName}: ${tool.getDescription()}\n`;
     const optionDescriptions = tool.getOptionDescriptions();
     if (Object.keys(optionDescriptions).length > 0)

@@ -1,6 +1,6 @@
 import { MistiConfig } from "./config";
 import { DebugLogger, Logger, QuietLogger, TraceLogger } from "./logger";
-import { CLIOptions } from "../cli";
+import { CLIOptions, cliOptionDefaults } from "../cli";
 import { throwZodError } from "./exceptions";
 import { execSync } from "child_process";
 
@@ -18,10 +18,15 @@ export class MistiContext {
   /**
    * Initializes the context for Misti, setting up configuration and appropriate logger.
    */
-  constructor(tactPath: string, options: CLIOptions) {
-    this.singleContractPath = tactPath.endsWith(".tact") ? tactPath : undefined;
+  constructor(
+    tactPath: string | undefined,
+    options: CLIOptions = cliOptionDefaults,
+  ) {
+    this.singleContractPath = tactPath?.endsWith(".tact")
+      ? tactPath
+      : undefined;
     this.souffleAvailable = this.checkSouffleInstallation(
-      options.souffleBinary ?? "souffle",
+      options.souffleBinary,
     );
     try {
       this.config = new MistiConfig({
@@ -38,30 +43,22 @@ export class MistiContext {
     }
 
     // Prioritize CLI options to configuration file values
-    if (options.soufflePath !== undefined) {
-      this.config.soufflePath = options.soufflePath;
-    }
-    if (options.souffleVerbose !== undefined) {
-      this.config.souffleVerbose = options.souffleVerbose;
-    }
+    this.config.soufflePath = options.soufflePath;
+    this.config.souffleVerbose = options.souffleVerbose;
     if (options.tactStdlibPath !== undefined) {
       this.config.tactStdlibPath = options.tactStdlibPath;
     }
 
-    // Prioritize CLI options for verbosity
-    if (options.verbose === true) {
-      this.logger = new DebugLogger();
-    } else if (options.quiet === true) {
-      this.logger = new QuietLogger();
-    } else {
-      if (this.config.verbosity === "quiet") {
-        this.logger = new QuietLogger();
-      } else if (this.config.verbosity === "debug") {
-        this.logger = new DebugLogger();
-      } else {
-        this.logger = new Logger();
-      }
-    }
+    // Set logger based on verbosity options
+    this.logger = options.verbose
+      ? new DebugLogger()
+      : options.quiet
+        ? new QuietLogger()
+        : this.config.verbosity === "quiet"
+          ? new QuietLogger()
+          : this.config.verbosity === "debug"
+            ? new DebugLogger()
+            : new Logger();
 
     // Add backtraces to the logger output if requested
     if (process.env.MISTI_TRACE === "1") {

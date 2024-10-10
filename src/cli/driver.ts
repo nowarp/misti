@@ -1,4 +1,4 @@
-import { CLIOptions } from "./options";
+import { CLIOptions, cliOptionDefaults } from "./options";
 import {
   MistiResult,
   ToolOutput,
@@ -25,8 +25,6 @@ import fs from "fs";
 import JSONbig from "json-bigint";
 import path from "path";
 
-export const DUMP_STDOUT_PATH = "-";
-
 /**
  * Manages the initialization and execution of detectors for analyzing compilation units.
  */
@@ -37,40 +35,34 @@ export class Driver {
   outputPath: string;
   disabledDetectors: Set<string>;
   colorizeOutput: boolean;
-  tactConfigPath: string;
+  tactConfigPath: string | undefined;
   /** Minimum severity level to report warnings. */
   minSeverity: Severity;
   outputFormat: OutputFormat;
   singleContractProjectManager: SingleContractProjectManager | undefined;
-  /** Driver could be executed only once. */
-  executed: boolean = false;
 
-  private constructor(tactPath: string, options: CLIOptions) {
-    const singleContract = tactPath.endsWith(".tact");
-
-    // Check if the input file exists.
-    if (!fs.existsSync(tactPath)) {
-      throw ExecutionException.make(
-        `${singleContract ? "Contract" : "Project"} ${tactPath} is not available.`,
-      );
+  private constructor(tactPath: string | undefined, options: CLIOptions) {
+    if (tactPath) {
+      const singleContract = tactPath.endsWith(".tact");
+      if (!fs.existsSync(tactPath)) {
+        throw ExecutionException.make(
+          `${singleContract ? "Contract" : "Project"} ${tactPath} is not available.`,
+        );
+      }
+      this.tactConfigPath = singleContract
+        ? (() => {
+            this.singleContractProjectManager =
+              SingleContractProjectManager.fromContractPath(tactPath);
+            return this.singleContractProjectManager.createTempProjectDir();
+          })()
+        : path.resolve(tactPath); // Tact supports absolute paths only
     }
-
-    // Tact internals expect as an input a configuration file. Thus we have to
-    // create a dummy config for a single contract with default options.
-    this.tactConfigPath = singleContract
-      ? (() => {
-          this.singleContractProjectManager =
-            SingleContractProjectManager.fromContractPath(tactPath);
-          return this.singleContractProjectManager.generate();
-        })()
-      : path.resolve(tactPath); // Tact supports absolute paths only
-
     this.ctx = new MistiContext(tactPath, options);
     this.disabledDetectors = new Set(options.disabledDetectors ?? []);
-    this.colorizeOutput = options.colors ?? true;
-    this.minSeverity = options.minSeverity ?? Severity.INFO;
-    this.outputFormat = options.outputFormat ?? "plain";
-    this.outputPath = options.outputPath ?? DUMP_STDOUT_PATH;
+    this.colorizeOutput = options.colors;
+    this.minSeverity = options.minSeverity;
+    this.outputFormat = options.outputFormat;
+    this.outputPath = options.outputPath;
   }
 
   /**
@@ -78,27 +70,12 @@ export class Driver {
    * @param tactPath Path to the Tact project configuration of to a single Tact contract.
    */
   public static async create(
-    tactPath: string,
-    options: CLIOptions = {
-      tools: undefined,
-      outputPath: undefined,
-      outputFormat: undefined,
-      colors: undefined,
-      souffleBinary: undefined,
-      soufflePath: undefined,
-      souffleVerbose: undefined,
-      tactStdlibPath: undefined,
-      verbose: false,
-      quiet: false,
-      minSeverity: undefined,
-      enabledDetectors: undefined,
-      disabledDetectors: undefined,
-      allDetectors: false,
-      config: undefined,
-    },
+    tactPath: string | undefined,
+    options: Partial<CLIOptions> = {},
   ): Promise<Driver> {
-    this.checkCLIOptions(options);
-    const driver = new Driver(tactPath, options);
+    const mergedOptions: CLIOptions = { ...cliOptionDefaults, ...options };
+    this.checkCLIOptions(mergedOptions);
+    const driver = new Driver(tactPath, mergedOptions);
     await driver.initializeDetectors();
     await driver.initializeTools();
     if (!driver.ctx.souffleAvailable) {
@@ -282,10 +259,11 @@ export class Driver {
    */
   private async executeImpl(): Promise<MistiResult> {
     try {
-      if (this.executed) {
-        throw InternalException.make("Driver cannot be executed twice");
+      if (!this.tactConfigPath) {
+        throw ExecutionException.make(
+          "Please specify a path to a Tact project or Tact contract",
+        );
       }
-      this.executed = true;
       const cus: Map<ProjectName, CompilationUnit> = createIR(
         this.ctx,
         this.tactConfigPath,

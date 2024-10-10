@@ -54,9 +54,9 @@ describe("CLI Argument Parsing", () => {
     expect(actualOptions).toEqual(
       expect.objectContaining({
         verbose: false,
+        outputFormat: "plain",
       }),
     );
-    expect(actualOptions!.outputFormat).toBeUndefined();
     driverMakeSpy.mockRestore();
   });
 
@@ -70,10 +70,13 @@ describe("CLI Argument Parsing", () => {
     );
   });
 
-  it("should throw an error when no Tact project is specified", async () => {
+  it("should return an error when no Tact project is specified", async () => {
     const args = ["--verbose"];
-    await expect(runMistiCommand(args)).rejects.toThrow(
-      "`<TACT_CONFIG_PATH|TACT_FILE_PATH>` is required",
+    const result = await runMistiCommand(args);
+    expect(
+      result !== undefined &&
+        result[1].kind === "error" &&
+        result[1].error.includes("Tact project or"),
     );
   });
 

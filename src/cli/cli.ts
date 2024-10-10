@@ -1,8 +1,10 @@
-import { DUMP_STDOUT_PATH, Driver } from "./driver";
-import { cliOptions } from "./options";
+import { Driver } from "./driver";
+import {
+  cliOptions,
+  STDOUT_PATH,
+} from "./options";
 import { OutputFormat } from "../cli";
 import { createDetector } from "../createDetector";
-import { ExecutionException } from "../internals/exceptions";
 import { unreachable } from "../internals/util";
 import { generateToolsHelpMessage } from "../tools/tool";
 import { MISTI_VERSION, TACT_VERSION } from "../version";
@@ -22,7 +24,7 @@ export function createMistiCommand(): Command {
     .version(`Misti ${MISTI_VERSION}\nSupported Tact version: ${TACT_VERSION}`)
     .arguments("[TACT_CONFIG_PATH|TACT_FILE_PATH]");
   cliOptions.forEach((option) => command.addOption(option));
-  command.action(async (PROJECT_CONFIG_OR_FILE_PATH, options) => {
+  command.action(async (_tactPath, options) => {
     if (options.listTools) {
       const toolsHelpMessage = await generateToolsHelpMessage();
       // eslint-disable-next-line no-console
@@ -32,11 +34,6 @@ export function createMistiCommand(): Command {
     if (options.newDetector) {
       createDetector(options.newDetector);
       return;
-    }
-    if (!PROJECT_CONFIG_OR_FILE_PATH) {
-      throw ExecutionException.make(
-        "`<TACT_CONFIG_PATH|TACT_FILE_PATH>` is required",
-      );
     }
   });
   return command;
@@ -51,7 +48,6 @@ export async function runMistiCommand(
   args: string[],
   command: Command = createMistiCommand(),
 ): Promise<[Driver, MistiResult]> {
-  if (args.length === 0) command.help();
   await command.parseAsync(args, { from: "user" });
   const driver = await Driver.create(command.args[0], command.opts());
   const result = await driver.execute();
@@ -75,7 +71,7 @@ export async function executeMisti(args: string[]): Promise<string> {
  */
 export function handleMistiResult(driver: Driver, result: MistiResult): void {
   const logger = driver.ctx.logger;
-  driver.outputPath && driver.outputPath !== DUMP_STDOUT_PATH
+  driver.outputPath && driver.outputPath !== STDOUT_PATH
     ? handleOutputToFile(result, driver.outputPath, logger)
     : handleOutputToConsole(result, driver.outputFormat, logger);
 }
