@@ -265,7 +265,6 @@ export class SendInLoop extends ASTDetector {
     analyzedFunctions: Set<string>,
   ): void {
     if (expr.kind === "static_call" || expr.kind === "method_call") {
-      // Arguments
       if (expr.args && Array.isArray(expr.args)) {
         for (const arg of expr.args) {
           this.checkForSendFunctionsInExpression(
@@ -299,7 +298,6 @@ export class SendInLoop extends ASTDetector {
         analyzedFunctions,
       );
     } else if (expr.kind === "struct_instance") {
-      // Handle struct instance initializers
       for (const initializer of expr.args) {
         this.checkForSendFunctionsInExpression(
           initializer.initializer,
