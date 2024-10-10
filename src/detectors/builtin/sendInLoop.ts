@@ -56,7 +56,7 @@ export class SendInLoop extends ASTDetector {
    * Collects function definitions, receivers, and contract initializers from the compilation unit.
    */
   private collectFunctionDefinitions(cu: CompilationUnit): void {
-    for (const node of cu.ast.getProgramEntries()) {
+    Array.from(cu.ast.getProgramEntries()).forEach(node => {
       if (node.kind === "function_def") {
         const func = node as AstFunctionDef;
         const funcName = idText(func.name);
@@ -70,7 +70,7 @@ export class SendInLoop extends ASTDetector {
         const funcName = "contract_init";
         this.functionDefinitions.set(funcName, init);
       }
-    }
+    });
   }
 
   /**
@@ -80,7 +80,7 @@ export class SendInLoop extends ASTDetector {
     cu: CompilationUnit,
     warnings: MistiTactWarning[],
   ): void {
-    for (const node of cu.ast.getProgramEntries()) {
+    Array.from(cu.ast.getProgramEntries()).forEach(node => {
       foldStatements(
         node,
         (accumulatedWarnings, statement) => {
@@ -90,7 +90,7 @@ export class SendInLoop extends ASTDetector {
         warnings,
         { flatStmts: true },
       );
-    }
+    });
   }
 
   /**
