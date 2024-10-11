@@ -75,7 +75,7 @@ export class SendInLoop extends ASTDetector {
     }
 
     if (inLoop && statement.kind === "statement_expression") {
-      this.checkForSendFunctions(statement.expression, warnings);
+      this.reportSendCalls(statement.expression, warnings);
     }
 
     // Recurse into child stmt
@@ -85,7 +85,7 @@ export class SendInLoop extends ASTDetector {
     }
   }
 
-  private checkForSendFunctions(
+  private reportSendCalls(
     expr: AstExpression,
     warnings: MistiTactWarning[],
   ): void {
@@ -109,29 +109,29 @@ export class SendInLoop extends ASTDetector {
       case "method_call":
         if (expr.args && Array.isArray(expr.args)) {
           for (const arg of expr.args) {
-            this.checkForSendFunctions(arg, warnings);
+            this.reportSendCalls(arg, warnings);
           }
         }
         break;
       case "op_binary":
-        this.checkForSendFunctions(expr.left, warnings);
-        this.checkForSendFunctions(expr.right, warnings);
+        this.reportSendCalls(expr.left, warnings);
+        this.reportSendCalls(expr.right, warnings);
         break;
       case "op_unary":
-        this.checkForSendFunctions(expr.operand, warnings);
+        this.reportSendCalls(expr.operand, warnings);
         break;
       case "field_access":
-        this.checkForSendFunctions(expr.aggregate, warnings);
+        this.reportSendCalls(expr.aggregate, warnings);
         break;
       case "struct_instance":
         for (const initializer of expr.args) {
-          this.checkForSendFunctions(initializer.initializer, warnings);
+          this.reportSendCalls(initializer.initializer, warnings);
         }
         break;
       case "conditional":
-        this.checkForSendFunctions(expr.condition, warnings);
-        this.checkForSendFunctions(expr.thenBranch, warnings);
-        this.checkForSendFunctions(expr.elseBranch, warnings);
+        this.reportSendCalls(expr.condition, warnings);
+        this.reportSendCalls(expr.thenBranch, warnings);
+        this.reportSendCalls(expr.elseBranch, warnings);
         break;
       default:
         break;
