@@ -73,8 +73,7 @@ export class SendInLoop extends ASTDetector {
         inLoop = true;
       }
     }
-
-    // If stmt is an expr statement we are inside loop
+    
     if (statement.kind === "statement_expression" && inLoop) {
       this.checkForSendFunctions(statement.expression, warnings);
     }
