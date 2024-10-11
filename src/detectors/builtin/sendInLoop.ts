@@ -67,11 +67,11 @@ export class SendInLoop extends ASTDetector {
     processedLoopIds: Set<number>,
   ): void {
     if (this.isLoopStatement(statement)) {
-      // Avoid processing the same loop multiple times
-      if (!processedLoopIds.has(statement.id)) {
-        processedLoopIds.add(statement.id);
-        inLoop = true;
+      if (processedLoopIds.has(statement.id)) {
+        return;
       }
+      processedLoopIds.add(statement.id);
+      inLoop = true;
     }
 
     if (inLoop && statement.kind === "statement_expression") {
