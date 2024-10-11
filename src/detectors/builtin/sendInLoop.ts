@@ -66,7 +66,6 @@ export class SendInLoop extends ASTDetector {
     inLoop: boolean,
     processedLoopIds: Set<number>,
   ): void {
-    // check If the statement is a loop!
     if (this.isLoopStatement(statement)) {
       // Avoid processing the same loop multiple times
       if (!processedLoopIds.has(statement.id)) {
