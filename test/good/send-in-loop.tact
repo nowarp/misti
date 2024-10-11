@@ -77,7 +77,7 @@ contract SendInLoop {
         let i = 0;
         while (i < limit) {
             i += 1;
-            send(SendParameters{
+         let a =  send(SendParameters{
                 to: self.owner,
                 value: 0,
                 bounce: false,
