@@ -5,8 +5,12 @@ import { createDetector } from "../createDetector";
 import { unreachable } from "../internals/util";
 import { generateToolsHelpMessage } from "../tools/tool";
 import { MISTI_VERSION, TACT_VERSION } from "../version";
-import { MistiResult, resultToString } from "./result";
-import { saveResultToFiles, ResultReport } from "./result";
+import {
+  MistiResult,
+  resultToString,
+  saveResultToFiles,
+  ResultReport,
+} from "./result";
 import { Logger } from "../internals/logger";
 import { Command } from "commander";
 

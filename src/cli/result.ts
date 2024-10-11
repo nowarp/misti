@@ -1,5 +1,5 @@
 import { STDOUT_PATH } from "./options";
-import { OutputFormat } from "../cli/types";
+import { OutputFormat, ExitCode } from "../cli/types";
 import { InternalException } from "../internals/exceptions";
 import { unreachable } from "../internals/util";
 import fs from "fs";
@@ -96,6 +96,20 @@ export function resultToString(
             .map((tool) => `${tool.name}:\n${tool.output}`)
             .join("\n\n")
             .trim();
+    default:
+      unreachable(result);
+  }
+}
+
+export function resultToExitCode(result: MistiResult): ExitCode {
+  switch (result.kind) {
+    case "ok":
+    case "tool":
+      return ExitCode.SUCCESS;
+    case "warnings":
+      return ExitCode.WARNINGS;
+    case "error":
+      return ExitCode.EXECUTION_FAILURE;
     default:
       unreachable(result);
   }

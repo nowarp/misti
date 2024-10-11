@@ -1,4 +1,4 @@
-import { handleMistiResult, runMistiCommand } from "./cli";
+import { handleMistiResult, runMistiCommand, resultToExitCode } from "./cli";
 
 async function main() {
   const args = process.argv.slice(2);
@@ -7,6 +7,7 @@ async function main() {
     if (result) {
       const [driver, mistiResult] = result;
       handleMistiResult(driver, mistiResult);
+      process.exit(resultToExitCode(mistiResult));
     }
   } catch (error: any) {
     console.error(error.message);

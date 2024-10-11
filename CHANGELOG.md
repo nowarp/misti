@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Make filepath argument optional: Issue [#170](https://github.com/nowarp/misti/issues/170)
 
+### Fixed
+- Return a non-zero exit code when warnings are raised or an execution error occurs.
+
 ## [0.4.0] - 2024-10-08
 
 ### Added

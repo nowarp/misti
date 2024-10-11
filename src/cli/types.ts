@@ -28,3 +28,21 @@ export interface DetectorConfig {
 }
 
 export type OutputFormat = "json" | "plain";
+
+/**
+ * Exit codes after executing Misti.
+ */
+export enum ExitCode {
+  /**
+   * Successful execution. No warnings or errors reported.
+   */
+  SUCCESS = 0,
+  /**
+   * Warnings were reported.
+   */
+  WARNINGS = 1,
+  /**
+   * Execution failed because of an error.
+   */
+  EXECUTION_FAILURE = 2,
+}
