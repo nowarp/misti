@@ -73,8 +73,8 @@ export class SendInLoop extends ASTDetector {
         inLoop = true;
       }
     }
-    
-    if (statement.kind === "statement_expression" && inLoop) {
+
+    if (inLoop && statement.kind === "statement_expression") {
       this.checkForSendFunctions(statement.expression, warnings);
     }
 
