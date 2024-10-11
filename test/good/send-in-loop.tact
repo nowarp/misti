@@ -1,3 +1,4 @@
+
 contract Test {
     fun tWhile() { 
         let i: Int = 0;
@@ -50,6 +51,38 @@ contract Test {
                 });
             }
             i = i + 1;
+        }
+    }
+}
+
+// Additional test
+
+struct Msg {
+    a: Int;
+}
+
+
+contract SendInLoop {
+    owner: Address;
+    a: Int;
+
+    init(owner: Address) {
+        self.owner = owner;
+        self.a = 0;
+    }
+
+    //Send function inside a while loop
+
+    fun exampleWhileLoop(limit: Int) {
+        let i = 0;
+        while (i < limit) {
+            i += 1;
+            send(SendParameters{
+                to: self.owner,
+                value: 0,
+                bounce: false,
+                body: Msg{ a: i }.toCell()
+            });
         }
     }
 }

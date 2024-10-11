@@ -1,48 +1,63 @@
 graph TD
 subgraph Test__tWhile
-    Test__tWhile_145["let i: Int = 0"]
-    Test__tWhile_146["while (i &lt; 10)"]
-    Test__tWhile_148["send(SendParameters{to: sender(), value: i})"]
-    Test__tWhile_150["i = i + 1"]
-    Test__tWhile_145 --> Test__tWhile_146
-    Test__tWhile_146 --> Test__tWhile_148
+    Test__tWhile_147["let i: Int = 0"]
+    Test__tWhile_148["while (i &lt; 10)"]
+    Test__tWhile_150["send(SendParameters{to: sender(), value: i})"]
+    Test__tWhile_152["i = i + 1"]
+    Test__tWhile_147 --> Test__tWhile_148
     Test__tWhile_148 --> Test__tWhile_150
-    Test__tWhile_150 --> Test__tWhile_146
+    Test__tWhile_150 --> Test__tWhile_152
+    Test__tWhile_152 --> Test__tWhile_148
 end
 subgraph Test__tRepeat
-    Test__tRepeat_153["repeat (10)"]
-    Test__tRepeat_154["send(SendParameters{to: sender(), value: 0})"]
-    Test__tRepeat_153 --> Test__tRepeat_154
-    Test__tRepeat_154 --> Test__tRepeat_153
+    Test__tRepeat_155["repeat (10)"]
+    Test__tRepeat_156["send(SendParameters{to: sender(), value: 0})"]
+    Test__tRepeat_155 --> Test__tRepeat_156
+    Test__tRepeat_156 --> Test__tRepeat_155
 end
 subgraph Test__tUntil
-    Test__tUntil_157["let i: Int = 0"]
-    Test__tUntil_158["until (i == 10)"]
-    Test__tUntil_160["send(SendParameters{to: sender(), value: i})"]
-    Test__tUntil_162["i = i + 1"]
-    Test__tUntil_157 --> Test__tUntil_158
-    Test__tUntil_158 --> Test__tUntil_160
+    Test__tUntil_159["let i: Int = 0"]
+    Test__tUntil_160["until (i == 10)"]
+    Test__tUntil_162["send(SendParameters{to: sender(), value: i})"]
+    Test__tUntil_164["i = i + 1"]
+    Test__tUntil_159 --> Test__tUntil_160
     Test__tUntil_160 --> Test__tUntil_162
-    Test__tUntil_162 --> Test__tUntil_158
+    Test__tUntil_162 --> Test__tUntil_164
+    Test__tUntil_164 --> Test__tUntil_160
 end
 subgraph Test__tForeach
-    Test__tForeach_165["let m: map&lt;Int, Int&gt; = emptyMap()"]
-    Test__tForeach_166["foreach ((k, v) of m)"]
-    Test__tForeach_168["send(SendParameters{to: sender(), value: v})"]
-    Test__tForeach_165 --> Test__tForeach_166
-    Test__tForeach_166 --> Test__tForeach_168
-    Test__tForeach_168 --> Test__tForeach_166
+    Test__tForeach_167["let m: map&lt;Int, Int&gt; = emptyMap()"]
+    Test__tForeach_168["foreach ((k, v) of m)"]
+    Test__tForeach_170["send(SendParameters{to: sender(), value: v})"]
+    Test__tForeach_167 --> Test__tForeach_168
+    Test__tForeach_168 --> Test__tForeach_170
+    Test__tForeach_170 --> Test__tForeach_168
 end
 subgraph Test__tNested
-    Test__tNested_171["let i: Int = 0"]
-    Test__tNested_172["while (i &lt; 10)"]
-    Test__tNested_174["repeat (10)"]
-    Test__tNested_176["send(SendParameters{to: sender(), value: i})"]
-    Test__tNested_179["i = i + 1"]
-    Test__tNested_171 --> Test__tNested_172
-    Test__tNested_172 --> Test__tNested_174
+    Test__tNested_173["let i: Int = 0"]
+    Test__tNested_174["while (i &lt; 10)"]
+    Test__tNested_176["repeat (10)"]
+    Test__tNested_178["send(SendParameters{to: sender(), value: i})"]
+    Test__tNested_181["i = i + 1"]
+    Test__tNested_173 --> Test__tNested_174
     Test__tNested_174 --> Test__tNested_176
-    Test__tNested_176 --> Test__tNested_174
-    Test__tNested_174 --> Test__tNested_179
-    Test__tNested_179 --> Test__tNested_172
+    Test__tNested_176 --> Test__tNested_178
+    Test__tNested_178 --> Test__tNested_176
+    Test__tNested_176 --> Test__tNested_181
+    Test__tNested_181 --> Test__tNested_174
+end
+subgraph SendInLoop__init_1842
+    SendInLoop__init_1842_185["self.owner = owner"]
+    SendInLoop__init_1842_186["self.a = 0"]:::exitNode
+    SendInLoop__init_1842_185 --> SendInLoop__init_1842_186
+end
+subgraph SendInLoop__exampleWhileLoop
+    SendInLoop__exampleWhileLoop_188["let i = 0"]
+    SendInLoop__exampleWhileLoop_189["while (i &lt; limit)"]
+    SendInLoop__exampleWhileLoop_191["i += 1"]
+    SendInLoop__exampleWhileLoop_193["send(SendParameters{to: self.owner, value: 0, bounce: false, body: Msg{a: i}.toCell()})"]
+    SendInLoop__exampleWhileLoop_188 --> SendInLoop__exampleWhileLoop_189
+    SendInLoop__exampleWhileLoop_189 --> SendInLoop__exampleWhileLoop_191
+    SendInLoop__exampleWhileLoop_191 --> SendInLoop__exampleWhileLoop_193
+    SendInLoop__exampleWhileLoop_193 --> SendInLoop__exampleWhileLoop_189
 end

@@ -1,71 +1,80 @@
-[HIGH] SendInLoop: Send function 'send' called inside a loop
-test/good/send-in-loop.tact:5:13:
-  4 |         while (i < 10) {
-> 5 |             send(SendParameters{
+[HIGH] SendInLoop: Send function called inside a loop
+test/good/send-in-loop.tact:6:13:
+  5 |         while (i < 10) {
+> 6 |             send(SendParameters{
                   ^
-  6 |                 to: sender(),
+  7 |                 to: sender(),
 Help: Consider refactoring to avoid calling send functions inside loops.
 See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
 
-[HIGH] SendInLoop: Send function 'send' called inside a loop
-test/good/send-in-loop.tact:15:13:
-  14 |         repeat (10) {
-> 15 |             send(SendParameters{
+[HIGH] SendInLoop: Send function called inside a loop
+test/good/send-in-loop.tact:16:13:
+  15 |         repeat (10) {
+> 16 |             send(SendParameters{
                    ^
-  16 |                 to: sender(),
+  17 |                 to: sender(),
 Help: Consider refactoring to avoid calling send functions inside loops.
 See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
 
-[HIGH] SendInLoop: Send function 'send' called inside a loop
-test/good/send-in-loop.tact:25:13:
-  24 |         do {
-> 25 |             send(SendParameters{
+[HIGH] SendInLoop: Send function called inside a loop
+test/good/send-in-loop.tact:26:13:
+  25 |         do {
+> 26 |             send(SendParameters{
                    ^
-  26 |                 to: sender(),
+  27 |                 to: sender(),
 Help: Consider refactoring to avoid calling send functions inside loops.
 See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
 
-[HIGH] SendInLoop: Send function 'send' called inside a loop
-test/good/send-in-loop.tact:36:13:
-  35 |         foreach (k, v in m) {
-> 36 |             send(SendParameters{
+[HIGH] SendInLoop: Send function called inside a loop
+test/good/send-in-loop.tact:37:13:
+  36 |         foreach (k, v in m) {
+> 37 |             send(SendParameters{
                    ^
-  37 |                 to: sender(),
+  38 |                 to: sender(),
 Help: Consider refactoring to avoid calling send functions inside loops.
 See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
 
-[HIGH] SendInLoop: Send function 'send' called inside a loop
-test/good/send-in-loop.tact:47:17:
-  46 |             repeat (10) {
-> 47 |                 send(SendParameters{
+[HIGH] SendInLoop: Send function called inside a loop
+test/good/send-in-loop.tact:48:17:
+  47 |             repeat (10) {
+> 48 |                 send(SendParameters{
                        ^
-  48 |                     to: sender(),
+  49 |                     to: sender(),
+Help: Consider refactoring to avoid calling send functions inside loops.
+See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
+
+[HIGH] SendInLoop: Send function called inside a loop
+test/good/send-in-loop.tact:80:13:
+  79 |             i += 1;
+> 80 |             send(SendParameters{
+                   ^
+  81 |                 to: self.owner,
 Help: Consider refactoring to avoid calling send functions inside loops.
 See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
 
 [INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
-test/good/send-in-loop.tact:9:13:
-   8 |             });
->  9 |             i = i + 1;
+test/good/send-in-loop.tact:10:13:
+   9 |             });
+> 10 |             i = i + 1;
                    ^
-  10 |         }
+  11 |         }
 Help: Consider using augmented assignment instead: i += 1
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
 
 [INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
-test/good/send-in-loop.tact:29:13:
-  28 |             });
-> 29 |             i = i + 1;
+test/good/send-in-loop.tact:30:13:
+  29 |             });
+> 30 |             i = i + 1;
                    ^
-  30 |         } until (i == 10);
+  31 |         } until (i == 10);
 Help: Consider using augmented assignment instead: i += 1
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
 
 [INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
-test/good/send-in-loop.tact:52:13:
-  51 |             }
-> 52 |             i = i + 1;
+test/good/send-in-loop.tact:53:13:
+  52 |             }
+> 53 |             i = i + 1;
                    ^
-  53 |         }
+  54 |         }
 Help: Consider using augmented assignment instead: i += 1
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
