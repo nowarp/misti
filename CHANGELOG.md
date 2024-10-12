@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- `SendInLoop` detector: PR [#168](https://github.com/nowarp/misti/pulls/168)
 
 ### Added
 - `OptimalMathFunction` detector: Issue [#146](https://github.com/nowarp/misti/issues/146)
