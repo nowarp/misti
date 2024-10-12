@@ -27,6 +27,35 @@ export class SendInLoop extends ASTDetector {
     }, [] as MistiTactWarning[]);
   }
 
+  private analyzeStatement(
+    stmt: AstStatement,
+    processedLoopIds: Set<number>,
+  ): MistiTactWarning[] {
+    if (processedLoopIds.has(stmt.id)) {
+      return [];
+    }
+    if (this.isLoop(stmt)) {
+      processedLoopIds.add(stmt.id);
+      return foldExpressions(
+        stmt,
+        (acc, expr) => {
+          if (this.isSendCall(expr)) {
+            acc.push(
+              this.makeWarning("Send function called inside a loop", expr.loc, {
+                suggestion:
+                  "Consider refactoring to avoid calling send functions inside loops.",
+              }),
+            );
+          }
+          return acc;
+        },
+        [] as MistiTactWarning[],
+      );
+    }
+    // If the statement is not a loop, don't flag anything
+    return [];
+  }
+
   private isSendCall(expr: AstExpression): boolean {
     const staticSendFunctions = ["send", "nativeSendMessage"];
     const selfMethodSendFunctions = ["reply", "forward", "notify", "emit"];
@@ -36,34 +65,6 @@ export class SendInLoop extends ASTDetector {
       (expr.kind === "method_call" &&
         isSelf(expr.self) &&
         selfMethodSendFunctions.includes(idText(expr.method)))
-    );
-  }
-
-  private analyzeStatement(
-    stmt: AstStatement,
-    processedLoopIds: Set<number>,
-  ): MistiTactWarning[] {
-    // Avoid processing the same loop multiple times
-    if (processedLoopIds.has(stmt.id)) {
-      return [];
-    }
-    if (this.isLoop(stmt)) {
-      processedLoopIds.add(stmt.id);
-    }
-    return foldExpressions(
-      stmt,
-      (acc, expr) => {
-        if (this.isSendCall(expr)) {
-          acc.push(
-            this.makeWarning("Send function called inside a loop", expr.loc, {
-              suggestion:
-                "Consider refactoring to avoid calling send functions inside loops.",
-            }),
-          );
-        }
-        return acc;
-      },
-      [] as MistiTactWarning[],
     );
   }
 
