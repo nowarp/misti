@@ -85,4 +85,17 @@ contract SendInLoop {
             });
         }
     }
+
+        // self.reply inside a loop
+    fun testReply() {
+        let i: Int = 0;
+        while (i < 5) {
+            self.reply(Msg{ a: i }.toCell());
+            i = i + 1;
+        }
+    }
 }
+
+
+
+
