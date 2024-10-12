@@ -9,7 +9,7 @@ import {
 } from "@tact-lang/compiler/dist/grammar/ast";
 
 export class SendInLoop extends ASTDetector {
-  severity = Severity.HIGH;
+  severity = Severity.MEDIUM;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const processedLoopIds = new Set<number>();
