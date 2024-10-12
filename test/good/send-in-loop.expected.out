@@ -44,10 +44,10 @@ Help: Consider refactoring to avoid calling send functions inside loops.
 See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
 
 [HIGH] SendInLoop: Send function called inside a loop
-test/good/send-in-loop.tact:80:13:
+test/good/send-in-loop.tact:80:19:
   79 |             i += 1;
-> 80 |             send(SendParameters{
-                   ^
+> 80 |          let a =  send(SendParameters{
+                         ^
   81 |                 to: self.owner,
 Help: Consider refactoring to avoid calling send functions inside loops.
 See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop

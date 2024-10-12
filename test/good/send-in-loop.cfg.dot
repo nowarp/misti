@@ -52,18 +52,18 @@ digraph "send-in-loop" {
         "Test__tNested_176" -> "Test__tNested_181";
         "Test__tNested_181" -> "Test__tNested_174";
     }
-    subgraph "cluster_SendInLoop__init_1842" {
-        label="SendInLoop__init_1842";
-        "SendInLoop__init_1842_185" [label="self.owner = owner"];
-        "SendInLoop__init_1842_186" [label="self.a = 0",style=filled,fillcolor="#66A7DB"];
-        "SendInLoop__init_1842_185" -> "SendInLoop__init_1842_186";
+    subgraph "cluster_SendInLoop__init_1843" {
+        label="SendInLoop__init_1843";
+        "SendInLoop__init_1843_185" [label="self.owner = owner"];
+        "SendInLoop__init_1843_186" [label="self.a = 0",style=filled,fillcolor="#66A7DB"];
+        "SendInLoop__init_1843_185" -> "SendInLoop__init_1843_186";
     }
     subgraph "cluster_SendInLoop__exampleWhileLoop" {
         label="SendInLoop__exampleWhileLoop";
         "SendInLoop__exampleWhileLoop_188" [label="let i = 0"];
         "SendInLoop__exampleWhileLoop_189" [label="while (i < limit)"];
         "SendInLoop__exampleWhileLoop_191" [label="i += 1"];
-        "SendInLoop__exampleWhileLoop_193" [label="send(SendParameters{to: self.owner, value: 0, bounce: false, body: Msg{a: i}.toCell()})"];
+        "SendInLoop__exampleWhileLoop_193" [label="let a = send(SendParameters{to: self.owner, value: 0, bounce: false, body: Msg{a: i}.toCell()})"];
         "SendInLoop__exampleWhileLoop_188" -> "SendInLoop__exampleWhileLoop_189";
         "SendInLoop__exampleWhileLoop_189" -> "SendInLoop__exampleWhileLoop_191";
         "SendInLoop__exampleWhileLoop_191" -> "SendInLoop__exampleWhileLoop_193";

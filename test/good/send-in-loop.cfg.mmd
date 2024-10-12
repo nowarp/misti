@@ -46,16 +46,16 @@ subgraph Test__tNested
     Test__tNested_176 --> Test__tNested_181
     Test__tNested_181 --> Test__tNested_174
 end
-subgraph SendInLoop__init_1842
-    SendInLoop__init_1842_185["self.owner = owner"]
-    SendInLoop__init_1842_186["self.a = 0"]:::exitNode
-    SendInLoop__init_1842_185 --> SendInLoop__init_1842_186
+subgraph SendInLoop__init_1843
+    SendInLoop__init_1843_185["self.owner = owner"]
+    SendInLoop__init_1843_186["self.a = 0"]:::exitNode
+    SendInLoop__init_1843_185 --> SendInLoop__init_1843_186
 end
 subgraph SendInLoop__exampleWhileLoop
     SendInLoop__exampleWhileLoop_188["let i = 0"]
     SendInLoop__exampleWhileLoop_189["while (i &lt; limit)"]
     SendInLoop__exampleWhileLoop_191["i += 1"]
-    SendInLoop__exampleWhileLoop_193["send(SendParameters{to: self.owner, value: 0, bounce: false, body: Msg{a: i}.toCell()})"]
+    SendInLoop__exampleWhileLoop_193["let a = send(SendParameters{to: self.owner, value: 0, bounce: false, body: Msg{a: i}.toCell()})"]
     SendInLoop__exampleWhileLoop_188 --> SendInLoop__exampleWhileLoop_189
     SendInLoop__exampleWhileLoop_189 --> SendInLoop__exampleWhileLoop_191
     SendInLoop__exampleWhileLoop_191 --> SendInLoop__exampleWhileLoop_193
