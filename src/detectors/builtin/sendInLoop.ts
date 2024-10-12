@@ -43,7 +43,7 @@ export class SendInLoop extends ASTDetector {
             acc.push(
               this.makeWarning("Send function called inside a loop", expr.loc, {
                 suggestion:
-                  "Consider refactoring to avoid calling send functions inside loops.",
+                  "Consider refactoring to avoid calling send functions inside loops",
               }),
             );
           }
