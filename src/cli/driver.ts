@@ -2,7 +2,6 @@ import { CLIOptions, cliOptionDefaults } from "./options";
 import {
   MistiResult,
   ToolOutput,
-  MistiResultWarnings,
   MistiResultTool,
   WarningOutput,
 } from "./result";
@@ -257,7 +256,7 @@ export class Driver {
   /**
    * Executes checks on all compilation units and reports found warnings sorted by severity.
    */
-  private async executeImpl(): Promise<MistiResult> {
+  private async executeImpl(): Promise<MistiResult> | never {
     try {
       if (!this.tactConfigPath) {
         throw ExecutionException.make(
@@ -297,7 +296,7 @@ export class Driver {
    */
   private async executeAnalysis(
     cus: Map<ProjectName, CompilationUnit>,
-  ): Promise<MistiResultWarnings> {
+  ): Promise<MistiResult> {
     const allWarnings = await (async () => {
       const warningsMap = new Map<ProjectName, MistiTactWarning[]>();
       await Promise.all(
@@ -339,10 +338,12 @@ export class Driver {
         });
       }
     }
-    return {
-      kind: "warnings",
-      warnings: warningsOutput,
-    };
+    return warningsOutput.length > 0
+      ? {
+          kind: "warnings",
+          warnings: warningsOutput,
+        }
+      : { kind: "ok" };
   }
 
   /**

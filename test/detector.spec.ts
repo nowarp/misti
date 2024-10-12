@@ -84,14 +84,14 @@ describe("Common detectors functionality", () => {
       configPath,
       filePath,
     ]);
-    let jsonOutput: { warnings: any };
+    let jsonOutput: { kind: string };
     try {
       jsonOutput = JSONbig.parse(output);
     } catch (error) {
       console.error("Bad output:\n", output);
       throw error;
     }
-    expect(jsonOutput.warnings).toHaveLength(0);
+    expect(jsonOutput.kind).toBe("ok");
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 });
