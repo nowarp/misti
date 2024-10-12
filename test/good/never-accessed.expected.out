@@ -1,3 +1,12 @@
+[HIGH] SendInLoop: Send function called inside a loop
+test/good/never-accessed.tact:59:9:
+  58 |     fun test() {
+> 59 |         send(SendParameters{
+               ^
+  60 |             to: sender(),
+Help: Consider refactoring to avoid calling send functions inside loops.
+See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
+
 [MEDIUM] NeverAccessedVariables: Field f2 is never used
 test/good/never-accessed.tact:31:5:
   30 |     f1: Address;
