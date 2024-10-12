@@ -2,71 +2,82 @@ digraph "send-in-loop" {
     node [shape=box];
     subgraph "cluster_Test__tWhile" {
         label="Test__tWhile";
-        "Test__tWhile_147" [label="let i: Int = 0"];
-        "Test__tWhile_148" [label="while (i < 10)"];
-        "Test__tWhile_150" [label="send(SendParameters{to: sender(), value: i})"];
-        "Test__tWhile_152" [label="i = i + 1"];
-        "Test__tWhile_147" -> "Test__tWhile_148";
-        "Test__tWhile_148" -> "Test__tWhile_150";
-        "Test__tWhile_150" -> "Test__tWhile_152";
-        "Test__tWhile_152" -> "Test__tWhile_148";
+        "Test__tWhile_148" [label="let i: Int = 0"];
+        "Test__tWhile_149" [label="while (i < 10)"];
+        "Test__tWhile_151" [label="send(SendParameters{to: sender(), value: i})"];
+        "Test__tWhile_153" [label="i = i + 1"];
+        "Test__tWhile_148" -> "Test__tWhile_149";
+        "Test__tWhile_149" -> "Test__tWhile_151";
+        "Test__tWhile_151" -> "Test__tWhile_153";
+        "Test__tWhile_153" -> "Test__tWhile_149";
     }
     subgraph "cluster_Test__tRepeat" {
         label="Test__tRepeat";
-        "Test__tRepeat_155" [label="repeat (10)"];
-        "Test__tRepeat_156" [label="send(SendParameters{to: sender(), value: 0})"];
-        "Test__tRepeat_155" -> "Test__tRepeat_156";
-        "Test__tRepeat_156" -> "Test__tRepeat_155";
+        "Test__tRepeat_156" [label="repeat (10)"];
+        "Test__tRepeat_157" [label="send(SendParameters{to: sender(), value: 0})"];
+        "Test__tRepeat_156" -> "Test__tRepeat_157";
+        "Test__tRepeat_157" -> "Test__tRepeat_156";
     }
     subgraph "cluster_Test__tUntil" {
         label="Test__tUntil";
-        "Test__tUntil_159" [label="let i: Int = 0"];
-        "Test__tUntil_160" [label="until (i == 10)"];
-        "Test__tUntil_162" [label="send(SendParameters{to: sender(), value: i})"];
-        "Test__tUntil_164" [label="i = i + 1"];
-        "Test__tUntil_159" -> "Test__tUntil_160";
-        "Test__tUntil_160" -> "Test__tUntil_162";
-        "Test__tUntil_162" -> "Test__tUntil_164";
-        "Test__tUntil_164" -> "Test__tUntil_160";
+        "Test__tUntil_160" [label="let i: Int = 0"];
+        "Test__tUntil_161" [label="until (i == 10)"];
+        "Test__tUntil_163" [label="send(SendParameters{to: sender(), value: i})"];
+        "Test__tUntil_165" [label="i = i + 1"];
+        "Test__tUntil_160" -> "Test__tUntil_161";
+        "Test__tUntil_161" -> "Test__tUntil_163";
+        "Test__tUntil_163" -> "Test__tUntil_165";
+        "Test__tUntil_165" -> "Test__tUntil_161";
     }
     subgraph "cluster_Test__tForeach" {
         label="Test__tForeach";
-        "Test__tForeach_167" [label="let m: map<Int, Int> = emptyMap()"];
-        "Test__tForeach_168" [label="foreach ((k, v) of m)"];
-        "Test__tForeach_170" [label="send(SendParameters{to: sender(), value: v})"];
-        "Test__tForeach_167" -> "Test__tForeach_168";
-        "Test__tForeach_168" -> "Test__tForeach_170";
-        "Test__tForeach_170" -> "Test__tForeach_168";
+        "Test__tForeach_168" [label="let m: map<Int, Int> = emptyMap()"];
+        "Test__tForeach_169" [label="foreach ((k, v) of m)"];
+        "Test__tForeach_171" [label="send(SendParameters{to: sender(), value: v})"];
+        "Test__tForeach_168" -> "Test__tForeach_169";
+        "Test__tForeach_169" -> "Test__tForeach_171";
+        "Test__tForeach_171" -> "Test__tForeach_169";
     }
     subgraph "cluster_Test__tNested" {
         label="Test__tNested";
-        "Test__tNested_173" [label="let i: Int = 0"];
-        "Test__tNested_174" [label="while (i < 10)"];
-        "Test__tNested_176" [label="repeat (10)"];
-        "Test__tNested_178" [label="send(SendParameters{to: sender(), value: i})"];
-        "Test__tNested_181" [label="i = i + 1"];
-        "Test__tNested_173" -> "Test__tNested_174";
-        "Test__tNested_174" -> "Test__tNested_176";
-        "Test__tNested_176" -> "Test__tNested_178";
-        "Test__tNested_178" -> "Test__tNested_176";
-        "Test__tNested_176" -> "Test__tNested_181";
-        "Test__tNested_181" -> "Test__tNested_174";
+        "Test__tNested_174" [label="let i: Int = 0"];
+        "Test__tNested_175" [label="while (i < 10)"];
+        "Test__tNested_177" [label="repeat (10)"];
+        "Test__tNested_179" [label="send(SendParameters{to: sender(), value: i})"];
+        "Test__tNested_182" [label="i = i + 1"];
+        "Test__tNested_174" -> "Test__tNested_175";
+        "Test__tNested_175" -> "Test__tNested_177";
+        "Test__tNested_177" -> "Test__tNested_179";
+        "Test__tNested_179" -> "Test__tNested_177";
+        "Test__tNested_177" -> "Test__tNested_182";
+        "Test__tNested_182" -> "Test__tNested_175";
     }
-    subgraph "cluster_SendInLoop__init_1843" {
-        label="SendInLoop__init_1843";
-        "SendInLoop__init_1843_185" [label="self.owner = owner"];
-        "SendInLoop__init_1843_186" [label="self.a = 0",style=filled,fillcolor="#66A7DB"];
-        "SendInLoop__init_1843_185" -> "SendInLoop__init_1843_186";
+    subgraph "cluster_SendInLoop__init_1869" {
+        label="SendInLoop__init_1869";
+        "SendInLoop__init_1869_186" [label="self.owner = owner"];
+        "SendInLoop__init_1869_187" [label="self.a = 0",style=filled,fillcolor="#66A7DB"];
+        "SendInLoop__init_1869_186" -> "SendInLoop__init_1869_187";
     }
     subgraph "cluster_SendInLoop__exampleWhileLoop" {
         label="SendInLoop__exampleWhileLoop";
-        "SendInLoop__exampleWhileLoop_188" [label="let i = 0"];
-        "SendInLoop__exampleWhileLoop_189" [label="while (i < limit)"];
-        "SendInLoop__exampleWhileLoop_191" [label="i += 1"];
-        "SendInLoop__exampleWhileLoop_193" [label="let a = send(SendParameters{to: self.owner, value: 0, bounce: false, body: Msg{a: i}.toCell()})"];
-        "SendInLoop__exampleWhileLoop_188" -> "SendInLoop__exampleWhileLoop_189";
-        "SendInLoop__exampleWhileLoop_189" -> "SendInLoop__exampleWhileLoop_191";
-        "SendInLoop__exampleWhileLoop_191" -> "SendInLoop__exampleWhileLoop_193";
-        "SendInLoop__exampleWhileLoop_193" -> "SendInLoop__exampleWhileLoop_189";
+        "SendInLoop__exampleWhileLoop_189" [label="let i = 0"];
+        "SendInLoop__exampleWhileLoop_190" [label="while (i < limit)"];
+        "SendInLoop__exampleWhileLoop_192" [label="i += 1"];
+        "SendInLoop__exampleWhileLoop_194" [label="let a = send(SendParameters{to: self.owner, value: 0, bounce: false, body: Msg{a: i}.toCell()})"];
+        "SendInLoop__exampleWhileLoop_189" -> "SendInLoop__exampleWhileLoop_190";
+        "SendInLoop__exampleWhileLoop_190" -> "SendInLoop__exampleWhileLoop_192";
+        "SendInLoop__exampleWhileLoop_192" -> "SendInLoop__exampleWhileLoop_194";
+        "SendInLoop__exampleWhileLoop_194" -> "SendInLoop__exampleWhileLoop_190";
+    }
+    subgraph "cluster_SendInLoop__testReply" {
+        label="SendInLoop__testReply";
+        "SendInLoop__testReply_197" [label="let i: Int = 0"];
+        "SendInLoop__testReply_198" [label="while (i < 5)"];
+        "SendInLoop__testReply_200" [label="self.reply(Msg{a: i}.toCell())"];
+        "SendInLoop__testReply_202" [label="i = i + 1"];
+        "SendInLoop__testReply_197" -> "SendInLoop__testReply_198";
+        "SendInLoop__testReply_198" -> "SendInLoop__testReply_200";
+        "SendInLoop__testReply_200" -> "SendInLoop__testReply_202";
+        "SendInLoop__testReply_202" -> "SendInLoop__testReply_198";
     }
 }
