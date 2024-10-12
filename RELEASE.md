@@ -18,4 +18,7 @@
 - [ ] Update [`blueprint-misti`](https://github.com/nowarp/blueprint-misti):
   - [ ] Update Misti version and build the project
   - [ ] Release it in order to update the npm dependency
+- [ ] Update [`tact-template`](https://github.com/tact/tact-template):
+  - [ ] Update the Misti version in `package.json`
+  - [ ] Ensure the commands in `package.json` and the GitHub Actions workflow are up to date
 - [ ] Create a post that highlights introduced changes
