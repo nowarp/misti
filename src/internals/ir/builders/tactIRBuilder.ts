@@ -681,10 +681,10 @@ export class TactIRBuilder {
       }
 
       if (
-        stmt.kind == "statement_let" ||
-        stmt.kind == "statement_expression" ||
-        stmt.kind == "statement_assign" ||
-        stmt.kind == "statement_augmentedassign"
+        stmt.kind === "statement_let" ||
+        stmt.kind === "statement_expression" ||
+        stmt.kind === "statement_assign" ||
+        stmt.kind === "statement_augmentedassign"
       ) {
         // Update the lastBBIdxes to the current basic block index
         lastBBIdxes = [newBB.idx];
@@ -717,10 +717,10 @@ export class TactIRBuilder {
           lastBBIdxes = [trueEndBB.idx];
         }
       } else if (
-        stmt.kind == "statement_while" ||
-        stmt.kind == "statement_until" ||
-        stmt.kind == "statement_repeat" ||
-        stmt.kind == "statement_foreach"
+        stmt.kind === "statement_while" ||
+        stmt.kind === "statement_until" ||
+        stmt.kind === "statement_repeat" ||
+        stmt.kind === "statement_foreach"
       ) {
         // Create an edge from the current BB (loop condition) back to the start of the loop body,
         // and from the end of the loop body back to the current BB to represent the loop's cycle.
