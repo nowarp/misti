@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.0] - 2024-10-08
 
 ### Added
+- `SendInLoop` detector: PR [#168](https://github.com/nowarp/misti/pulls/168)
+
+### Added
 - `OptimalMathFunction` detector: Issue [#146](https://github.com/nowarp/misti/issues/146)
 - `DuplicatedCondition` detector: Issue [#147](https://github.com/nowarp/misti/issues/147)
 - `UnusedOptional` detector: Issue [#86](https://github.com/nowarp/misti/issues/86)
