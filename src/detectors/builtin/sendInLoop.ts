@@ -19,11 +19,11 @@ import {
  *
  * ## Example
  * ```tact
- * fun exampleWhileLoop(limit: Int) {
+ * fun exampleWhileLoop(limit: Int, owner: Address) {
  *   let i = 0;
  *   while (i < limit) {
- *       send(SendParameters{
- *           to: self.owner,
+ *       send(SendParameters{ // Highlighted: An auditor should review the loop
+ *           to: owner,
  *           value: 0,
  *           bounce: false,
  *           body: Msg{ a: i }.toCell()
@@ -32,27 +32,6 @@ import {
  *   }
  * }
  * ```
- *
- * Use instead:
- * ```tact
- * fun refactorExample(limit: Int) {
- *   let i = 0;
- *   let messages: list<Msg> = [];
- *   while (i < limit) {
- *       messages.push(Msg{ a: i });
- *       i += 1;
- *   }
- *   for (msg in messages) {
- *       send(SendParameters{
- *           to: self.owner,
- *           value: 0,
- *           bounce: false,
- *           body: msg.toCell()
- *       });
- *   }
- * }
- * ```
- * // OK: The loop was refactored to collect messages first, then send them outside the loop.
  */
 export class SendInLoop extends ASTDetector {
   severity = Severity.MEDIUM;
