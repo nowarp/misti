@@ -12,9 +12,9 @@ import {
  * An optional detector that identifies send functions being called inside loops.
  *
  * ## Why is it bad?
- * Calling send functions inside loops can lead to unintended consequences, such as 
+ * Calling send functions inside loops can lead to unintended consequences, such as
  * excessive message sending, increased gas consumption, and potential race conditions.
- * Loops with send calls should be refactored to avoid these issues. This detector helps 
+ * Loops with send calls should be refactored to avoid these issues. This detector helps
  * flag such code, prompting the developer to reconsider the design.
  *
  * ## Example
@@ -52,7 +52,7 @@ import {
  *   }
  * }
  * ```
- *  * // OK: The loop was refactored to collect messages first, then send them outside the loop.
+ * // OK: The loop was refactored to collect messages first, then send them outside the loop.
  */
 export class SendInLoop extends ASTDetector {
   severity = Severity.MEDIUM;
