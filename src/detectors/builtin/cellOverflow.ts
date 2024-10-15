@@ -394,20 +394,24 @@ export class CellOverflow extends DataflowDetector {
    * https://github.com/tact-lang/tact/blob/2315d035f5f9a22cad42657561c1a0eaef997b05/stdlib/std/cells.tact
    */
   private getStoreCost(call: MethodCallInfo): bigint {
+    const checkArgLength = (expectedLength: number): boolean => {
+      if (call.args.length !== expectedLength) {
+        this.ctx.logger.error(
+          [
+            `.${idText(call.method)}(...) is expected to have ${expectedLength} argument(s).`,
+            "Perhaps, you should update Misti.",
+          ].join(" "),
+        );
+        return false;
+      }
+      return true;
+    };
     switch (idText(call.method)) {
       case "storeBool":
       case "storeBit":
         return 1n;
       case "storeCoins": {
-        if (call.args.length !== 1) {
-          this.ctx.logger.error(
-            [
-              `${idText(call.method)}.${idText(call.method)}(...) is expected to have 1 arguments.`,
-              "Perhaps, you should update Misti.",
-            ].join(" "),
-          );
-          return UNDECIDABLE;
-        }
+        if (!checkArgLength(1)) return UNDECIDABLE;
         // The serialization size varies from 4 to 124 bits:
         // https://docs.tact-lang.org/book/integers/#serialization-coins
         const value = evalToType(call.args[0], "bigint");
@@ -430,15 +434,7 @@ export class CellOverflow extends DataflowDetector {
         return 267n;
       case "storeInt":
       case "storeUint": {
-        if (call.args.length !== 2) {
-          this.ctx.logger.error(
-            [
-              `${idText(call.method)}.${idText(call.method)}(...) is expected to have 2 arguments.`,
-              "Perhaps, you should update Misti.",
-            ].join(" "),
-          );
-          return UNDECIDABLE;
-        }
+        if (!checkArgLength(2)) return UNDECIDABLE;
         const value = evalToType(call.args[1], "bigint");
         return value === undefined ? UNDECIDABLE : (value as bigint);
       }
