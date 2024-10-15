@@ -8,6 +8,52 @@ import {
   idText,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
+/**
+ * An optional detector that identifies send functions being called inside loops.
+ *
+ * ## Why is it bad?
+ * Calling send functions inside loops can lead to unintended consequences, such as 
+ * excessive message sending, increased gas consumption, and potential race conditions.
+ * Loops with send calls should be refactored to avoid these issues. This detector helps 
+ * flag such code, prompting the developer to reconsider the design.
+ *
+ * ## Example
+ * ```tact
+ * fun exampleWhileLoop(limit: Int) {
+ *   let i = 0;
+ *   while (i < limit) {
+ *       send(SendParameters{
+ *           to: self.owner,
+ *           value: 0,
+ *           bounce: false,
+ *           body: Msg{ a: i }.toCell()
+ *       });
+ *       i += 1;
+ *   }
+ * }
+ * ```
+ *
+ * Use instead:
+ * ```tact
+ * fun refactorExample(limit: Int) {
+ *   let i = 0;
+ *   let messages: list<Msg> = [];
+ *   while (i < limit) {
+ *       messages.push(Msg{ a: i });
+ *       i += 1;
+ *   }
+ *   for (msg in messages) {
+ *       send(SendParameters{
+ *           to: self.owner,
+ *           value: 0,
+ *           bounce: false,
+ *           body: msg.toCell()
+ *       });
+ *   }
+ * }
+ * ```
+ *  * // OK: The loop was refactored to collect messages first, then send them outside the loop.
+ */
 export class SendInLoop extends ASTDetector {
   severity = Severity.MEDIUM;
 
