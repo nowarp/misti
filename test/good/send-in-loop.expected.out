@@ -1,0 +1,98 @@
+[MEDIUM] SendInLoop: Send function called inside a loop
+test/good/send-in-loop.tact:6:13:
+  5 |         while (i < 10) {
+> 6 |             send(SendParameters{
+                  ^
+  7 |                 to: sender(),
+Help: Consider refactoring to avoid calling send functions inside loops
+See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
+
+[MEDIUM] SendInLoop: Send function called inside a loop
+test/good/send-in-loop.tact:16:13:
+  15 |         repeat (10) {
+> 16 |             send(SendParameters{
+                   ^
+  17 |                 to: sender(),
+Help: Consider refactoring to avoid calling send functions inside loops
+See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
+
+[MEDIUM] SendInLoop: Send function called inside a loop
+test/good/send-in-loop.tact:26:13:
+  25 |         do {
+> 26 |             send(SendParameters{
+                   ^
+  27 |                 to: sender(),
+Help: Consider refactoring to avoid calling send functions inside loops
+See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
+
+[MEDIUM] SendInLoop: Send function called inside a loop
+test/good/send-in-loop.tact:37:13:
+  36 |         foreach (k, v in m) {
+> 37 |             send(SendParameters{
+                   ^
+  38 |                 to: sender(),
+Help: Consider refactoring to avoid calling send functions inside loops
+See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
+
+[MEDIUM] SendInLoop: Send function called inside a loop
+test/good/send-in-loop.tact:48:17:
+  47 |             repeat (10) {
+> 48 |                 send(SendParameters{
+                       ^
+  49 |                     to: sender(),
+Help: Consider refactoring to avoid calling send functions inside loops
+See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
+
+[MEDIUM] SendInLoop: Send function called inside a loop
+test/good/send-in-loop.tact:80:19:
+  79 |             i += 1;
+> 80 |          let a =  send(SendParameters{
+                         ^
+  81 |                 to: self.owner,
+Help: Consider refactoring to avoid calling send functions inside loops
+See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
+
+[MEDIUM] SendInLoop: Send function called inside a loop
+test/good/send-in-loop.tact:93:13:
+  92 |         while (i < 5) {
+> 93 |             self.reply(Msg{ a: i }.toCell());
+                   ^
+  94 |             i = i + 1;
+Help: Consider refactoring to avoid calling send functions inside loops
+See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
+test/good/send-in-loop.tact:10:13:
+   9 |             });
+> 10 |             i = i + 1;
+                   ^
+  11 |         }
+Help: Consider using augmented assignment instead: i += 1
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
+test/good/send-in-loop.tact:30:13:
+  29 |             });
+> 30 |             i = i + 1;
+                   ^
+  31 |         } until (i == 10);
+Help: Consider using augmented assignment instead: i += 1
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
+test/good/send-in-loop.tact:53:13:
+  52 |             }
+> 53 |             i = i + 1;
+                   ^
+  54 |         }
+Help: Consider using augmented assignment instead: i += 1
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
+test/good/send-in-loop.tact:94:13:
+  93 |             self.reply(Msg{ a: i }.toCell());
+> 94 |             i = i + 1;
+                   ^
+  95 |         }
+Help: Consider using augmented assignment instead: i += 1
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
