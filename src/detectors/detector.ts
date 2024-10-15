@@ -350,6 +350,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  CellOverflow: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/cellOverflow").then(
+        (module) => new module.CellOverflow(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**

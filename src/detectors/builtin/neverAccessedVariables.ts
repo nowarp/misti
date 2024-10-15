@@ -8,6 +8,7 @@ import {
   forEachExpression,
 } from "../../internals/tact";
 import { Transfer } from "../../internals/transfer";
+import { mergeSets, isSubsetOf } from "../../internals/util";
 import { unreachable } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector, WarningsBehavior } from "../detector";
@@ -50,16 +51,16 @@ class VariableUsageLattice implements JoinSemilattice<VariableState> {
       ...a.declared.extract(),
       ...b.declared.extract(),
     ]);
-    const accessed = new Set([...a.accessed, ...b.accessed]);
-    const written = new Set([...a.written, ...b.written]);
+    const accessed = mergeSets(a.accessed, b.accessed);
+    const written = mergeSets(a.written, b.written);
     return { declared, accessed, written };
   }
 
   leq(a: VariableState, b: VariableState): boolean {
     return (
       [...a.declared.extract()].every((x) => b.declared.has(x)) &&
-      [...a.accessed].every((x) => b.accessed.has(x)) &&
-      [...a.written].every((x) => b.written.has(x))
+      isSubsetOf(a.accessed, b.accessed) &&
+      isSubsetOf(a.written, b.written)
     );
   }
 }

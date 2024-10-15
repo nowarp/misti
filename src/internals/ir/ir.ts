@@ -80,8 +80,14 @@ export class CompilationUnit {
    *
    * @param callback The function to apply to each CFG.
    */
-  forEachCFG(callback: (cfg: CFG) => void) {
+  forEachCFG(
+    callback: (cfg: CFG) => void,
+    { includeStdlib = true }: Partial<{ includeStdlib: boolean }> = {},
+  ) {
     this.functions.forEach((cfg, _) => {
+      if (!includeStdlib && cfg.origin === "stdlib") {
+        return;
+      }
       callback(cfg);
     });
     this.contracts.forEach((contract) => {

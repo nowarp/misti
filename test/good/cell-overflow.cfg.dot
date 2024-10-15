@@ -1,0 +1,47 @@
+digraph "cell-overflow" {
+    node [shape=box];
+    subgraph "cluster_refs_num_bad" {
+        label="refs_num_bad";
+        "refs_num_bad_143" [label="let b1 = beginCell()"];
+        "refs_num_bad_144" [label="b1 = b1.storeRef(c)"];
+        "refs_num_bad_146" [label="b1 = b1.storeRef(c)"];
+        "refs_num_bad_148" [label="b1 = b1.storeRef(c)"];
+        "refs_num_bad_150" [label="b1 = b1.storeRef(c)"];
+        "refs_num_bad_152" [label="b1 = b1.storeRef(c)"];
+        "refs_num_bad_154" [label="let c1 = b1.endCell()"];
+        "refs_num_bad_156" [label="let c2 = beginCell().storeRef(c).storeRef(c).storeRef(c).storeRef(c).storeRef(c).endCell()",style=filled,fillcolor="#66A7DB"];
+        "refs_num_bad_143" -> "refs_num_bad_144";
+        "refs_num_bad_144" -> "refs_num_bad_146";
+        "refs_num_bad_146" -> "refs_num_bad_148";
+        "refs_num_bad_148" -> "refs_num_bad_150";
+        "refs_num_bad_150" -> "refs_num_bad_152";
+        "refs_num_bad_152" -> "refs_num_bad_154";
+        "refs_num_bad_154" -> "refs_num_bad_156";
+    }
+    subgraph "cluster_store_size_bad" {
+        label="store_size_bad";
+        "store_size_bad_158" [label="let b1 = beginCell()"];
+        "store_size_bad_159" [label="b1 = b1.storeInt(42, 257)"];
+        "store_size_bad_161" [label="b1 = b1.storeInt(42, 259 - 2)"];
+        "store_size_bad_163" [label="b1 = b1.storeInt(42, 256 + 1)"];
+        "store_size_bad_165" [label="b1 = b1.storeInt(42, 257)"];
+        "store_size_bad_167" [label="let c1 = b1.endCell()"];
+        "store_size_bad_169" [label="let b2 = beginCell()"];
+        "store_size_bad_171" [label="b2 = b2.storeInt(1, 257).storeInt(1, 257).storeInt(1, 257).storeInt(1, 210)"];
+        "store_size_bad_173" [label="b2 = b2.storeCoins(40000000000)"];
+        "store_size_bad_175" [label="c1 = b2.endCell()",style=filled,fillcolor="#66A7DB"];
+        "store_size_bad_158" -> "store_size_bad_159";
+        "store_size_bad_159" -> "store_size_bad_161";
+        "store_size_bad_161" -> "store_size_bad_163";
+        "store_size_bad_163" -> "store_size_bad_165";
+        "store_size_bad_165" -> "store_size_bad_167";
+        "store_size_bad_167" -> "store_size_bad_169";
+        "store_size_bad_169" -> "store_size_bad_171";
+        "store_size_bad_171" -> "store_size_bad_173";
+        "store_size_bad_173" -> "store_size_bad_175";
+    }
+    subgraph "cluster_refs_num_ok" {
+        label="refs_num_ok";
+        "refs_num_ok_177" [label="let c1 = beginCell().storeRef(c).storeRef(c).storeRef(c).storeMaybeRef(copt).storeRef(c).endCell()",style=filled,fillcolor="#66A7DB"];
+    }
+}

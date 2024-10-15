@@ -1,0 +1,290 @@
+{
+  "projectName": "cell-overflow",
+  "functions": [
+    {
+      "name": "refs_num_bad",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 143,
+            "stmtID": 1657,
+            "srcEdges": [],
+            "dstEdges": [
+              145
+            ]
+          },
+          {
+            "id": 144,
+            "stmtID": 1663,
+            "srcEdges": [
+              145
+            ],
+            "dstEdges": [
+              147
+            ]
+          },
+          {
+            "id": 146,
+            "stmtID": 1669,
+            "srcEdges": [
+              147
+            ],
+            "dstEdges": [
+              149
+            ]
+          },
+          {
+            "id": 148,
+            "stmtID": 1675,
+            "srcEdges": [
+              149
+            ],
+            "dstEdges": [
+              151
+            ]
+          },
+          {
+            "id": 150,
+            "stmtID": 1681,
+            "srcEdges": [
+              151
+            ],
+            "dstEdges": [
+              153
+            ]
+          },
+          {
+            "id": 152,
+            "stmtID": 1687,
+            "srcEdges": [
+              153
+            ],
+            "dstEdges": [
+              155
+            ]
+          },
+          {
+            "id": 154,
+            "stmtID": 1692,
+            "srcEdges": [
+              155
+            ],
+            "dstEdges": [
+              157
+            ]
+          },
+          {
+            "id": 156,
+            "stmtID": 1713,
+            "srcEdges": [
+              157
+            ],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 145,
+            "src": 143,
+            "dst": 144
+          },
+          {
+            "id": 147,
+            "src": 144,
+            "dst": 146
+          },
+          {
+            "id": 149,
+            "src": 146,
+            "dst": 148
+          },
+          {
+            "id": 151,
+            "src": 148,
+            "dst": 150
+          },
+          {
+            "id": 153,
+            "src": 150,
+            "dst": 152
+          },
+          {
+            "id": 155,
+            "src": 152,
+            "dst": 154
+          },
+          {
+            "id": 157,
+            "src": 154,
+            "dst": 156
+          }
+        ]
+      }
+    },
+    {
+      "name": "store_size_bad",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 158,
+            "stmtID": 1719,
+            "srcEdges": [],
+            "dstEdges": [
+              160
+            ]
+          },
+          {
+            "id": 159,
+            "stmtID": 1726,
+            "srcEdges": [
+              160
+            ],
+            "dstEdges": [
+              162
+            ]
+          },
+          {
+            "id": 161,
+            "stmtID": 1735,
+            "srcEdges": [
+              162
+            ],
+            "dstEdges": [
+              164
+            ]
+          },
+          {
+            "id": 163,
+            "stmtID": 1744,
+            "srcEdges": [
+              164
+            ],
+            "dstEdges": [
+              166
+            ]
+          },
+          {
+            "id": 165,
+            "stmtID": 1751,
+            "srcEdges": [
+              166
+            ],
+            "dstEdges": [
+              168
+            ]
+          },
+          {
+            "id": 167,
+            "stmtID": 1756,
+            "srcEdges": [
+              168
+            ],
+            "dstEdges": [
+              170
+            ]
+          },
+          {
+            "id": 169,
+            "stmtID": 1760,
+            "srcEdges": [
+              170
+            ],
+            "dstEdges": [
+              172
+            ]
+          },
+          {
+            "id": 171,
+            "stmtID": 1779,
+            "srcEdges": [
+              172
+            ],
+            "dstEdges": [
+              174
+            ]
+          },
+          {
+            "id": 173,
+            "stmtID": 1785,
+            "srcEdges": [
+              174
+            ],
+            "dstEdges": [
+              176
+            ]
+          },
+          {
+            "id": 175,
+            "stmtID": 1790,
+            "srcEdges": [
+              176
+            ],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 160,
+            "src": 158,
+            "dst": 159
+          },
+          {
+            "id": 162,
+            "src": 159,
+            "dst": 161
+          },
+          {
+            "id": 164,
+            "src": 161,
+            "dst": 163
+          },
+          {
+            "id": 166,
+            "src": 163,
+            "dst": 165
+          },
+          {
+            "id": 168,
+            "src": 165,
+            "dst": 167
+          },
+          {
+            "id": 170,
+            "src": 167,
+            "dst": 169
+          },
+          {
+            "id": 172,
+            "src": 169,
+            "dst": 171
+          },
+          {
+            "id": 174,
+            "src": 171,
+            "dst": 173
+          },
+          {
+            "id": 176,
+            "src": 173,
+            "dst": 175
+          }
+        ]
+      }
+    },
+    {
+      "name": "refs_num_ok",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 177,
+            "stmtID": 1820,
+            "srcEdges": [],
+            "dstEdges": []
+          }
+        ],
+        "edges": []
+      }
+    }
+  ],
+  "contracts": []
+}
