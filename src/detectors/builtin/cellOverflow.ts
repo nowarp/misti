@@ -22,6 +22,7 @@ import {
   SrcInfo,
   idText,
   AstMethodCall,
+  AstStatementAssign,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
@@ -164,8 +165,10 @@ class CellOverflowTransfer implements Transfer<CellOverflowState> {
   ): void {
     if (stmt.kind === "statement_let") {
       this.addLocalBuilder(outState, stmt);
+    } else if (stmt.kind === "statement_assign") {
+      this.processAssignment(outState, stmt);
     }
-    this.processStoreCalls(outState, stmt);
+    this.processIntermediateBuilders(outState, stmt);
   }
 
   /**
@@ -191,7 +194,10 @@ class CellOverflowTransfer implements Transfer<CellOverflowState> {
    * Processes the .store operations on the previously added local variables
    * with `Builder` type or intermediate Cell objects (beginCell().<ops>.endCell())
    */
-  private processStoreCalls(outState: CellOverflowState, node: AstNode): void {
+  private processIntermediateBuilders(
+    outState: CellOverflowState,
+    node: AstNode,
+  ): void {
     forEachExpression(node, (expr) => {
       const result = this.getMethodCallsChain(expr);
       if (result !== undefined) {
@@ -203,12 +209,6 @@ class CellOverflowTransfer implements Transfer<CellOverflowState> {
             loc: firstReceiver.loc,
             calls,
           } as TempCell);
-        } else {
-          // Track method calls of the known local builders
-          const builderName = this.getKnownBuilderName(outState, firstReceiver);
-          if (builderName) {
-            addCalls(outState, builderName, calls);
-          }
         }
       }
     });
@@ -262,6 +262,26 @@ class CellOverflowTransfer implements Transfer<CellOverflowState> {
       outState.localBuilders.has(idText(firstReceiver))
       ? idText(firstReceiver)
       : undefined;
+  }
+
+  private processAssignment(
+    outState: CellOverflowState,
+    stmt: AstStatementAssign,
+  ): void {
+    if (stmt.path.kind === "id") {
+      const builderName = idText(stmt.path);
+      if (outState.localBuilders.has(builderName)) {
+        const result = this.getMethodCallsChain(stmt.expression);
+        if (result) {
+          const { firstReceiver, calls } = result;
+          if (
+            this.getKnownBuilderName(outState, firstReceiver) === builderName
+          ) {
+            addCalls(outState, builderName, calls);
+          }
+        }
+      }
+    }
   }
 }
 
@@ -360,10 +380,6 @@ export class CellOverflow extends DataflowDetector {
     localBuilders: CellOverflowState["localBuilders"],
     builder?: BuilderName,
   ): MistiTactWarning[] {
-    if (!hasEndCell(calls)) {
-      // The cell creation is not complete in the current state
-      return [];
-    }
     const warnings = [];
     const { storeRefs, storesSize } = Array.from(calls.values()).reduce(
       ({ storeRefs, storesSize }, call) => {

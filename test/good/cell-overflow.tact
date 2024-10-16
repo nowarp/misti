@@ -54,5 +54,13 @@ fun refs_num_ok(c: Cell, copt: Cell?) {
         .storeRef(c)
         .endCell();
 
+    // OK: no assignments to the result of storeRef calls
+    let b1 = beginCell(); // Bad: 4+ refs
+    b1.storeRef(c);
+    b1.storeRef(c);
+    b1.storeRef(c);
+    b1.storeRef(c);
+    b1.storeRef(c);
+    c1 = b1.endCell();
 }
 

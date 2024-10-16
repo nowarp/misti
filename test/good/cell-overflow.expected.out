@@ -65,11 +65,11 @@ test/good/cell-overflow.tact:26:5:
 Help: The variable value should be accessed
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
-[MEDIUM] NeverAccessedVariables: Variable c1 is never accessed
+[MEDIUM] NeverAccessedVariables: Write-only variable: c1
 test/good/cell-overflow.tact:48:5:
   47 | fun refs_num_ok(c: Cell, copt: Cell?) {
 > 48 |     let c1 = // OK: Cell could be None (no taint analysis yet)
            ^
   49 |     beginCell()
-Help: Consider removing the variable
+Help: The variable value should be accessed
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables

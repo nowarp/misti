@@ -46,5 +46,19 @@ subgraph store_size_bad
     store_size_bad_181 --> store_size_bad_183
 end
 subgraph refs_num_ok
-    refs_num_ok_185["let c1 = beginCell().storeRef(c).storeRef(c).storeRef(c).storeMaybeRef(copt).storeRef(c).endCell()"]:::exitNode
+    refs_num_ok_185["let c1 = beginCell().storeRef(c).storeRef(c).storeRef(c).storeMaybeRef(copt).storeRef(c).endCell()"]
+    refs_num_ok_186["let b1 = beginCell()"]
+    refs_num_ok_188["b1.storeRef(c)"]
+    refs_num_ok_190["b1.storeRef(c)"]
+    refs_num_ok_192["b1.storeRef(c)"]
+    refs_num_ok_194["b1.storeRef(c)"]
+    refs_num_ok_196["b1.storeRef(c)"]
+    refs_num_ok_198["c1 = b1.endCell()"]:::exitNode
+    refs_num_ok_185 --> refs_num_ok_186
+    refs_num_ok_186 --> refs_num_ok_188
+    refs_num_ok_188 --> refs_num_ok_190
+    refs_num_ok_190 --> refs_num_ok_192
+    refs_num_ok_192 --> refs_num_ok_194
+    refs_num_ok_194 --> refs_num_ok_196
+    refs_num_ok_196 --> refs_num_ok_198
 end
