@@ -4,6 +4,7 @@
   "language": "en",
   "words": [
     "alnum",
+    "evals",
     "assgn",
     "augmentedassign",
     "binop",

@@ -1,8 +1,6 @@
 import { forEachExpression } from "./iterators";
 import { unreachable } from "../util";
 import { AstComparator } from "@tact-lang/compiler/dist/";
-import { evalConstantExpression } from "@tact-lang/compiler/dist/constEval";
-import { CompilerContext } from "@tact-lang/compiler/dist/context";
 import {
   AstExpression,
   AstId,
@@ -329,24 +327,6 @@ export function funName(
       return idText(fun.name);
     default:
       unreachable(fun);
-  }
-}
-
-/**
- * Evaluates the given expression to a constant value and checks if the value satisfies the predicate.
- * @param expr The expression to evaluate.
- * @param predicate The predicate to check.
- * @returns True if the expression can be evaluated to a constant value that satisfies the predicate, false otherwise.
- */
-export function constEval(
-  expr: AstExpression,
-  predicate: (value: any) => boolean,
-): boolean {
-  try {
-    const value = evalConstantExpression(expr, new CompilerContext());
-    return predicate(value);
-  } catch (_) {
-    return false;
   }
 }
 

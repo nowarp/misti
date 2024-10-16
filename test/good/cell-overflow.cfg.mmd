@@ -1,0 +1,50 @@
+graph TD
+subgraph refs_num_bad
+    refs_num_bad_143["let b1 = beginCell()"]
+    refs_num_bad_144["b1 = b1.storeRef(c)"]
+    refs_num_bad_146["b1 = b1.storeRef(c)"]
+    refs_num_bad_148["b1 = b1.storeRef(c)"]
+    refs_num_bad_150["b1 = b1.storeRef(c)"]
+    refs_num_bad_152["b1 = b1.storeRef(c)"]
+    refs_num_bad_154["let c1 = b1.endCell()"]
+    refs_num_bad_156["let c2 = beginCell().storeRef(c).storeRef(c).storeRef(c).storeRef(c).storeRef(c).endCell()"]:::exitNode
+    refs_num_bad_143 --> refs_num_bad_144
+    refs_num_bad_144 --> refs_num_bad_146
+    refs_num_bad_146 --> refs_num_bad_148
+    refs_num_bad_148 --> refs_num_bad_150
+    refs_num_bad_150 --> refs_num_bad_152
+    refs_num_bad_152 --> refs_num_bad_154
+    refs_num_bad_154 --> refs_num_bad_156
+end
+subgraph store_size_bad
+    store_size_bad_158["let b1 = beginCell()"]
+    store_size_bad_159["b1 = b1.storeInt(42, 257)"]
+    store_size_bad_161["b1 = b1.storeInt(42, 259 - 2)"]
+    store_size_bad_163["b1 = b1.storeInt(42, 256 + 1)"]
+    store_size_bad_165["b1 = b1.storeInt(42, 257)"]
+    store_size_bad_167["let c1 = b1.endCell()"]
+    store_size_bad_169["let b2 = beginCell()"]
+    store_size_bad_171["b2 = b2.storeInt(1, 257).storeInt(1, 257).storeInt(1, 257).storeInt(1, 210)"]
+    store_size_bad_173["b2 = b2.storeCoins(40000000000)"]
+    store_size_bad_175["c1 = b2.endCell()"]
+    store_size_bad_177["let b_1000_bits = beginCell().storeInt(1, 257).storeInt(1, 257).storeInt(1, 257).storeInt(1, 229)"]
+    store_size_bad_179["let b3 = beginCell()"]
+    store_size_bad_181["b3 = b3.storeBuilder(b_1000_bits).storeInt(1, 25)"]
+    store_size_bad_183["c1 = b3.endCell()"]:::exitNode
+    store_size_bad_158 --> store_size_bad_159
+    store_size_bad_159 --> store_size_bad_161
+    store_size_bad_161 --> store_size_bad_163
+    store_size_bad_163 --> store_size_bad_165
+    store_size_bad_165 --> store_size_bad_167
+    store_size_bad_167 --> store_size_bad_169
+    store_size_bad_169 --> store_size_bad_171
+    store_size_bad_171 --> store_size_bad_173
+    store_size_bad_173 --> store_size_bad_175
+    store_size_bad_175 --> store_size_bad_177
+    store_size_bad_177 --> store_size_bad_179
+    store_size_bad_179 --> store_size_bad_181
+    store_size_bad_181 --> store_size_bad_183
+end
+subgraph refs_num_ok
+    refs_num_ok_185["let c1 = beginCell().storeRef(c).storeRef(c).storeRef(c).storeMaybeRef(copt).storeRef(c).endCell()"]:::exitNode
+end

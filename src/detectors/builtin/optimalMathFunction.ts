@@ -1,5 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
-import { foldExpressions, constEval } from "../../internals/tact";
+import { foldExpressions, evalsToValue } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import { AstExpression, idText } from "@tact-lang/compiler/dist/grammar/ast";
@@ -43,16 +43,6 @@ export class OptimalMathFunction extends ASTDetector {
     }, [] as MistiTactWarning[]);
   }
 
-  /**
-   * Checks whether the given expression could be constantly evaluated to 2.
-   */
-  private constEvalTo2(expr: AstExpression): boolean {
-    return constEval(
-      expr,
-      (value) => typeof value === "bigint" && value === 2n,
-    );
-  }
-
   private findSuboptimalCall(
     acc: MistiTactWarning[],
     expr: AstExpression,
@@ -63,7 +53,7 @@ export class OptimalMathFunction extends ASTDetector {
       if (
         suggestedFun &&
         expr.args.length === 2 &&
-        this.constEvalTo2(expr.args[1])
+        evalsToValue(expr.args[1], "bigint", 2n)
       ) {
         const firstArg = expr.args[0]!;
         acc.push(

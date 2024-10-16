@@ -3,6 +3,7 @@ import { JoinSemilattice } from "../../internals/lattice";
 import { WorklistSolver } from "../../internals/solver/";
 import { forEachExpression, forEachStatement } from "../../internals/tact";
 import { Transfer } from "../../internals/transfer";
+import { mergeSets, isSubsetOf } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";
 import {
@@ -43,8 +44,8 @@ class TaintLattice implements JoinSemilattice<TaintState> {
   }
 
   join(a: TaintState, b: TaintState): TaintState {
-    const argTaint = new Set([...a.argTaint, ...b.argTaint]);
-    const literalTaint = new Set([...a.literalTaint, ...b.literalTaint]);
+    const argTaint = mergeSets(a.argTaint, b.argTaint);
+    const literalTaint = mergeSets(a.literalTaint, b.literalTaint);
     return {
       argName: this.argName,
       stringReceiverNames: this.stringReceiverNames,
@@ -55,8 +56,8 @@ class TaintLattice implements JoinSemilattice<TaintState> {
 
   leq(a: TaintState, b: TaintState): boolean {
     return (
-      [...a.argTaint].every((x) => b.argTaint.has(x)) &&
-      [...a.literalTaint].every((x) => b.literalTaint.has(x))
+      isSubsetOf(a.argTaint, b.argTaint) &&
+      isSubsetOf(a.literalTaint, b.literalTaint)
     );
   }
 }

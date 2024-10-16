@@ -1,6 +1,6 @@
 import { CompilationUnit } from "../../internals/ir";
 import {
-  constEval,
+  evalsToValue,
   foldStatements,
   forEachExpression,
   collectConditions,
@@ -105,23 +105,8 @@ export class FalseCondition extends ASTDetector {
     });
   }
 
-  /**
-   * Checks if the given expression could be constantly evaluated to 0.
-   */
-  private constEvalToZero(expr: AstExpression): boolean {
-    return constEval(
-      expr,
-      (value) => typeof value === "bigint" && value === 0n,
-    );
-  }
-
-  /**
-   * Checks if the given expression could be constantly evaluated to false.
-   */
-  private constEvalToFalse(expr: AstExpression): boolean {
-    return constEval(
-      expr,
-      (value) => typeof value === "boolean" && value === false,
-    );
-  }
+  private constEvalToZero = (expr: AstExpression): boolean =>
+    evalsToValue(expr, "bigint", 0n);
+  private constEvalToFalse = (expr: AstExpression): boolean =>
+    evalsToValue(expr, "boolean", false);
 }
