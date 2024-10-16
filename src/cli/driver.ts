@@ -11,7 +11,7 @@ import { Detector, findBuiltInDetector } from "../detectors/detector";
 import { MistiContext } from "../internals/context";
 import { ExecutionException, InternalException } from "../internals/exceptions";
 import { CompilationUnit, ProjectName } from "../internals/ir";
-import { createIR } from "../internals/ir/builders/tactIRBuilder";
+import { createIR } from "../internals/ir/builders/";
 import { Logger } from "../internals/logger";
 import { unreachable } from "../internals/util";
 import {
