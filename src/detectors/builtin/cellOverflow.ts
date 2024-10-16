@@ -139,8 +139,8 @@ class CellOverflowTransfer implements Transfer<CellOverflowState> {
     stmt: AstStatement,
   ): CellOverflowState {
     const outState = {
-      tempCells: inState.tempCells,
-      localBuilders: inState.localBuilders,
+      tempCells: [...inState.tempCells],
+      localBuilders: new Map(inState.localBuilders),
     };
     this.processStatement(outState, stmt);
     return outState;
