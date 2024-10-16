@@ -25,7 +25,7 @@ export class Edge {
     public src: BasicBlockIdx,
     public dst: BasicBlockIdx,
   ) {
-    this.idx = IdxGenerator.next();
+    this.idx = IdxGenerator.next("cfg_edge");
   }
 }
 
@@ -67,7 +67,7 @@ export class BasicBlock {
     public srcEdges: Set<EdgeIdx> = new Set<EdgeIdx>(),
     public dstEdges: Set<EdgeIdx> = new Set<EdgeIdx>(),
   ) {
-    this.idx = IdxGenerator.next();
+    this.idx = IdxGenerator.next("cfg_bb");
   }
 
   /**
@@ -123,7 +123,7 @@ export class CFG {
     public ref: SrcInfo,
     idx: CFGIdx | undefined = undefined,
   ) {
-    this.idx = idx ? idx : IdxGenerator.next();
+    this.idx = idx ? idx : IdxGenerator.next("cfg");
     this.bbsMap = new Map();
     this.initializeMapping(this.bbsMap, nodes);
     this.edgesMap = new Map();

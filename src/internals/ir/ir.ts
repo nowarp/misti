@@ -170,6 +170,6 @@ export class Contract {
     public ref: SrcInfo,
     idx: ContractIdx | undefined = undefined,
   ) {
-    this.idx = idx ? idx : IdxGenerator.next();
+    this.idx = idx ? idx : IdxGenerator.next("ir_contract");
   }
 }
