@@ -32,6 +32,16 @@ fun store_size_bad() {
            .storeInt(1, 210); // Total size: 981
     b2 = b2.storeCoins(40000000000); // 44 + 981 = 1025 => overflow
     c1 = b2.endCell();
+
+    let b_1000_bits = beginCell()
+           .storeInt(1, 257)
+           .storeInt(1, 257)
+           .storeInt(1, 257)
+           .storeInt(1, 229);
+    let b3 = beginCell(); // Bad: 1025 bits
+    b3 = b3.storeBuilder(b_1000_bits)
+           .storeInt(1, 25);
+    c1 = b3.endCell();
 }
 
 fun refs_num_ok(c: Cell, copt: Cell?) {

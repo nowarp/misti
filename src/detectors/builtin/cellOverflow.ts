@@ -31,6 +31,7 @@ import {
 const UNDECIDABLE = 0n;
 
 type BuilderName = string;
+type MethodAstId = number;
 
 /** Part of the method call focused on the used method and its arguments. */
 type MethodCallInfo = { method: AstId; args: AstExpression[]; loc: SrcInfo };
@@ -41,14 +42,17 @@ type TempCell = {
   loc: SrcInfo;
   // Method calls other than `beginCell`.
   // Includes `endCell` for consistency.
-  calls: MethodCallInfo[];
+  calls: Map<MethodAstId, MethodCallInfo>;
 };
 
 interface CellOverflowState {
   // Temporary cell objects created using `beginCell().<ops>.endCell()`
   tempCells: TempCell[];
   // Local variables of the Builder type and information on methods calls used over them
-  localBuilders: Map<BuilderName, { def: SrcInfo; calls: MethodCallInfo[] }>;
+  localBuilders: Map<
+    BuilderName,
+    { def: SrcInfo; calls: Map<MethodAstId, MethodCallInfo> }
+  >;
 }
 
 /**
@@ -57,7 +61,7 @@ interface CellOverflowState {
 function addLocalBuilder(
   state: CellOverflowState,
   id: AstId,
-  calls: MethodCallInfo[] = [],
+  calls: Map<MethodAstId, MethodCallInfo> = new Map(),
 ): void {
   state.localBuilders.set(idText(id), { def: id.loc, calls });
 }
@@ -68,22 +72,28 @@ function addLocalBuilder(
 function addCalls(
   state: CellOverflowState,
   name: BuilderName,
-  calls: MethodCallInfo[],
+  calls: Map<MethodAstId, MethodCallInfo>,
 ): void | never {
-  if (calls.length === 0) {
+  if (calls.size === 0) {
     return;
   }
   const builder = state.localBuilders.get(name);
   if (builder) {
-    // Cell creation from the Builder always ends with `endCell`. Other operations
-    // on the created object are related to the Cell created from this builder,
-    // so we remove them.
     if (!hasEndCell(builder.calls)) {
-      const filterCallsBeforeEndCell = (calls: MethodCallInfo[]) => {
-        const endCellIndex = calls.findIndex((call) => hasEndCell([call]));
-        return endCellIndex === -1 ? calls : calls.slice(0, endCellIndex + 1);
+      const filterCallsBeforeEndCell = (
+        calls: Map<MethodAstId, MethodCallInfo>,
+      ) => {
+        const endCellIndex = Array.from(calls.values()).findIndex((call) =>
+          hasEndCell(new Map([[call.method.id, call]])),
+        );
+        return endCellIndex === -1
+          ? calls
+          : new Map(Array.from(calls.entries()).slice(0, endCellIndex + 1));
       };
-      builder.calls = builder.calls.concat(...filterCallsBeforeEndCell(calls));
+      builder.calls = new Map([
+        ...builder.calls,
+        ...filterCallsBeforeEndCell(calls),
+      ]);
     }
   } else {
     throw InternalException.make(`Builder variable ${name} does not exist`);
@@ -98,10 +108,9 @@ function isBeginCell(firstReceiver: AstExpression): boolean {
   );
 }
 
-function hasEndCell(calls: MethodCallInfo[]): boolean {
-  return (
-    calls.length > 0 && idText(calls[calls.length - 1].method) === "endCell"
-  );
+function hasEndCell(calls: Map<MethodAstId, MethodCallInfo>): boolean {
+  const lastCall = Array.from(calls.values()).pop();
+  return lastCall !== undefined && idText(lastCall.method) === "endCell";
 }
 
 /**
@@ -211,19 +220,21 @@ class CellOverflowTransfer implements Transfer<CellOverflowState> {
    */
   private getMethodCallsChain(
     expr: AstExpression,
-  ): { firstReceiver: AstExpression; calls: MethodCallInfo[] } | undefined {
-    const calls: MethodCallInfo[] = [];
+  ):
+    | { firstReceiver: AstExpression; calls: Map<MethodAstId, MethodCallInfo> }
+    | undefined {
+    const calls = new Map<MethodAstId, MethodCallInfo>();
     let currentExpr: AstExpression = expr;
     while (currentExpr.kind === "method_call") {
       const methodCall = currentExpr as AstMethodCall;
-      calls.unshift({
+      calls.set(methodCall.method.id, {
         method: methodCall.method,
         args: methodCall.args,
         loc: methodCall.loc,
       });
       currentExpr = methodCall.self;
     }
-    if (currentExpr.kind === "static_call" || calls.length > 0) {
+    if (currentExpr.kind === "static_call" || calls.size > 0) {
       return { firstReceiver: currentExpr, calls };
     }
     return undefined;
@@ -235,7 +246,7 @@ class CellOverflowTransfer implements Transfer<CellOverflowState> {
    */
   private isTempCell(
     firstReceiver: AstExpression,
-    calls: MethodCallInfo[],
+    calls: Map<MethodAstId, MethodCallInfo>,
   ): boolean {
     return isBeginCell(firstReceiver) && hasEndCell(calls);
   }
@@ -345,7 +356,7 @@ export class CellOverflow extends DataflowDetector {
    */
   private checkOverflows(
     loc: SrcInfo,
-    calls: MethodCallInfo[],
+    calls: Map<MethodAstId, MethodCallInfo>,
     localBuilders: CellOverflowState["localBuilders"],
     builder?: BuilderName,
   ): MistiTactWarning[] {
@@ -354,7 +365,7 @@ export class CellOverflow extends DataflowDetector {
       return [];
     }
     const warnings = [];
-    const { storeRefs, storesSize } = calls.reduce(
+    const { storeRefs, storesSize } = Array.from(calls.values()).reduce(
       ({ storeRefs, storesSize }, call) => {
         // Process storeRef
         if (idText(call.method) === "storeRef") {
@@ -460,7 +471,7 @@ export class CellOverflow extends DataflowDetector {
           const builder = localBuilders.get(builderName);
           if (builder) {
             visited.add(builderName);
-            const res = builder.calls.reduce(
+            const res = Array.from(builder.calls.values()).reduce(
               (acc, bCall) =>
                 acc + this.getStoreCost(bCall, localBuilders, visited),
               0n,

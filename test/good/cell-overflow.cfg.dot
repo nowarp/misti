@@ -29,7 +29,11 @@ digraph "cell-overflow" {
         "store_size_bad_169" [label="let b2 = beginCell()"];
         "store_size_bad_171" [label="b2 = b2.storeInt(1, 257).storeInt(1, 257).storeInt(1, 257).storeInt(1, 210)"];
         "store_size_bad_173" [label="b2 = b2.storeCoins(40000000000)"];
-        "store_size_bad_175" [label="c1 = b2.endCell()",style=filled,fillcolor="#66A7DB"];
+        "store_size_bad_175" [label="c1 = b2.endCell()"];
+        "store_size_bad_177" [label="let b_1000_bits = beginCell().storeInt(1, 257).storeInt(1, 257).storeInt(1, 257).storeInt(1, 229)"];
+        "store_size_bad_179" [label="let b3 = beginCell()"];
+        "store_size_bad_181" [label="b3 = b3.storeBuilder(b_1000_bits).storeInt(1, 25)"];
+        "store_size_bad_183" [label="c1 = b3.endCell()",style=filled,fillcolor="#66A7DB"];
         "store_size_bad_158" -> "store_size_bad_159";
         "store_size_bad_159" -> "store_size_bad_161";
         "store_size_bad_161" -> "store_size_bad_163";
@@ -39,9 +43,13 @@ digraph "cell-overflow" {
         "store_size_bad_169" -> "store_size_bad_171";
         "store_size_bad_171" -> "store_size_bad_173";
         "store_size_bad_173" -> "store_size_bad_175";
+        "store_size_bad_175" -> "store_size_bad_177";
+        "store_size_bad_177" -> "store_size_bad_179";
+        "store_size_bad_179" -> "store_size_bad_181";
+        "store_size_bad_181" -> "store_size_bad_183";
     }
     subgraph "cluster_refs_num_ok" {
         label="refs_num_ok";
-        "refs_num_ok_177" [label="let c1 = beginCell().storeRef(c).storeRef(c).storeRef(c).storeMaybeRef(copt).storeRef(c).endCell()",style=filled,fillcolor="#66A7DB"];
+        "refs_num_ok_185" [label="let c1 = beginCell().storeRef(c).storeRef(c).storeRef(c).storeMaybeRef(copt).storeRef(c).endCell()",style=filled,fillcolor="#66A7DB"];
     }
 }

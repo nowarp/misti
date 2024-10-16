@@ -8,16 +8,6 @@ Cells cannot contain more than 4 references to other cells
 Help: Remove extra .storeRef operations
 See: https://nowarp.io/tools/misti/docs/detectors/CellOverflow
 
-[CRITICAL] CellOverflow: Maximum number of references exceeded
-test/good/cell-overflow.tact:11:5:
-  10 |     let c2 = // Bad: 4+ refs
-> 11 |     beginCell()
-           ^
-  12 |         .storeRef(c)
-Cells cannot contain more than 4 references to other cells
-Help: Remove extra .storeRef operations
-See: https://nowarp.io/tools/misti/docs/detectors/CellOverflow
-
 [CRITICAL] CellOverflow: Maximum amount of data stored in cell exceeded
 test/good/cell-overflow.tact:21:9:
   20 | fun store_size_bad() {
@@ -34,7 +24,17 @@ test/good/cell-overflow.tact:28:9:
 > 28 |     let b2 = beginCell(); // Bad: 1023+ bits
                ^
   29 |     b2 = b2.storeInt(1, 257)
-Cells cannot store more than 1023 bits (expected size: 2567)
+Cells cannot store more than 1023 bits (expected size: 1025)
+Help: Remove extra .store operations
+See: https://nowarp.io/tools/misti/docs/detectors/CellOverflow
+
+[CRITICAL] CellOverflow: Maximum amount of data stored in cell exceeded
+test/good/cell-overflow.tact:41:9:
+  40 |            .storeInt(1, 229);
+> 41 |     let b3 = beginCell(); // Bad: 1025 bits
+               ^
+  42 |     b3 = b3.storeBuilder(b_1000_bits)
+Cells cannot store more than 1023 bits (expected size: 1025)
 Help: Remove extra .store operations
 See: https://nowarp.io/tools/misti/docs/detectors/CellOverflow
 
@@ -66,10 +66,10 @@ Help: The variable value should be accessed
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
 [MEDIUM] NeverAccessedVariables: Variable c1 is never accessed
-test/good/cell-overflow.tact:38:5:
-  37 | fun refs_num_ok(c: Cell, copt: Cell?) {
-> 38 |     let c1 = // OK: Cell could be None (no taint analysis yet)
+test/good/cell-overflow.tact:48:5:
+  47 | fun refs_num_ok(c: Cell, copt: Cell?) {
+> 48 |     let c1 = // OK: Cell could be None (no taint analysis yet)
            ^
-  39 |     beginCell()
+  49 |     beginCell()
 Help: Consider removing the variable
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
