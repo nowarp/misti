@@ -320,12 +320,16 @@ export class CellOverflow extends DataflowDetector {
         results.getStates().forEach((state, _nodeIdx) => {
           const tempCellWarnings = state.tempCells.reduce(
             (acc, cell) =>
-              acc.concat(this.checkOverflows(cell.loc, cell.calls)),
+              acc.concat(
+                this.checkOverflows(cell.loc, cell.calls, state.localBuilders),
+              ),
             [] as MistiTactWarning[],
           );
           const builderWarnings = Array.from(
-            state.localBuilders.values(),
-          ).flatMap(({ def, calls }) => this.checkOverflows(def, calls));
+            state.localBuilders.entries(),
+          ).flatMap(([builder, { def, calls }]) =>
+            this.checkOverflows(def, calls, state.localBuilders, builder),
+          );
           warnings = warnings.concat([...tempCellWarnings, ...builderWarnings]);
         });
       },
@@ -342,6 +346,8 @@ export class CellOverflow extends DataflowDetector {
   private checkOverflows(
     loc: SrcInfo,
     calls: MethodCallInfo[],
+    localBuilders: CellOverflowState["localBuilders"],
+    builder?: BuilderName,
   ): MistiTactWarning[] {
     if (!hasEndCell(calls)) {
       // The cell creation is not complete in the current state
@@ -357,7 +363,7 @@ export class CellOverflow extends DataflowDetector {
           storeRefs += 1;
         }
         // Process other store-operations
-        storesSize += this.getStoreCost(call);
+        storesSize += this.getStoreCost(call, localBuilders, new Set(builder));
         return { storeRefs, storesSize };
       },
       { storeRefs: 0, storesSize: 0n } as {
@@ -393,7 +399,11 @@ export class CellOverflow extends DataflowDetector {
    * Returns the storage cost in bits for each store operation.
    * https://github.com/tact-lang/tact/blob/2315d035f5f9a22cad42657561c1a0eaef997b05/stdlib/std/cells.tact
    */
-  private getStoreCost(call: MethodCallInfo): bigint {
+  private getStoreCost(
+    call: MethodCallInfo,
+    localBuilders: CellOverflowState["localBuilders"],
+    visited: Set<BuilderName> = new Set(),
+  ): bigint {
     const checkArgLength = (expectedLength: number): boolean => {
       if (call.args.length !== expectedLength) {
         this.ctx.logger.error(
@@ -438,9 +448,28 @@ export class CellOverflow extends DataflowDetector {
         const value = evalToType(call.args[1], "bigint");
         return value === undefined ? UNDECIDABLE : (value as bigint);
       }
-      case "storeBuilder":
-        // TODO: Try to get a local builder
+      case "storeBuilder": {
+        // Try to find a stored builder in the dataflow state.
+        if (!checkArgLength(1)) return UNDECIDABLE;
+        const arg = call.args[0];
+        if (arg.kind === "id") {
+          const builderName = idText(arg);
+          if (visited.has(builderName)) {
+            return 0n; // Avoid infinite recursion
+          }
+          const builder = localBuilders.get(builderName);
+          if (builder) {
+            visited.add(builderName);
+            const res = builder.calls.reduce(
+              (acc, bCall) =>
+                acc + this.getStoreCost(bCall, localBuilders, visited),
+              0n,
+            );
+            return res;
+          }
+        }
         return UNDECIDABLE;
+      }
       case "storeSlice":
         return UNDECIDABLE;
       default:
