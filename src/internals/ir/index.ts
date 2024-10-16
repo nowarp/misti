@@ -11,4 +11,4 @@ export {
 export { TactASTStore } from "./astStore";
 export { CompilationUnit, Contract } from "./ir";
 export * from "./types";
-export * from "./builders/tactIRBuilder";
+export * from "./builders/";

@@ -12,49 +12,22 @@ import {
   FunctionKind,
   FunctionName,
   ProjectName,
-  TactASTStore,
 } from "..";
+import { TactASTStoreBuilder } from "./astStore";
+import { TactConfigManager } from "./tactConfig";
 import { MistiContext } from "../../context";
-import {
-  ExecutionException,
-  InternalException,
-  TactException,
-  throwZodError,
-} from "../../exceptions";
+import { InternalException } from "../../exceptions";
 import { formatPosition } from "../../tact";
 import { unreachable } from "../../util";
 import {
-  ConfigProject,
-  Config as TactConfig,
-  parseConfig,
-} from "@tact-lang/compiler/dist/config/parseConfig";
-import { CompilerContext } from "@tact-lang/compiler/dist/context";
-import {
-  AstAsmFunctionDef,
-  AstConstantDef,
-  AstContract,
   AstContractDeclaration,
-  AstContractInit,
   AstExpression,
-  AstFunctionDef,
-  AstMessageDecl,
-  AstNativeFunctionDecl,
-  AstPrimitiveTypeDecl,
   AstReceiver,
   AstStatement,
-  AstStructDecl,
-  AstTrait,
-  AstTypeDecl,
   SrcInfo,
   isSelfId,
 } from "@tact-lang/compiler/dist/grammar/ast";
-import { getRawAST } from "@tact-lang/compiler/dist/grammar/store";
 import { AstStore } from "@tact-lang/compiler/dist/grammar/store";
-import { enableFeatures } from "@tact-lang/compiler/dist/pipeline/build";
-import { precompile } from "@tact-lang/compiler/dist/pipeline/precompile";
-import { createNodeFileSystem } from "@tact-lang/compiler/dist/vfs/createNodeFileSystem";
-import fs from "fs";
-import path from "path";
 
 /**
  * Generates a unique name used to identify receive functions in CFG.
@@ -81,262 +54,6 @@ function generateReceiveName(receive: AstReceiver): string {
 }
 
 /**
- * A mandatory part of the file path to stdlib if using the default path.
- */
-export const DEFAULT_STDLIB_PATH_ELEMENTS = [
-  "node_modules",
-  "@tact-lang",
-  "compiler",
-  "stdlib",
-];
-
-/**
- * Returns path to Tact stdlib defined in the `node_modules`.
- *
- * This adjustment is needed to get an actual path to stdlib distributed within the tact package.
- */
-export function setTactStdlibPath(nodeModulesPath: string = "../../../..") {
-  return path.resolve(
-    __dirname,
-    nodeModulesPath,
-    ...DEFAULT_STDLIB_PATH_ELEMENTS,
-  );
-}
-
-/**
- * Checks if there are subdirectories present in the absolute path.
- */
-function hasSubdirs(filePath: string, subdirs: string[]): boolean {
-  const splitPath = filePath.split(path.sep);
-  return subdirs.every((dir) => splitPath.includes(dir));
-}
-
-function definedInStdlib(ctx: MistiContext, loc: SrcInfo): boolean {
-  const stdlibPath = ctx.config.tactStdlibPath;
-  const pathElements =
-    stdlibPath === undefined
-      ? DEFAULT_STDLIB_PATH_ELEMENTS
-      : stdlibPath.split("/").filter((part) => part !== "");
-  return loc.file !== null && hasSubdirs(loc.file, pathElements);
-}
-
-/**
- * Transforms AstStore to TactASTStore.
- */
-class TactASTStoreBuilder {
-  private programEntries = new Set<number>();
-  private stdlibIds = new Set<number>();
-  private contractConstants = new Set<number>();
-  private functions = new Map<
-    number,
-    AstFunctionDef | AstReceiver | AstContractInit
-  >();
-  private constants = new Map<number, AstConstantDef>();
-  private contracts = new Map<number, AstContract>();
-  private nativeFunctions = new Map<number, AstNativeFunctionDecl>();
-  private asmFunctions = new Map<number, AstAsmFunctionDef>();
-  private primitives = new Map<number, AstPrimitiveTypeDecl>();
-  private structs = new Map<number, AstStructDecl>();
-  private messages = new Map<number, AstMessageDecl>();
-  private traits = new Map<number, AstTrait>();
-  private statements = new Map<number, AstStatement>();
-
-  private constructor(
-    private ctx: MistiContext,
-    private ast: AstStore,
-  ) {
-    this.processAstElements(this.ast.functions, this.processFunctionElement);
-    this.processAstElements(this.ast.constants, this.processConstantElement);
-    this.processAstElements(this.ast.types, this.processTypeElement);
-  }
-  public static make(ctx: MistiContext, ast: AstStore): TactASTStoreBuilder {
-    return new TactASTStoreBuilder(ctx, ast);
-  }
-
-  private processAstElements<T extends { id: number; loc: SrcInfo }>(
-    elements: T[],
-    processor: (element: T) => void,
-  ): void {
-    elements.forEach((element) => {
-      this.programEntries.add(element.id);
-      if (definedInStdlib(this.ctx, element.loc)) {
-        this.stdlibIds.add(element.id);
-      }
-      processor.call(this, element);
-    });
-  }
-
-  private processFunctionElement(
-    func: AstFunctionDef | AstNativeFunctionDecl | AstAsmFunctionDef,
-  ): void {
-    switch (func.kind) {
-      case "function_def":
-        this.processFunction(func);
-        break;
-      case "asm_function_def":
-        this.asmFunctions.set(func.id, func);
-        break;
-      case "native_function_decl":
-        this.nativeFunctions.set(func.id, func);
-        break;
-      default:
-        unreachable(func);
-    }
-  }
-
-  private processConstantElement(constant: AstConstantDef): void {
-    this.constants.set(constant.id, constant);
-  }
-
-  private processTypeElement(type: AstTypeDecl): void {
-    this.processType(type);
-  }
-
-  public build(): TactASTStore {
-    return new TactASTStore(
-      this.stdlibIds,
-      this.contractConstants,
-      this.programEntries,
-      this.functions,
-      this.constants,
-      this.contracts,
-      this.nativeFunctions,
-      this.asmFunctions,
-      this.primitives,
-      this.structs,
-      this.messages,
-      this.traits,
-      this.statements,
-    );
-  }
-
-  private processType(type: AstTypeDecl): void {
-    switch (type.kind) {
-      case "primitive_type_decl":
-        this.primitives.set(type.id, type);
-        break;
-      case "struct_decl":
-        this.structs.set(type.id, type);
-        break;
-      case "message_decl":
-        this.messages.set(type.id, type);
-        break;
-      case "trait":
-        this.processTrait(type);
-        break;
-      case "contract":
-        this.processContract(type);
-        break;
-      default:
-        unreachable(type);
-    }
-  }
-
-  private processTrait(trait: AstTrait): void {
-    this.traits.set(trait.id, trait);
-    for (const decl of trait.declarations) {
-      switch (decl.kind) {
-        case "field_decl":
-          // Do nothing, as they are accessible through trait definitions
-          break;
-        case "function_def":
-        case "receiver":
-          this.processFunction(decl);
-          break;
-        case "asm_function_def":
-          this.asmFunctions.set(decl.id, decl);
-          break;
-        case "constant_def":
-          this.constants.set(decl.id, decl);
-          this.contractConstants.add(decl.id);
-          break;
-        case "constant_decl":
-        case "function_decl":
-          break;
-        default:
-          unreachable(decl);
-      }
-    }
-  }
-
-  private processContract(contract: AstContract): void {
-    this.contracts.set(contract.id, contract);
-    for (const decl of contract.declarations) {
-      switch (decl.kind) {
-        case "field_decl":
-          // Do nothing, as they are accessible through contract definitions
-          break;
-        case "function_def":
-        case "contract_init":
-        case "receiver":
-          this.processFunction(decl);
-          break;
-        case "asm_function_def":
-          this.asmFunctions.set(decl.id, decl);
-          break;
-        case "constant_def":
-          this.constants.set(decl.id, decl);
-          this.contractConstants.add(decl.id);
-          break;
-        default:
-          unreachable(decl);
-      }
-    }
-  }
-
-  private processFunction(
-    func: AstFunctionDef | AstContractInit | AstReceiver,
-  ): void {
-    this.functions.set(func.id, func);
-    func.statements?.forEach((stmt) => this.processStmt(stmt));
-  }
-
-  private processStmt(stmt: AstStatement): void {
-    this.statements.set(stmt.id, stmt);
-    switch (stmt.kind) {
-      case "statement_let":
-      case "statement_return":
-      case "statement_expression":
-      case "statement_assign":
-      case "statement_augmentedassign":
-        break;
-      case "statement_condition":
-        stmt.trueStatements.forEach((s) => this.processStmt(s));
-        stmt.falseStatements?.forEach((s) => this.processStmt(s));
-        if (stmt.elseif) {
-          this.processStmt(stmt.elseif);
-        }
-        break;
-      case "statement_while":
-      case "statement_until":
-      case "statement_repeat":
-      case "statement_foreach":
-        stmt.statements.forEach((s) => this.processStmt(s));
-        break;
-      case "statement_try":
-        stmt.statements.forEach((s) => this.processStmt(s));
-        break;
-      case "statement_try_catch":
-        stmt.statements.forEach((s) => this.processStmt(s));
-        stmt.catchStatements.forEach((s) => this.processStmt(s));
-        break;
-      default:
-        unreachable(stmt);
-    }
-  }
-}
-
-/**
- * Maps each function name to its corresponding CFG index.
- */
-export type FunctionsMap = Map<FunctionName, CFGIdx>;
-
-/**
- * Maps each contract name to a map of its methods, where each method is mapped to its CFG index.
- */
-export type MethodsMap = Map<ContractName, FunctionsMap>;
-
-/**
  * Represents a stateful object which is responsible for constructing the IR of a Tact project.
  *
  * It creates a one-statement-per-basic-block CFG.
@@ -345,12 +62,13 @@ export class TactIRBuilder {
   /**
    * Keeps unique identifiers registered for building CFG nodes for free functions.
    */
-  private functionIndexes: FunctionsMap = new Map();
+  private functionIndexes: Map<FunctionName, CFGIdx> = new Map();
 
   /**
    * Keeps unique identifiers registered for building CFG nodes for contract methods.
    */
-  private methodIndexes: MethodsMap = new Map();
+  private methodIndexes: Map<ContractName, Map<FunctionName, CFGIdx>> =
+    new Map();
 
   /**
    * @param projectName The name of the project being compiled and analyzed, used for referencing within the compilation environment.
@@ -816,72 +534,6 @@ export class TactIRBuilder {
     src.dstEdges.add(edge.idx);
     dst.srcEdges.add(edge.idx);
     return edge;
-  }
-}
-
-class TactConfigManager {
-  private config: TactConfig;
-
-  constructor(
-    private ctx: MistiContext,
-    private tactConfigPath: string,
-  ) {
-    this.config = this.readTactConfig();
-  }
-
-  /**
-   * Reads the Tact configuration file from the specified path, parses it, and returns
-   * the TactConfig object.
-   * @throws {Error} If the config file does not exist or cannot be parsed.
-   * @returns The parsed TactConfig object.
-   */
-  private readTactConfig(): TactConfig {
-    const resolvedPath = path.resolve(this.tactConfigPath);
-    if (!fs.existsSync(resolvedPath)) {
-      throw ExecutionException.make(
-        `Unable to find config file at ${resolvedPath}`,
-      );
-    }
-    try {
-      return parseConfig(fs.readFileSync(resolvedPath, "utf8"));
-    } catch (err) {
-      throwZodError(err, {
-        msg: `Incorrect Tact Project file ${resolvedPath}:`,
-        help: [
-          `Ensure ${resolvedPath} is a Tact Project file.`,
-          "See https://docs.tact-lang.org/book/config/ for additional information.",
-        ].join(" "),
-      });
-    }
-  }
-
-  /**
-   * Parses the projects defined in the Tact configuration file, generating an AST for each.
-   * @param config The Tact configuration object.
-   * @returns A mapping of project names to their corresponding ASTs.
-   */
-  public parseTactProjects(): Map<ProjectName, AstStore> {
-    const project = createNodeFileSystem(
-      path.dirname(this.tactConfigPath),
-      false,
-    );
-    const stdlibPath = this.ctx.config.tactStdlibPath ?? setTactStdlibPath();
-    const stdlib = createNodeFileSystem(stdlibPath, false);
-    return this.config.projects.reduce(
-      (acc: Map<ProjectName, AstStore>, projectConfig: ConfigProject) => {
-        this.ctx.logger.debug(`Parsing project ${projectConfig.name} ...`);
-        try {
-          let ctx = new CompilerContext();
-          ctx = enableFeatures(ctx, this.ctx.logger, projectConfig);
-          ctx = precompile(ctx, project, stdlib, projectConfig.path);
-          acc.set(projectConfig.name, getRawAST(ctx));
-          return acc;
-        } catch (error: unknown) {
-          throw TactException.make(error);
-        }
-      },
-      new Map<ProjectName, AstStore>(),
-    );
   }
 }
 

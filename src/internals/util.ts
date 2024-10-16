@@ -5,6 +5,7 @@
  */
 
 import { InternalException } from "./exceptions";
+import path from "path";
 
 /**
  * Intersection of two lists.
@@ -31,4 +32,12 @@ export const isMapSubsetOf = <K, V>(lhs: Map<K, V>, rhs: Map<K, V>): boolean =>
  */
 export function unreachable(value: never): never {
   throw InternalException.make(`Reached impossible case`, { node: value });
+}
+
+/**
+ * Checks if there are subdirectories present in the absolute path.
+ */
+export function hasSubdirs(filePath: string, subdirs: string[]): boolean {
+  const splitPath = filePath.split(path.sep);
+  return subdirs.every((dir) => splitPath.includes(dir));
 }
