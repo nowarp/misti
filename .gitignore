@@ -141,6 +141,9 @@ test/detectors/**/*.actual.out
 !test/all/**/*.cfg.json
 !test/all/**/*.cfg.dot
 !test/all/**/*.cfg.mmd
+!test/all/**/*.imports.json
+!test/all/**/*.imports.dot
+!test/all/**/*.imports.mmd
 
 # Generated code
 src/version-info.ts

@@ -1,0 +1,15 @@
+{
+  "nodes": [
+    {
+      "idx": 1,
+      "name": "syntax",
+      "origin": "user",
+      "importPath": "/tmp/misti/temp-EAxIn6/test/all/syntax.tact",
+      "language": "tact",
+      "hasContract": true,
+      "inEdges": [],
+      "outEdges": []
+    }
+  ],
+  "edges": []
+}
