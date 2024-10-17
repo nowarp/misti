@@ -1,11 +1,11 @@
-import { ProjectName } from "..";
-import { setTactStdlibPath } from "./tactStdlib";
-import { MistiContext } from "../../context";
+import { ProjectName } from "../ir";
+import { setTactStdlibPath } from "./stdlib";
+import { MistiContext } from "../context";
 import {
   ExecutionException,
   TactException,
   throwZodError,
-} from "../../exceptions";
+} from "../exceptions";
 import {
   ConfigProject,
   Config as TactConfig,
@@ -21,7 +21,8 @@ import fs from "fs";
 import path from "path";
 
 export class TactConfigManager {
-  private config: TactConfig;
+  /** Tact config parsed with Zod. */
+  public config: TactConfig;
 
   constructor(
     private ctx: MistiContext,
@@ -33,7 +34,7 @@ export class TactConfigManager {
   /**
    * Reads the Tact configuration file from the specified path, parses it, and returns
    * the TactConfig object.
-   * @throws {Error} If the config file does not exist or cannot be parsed.
+   * @throws If the config file does not exist or cannot be parsed.
    * @returns The parsed TactConfig object.
    */
   private readTactConfig(): TactConfig {

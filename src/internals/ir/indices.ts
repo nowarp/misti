@@ -5,7 +5,7 @@
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace IdxGenerator {
   // Change to a Map with string keys and number values
-  let currentIdxMap = new Map<string, number>();
+  const currentIdxMap = new Map<string, number>();
 
   // Update next function to accept a string key
   export function next(key: string): number {

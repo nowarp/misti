@@ -1,5 +1,5 @@
-import { MistiContext } from "../../context";
-import { hasSubdirs } from "../../util";
+import { MistiContext } from "../context";
+import { hasSubdirs } from "../util";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import path from "path";
 
@@ -18,7 +18,7 @@ export const DEFAULT_STDLIB_PATH_ELEMENTS = [
  *
  * This adjustment is needed to get an actual path to stdlib distributed within the tact package.
  */
-export function setTactStdlibPath(nodeModulesPath: string = "../../../..") {
+export function setTactStdlibPath(nodeModulesPath: string = "../../..") {
   return path.resolve(
     __dirname,
     nodeModulesPath,
@@ -26,11 +26,21 @@ export function setTactStdlibPath(nodeModulesPath: string = "../../../..") {
   );
 }
 
-export function definedInStdlib(ctx: MistiContext, loc: SrcInfo): boolean {
+/**
+ * Checks if a given location or file path is defined in the Tact stdlib.
+ * @param ctx MistiContext object
+ * @param locOrPath SrcInfo object or string file path
+ * @returns boolean indicating if the location is in the stdlib
+ */
+export function definedInStdlib(
+  ctx: MistiContext,
+  locOrPath: SrcInfo | string,
+): boolean {
   const stdlibPath = ctx.config.tactStdlibPath;
   const pathElements =
     stdlibPath === undefined
       ? DEFAULT_STDLIB_PATH_ELEMENTS
       : stdlibPath.split("/").filter((part) => part !== "");
-  return loc.file !== null && hasSubdirs(loc.file, pathElements);
+  const filePath = typeof locOrPath === "string" ? locOrPath : locOrPath.file;
+  return filePath !== null && hasSubdirs(filePath, pathElements);
 }

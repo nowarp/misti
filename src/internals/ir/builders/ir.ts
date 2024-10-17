@@ -14,10 +14,11 @@ import {
   ProjectName,
 } from "..";
 import { TactASTStoreBuilder } from "./astStore";
-import { TactConfigManager } from "./tactConfig";
+import { ImportGraphBuilder } from "./imports";
 import { MistiContext } from "../../context";
 import { InternalException } from "../../exceptions";
 import { formatPosition } from "../../tact";
+import { TactConfigManager } from "../../tact/config";
 import { unreachable } from "../../util";
 import {
   AstContractDeclaration,
@@ -99,6 +100,7 @@ export class TactIRBuilder {
     return new CompilationUnit(
       this.projectName,
       TactASTStoreBuilder.make(this.ctx, this.ast).build(),
+      ImportGraphBuilder.make(this.ctx).build(),
       functions,
       contracts,
     );
