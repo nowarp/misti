@@ -11,7 +11,7 @@ import {
   AstStructFieldInitializer,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
-export class CGEdge {
+class CGEdge {
   public idx: number;
   constructor(
     public src: number,
@@ -21,7 +21,7 @@ export class CGEdge {
   }
 }
 
-export class CGNode {
+class CGNode {
   public idx: number;
   constructor(
     public astId: number,
