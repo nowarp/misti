@@ -57,10 +57,17 @@ export class ImportGraphBuilder {
     const fileContent = fs.readFileSync(filePath, "utf8");
     const imports = Parser.parseImports(fileContent, filePath, "user");
 
+    // Use the actual path when working in single contract mode, not the temporary directory.
+    let importPath = filePath;
+    if (this.ctx.tactPath && this.ctx.tactPath.kind === "contract") {
+      const tempDir = path.dirname(this.ctx.tactPath.tempConfigPath);
+      importPath = path.relative(tempDir, filePath);
+    }
+
     const node = new ImportNode(
       this.generateNodeName(filePath),
       definedInStdlib(this.ctx, filePath) ? "stdlib" : "user",
-      filePath,
+      importPath,
       this.determineLanguage(filePath),
       this.hasContract(fileContent),
     );

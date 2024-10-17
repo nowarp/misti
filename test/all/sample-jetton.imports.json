@@ -4,7 +4,7 @@
       "idx": 1,
       "name": "sample-jetton",
       "origin": "user",
-      "importPath": "/tmp/misti/temp-iAfqwL/test/all/sample-jetton.tact",
+      "importPath": "test/all/sample-jetton.tact",
       "language": "tact",
       "hasContract": true,
       "inEdges": [],
