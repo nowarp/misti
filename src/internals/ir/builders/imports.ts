@@ -1,6 +1,6 @@
 import { MistiContext } from "../../context";
 import { ExecutionException } from "../../exceptions";
-import { definedInStdlib } from "../../tact/stdlib";
+import { definedInStdlib, getStdlibPath } from "../../tact/stdlib";
 import {
   ImportGraph,
   ImportEdge,
@@ -20,10 +20,7 @@ import {
   AstNumberBase,
   AstString,
 } from "@tact-lang/compiler/dist/grammar/ast";
-import {
-  ItemOrigin,
-  dummySrcInfo,
-} from "@tact-lang/compiler/dist/grammar/grammar";
+import { ItemOrigin } from "@tact-lang/compiler/dist/grammar/grammar";
 import tactGrammar from "@tact-lang/compiler/dist/grammar/grammar.ohm-bundle";
 import fs from "fs";
 import { Node, NonterminalNode } from "ohm-js";
@@ -61,38 +58,64 @@ export class ImportGraphBuilder {
     const imports = Parser.parseImports(fileContent, filePath, "user");
 
     const node = new ImportNode(
+      this.generateNodeName(filePath),
+      definedInStdlib(this.ctx, filePath) ? "stdlib" : "user",
       filePath,
       this.determineLanguage(filePath),
-      imports[0] ? imports[0].loc : dummySrcInfo,
       this.hasContract(fileContent),
     );
     nodes.push(node);
 
-    imports
-      .map((importNode) => ({
-        importPath: importNode.path.value,
-        resolvedPath: path.resolve(
-          path.dirname(filePath),
-          importNode.path.value,
-        ),
-      }))
-      .filter(({ resolvedPath }) => !definedInStdlib(this.ctx, resolvedPath))
-      .forEach(({ resolvedPath }) => {
-        const targetNodeIdx = this.processFile(
-          resolvedPath,
-          nodes,
-          edges,
-          visited,
-        );
-        const edge = new ImportEdge(node.idx, targetNodeIdx);
-        edges.push(edge);
-        node.outEdges.add(edge.idx);
-        nodes.find((n) => n.idx === targetNodeIdx)?.inEdges.add(edge.idx);
-      });
+    imports.reduce((acc, importNode) => {
+      const importPath = importNode.path.value;
+      const resolvedPath = path.resolve(
+        path.dirname(filePath),
+        this.resolveStdlibPath(importPath),
+      );
+      const targetNodeIdx = this.processFile(
+        resolvedPath,
+        nodes,
+        edges,
+        visited,
+      );
+      const edge = new ImportEdge(node.idx, targetNodeIdx, importNode.loc);
+      edges.push(edge);
+      node.outEdges.add(edge.idx);
+      nodes.find((n) => n.idx === targetNodeIdx)?.inEdges.add(edge.idx);
+      return acc;
+    }, undefined);
 
     return node.idx;
   }
 
+  /**
+   * Returns the absolute path to the stdlib/libs directory.
+   */
+  private getStdlibLibsPath(): string {
+    const libsDir = "libs"; // Tact sources: stdlib/libs/
+    return path.resolve(getStdlibPath(), libsDir);
+  }
+
+  /**
+   * Returns the absolute path to the stdlib location if the given path
+   * starts with `@stdlib`. Otherwise, returns the path unchanged.
+   *
+   * Tact API doesn't provide functions to work with paths, so we replicate this:
+   * https://github.com/tact-lang/tact/blob/2315d035f5f9a22cad42657561c1a0eaef997b05/src/imports/resolveLibrary.ts#L26
+   */
+  private resolveStdlibPath(importPath: string): string {
+    const stdlibPrefix = "@stdlib/";
+    if (!importPath.startsWith(stdlibPrefix)) {
+      return importPath;
+    }
+    const libraryName = `${importPath.substring(stdlibPrefix.length)}.tact`;
+    return path.resolve(this.getStdlibLibsPath(), libraryName);
+  }
+
+  /**
+   * Determines the language of a file based on its extension.
+   * @throws ExecutionException if the language cannot be determined.
+   */
   private determineLanguage(filePath: string): ImportLanguage | never {
     return filePath.endsWith(".tact")
       ? "tact"
@@ -103,6 +126,19 @@ export class ImportGraphBuilder {
               `Cannot determine the target language of import: ${filePath}`,
             );
           })();
+  }
+
+  /**
+   * Generates a node name for the import graph based on the file path.
+   */
+  private generateNodeName(filePath: string): string {
+    const basename = path.basename(filePath);
+    const basenameWithoutExtension = basename.replace(/\.(tact|func)$/, "");
+    if (definedInStdlib(this.ctx, filePath)) {
+      const relativePath = path.relative(this.getStdlibLibsPath(), filePath);
+      return `@stdlib/${relativePath}`.replace(/\\/g, "/");
+    }
+    return basenameWithoutExtension;
   }
 
   private hasContract(fileContent: string): boolean {

@@ -1,5 +1,5 @@
 import { ProjectName } from "../ir";
-import { setTactStdlibPath } from "./stdlib";
+import { getStdlibPath } from "./stdlib";
 import { MistiContext } from "../context";
 import {
   ExecutionException,
@@ -67,7 +67,7 @@ export class TactConfigManager {
       path.dirname(this.tactConfigPath),
       false,
     );
-    const stdlibPath = this.ctx.config.tactStdlibPath ?? setTactStdlibPath();
+    const stdlibPath = this.ctx.config.tactStdlibPath ?? getStdlibPath();
     const stdlib = createNodeFileSystem(stdlibPath, false);
     return this.config.projects.reduce(
       (acc: Map<ProjectName, AstStore>, projectConfig: ConfigProject) => {

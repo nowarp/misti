@@ -1,5 +1,6 @@
 import { IdxGenerator } from "./indices";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
+import { ItemOrigin } from "@tact-lang/compiler/dist/grammar/grammar";
 
 export type ImportNodeIdx = number;
 export type ImportEdgeIdx = number;
@@ -12,12 +13,14 @@ export type ImportLanguage = "tact" | "func";
 export class ImportNode {
   public idx: ImportNodeIdx;
   constructor(
+    /** Displayed name. */
+    public name: string,
+    /** Origin of the node. */
+    public origin: ItemOrigin,
     /** Absolute path to the imported file. */
     public importPath: string,
-    /** Language the imported file is written in. */
+    /** Language in which the imported file is written. */
     public language: ImportLanguage,
-    /** Source location of the `import` statement. */
-    public loc: SrcInfo,
     /** True if this file has a contract definition. */
     public hasContract: boolean,
     public inEdges: Set<ImportEdgeIdx> = new Set(),
@@ -35,6 +38,8 @@ export class ImportEdge {
   constructor(
     public src: ImportNodeIdx,
     public dst: ImportNodeIdx,
+    /** Source location of the `import` statement. */
+    public loc: SrcInfo,
   ) {
     this.idx = IdxGenerator.next("import_edge");
   }
@@ -70,7 +75,7 @@ export class ImportGraph {
   }
 
   /**
-   * Finds independent subgraphs of files not connected with `import` directive.
+   * Finds independent subgraphs of files not connected by `import` directives.
    */
   public getDisconnectedComponents(): ImportNode[][] {
     throw new Error("Not yet implemented");
@@ -78,7 +83,7 @@ export class ImportGraph {
 
   /**
    * Returns a list of nodes that have a contract definition.
-   * These nodes could be an entry point of the project.
+   * These nodes could be entry points of the project.
    */
   public getContractNodes(): ImportNode[] {
     throw new Error("Not yet implemented");

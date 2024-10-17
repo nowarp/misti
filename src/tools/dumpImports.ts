@@ -69,11 +69,11 @@ class MermaidDumper {
     // Generate nodes
     ig.nodes.forEach((node) => {
       // Optionally exclude stdlib nodes
-      if (!dumpStdlib && node.importPath.startsWith("stdlib")) {
+      if (!dumpStdlib && node.origin === "stdlib") {
         return;
       }
       const nodeId = `node_${node.idx}`;
-      const label = node.importPath;
+      const label = node.name;
       const style = node.hasContract ? ":::contractNode" : "";
       diagram += `    ${nodeId}[${label}]${style}\n`;
     });
@@ -86,8 +86,8 @@ class MermaidDumper {
       }
       // Optionally exclude stdlib nodes
       if (
-        (!dumpStdlib && srcNode.importPath.startsWith("stdlib")) ||
-        (!dumpStdlib && dstNode.importPath.startsWith("stdlib"))
+        (!dumpStdlib && srcNode.origin === "stdlib") ||
+        (!dumpStdlib && dstNode.origin === "stdlib")
       ) {
         return;
       }
@@ -121,11 +121,11 @@ class GraphvizDumper {
     // Generate nodes
     ig.nodes.forEach((node) => {
       // Optionally exclude stdlib nodes
-      if (!dumpStdlib && node.importPath.startsWith("stdlib")) {
+      if (!dumpStdlib && node.origin === "stdlib") {
         return;
       }
       const nodeId = `node_${node.idx}`;
-      const label = node.importPath;
+      const label = node.name;
       let style = "";
       if (node.hasContract) {
         style += ',style=filled,fillcolor="#66A7DB"';
@@ -141,8 +141,8 @@ class GraphvizDumper {
       }
       // Optionally exclude stdlib nodes
       if (
-        (!dumpStdlib && srcNode.importPath.startsWith("stdlib")) ||
-        (!dumpStdlib && dstNode.importPath.startsWith("stdlib"))
+        (!dumpStdlib && srcNode.origin === "stdlib") ||
+        (!dumpStdlib && dstNode.origin === "stdlib")
       ) {
         return;
       }
@@ -167,12 +167,13 @@ class JSONDumper {
    */
   public static dumpImportGraph(ig: ImportGraph, dumpStdlib: boolean): string {
     const nodes = ig.nodes
-      .filter((node) => dumpStdlib || !node.importPath.startsWith("stdlib"))
+      .filter((node) => dumpStdlib || node.origin !== "stdlib")
       .map((node) => ({
         idx: node.idx,
+        name: node.name,
+        origin: node.origin,
         importPath: node.importPath,
         language: node.language,
-        loc: node.loc,
         hasContract: node.hasContract,
         inEdges: Array.from(node.inEdges),
         outEdges: Array.from(node.outEdges),
@@ -186,14 +187,14 @@ class JSONDumper {
           srcNode &&
           dstNode &&
           (dumpStdlib ||
-            (!srcNode.importPath.startsWith("stdlib") &&
-              !dstNode.importPath.startsWith("stdlib")))
+            (srcNode.origin !== "stdlib" && dstNode.origin !== "stdlib"))
         );
       })
       .map((edge) => ({
         idx: edge.idx,
         src: edge.src,
         dst: edge.dst,
+        loc: edge.loc,
       }));
 
     const data = {

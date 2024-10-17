@@ -1,81 +1,81 @@
 graph TD
 subgraph test1
-    test1_151["let a: Int = 20"]
-    test1_152["while (a &gt; 10)"]
-    test1_155["return a"]:::exitNode
-    test1_151 --> test1_152
-    test1_152 --> test1_152
-    test1_152 --> test1_155
+    test1_68["let a: Int = 20"]
+    test1_69["while (a &gt; 10)"]
+    test1_70["return a"]:::exitNode
+    test1_68 --> test1_69
+    test1_69 --> test1_69
+    test1_69 --> test1_70
 end
 subgraph test2
-    test2_157["let a: Int = 20"]
-    test2_158["until (a &gt; 10)"]
-    test2_161["return a"]:::exitNode
-    test2_157 --> test2_158
-    test2_158 --> test2_158
-    test2_158 --> test2_161
+    test2_71["let a: Int = 20"]
+    test2_72["until (a &gt; 10)"]
+    test2_73["return a"]:::exitNode
+    test2_71 --> test2_72
+    test2_72 --> test2_72
+    test2_72 --> test2_73
 end
 subgraph test3
-    test3_163["let a: Int = 20"]
-    test3_164["while (a &gt; 10)"]
-    test3_166["a += 1"]
-    test3_169["return a"]:::exitNode
-    test3_163 --> test3_164
-    test3_164 --> test3_166
-    test3_166 --> test3_164
-    test3_164 --> test3_169
+    test3_74["let a: Int = 20"]
+    test3_75["while (a &gt; 10)"]
+    test3_76["a += 1"]
+    test3_77["return a"]:::exitNode
+    test3_74 --> test3_75
+    test3_75 --> test3_76
+    test3_76 --> test3_75
+    test3_75 --> test3_77
 end
 subgraph test4
-    test4_171["let a: Int = 10"]
-    test4_172["repeat (a)"]
-    test4_175["return a"]:::exitNode
-    test4_171 --> test4_172
-    test4_172 --> test4_172
-    test4_172 --> test4_175
+    test4_78["let a: Int = 10"]
+    test4_79["repeat (a)"]
+    test4_80["return a"]:::exitNode
+    test4_78 --> test4_79
+    test4_79 --> test4_79
+    test4_79 --> test4_80
 end
 subgraph test5
-    test5_177["let i: Int = 0"]
-    test5_178["while (i &gt; 0)"]
-    test5_177 --> test5_178
-    test5_178 --> test5_178
+    test5_81["let i: Int = 0"]
+    test5_82["while (i &gt; 0)"]
+    test5_81 --> test5_82
+    test5_82 --> test5_82
 end
 subgraph test6
-    test6_181["let i: Int = 0"]
-    test6_182["while (10 &lt; i)"]
-    test6_181 --> test6_182
-    test6_182 --> test6_182
+    test6_83["let i: Int = 0"]
+    test6_84["while (10 &lt; i)"]
+    test6_83 --> test6_84
+    test6_84 --> test6_84
 end
 subgraph test7
-    test7_185["let i: Bool = false"]
-    test7_186["while (i)"]
-    test7_185 --> test7_186
-    test7_186 --> test7_186
+    test7_85["let i: Bool = false"]
+    test7_86["while (i)"]
+    test7_85 --> test7_86
+    test7_86 --> test7_86
 end
 subgraph test8
-    test8_189["let i: Bool = true"]
-    test8_190["while (!i)"]
-    test8_189 --> test8_190
-    test8_190 --> test8_190
+    test8_87["let i: Bool = true"]
+    test8_88["while (!i)"]
+    test8_87 --> test8_88
+    test8_88 --> test8_88
 end
 subgraph fn
 end
 subgraph test9
-    test9_193["let a: Int = 20"]
-    test9_194["while (a &gt; 10)"]
-    test9_196["fn(a)"]
-    test9_199["return a"]:::exitNode
-    test9_193 --> test9_194
-    test9_194 --> test9_196
-    test9_196 --> test9_194
-    test9_194 --> test9_199
+    test9_89["let a: Int = 20"]
+    test9_90["while (a &gt; 10)"]
+    test9_91["fn(a)"]
+    test9_92["return a"]:::exitNode
+    test9_89 --> test9_90
+    test9_90 --> test9_91
+    test9_91 --> test9_90
+    test9_90 --> test9_92
 end
 subgraph Test__receive_internal_comment_1790_test
-    Test__receive_internal_comment_1790_test_201["let s: S = S{a: 1}"]
-    Test__receive_internal_comment_1790_test_202["let i: Int = 0"]
-    Test__receive_internal_comment_1790_test_204["while (i &lt; s.a)"]
-    Test__receive_internal_comment_1790_test_206["i += 1"]
-    Test__receive_internal_comment_1790_test_201 --> Test__receive_internal_comment_1790_test_202
-    Test__receive_internal_comment_1790_test_202 --> Test__receive_internal_comment_1790_test_204
-    Test__receive_internal_comment_1790_test_204 --> Test__receive_internal_comment_1790_test_206
-    Test__receive_internal_comment_1790_test_206 --> Test__receive_internal_comment_1790_test_204
+    Test__receive_internal_comment_1790_test_93["let s: S = S{a: 1}"]
+    Test__receive_internal_comment_1790_test_94["let i: Int = 0"]
+    Test__receive_internal_comment_1790_test_95["while (i &lt; s.a)"]
+    Test__receive_internal_comment_1790_test_96["i += 1"]
+    Test__receive_internal_comment_1790_test_93 --> Test__receive_internal_comment_1790_test_94
+    Test__receive_internal_comment_1790_test_94 --> Test__receive_internal_comment_1790_test_95
+    Test__receive_internal_comment_1790_test_95 --> Test__receive_internal_comment_1790_test_96
+    Test__receive_internal_comment_1790_test_96 --> Test__receive_internal_comment_1790_test_95
 end
