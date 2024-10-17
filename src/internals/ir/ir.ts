@@ -5,6 +5,7 @@
  */
 import { TactASTStore } from "./astStore";
 import { BasicBlock, CFG } from "./cfg";
+import { ImportGraph } from "./imports";
 import { IdxGenerator } from "./indices";
 import {
   BasicBlockIdx,
@@ -25,12 +26,14 @@ export class CompilationUnit {
    * Creates an instance of CompilationUnit.
    * @param projectName The name of the project this Compilation Unit belongs to.
    * @param ast The AST of the project.
+   * @param imports A graph showing the connections between project files.
    * @param functions A mapping from unique IDs of free functions to their CFGs.
    * @param contracts A mapping from unique IDs of contract entries to contracts.
    */
   constructor(
     public projectName: ProjectName,
     public ast: TactASTStore,
+    public imports: ImportGraph,
     public functions: Map<CFGIdx, CFG>,
     public contracts: Map<ContractIdx, Contract>,
   ) {}
@@ -170,6 +173,6 @@ export class Contract {
     public ref: SrcInfo,
     idx: ContractIdx | undefined = undefined,
   ) {
-    this.idx = idx ? idx : IdxGenerator.next();
+    this.idx = idx ? idx : IdxGenerator.next("ir_contract");
   }
 }

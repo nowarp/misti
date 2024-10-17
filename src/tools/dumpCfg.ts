@@ -50,9 +50,8 @@ export class DumpCfg extends Tool<DumpCfgOptions> {
 
   getOptionDescriptions(): Record<keyof DumpCfgOptions, string> {
     return {
-      format: "The output format for the CFG dump: <dot|json>",
-      dumpStdlib:
-        "Whether to include standard library definitions in the dump.",
+      format: "The output format for the CFG dump: <dot|json|mmd>",
+      dumpStdlib: "Whether to include standard library definitions in the dump",
     };
   }
 }

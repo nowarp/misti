@@ -1,6 +1,6 @@
 import { TactASTStore } from "..";
-import { definedInStdlib } from "./tactStdlib";
 import { MistiContext } from "../../context";
+import { definedInStdlib } from "../../tact/stdlib";
 import { unreachable } from "../../util";
 import {
   AstAsmFunctionDef,

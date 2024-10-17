@@ -1,17 +1,17 @@
 graph TD
 subgraph toCall
-    toCall_142["return 42"]:::exitNode
+    toCall_68["return 42"]:::exitNode
 end
 subgraph test1
-    test1_143["pow(3, 2)"]
-    test1_144["pow(3, 1 + 1)"]
-    test1_146["pow(3, TWO)"]
-    test1_148["pow(3, ONE + ONE)"]
-    test1_150["pow(toCall(), toCall())"]
-    test1_152["pow(toCall(), toCall() + 1)"]:::exitNode
-    test1_143 --> test1_144
-    test1_144 --> test1_146
-    test1_146 --> test1_148
-    test1_148 --> test1_150
-    test1_150 --> test1_152
+    test1_69["pow(3, 2)"]
+    test1_70["pow(3, 1 + 1)"]
+    test1_71["pow(3, TWO)"]
+    test1_72["pow(3, ONE + ONE)"]
+    test1_73["pow(toCall(), toCall())"]
+    test1_74["pow(toCall(), toCall() + 1)"]:::exitNode
+    test1_69 --> test1_70
+    test1_70 --> test1_71
+    test1_71 --> test1_72
+    test1_72 --> test1_73
+    test1_73 --> test1_74
 end

@@ -1,26 +1,26 @@
 graph TD
 subgraph test1
-    test1_143["let a: Int = 42"]
-    test1_144["try"]
-    test1_146["a += 1"]
-    test1_148["return 42"]:::exitNode
-    test1_143 --> test1_144
-    test1_144 --> test1_146
-    test1_146 --> test1_148
+    test1_68["let a: Int = 42"]
+    test1_69["try"]
+    test1_70["a += 1"]
+    test1_71["return 42"]:::exitNode
+    test1_68 --> test1_69
+    test1_69 --> test1_70
+    test1_70 --> test1_71
 end
 subgraph test2
-    test2_150["try"]
-    test2_151["return 42"]:::exitNode
-    test2_150 --> test2_151
+    test2_72["try"]
+    test2_73["return 42"]:::exitNode
+    test2_72 --> test2_73
 end
 subgraph test3
-    test3_153["let a: Int = 0"]
-    test3_154["try ... catch (err)"]
-    test3_156["a = 19"]
-    test3_158["dump(err)"]:::exitNode
-    test3_160["return a"]:::exitNode
-    test3_153 --> test3_154
-    test3_154 --> test3_156
-    test3_154 --> test3_158
-    test3_156 --> test3_160
+    test3_74["let a: Int = 0"]
+    test3_75["try ... catch (err)"]
+    test3_76["a = 19"]
+    test3_77["dump(err)"]:::exitNode
+    test3_78["return a"]:::exitNode
+    test3_74 --> test3_75
+    test3_75 --> test3_76
+    test3_75 --> test3_77
+    test3_76 --> test3_78
 end

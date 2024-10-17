@@ -1,64 +1,64 @@
 graph TD
 subgraph refs_num_bad
-    refs_num_bad_143["let b1 = beginCell()"]
-    refs_num_bad_144["b1 = b1.storeRef(c)"]
-    refs_num_bad_146["b1 = b1.storeRef(c)"]
-    refs_num_bad_148["b1 = b1.storeRef(c)"]
-    refs_num_bad_150["b1 = b1.storeRef(c)"]
-    refs_num_bad_152["b1 = b1.storeRef(c)"]
-    refs_num_bad_154["let c1 = b1.endCell()"]
-    refs_num_bad_156["let c2 = beginCell().storeRef(c).storeRef(c).storeRef(c).storeRef(c).storeRef(c).endCell()"]:::exitNode
-    refs_num_bad_143 --> refs_num_bad_144
-    refs_num_bad_144 --> refs_num_bad_146
-    refs_num_bad_146 --> refs_num_bad_148
-    refs_num_bad_148 --> refs_num_bad_150
-    refs_num_bad_150 --> refs_num_bad_152
-    refs_num_bad_152 --> refs_num_bad_154
-    refs_num_bad_154 --> refs_num_bad_156
+    refs_num_bad_68["let b1 = beginCell()"]
+    refs_num_bad_69["b1 = b1.storeRef(c)"]
+    refs_num_bad_70["b1 = b1.storeRef(c)"]
+    refs_num_bad_71["b1 = b1.storeRef(c)"]
+    refs_num_bad_72["b1 = b1.storeRef(c)"]
+    refs_num_bad_73["b1 = b1.storeRef(c)"]
+    refs_num_bad_74["let c1 = b1.endCell()"]
+    refs_num_bad_75["let c2 = beginCell().storeRef(c).storeRef(c).storeRef(c).storeRef(c).storeRef(c).endCell()"]:::exitNode
+    refs_num_bad_68 --> refs_num_bad_69
+    refs_num_bad_69 --> refs_num_bad_70
+    refs_num_bad_70 --> refs_num_bad_71
+    refs_num_bad_71 --> refs_num_bad_72
+    refs_num_bad_72 --> refs_num_bad_73
+    refs_num_bad_73 --> refs_num_bad_74
+    refs_num_bad_74 --> refs_num_bad_75
 end
 subgraph store_size_bad
-    store_size_bad_158["let b1 = beginCell()"]
-    store_size_bad_159["b1 = b1.storeInt(42, 257)"]
-    store_size_bad_161["b1 = b1.storeInt(42, 259 - 2)"]
-    store_size_bad_163["b1 = b1.storeInt(42, 256 + 1)"]
-    store_size_bad_165["b1 = b1.storeInt(42, 257)"]
-    store_size_bad_167["let c1 = b1.endCell()"]
-    store_size_bad_169["let b2 = beginCell()"]
-    store_size_bad_171["b2 = b2.storeInt(1, 257).storeInt(1, 257).storeInt(1, 257).storeInt(1, 210)"]
-    store_size_bad_173["b2 = b2.storeCoins(40000000000)"]
-    store_size_bad_175["c1 = b2.endCell()"]
-    store_size_bad_177["let b_1000_bits = beginCell().storeInt(1, 257).storeInt(1, 257).storeInt(1, 257).storeInt(1, 229)"]
-    store_size_bad_179["let b3 = beginCell()"]
-    store_size_bad_181["b3 = b3.storeBuilder(b_1000_bits).storeInt(1, 25)"]
-    store_size_bad_183["c1 = b3.endCell()"]:::exitNode
-    store_size_bad_158 --> store_size_bad_159
-    store_size_bad_159 --> store_size_bad_161
-    store_size_bad_161 --> store_size_bad_163
-    store_size_bad_163 --> store_size_bad_165
-    store_size_bad_165 --> store_size_bad_167
-    store_size_bad_167 --> store_size_bad_169
-    store_size_bad_169 --> store_size_bad_171
-    store_size_bad_171 --> store_size_bad_173
-    store_size_bad_173 --> store_size_bad_175
-    store_size_bad_175 --> store_size_bad_177
-    store_size_bad_177 --> store_size_bad_179
-    store_size_bad_179 --> store_size_bad_181
-    store_size_bad_181 --> store_size_bad_183
+    store_size_bad_76["let b1 = beginCell()"]
+    store_size_bad_77["b1 = b1.storeInt(42, 257)"]
+    store_size_bad_78["b1 = b1.storeInt(42, 259 - 2)"]
+    store_size_bad_79["b1 = b1.storeInt(42, 256 + 1)"]
+    store_size_bad_80["b1 = b1.storeInt(42, 257)"]
+    store_size_bad_81["let c1 = b1.endCell()"]
+    store_size_bad_82["let b2 = beginCell()"]
+    store_size_bad_83["b2 = b2.storeInt(1, 257).storeInt(1, 257).storeInt(1, 257).storeInt(1, 210)"]
+    store_size_bad_84["b2 = b2.storeCoins(40000000000)"]
+    store_size_bad_85["c1 = b2.endCell()"]
+    store_size_bad_86["let b_1000_bits = beginCell().storeInt(1, 257).storeInt(1, 257).storeInt(1, 257).storeInt(1, 229)"]
+    store_size_bad_87["let b3 = beginCell()"]
+    store_size_bad_88["b3 = b3.storeBuilder(b_1000_bits).storeInt(1, 25)"]
+    store_size_bad_89["c1 = b3.endCell()"]:::exitNode
+    store_size_bad_76 --> store_size_bad_77
+    store_size_bad_77 --> store_size_bad_78
+    store_size_bad_78 --> store_size_bad_79
+    store_size_bad_79 --> store_size_bad_80
+    store_size_bad_80 --> store_size_bad_81
+    store_size_bad_81 --> store_size_bad_82
+    store_size_bad_82 --> store_size_bad_83
+    store_size_bad_83 --> store_size_bad_84
+    store_size_bad_84 --> store_size_bad_85
+    store_size_bad_85 --> store_size_bad_86
+    store_size_bad_86 --> store_size_bad_87
+    store_size_bad_87 --> store_size_bad_88
+    store_size_bad_88 --> store_size_bad_89
 end
 subgraph refs_num_ok
-    refs_num_ok_185["let c1 = beginCell().storeRef(c).storeRef(c).storeRef(c).storeMaybeRef(copt).storeRef(c).endCell()"]
-    refs_num_ok_186["let b1 = beginCell()"]
-    refs_num_ok_188["b1.storeRef(c)"]
-    refs_num_ok_190["b1.storeRef(c)"]
-    refs_num_ok_192["b1.storeRef(c)"]
-    refs_num_ok_194["b1.storeRef(c)"]
-    refs_num_ok_196["b1.storeRef(c)"]
-    refs_num_ok_198["c1 = b1.endCell()"]:::exitNode
-    refs_num_ok_185 --> refs_num_ok_186
-    refs_num_ok_186 --> refs_num_ok_188
-    refs_num_ok_188 --> refs_num_ok_190
-    refs_num_ok_190 --> refs_num_ok_192
-    refs_num_ok_192 --> refs_num_ok_194
-    refs_num_ok_194 --> refs_num_ok_196
-    refs_num_ok_196 --> refs_num_ok_198
+    refs_num_ok_90["let c1 = beginCell().storeRef(c).storeRef(c).storeRef(c).storeMaybeRef(copt).storeRef(c).endCell()"]
+    refs_num_ok_91["let b1 = beginCell()"]
+    refs_num_ok_92["b1.storeRef(c)"]
+    refs_num_ok_93["b1.storeRef(c)"]
+    refs_num_ok_94["b1.storeRef(c)"]
+    refs_num_ok_95["b1.storeRef(c)"]
+    refs_num_ok_96["b1.storeRef(c)"]
+    refs_num_ok_97["c1 = b1.endCell()"]:::exitNode
+    refs_num_ok_90 --> refs_num_ok_91
+    refs_num_ok_91 --> refs_num_ok_92
+    refs_num_ok_92 --> refs_num_ok_93
+    refs_num_ok_93 --> refs_num_ok_94
+    refs_num_ok_94 --> refs_num_ok_95
+    refs_num_ok_95 --> refs_num_ok_96
+    refs_num_ok_96 --> refs_num_ok_97
 end

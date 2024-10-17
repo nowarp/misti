@@ -1,4 +1,5 @@
 import { CLIOptions, cliOptionDefaults } from "./options";
+import { MistiTactPath } from "./path";
 import {
   MistiResult,
   ToolOutput,
@@ -41,6 +42,7 @@ export class Driver {
   singleContractProjectManager: SingleContractProjectManager | undefined;
 
   private constructor(tactPath: string | undefined, options: CLIOptions) {
+    let mistiTactPath: MistiTactPath | undefined;
     if (tactPath) {
       const singleContract = tactPath.endsWith(".tact");
       if (!fs.existsSync(tactPath)) {
@@ -48,15 +50,23 @@ export class Driver {
           `${singleContract ? "Contract" : "Project"} ${tactPath} is not available.`,
         );
       }
-      this.tactConfigPath = singleContract
-        ? (() => {
-            this.singleContractProjectManager =
-              SingleContractProjectManager.fromContractPath(tactPath);
-            return this.singleContractProjectManager.createTempProjectDir();
-          })()
-        : path.resolve(tactPath); // Tact supports absolute paths only
+      if (singleContract) {
+        this.singleContractProjectManager =
+          SingleContractProjectManager.fromContractPath(tactPath);
+        this.tactConfigPath =
+          this.singleContractProjectManager.createTempProjectDir();
+        mistiTactPath = {
+          kind: "contract",
+          tempConfigPath: path.resolve(this.tactConfigPath),
+          originalPath: path.resolve(tactPath),
+        };
+      } else {
+        // Tact supports absolute paths only
+        this.tactConfigPath = path.resolve(tactPath);
+        mistiTactPath = { kind: "config", path: path.resolve(tactPath) };
+      }
     }
-    this.ctx = new MistiContext(tactPath, options);
+    this.ctx = new MistiContext(mistiTactPath, options);
     this.disabledDetectors = new Set(options.disabledDetectors ?? []);
     this.colorizeOutput = options.colors;
     this.minSeverity = options.minSeverity;

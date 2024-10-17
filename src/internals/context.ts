@@ -2,7 +2,10 @@ import { MistiConfig } from "./config";
 import { DebugLogger, Logger, QuietLogger, TraceLogger } from "./logger";
 import { CLIOptions, cliOptionDefaults } from "../cli";
 import { throwZodError } from "./exceptions";
+import { TactConfigManager } from "./tact/config";
+import { MistiTactPath, getActualPath, getProjectDirectory } from "../cli/path";
 import { execSync } from "child_process";
+import path from "path";
 
 /**
  * Represents the context for a Misti run.
@@ -10,21 +13,25 @@ import { execSync } from "child_process";
 export class MistiContext {
   logger: Logger;
   config: MistiConfig;
-  /** Indicates whether a Souffle binary is available. */
+
+  /**
+   * Indicates whether a Souffle binary is available.
+   */
   readonly souffleAvailable: boolean;
-  /** Path to a single Tact contract if executed without project config. */
-  readonly singleContractPath: string | undefined;
+
+  /**
+   * Path to the Tact contract/configuration provided by the user.
+   */
+  readonly tactPath: MistiTactPath | undefined;
 
   /**
    * Initializes the context for Misti, setting up configuration and appropriate logger.
    */
   constructor(
-    tactPath: string | undefined,
+    tactPath: MistiTactPath | undefined,
     options: CLIOptions = cliOptionDefaults,
   ) {
-    this.singleContractPath = tactPath?.endsWith(".tact")
-      ? tactPath
-      : undefined;
+    this.tactPath = tactPath;
     this.souffleAvailable = this.checkSouffleInstallation(
       options.souffleBinary,
     );
@@ -76,5 +83,22 @@ export class MistiContext {
     } catch (error) {
       return false;
     }
+  }
+
+  /**
+   * Returns entry points taking into account the user's configuration.
+   *
+   * @returns Absolute paths to entrypoint files.
+   */
+  public getEntryPoints(): string[] {
+    if (this.tactPath === undefined) {
+      return [];
+    }
+    const configPath = getActualPath(this.tactPath);
+    const projectDir = getProjectDirectory(this.tactPath);
+    const configManager = new TactConfigManager(this, configPath);
+    return configManager.config.projects.map((project) =>
+      path.resolve(projectDir, project.path),
+    );
   }
 }

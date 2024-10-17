@@ -2,46 +2,46 @@ digraph "readonly" {
     node [shape=box];
     subgraph "cluster_test1" {
         label="test1";
-        "test1_146" [label="let a: Int = 10"];
-        "test1_147" [label="return a",style=filled,fillcolor="#66A7DB"];
-        "test1_146" -> "test1_147";
+        "test1_68" [label="let a: Int = 10"];
+        "test1_69" [label="return a",style=filled,fillcolor="#66A7DB"];
+        "test1_68" -> "test1_69";
     }
     subgraph "cluster_test2" {
         label="test2";
-        "test2_149" [label="let a: Int = 10"];
-        "test2_150" [label="repeat (a)"];
-        "test2_153" [label="repeat (a)"];
-        "test2_149" -> "test2_150";
-        "test2_150" -> "test2_150";
-        "test2_150" -> "test2_153";
-        "test2_153" -> "test2_153";
+        "test2_70" [label="let a: Int = 10"];
+        "test2_71" [label="repeat (a)"];
+        "test2_72" [label="repeat (a)"];
+        "test2_70" -> "test2_71";
+        "test2_71" -> "test2_71";
+        "test2_71" -> "test2_72";
+        "test2_72" -> "test2_72";
     }
     subgraph "cluster_test3" {
         label="test3";
-        "test3_156" [label="let a: Int = 42"];
-        "test3_157" [label="if (a == 42)",style=filled,fillcolor="#66A7DB"];
-        "test3_156" -> "test3_157";
+        "test3_73" [label="let a: Int = 42"];
+        "test3_74" [label="if (a == 42)",style=filled,fillcolor="#66A7DB"];
+        "test3_73" -> "test3_74";
     }
     subgraph "cluster_test4" {
         label="test4";
-        "test4_159" [label="let a: Int = 10"];
-        "test4_160" [label="if (a == 42)",style=filled,fillcolor="#66A7DB"];
-        "test4_159" -> "test4_160";
+        "test4_75" [label="let a: Int = 10"];
+        "test4_76" [label="if (a == 42)",style=filled,fillcolor="#66A7DB"];
+        "test4_75" -> "test4_76";
     }
     subgraph "cluster_test5" {
         label="test5";
-        "test5_162" [label="let _a: Int = 10"];
-        "test5_163" [label="if (_a == 42)",style=filled,fillcolor="#66A7DB"];
-        "test5_162" -> "test5_163";
+        "test5_77" [label="let _a: Int = 10"];
+        "test5_78" [label="if (_a == 42)",style=filled,fillcolor="#66A7DB"];
+        "test5_77" -> "test5_78";
     }
     subgraph "cluster_Test__test" {
         label="Test__test";
-        "Test__test_165" [label="let result: Int? = self.m.get(a)"];
-        "Test__test_166" [label="if (result == 1)"];
-        "Test__test_168" [label="return true",style=filled,fillcolor="#66A7DB"];
-        "Test__test_170" [label="return false",style=filled,fillcolor="#66A7DB"];
-        "Test__test_165" -> "Test__test_166";
-        "Test__test_166" -> "Test__test_168";
-        "Test__test_168" -> "Test__test_170";
+        "Test__test_79" [label="let result: Int? = self.m.get(a)"];
+        "Test__test_80" [label="if (result == 1)"];
+        "Test__test_81" [label="return true",style=filled,fillcolor="#66A7DB"];
+        "Test__test_82" [label="return false",style=filled,fillcolor="#66A7DB"];
+        "Test__test_79" -> "Test__test_80";
+        "Test__test_80" -> "Test__test_81";
+        "Test__test_81" -> "Test__test_82";
     }
 }
