@@ -128,9 +128,10 @@ export class MistiTactWarning {
           const lcStr = `${lc}`;
           const lcLines = lcStr.split("\n");
           lcLines.shift();
-          const contractPath = ctx.tactPath
-            ? getOriginalPath(ctx.tactPath)
-            : loc.file;
+          const contractPath =
+            ctx.tactPath && ctx.tactPath.kind === "contract"
+              ? getOriginalPath(ctx.tactPath)
+              : loc.file;
           const shownPath = path.relative(process.cwd(), contractPath);
           return `${shownPath}:${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
         })()
