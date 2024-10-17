@@ -1,3 +1,0 @@
-contract Test {
-    external() {}
-}

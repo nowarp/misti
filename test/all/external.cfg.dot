@@ -1,6 +1,0 @@
-digraph "external" {
-    node [shape=box];
-    subgraph "cluster_Test__receive_external_fallback_1651" {
-        label="Test__receive_external_fallback_1651";
-    }
-}
