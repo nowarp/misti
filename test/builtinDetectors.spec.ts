@@ -11,6 +11,7 @@ import {
 import { executeMisti } from "../src/cli";
 import fs from "fs";
 import path from "path";
+import { getAllDetectors } from "../src/detectors/detector";
 
 /**
  * Runs a test for a single contract or a Tact project with the expected output.
@@ -103,3 +104,17 @@ if (filePathArg) {
     processSingleDetectorFile(filePath);
   });
 }
+
+describe("Built-in Detectors Tests", () => {
+  it("should have test contracts for all built-in detectors", () => {
+    const allDetectors = getAllDetectors();
+    const testFiles = fs
+      .readdirSync(DETECTORS_DIR)
+      .filter((file) => file.endsWith(".tact"));
+    const missingTests = allDetectors.filter((detector) => {
+      const expectedTestFile = `${detector}.tact`;
+      return !testFiles.includes(expectedTestFile);
+    });
+    expect(missingTests).toEqual([]);
+  });
+});
