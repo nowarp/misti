@@ -2,34 +2,34 @@ digraph "branch-duplicate" {
     node [shape=box];
     subgraph "cluster_test1" {
         label="test1";
-        "test1_144" [label="let a: Int = 42"];
-        "test1_145" [label="if (a == 42)"];
-        "test1_147" [label="a = 43",style=filled,fillcolor="#66A7DB"];
-        "test1_149" [label="a = 43",style=filled,fillcolor="#66A7DB"];
-        "test1_144" -> "test1_145";
-        "test1_145" -> "test1_147";
-        "test1_145" -> "test1_149";
+        "test1_68" [label="let a: Int = 42"];
+        "test1_69" [label="if (a == 42)"];
+        "test1_70" [label="a = 43",style=filled,fillcolor="#66A7DB"];
+        "test1_71" [label="a = 43",style=filled,fillcolor="#66A7DB"];
+        "test1_68" -> "test1_69";
+        "test1_69" -> "test1_70";
+        "test1_69" -> "test1_71";
     }
     subgraph "cluster_test2" {
         label="test2";
-        "test2_151" [label="let a: Int = 42"];
-        "test2_152" [label="return a == 42 ? a + 43 : a + 43",style=filled,fillcolor="#66A7DB"];
-        "test2_151" -> "test2_152";
+        "test2_72" [label="let a: Int = 42"];
+        "test2_73" [label="return a == 42 ? a + 43 : a + 43",style=filled,fillcolor="#66A7DB"];
+        "test2_72" -> "test2_73";
     }
     subgraph "cluster_test3" {
         label="test3";
-        "test3_154" [label="let a: Int = 42"];
-        "test3_155" [label="if (a == 42)"];
-        "test3_157" [label="a = 44",style=filled,fillcolor="#66A7DB"];
-        "test3_159" [label="a = 43",style=filled,fillcolor="#66A7DB"];
-        "test3_154" -> "test3_155";
-        "test3_155" -> "test3_157";
-        "test3_155" -> "test3_159";
+        "test3_74" [label="let a: Int = 42"];
+        "test3_75" [label="if (a == 42)"];
+        "test3_76" [label="a = 44",style=filled,fillcolor="#66A7DB"];
+        "test3_77" [label="a = 43",style=filled,fillcolor="#66A7DB"];
+        "test3_74" -> "test3_75";
+        "test3_75" -> "test3_76";
+        "test3_75" -> "test3_77";
     }
     subgraph "cluster_test4" {
         label="test4";
-        "test4_161" [label="let a: Int = 42"];
-        "test4_162" [label="return a == 42 ? a + 44 : a + 43",style=filled,fillcolor="#66A7DB"];
-        "test4_161" -> "test4_162";
+        "test4_78" [label="let a: Int = 42"];
+        "test4_79" [label="return a == 42 ? a + 44 : a + 43",style=filled,fillcolor="#66A7DB"];
+        "test4_78" -> "test4_79";
     }
 }

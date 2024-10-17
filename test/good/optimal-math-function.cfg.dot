@@ -2,20 +2,20 @@ digraph "optimal-math-function" {
     node [shape=box];
     subgraph "cluster_toCall" {
         label="toCall";
-        "toCall_142" [label="return 42",style=filled,fillcolor="#66A7DB"];
+        "toCall_68" [label="return 42",style=filled,fillcolor="#66A7DB"];
     }
     subgraph "cluster_test1" {
         label="test1";
-        "test1_143" [label="pow(3, 2)"];
-        "test1_144" [label="pow(3, 1 + 1)"];
-        "test1_146" [label="pow(3, TWO)"];
-        "test1_148" [label="pow(3, ONE + ONE)"];
-        "test1_150" [label="pow(toCall(), toCall())"];
-        "test1_152" [label="pow(toCall(), toCall() + 1)",style=filled,fillcolor="#66A7DB"];
-        "test1_143" -> "test1_144";
-        "test1_144" -> "test1_146";
-        "test1_146" -> "test1_148";
-        "test1_148" -> "test1_150";
-        "test1_150" -> "test1_152";
+        "test1_69" [label="pow(3, 2)"];
+        "test1_70" [label="pow(3, 1 + 1)"];
+        "test1_71" [label="pow(3, TWO)"];
+        "test1_72" [label="pow(3, ONE + ONE)"];
+        "test1_73" [label="pow(toCall(), toCall())"];
+        "test1_74" [label="pow(toCall(), toCall() + 1)",style=filled,fillcolor="#66A7DB"];
+        "test1_69" -> "test1_70";
+        "test1_70" -> "test1_71";
+        "test1_71" -> "test1_72";
+        "test1_72" -> "test1_73";
+        "test1_73" -> "test1_74";
     }
 }
