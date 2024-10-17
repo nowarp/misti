@@ -233,10 +233,10 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
-  UnboundLoops: {
+  UnboundLoop: {
     loader: (ctx: MistiContext) =>
-      import("./builtin/unboundLoops").then(
-        (module) => new module.UnboundLoops(ctx),
+      import("./builtin/unboundLoop").then(
+        (module) => new module.UnboundLoop(ctx),
       ),
     enabledByDefault: true,
   },

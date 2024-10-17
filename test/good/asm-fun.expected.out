@@ -1,7 +1,0 @@
-[INFO] AsmIsUsed: asm function is used
-test/good/asm-fun.tact:1:1:
-> 1 | asm(-> 1 0) extends mutates fun loadRefEx(self: Slice): Cell { LDREF }
-      ^
-  2 | 
-Help: Using TVM assembly is a potentially dangerous operation that requires additional review
-See: https://nowarp.io/tools/misti/docs/detectors/AsmIsUsed

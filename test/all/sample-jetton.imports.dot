@@ -1,0 +1,4 @@
+digraph "ImportGraph" {
+    node [shape=box];
+    node_1 [label="sample-jetton",style=filled,fillcolor="#90EE90"];
+}

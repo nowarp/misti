@@ -1,0 +1,62 @@
+[INFO] DumpIsUsed: Found `dump` usage
+test/all/syntax.tact:41:35:
+  40 |     try { /* empty */ }
+> 41 |     try { a = 19; } catch (err) { dump(err); }
+                                         ^
+  42 | }
+Help: Using `dump` in production code can sometimes indicate complex code that requires additional review
+See: https://nowarp.io/tools/misti/docs/detectors/DumpIsUsed
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
+test/all/syntax.tact:48:7:
+  47 |     while (i < 10) {
+> 48 |       i = i + 1;
+             ^
+  49 |       sum = sum + i;
+Help: Consider using augmented assignment instead: i += 1
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: sum += i
+test/all/syntax.tact:49:7:
+  48 |       i = i + 1;
+> 49 |       sum = sum + i;
+             ^
+  50 |     }
+Help: Consider using augmented assignment instead: sum += i
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: i -= 1
+test/all/syntax.tact:52:7:
+  51 |     do {
+> 52 |       i = i - 1;
+             ^
+  53 |       sum = sum + i;
+Help: Consider using augmented assignment instead: i -= 1
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: sum += i
+test/all/syntax.tact:53:7:
+  52 |       i = i - 1;
+> 53 |       sum = sum + i;
+             ^
+  54 |     } until (i > 10);
+Help: Consider using augmented assignment instead: sum += i
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
+test/all/syntax.tact:56:7:
+  55 |     repeat (10) {
+> 56 |       i = i + 1;
+             ^
+  57 |       sum = sum + i;
+Help: Consider using augmented assignment instead: i += 1
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: sum += i
+test/all/syntax.tact:57:7:
+  56 |       i = i + 1;
+> 57 |       sum = sum + i;
+             ^
+  58 |     }
+Help: Consider using augmented assignment instead: sum += i
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign

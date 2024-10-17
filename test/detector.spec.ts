@@ -1,12 +1,17 @@
 import { executeMisti } from "../src/cli";
+import { DETECTORS_DIR } from "./testUtil";
 import fs from "fs";
 import JSONbig from "json-bigint";
 import os from "os";
 import path from "path";
 
+const CONTRACT_NAME = "NeverAccessedVariables.tact";
+const ABSOLUTE_PATH = path.resolve(__dirname, DETECTORS_DIR, CONTRACT_NAME);
+const RELATIVE_PATH = path.relative(__dirname, ABSOLUTE_PATH);
+
 describe("Common detectors functionality", () => {
-  it("should generate valid JSON output for never-accessed.tact", async () => {
-    const filePath = path.resolve(__dirname, "good", "never-accessed.tact");
+  it(`should generate valid JSON output for ${CONTRACT_NAME}`, async () => {
+    const filePath = ABSOLUTE_PATH;
     const output = await executeMisti([
       "--all-detectors",
       "--no-colors",
@@ -26,16 +31,14 @@ describe("Common detectors functionality", () => {
 
     // Match the warning for "Field f2 is never used"
     expect(firstWarning).toMatchObject({
-      file: expect.stringContaining("never-accessed.tact"),
+      file: expect.stringContaining(CONTRACT_NAME),
       line: 31, // Updated to line 31
       col: 5,
       detectorId: "NeverAccessedVariables",
       severity: "MEDIUM",
       message: expect.stringContaining("Field f2 is never used"),
     });
-    expect(firstWarning.message).toContain(
-      "test/good/never-accessed.tact:31:5:",
-    );
+    expect(firstWarning.message).toContain(`${CONTRACT_NAME}:31:5:`);
     expect(firstWarning.message).toContain(
       "Help: Consider creating a constant instead of field",
     );
@@ -56,25 +59,25 @@ describe("Common detectors functionality", () => {
       suppressions: [
         {
           detector: "NeverAccessedVariables",
-          position: "test/good/never-accessed.tact:31:5",
+          position: `${RELATIVE_PATH}:31:5`,
         },
         {
           detector: "NeverAccessedVariables",
-          position: "test/good/never-accessed.tact:2:5",
+          position: `${RELATIVE_PATH}:2:5`,
         },
         {
           detector: "NeverAccessedVariables",
-          position: "test/good/never-accessed.tact:24:5",
+          position: `${RELATIVE_PATH}:24:5`,
         },
         {
           detector: "NeverAccessedVariables",
-          position: "test/good/never-accessed.tact:71:9",
+          position: `${RELATIVE_PATH}:71:9`,
         },
       ],
     };
 
     fs.writeFileSync(configPath, JSON.stringify(mockConfig, null, 2));
-    const filePath = path.resolve(__dirname, "good", "never-accessed.tact");
+    const filePath = ABSOLUTE_PATH;
     const output = await executeMisti([
       "--all-detectors",
       "--no-colors",

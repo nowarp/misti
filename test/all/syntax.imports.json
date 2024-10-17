@@ -1,0 +1,15 @@
+{
+  "nodes": [
+    {
+      "idx": 1,
+      "name": "syntax",
+      "origin": "user",
+      "importPath": "test/all/syntax.tact",
+      "language": "tact",
+      "hasContract": true,
+      "inEdges": [],
+      "outEdges": []
+    }
+  ],
+  "edges": []
+}

@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CellOverflow` detector: PR [#177](https://github.com/nowarp/misti/pulls/177)
 - Import Graph: PR [#180](https://github.com/nowarp/misti/pulls/180)
 
+### Changed
+- Improved and optimized the test suite: PR [#184](https://github.com/nowarp/misti/pull/184)
+
 ## [0.4.2] - 2024-10-12
 
 ### Fixed

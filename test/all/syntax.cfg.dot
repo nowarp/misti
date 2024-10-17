@@ -1,0 +1,63 @@
+digraph "syntax" {
+    node [shape=box];
+    subgraph "cluster_test_try" {
+        label="test_try";
+        "test_try_68" [label="try"];
+        "test_try_69" [label="a += 1"];
+        "test_try_70" [label="try"];
+        "test_try_71" [label="try ... catch (err)"];
+        "test_try_72" [label="a = 19",style=filled,fillcolor="#66A7DB"];
+        "test_try_73" [label="dump(err)",style=filled,fillcolor="#66A7DB"];
+        "test_try_68" -> "test_try_69";
+        "test_try_69" -> "test_try_70";
+        "test_try_70" -> "test_try_71";
+        "test_try_71" -> "test_try_72";
+        "test_try_71" -> "test_try_73";
+    }
+    subgraph "cluster_test_loops" {
+        label="test_loops";
+        "test_loops_74" [label="let sum: Int = 0"];
+        "test_loops_75" [label="let i: Int = 0"];
+        "test_loops_76" [label="while (i < 10)"];
+        "test_loops_77" [label="i = i + 1"];
+        "test_loops_78" [label="sum = sum + i"];
+        "test_loops_79" [label="until (i > 10)"];
+        "test_loops_80" [label="i = i - 1"];
+        "test_loops_81" [label="sum = sum + i"];
+        "test_loops_82" [label="repeat (10)"];
+        "test_loops_83" [label="i = i + 1"];
+        "test_loops_84" [label="sum = sum + i"];
+        "test_loops_85" [label="let m: map<Int, Int> = emptyMap()"];
+        "test_loops_86" [label="foreach ((k, v) of m)"];
+        "test_loops_74" -> "test_loops_75";
+        "test_loops_75" -> "test_loops_76";
+        "test_loops_76" -> "test_loops_77";
+        "test_loops_77" -> "test_loops_78";
+        "test_loops_78" -> "test_loops_76";
+        "test_loops_76" -> "test_loops_79";
+        "test_loops_79" -> "test_loops_80";
+        "test_loops_80" -> "test_loops_81";
+        "test_loops_81" -> "test_loops_79";
+        "test_loops_79" -> "test_loops_82";
+        "test_loops_82" -> "test_loops_83";
+        "test_loops_83" -> "test_loops_84";
+        "test_loops_84" -> "test_loops_82";
+        "test_loops_82" -> "test_loops_85";
+        "test_loops_85" -> "test_loops_86";
+        "test_loops_86" -> "test_loops_86";
+    }
+    subgraph "cluster_TestContract__getter" {
+        label="TestContract__getter";
+        "TestContract__getter_87" [label="return 0",style=filled,fillcolor="#66A7DB"];
+    }
+    subgraph "cluster_TestContractF__test" {
+        label="TestContractF__test";
+    }
+    subgraph "cluster_TestContractT__test" {
+        label="TestContractT__test";
+        "TestContractT__test_88" [label="return self.getA()",style=filled,fillcolor="#66A7DB"];
+    }
+    subgraph "cluster_TestContractT__receive_external_fallback_1722" {
+        label="TestContractT__receive_external_fallback_1722";
+    }
+}

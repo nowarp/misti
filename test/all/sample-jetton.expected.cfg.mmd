@@ -1,0 +1,128 @@
+graph TD
+subgraph SampleJetton__init_1905
+    SampleJetton__init_1905_68["self.totalSupply = 0"]
+    SampleJetton__init_1905_69["self.max_supply = max_supply"]
+    SampleJetton__init_1905_70["self.owner = owner"]
+    SampleJetton__init_1905_71["self.mintable = true"]
+    SampleJetton__init_1905_72["self.content = content"]:::exitNode
+    SampleJetton__init_1905_68 --> SampleJetton__init_1905_69
+    SampleJetton__init_1905_69 --> SampleJetton__init_1905_70
+    SampleJetton__init_1905_70 --> SampleJetton__init_1905_71
+    SampleJetton__init_1905_71 --> SampleJetton__init_1905_72
+end
+subgraph SampleJetton__receive_internal_simple_1855
+    SampleJetton__receive_internal_simple_1855_73["let ctx: Context = context()"]
+    SampleJetton__receive_internal_simple_1855_74["require(ctx.sender == self.owner, 'Not Owner')"]
+    SampleJetton__receive_internal_simple_1855_75["require(self.mintable, 'Can't Mint Anymore')"]
+    SampleJetton__receive_internal_simple_1855_76["self.mint(msg.receiver, msg.amount, self.owner)"]:::exitNode
+    SampleJetton__receive_internal_simple_1855_73 --> SampleJetton__receive_internal_simple_1855_74
+    SampleJetton__receive_internal_simple_1855_74 --> SampleJetton__receive_internal_simple_1855_75
+    SampleJetton__receive_internal_simple_1855_75 --> SampleJetton__receive_internal_simple_1855_76
+end
+subgraph SampleJetton__receive_internal_comment_1880_Mint__100
+    SampleJetton__receive_internal_comment_1880_Mint__100_77["let ctx: Context = context()"]
+    SampleJetton__receive_internal_comment_1880_Mint__100_78["require(self.mintable, 'Can't Mint Anymore')"]
+    SampleJetton__receive_internal_comment_1880_Mint__100_79["self.mint(ctx.sender, 100, self.owner)"]:::exitNode
+    SampleJetton__receive_internal_comment_1880_Mint__100_77 --> SampleJetton__receive_internal_comment_1880_Mint__100_78
+    SampleJetton__receive_internal_comment_1880_Mint__100_78 --> SampleJetton__receive_internal_comment_1880_Mint__100_79
+end
+subgraph SampleJetton__receive_internal_comment_1903_Owner__MintClose
+    SampleJetton__receive_internal_comment_1903_Owner__MintClose_80["let ctx: Context = context()"]
+    SampleJetton__receive_internal_comment_1903_Owner__MintClose_81["require(ctx.sender == self.owner, 'Not Owner')"]
+    SampleJetton__receive_internal_comment_1903_Owner__MintClose_82["self.mintable = false"]:::exitNode
+    SampleJetton__receive_internal_comment_1903_Owner__MintClose_80 --> SampleJetton__receive_internal_comment_1903_Owner__MintClose_81
+    SampleJetton__receive_internal_comment_1903_Owner__MintClose_81 --> SampleJetton__receive_internal_comment_1903_Owner__MintClose_82
+end
+subgraph JettonDefaultWallet__init_2908
+    JettonDefaultWallet__init_2908_83["self.balance = 0"]
+    JettonDefaultWallet__init_2908_84["self.owner = owner"]
+    JettonDefaultWallet__init_2908_85["self.master = master"]:::exitNode
+    JettonDefaultWallet__init_2908_83 --> JettonDefaultWallet__init_2908_84
+    JettonDefaultWallet__init_2908_84 --> JettonDefaultWallet__init_2908_85
+end
+subgraph JettonDefaultWallet__receive_internal_simple_2515
+    JettonDefaultWallet__receive_internal_simple_2515_86["let ctx: Context = context()"]
+    JettonDefaultWallet__receive_internal_simple_2515_87["require(ctx.sender == self.owner, 'Invalid sender')"]
+    JettonDefaultWallet__receive_internal_simple_2515_88["let fwdFee: Int = ctx.readForwardFee() + ctx.readForwardFee()"]
+    JettonDefaultWallet__receive_internal_simple_2515_89["let final: Int = 2 * self.gasConsumption + self.minTonsForStorage + fwdFee"]
+    JettonDefaultWallet__receive_internal_simple_2515_90["require(ctx.value &gt; min(final, ton('0.01')), 'Invalid value!!')"]
+    JettonDefaultWallet__receive_internal_simple_2515_91["self.balance = self.balance - msg.amount"]
+    JettonDefaultWallet__receive_internal_simple_2515_92["require(self.balance &gt;= 0, 'Invalid balance')"]
+    JettonDefaultWallet__receive_internal_simple_2515_93["let init: StateInit = initOf JettonDefaultWallet(self.master, msg.destination)"]
+    JettonDefaultWallet__receive_internal_simple_2515_94["let walletAddress: Address = contractAddress(init)"]
+    JettonDefaultWallet__receive_internal_simple_2515_95["send(SendParameters{to: walletAddress, value: 0, mode: SendRemainingValue, bounce: false, body: TokenTransferInternal{queryId: msg.queryId, amount: msg.amount, from: self.owner, response_destination: msg.response_destination, forward_ton_amount: msg.forward_ton_amount, forward_payload: msg.forward_payload}.toCell(), code: init.code, data: init.data})"]:::exitNode
+    JettonDefaultWallet__receive_internal_simple_2515_86 --> JettonDefaultWallet__receive_internal_simple_2515_87
+    JettonDefaultWallet__receive_internal_simple_2515_87 --> JettonDefaultWallet__receive_internal_simple_2515_88
+    JettonDefaultWallet__receive_internal_simple_2515_88 --> JettonDefaultWallet__receive_internal_simple_2515_89
+    JettonDefaultWallet__receive_internal_simple_2515_89 --> JettonDefaultWallet__receive_internal_simple_2515_90
+    JettonDefaultWallet__receive_internal_simple_2515_90 --> JettonDefaultWallet__receive_internal_simple_2515_91
+    JettonDefaultWallet__receive_internal_simple_2515_91 --> JettonDefaultWallet__receive_internal_simple_2515_92
+    JettonDefaultWallet__receive_internal_simple_2515_92 --> JettonDefaultWallet__receive_internal_simple_2515_93
+    JettonDefaultWallet__receive_internal_simple_2515_93 --> JettonDefaultWallet__receive_internal_simple_2515_94
+    JettonDefaultWallet__receive_internal_simple_2515_94 --> JettonDefaultWallet__receive_internal_simple_2515_95
+end
+subgraph JettonDefaultWallet__receive_internal_simple_2685
+    JettonDefaultWallet__receive_internal_simple_2685_96["let ctx: Context = context()"]
+    JettonDefaultWallet__receive_internal_simple_2685_97["if (ctx.sender != self.master)"]
+    JettonDefaultWallet__receive_internal_simple_2685_98["let sInit: StateInit = initOf JettonDefaultWallet(self.master, msg.from)"]
+    JettonDefaultWallet__receive_internal_simple_2685_99["require(contractAddress(sInit) == ctx.sender, 'Invalid sender!')"]
+    JettonDefaultWallet__receive_internal_simple_2685_100["self.balance = self.balance + msg.amount"]
+    JettonDefaultWallet__receive_internal_simple_2685_101["require(self.balance &gt;= 0, 'Invalid balance')"]
+    JettonDefaultWallet__receive_internal_simple_2685_102["if (msg.forward_ton_amount &gt; 0)"]
+    JettonDefaultWallet__receive_internal_simple_2685_103["send(SendParameters{to: self.owner, value: msg.forward_ton_amount, bounce: false, body: TokenNotification{queryId: msg.queryId, amount: msg.amount, from: msg.from, forward_payload: msg.forward_payload}.toCell()})"]
+    JettonDefaultWallet__receive_internal_simple_2685_104["let msgValue: Int = self.msgValue(ctx.value)"]
+    JettonDefaultWallet__receive_internal_simple_2685_105["let fwdFee: Int = ctx.readForwardFee()"]
+    JettonDefaultWallet__receive_internal_simple_2685_106["msgValue = msgValue - msg.forward_ton_amount - fwdFee"]
+    JettonDefaultWallet__receive_internal_simple_2685_107["if (msg.response_destination != null)"]
+    JettonDefaultWallet__receive_internal_simple_2685_108["send(SendParameters{to: !!msg.response_destination, value: msgValue, bounce: false, body: TokenExcesses{queryId: msg.queryId}.toCell(), mode: SendIgnoreErrors})"]:::exitNode
+    JettonDefaultWallet__receive_internal_simple_2685_96 --> JettonDefaultWallet__receive_internal_simple_2685_97
+    JettonDefaultWallet__receive_internal_simple_2685_97 --> JettonDefaultWallet__receive_internal_simple_2685_98
+    JettonDefaultWallet__receive_internal_simple_2685_98 --> JettonDefaultWallet__receive_internal_simple_2685_99
+    JettonDefaultWallet__receive_internal_simple_2685_99 --> JettonDefaultWallet__receive_internal_simple_2685_100
+    JettonDefaultWallet__receive_internal_simple_2685_100 --> JettonDefaultWallet__receive_internal_simple_2685_101
+    JettonDefaultWallet__receive_internal_simple_2685_101 --> JettonDefaultWallet__receive_internal_simple_2685_102
+    JettonDefaultWallet__receive_internal_simple_2685_102 --> JettonDefaultWallet__receive_internal_simple_2685_103
+    JettonDefaultWallet__receive_internal_simple_2685_103 --> JettonDefaultWallet__receive_internal_simple_2685_104
+    JettonDefaultWallet__receive_internal_simple_2685_104 --> JettonDefaultWallet__receive_internal_simple_2685_105
+    JettonDefaultWallet__receive_internal_simple_2685_105 --> JettonDefaultWallet__receive_internal_simple_2685_106
+    JettonDefaultWallet__receive_internal_simple_2685_106 --> JettonDefaultWallet__receive_internal_simple_2685_107
+    JettonDefaultWallet__receive_internal_simple_2685_107 --> JettonDefaultWallet__receive_internal_simple_2685_108
+end
+subgraph JettonDefaultWallet__msgValue
+    JettonDefaultWallet__msgValue_109["let tonBalanceBeforeMsg: Int = myBalance() - value"]
+    JettonDefaultWallet__msgValue_110["let storageFee: Int = self.minTonsForStorage - min(tonBalanceBeforeMsg, self.minTonsForStorage)"]
+    JettonDefaultWallet__msgValue_111["value -= storageFee + self.gasConsumption"]
+    JettonDefaultWallet__msgValue_112["return value"]:::exitNode
+    JettonDefaultWallet__msgValue_109 --> JettonDefaultWallet__msgValue_110
+    JettonDefaultWallet__msgValue_110 --> JettonDefaultWallet__msgValue_111
+    JettonDefaultWallet__msgValue_111 --> JettonDefaultWallet__msgValue_112
+end
+subgraph JettonDefaultWallet__receive_internal_simple_2830
+    JettonDefaultWallet__receive_internal_simple_2830_113["let ctx: Context = context()"]
+    JettonDefaultWallet__receive_internal_simple_2830_114["require(ctx.sender == self.owner, 'Invalid sender')"]
+    JettonDefaultWallet__receive_internal_simple_2830_115["self.balance = self.balance - msg.amount"]
+    JettonDefaultWallet__receive_internal_simple_2830_116["require(self.balance &gt;= 0, 'Invalid balance')"]
+    JettonDefaultWallet__receive_internal_simple_2830_117["let fwdFee: Int = ctx.readForwardFee()"]
+    JettonDefaultWallet__receive_internal_simple_2830_118["require(ctx.value &gt; fwdFee + 2 * self.gasConsumption + self.minTonsForStorage, 'Invalid value - Burn')"]
+    JettonDefaultWallet__receive_internal_simple_2830_119["send(SendParameters{to: self.master, value: 0, mode: SendRemainingValue, bounce: true, body: TokenBurnNotification{queryId: msg.queryId, amount: msg.amount, owner: self.owner, response_destination: self.owner}.toCell()})"]:::exitNode
+    JettonDefaultWallet__receive_internal_simple_2830_113 --> JettonDefaultWallet__receive_internal_simple_2830_114
+    JettonDefaultWallet__receive_internal_simple_2830_114 --> JettonDefaultWallet__receive_internal_simple_2830_115
+    JettonDefaultWallet__receive_internal_simple_2830_115 --> JettonDefaultWallet__receive_internal_simple_2830_116
+    JettonDefaultWallet__receive_internal_simple_2830_116 --> JettonDefaultWallet__receive_internal_simple_2830_117
+    JettonDefaultWallet__receive_internal_simple_2830_117 --> JettonDefaultWallet__receive_internal_simple_2830_118
+    JettonDefaultWallet__receive_internal_simple_2830_118 --> JettonDefaultWallet__receive_internal_simple_2830_119
+end
+subgraph JettonDefaultWallet__receive_bounce_2874
+    JettonDefaultWallet__receive_bounce_2874_120["let op: Int = msg.loadUint(32)"]
+    JettonDefaultWallet__receive_bounce_2874_121["let queryId: Int = msg.loadUint(64)"]
+    JettonDefaultWallet__receive_bounce_2874_122["let jettonAmount: Int = msg.loadCoins()"]
+    JettonDefaultWallet__receive_bounce_2874_123["require(op == 0x178d4519 || op == 0x7bdd97de, 'Invalid bounced message')"]
+    JettonDefaultWallet__receive_bounce_2874_124["self.balance = self.balance + jettonAmount"]:::exitNode
+    JettonDefaultWallet__receive_bounce_2874_120 --> JettonDefaultWallet__receive_bounce_2874_121
+    JettonDefaultWallet__receive_bounce_2874_121 --> JettonDefaultWallet__receive_bounce_2874_122
+    JettonDefaultWallet__receive_bounce_2874_122 --> JettonDefaultWallet__receive_bounce_2874_123
+    JettonDefaultWallet__receive_bounce_2874_123 --> JettonDefaultWallet__receive_bounce_2874_124
+end
+subgraph JettonDefaultWallet__get_wallet_data
+    JettonDefaultWallet__get_wallet_data_125["return JettonWalletData{balance: self.balance, owner: self.owner, master: self.master, walletCode: initOf JettonDefaultWallet(self.master, self.owner).code}"]:::exitNode
+end
