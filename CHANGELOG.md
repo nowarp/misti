@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `SendInLoop` detector: PR [#168](https://github.com/nowarp/misti/pulls/168)
 - `CellOverflow` detector: PR [#177](https://github.com/nowarp/misti/pulls/177)
+- Import Graph: PR [#180](https://github.com/nowarp/misti/pulls/180)
 
 ## [0.4.2] - 2024-10-12
 
