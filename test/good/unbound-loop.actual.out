@@ -1,0 +1,104 @@
+[HIGH] UnboundLoops: Found unbounded loop
+test/good/unbound-loop.tact:3:12:
+  2 |     let a: Int = 20; // read-only variable
+> 3 |     while (a > 10) { // ERROR: a is not changing within the loop
+                 ^
+  4 |     }
+The condition variable doesn't change inside the loop
+Help: Consider changing the variable inside the loop to ensure it terminates
+See: https://nowarp.io/tools/misti/docs/detectors/UnboundLoops
+
+[HIGH] UnboundLoops: Found unbounded loop
+test/good/unbound-loop.tact:11:14:
+  10 |     do  { // ERROR: a is not changing within the loop
+> 11 |     } until (a > 10);
+                    ^
+  12 |     return a;
+The condition variable doesn't change inside the loop
+Help: Consider changing the variable inside the loop to ensure it terminates
+See: https://nowarp.io/tools/misti/docs/detectors/UnboundLoops
+
+[HIGH] UnboundLoops: Found unbounded loop
+test/good/unbound-loop.tact:31:12:
+  30 |     let i: Int = 0;
+> 31 |     while (i > 0) {} // WARNING: unbound loop
+                  ^
+  32 | }
+The condition variable doesn't change inside the loop
+Help: Consider changing the variable inside the loop to ensure it terminates
+See: https://nowarp.io/tools/misti/docs/detectors/UnboundLoops
+
+[HIGH] UnboundLoops: Found unbounded loop
+test/good/unbound-loop.tact:36:17:
+  35 |     let i: Int = 0;
+> 36 |     while (10 < i) {} // WARNING: unbound loop
+                       ^
+  37 | }
+The condition variable doesn't change inside the loop
+Help: Consider changing the variable inside the loop to ensure it terminates
+See: https://nowarp.io/tools/misti/docs/detectors/UnboundLoops
+
+[HIGH] UnboundLoops: Found unbounded loop
+test/good/unbound-loop.tact:42:12:
+  41 |     let i: Bool = false;
+> 42 |     while (i) {} // WARNING: unbound loop
+                  ^
+  43 | }
+The condition variable doesn't change inside the loop
+Help: Consider changing the variable inside the loop to ensure it terminates
+See: https://nowarp.io/tools/misti/docs/detectors/UnboundLoops
+
+[HIGH] UnboundLoops: Found unbounded loop
+test/good/unbound-loop.tact:47:13:
+  46 |     let i: Bool = true;
+> 47 |     while (!i) {} // WARNING: unbound loop
+                   ^
+  48 | }
+The condition variable doesn't change inside the loop
+Help: Consider changing the variable inside the loop to ensure it terminates
+See: https://nowarp.io/tools/misti/docs/detectors/UnboundLoops
+
+[MEDIUM] ReadOnlyVariables: Read-only variable
+test/good/unbound-loop.tact:30:9:
+  29 | fun test5() {
+> 30 |     let i: Int = 0;
+               ^
+  31 |     while (i > 0) {} // WARNING: unbound loop
+Help: Consider creating a constant instead
+See: https://nowarp.io/tools/misti/docs/detectors/ReadOnlyVariables
+
+[MEDIUM] ReadOnlyVariables: Read-only variable
+test/good/unbound-loop.tact:35:9:
+  34 | fun test6() {
+> 35 |     let i: Int = 0;
+               ^
+  36 |     while (10 < i) {} // WARNING: unbound loop
+Help: Consider creating a constant instead
+See: https://nowarp.io/tools/misti/docs/detectors/ReadOnlyVariables
+
+[MEDIUM] ReadOnlyVariables: Read-only variable
+test/good/unbound-loop.tact:41:9:
+  40 | fun test7() {
+> 41 |     let i: Bool = false;
+               ^
+  42 |     while (i) {} // WARNING: unbound loop
+Help: Consider creating a constant instead
+See: https://nowarp.io/tools/misti/docs/detectors/ReadOnlyVariables
+
+[MEDIUM] ReadOnlyVariables: Read-only variable
+test/good/unbound-loop.tact:46:9:
+  45 | fun test8() {
+> 46 |     let i: Bool = true;
+               ^
+  47 |     while (!i) {} // WARNING: unbound loop
+Help: Consider creating a constant instead
+See: https://nowarp.io/tools/misti/docs/detectors/ReadOnlyVariables
+
+[MEDIUM] ReadOnlyVariables: Read-only variable
+test/good/unbound-loop.tact:69:13:
+  68 |     receive("test") {
+> 69 |         let s: S = S {
+                   ^
+  70 |             a: 1,
+Help: Consider creating a constant instead
+See: https://nowarp.io/tools/misti/docs/detectors/ReadOnlyVariables

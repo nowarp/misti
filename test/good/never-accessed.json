@@ -1,0 +1,333 @@
+{
+  "projectName": "never-accessed",
+  "functions": [
+    {
+      "name": "test1",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 151,
+            "stmtID": 1655,
+            "srcEdges": [],
+            "dstEdges": [153]
+          },
+          {
+            "id": 152,
+            "stmtID": 1660,
+            "srcEdges": [153],
+            "dstEdges": [155]
+          },
+          {
+            "id": 154,
+            "stmtID": 1659,
+            "srcEdges": [155],
+            "dstEdges": [157]
+          },
+          {
+            "id": 156,
+            "stmtID": 1662,
+            "srcEdges": [157],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 153,
+            "src": 151,
+            "dst": 152
+          },
+          {
+            "id": 155,
+            "src": 152,
+            "dst": 154
+          },
+          {
+            "id": 157,
+            "src": 154,
+            "dst": 156
+          }
+        ]
+      }
+    },
+    {
+      "name": "test2",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 158,
+            "stmtID": 1670,
+            "srcEdges": [161],
+            "dstEdges": [160]
+          },
+          {
+            "id": 159,
+            "stmtID": 1669,
+            "srcEdges": [160],
+            "dstEdges": [161]
+          }
+        ],
+        "edges": [
+          {
+            "id": 160,
+            "src": 158,
+            "dst": 159
+          },
+          {
+            "id": 161,
+            "src": 159,
+            "dst": 158
+          }
+        ]
+      }
+    },
+    {
+      "name": "test3",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 162,
+            "stmtID": 1677,
+            "srcEdges": [],
+            "dstEdges": [164]
+          },
+          {
+            "id": 163,
+            "stmtID": 1681,
+            "srcEdges": [164],
+            "dstEdges": [166]
+          },
+          {
+            "id": 165,
+            "stmtID": 1685,
+            "srcEdges": [166],
+            "dstEdges": [168]
+          },
+          {
+            "id": 167,
+            "stmtID": 1692,
+            "srcEdges": [168],
+            "dstEdges": [170]
+          },
+          {
+            "id": 169,
+            "stmtID": 1691,
+            "srcEdges": [170],
+            "dstEdges": [172]
+          },
+          {
+            "id": 171,
+            "stmtID": 1694,
+            "srcEdges": [172],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 164,
+            "src": 162,
+            "dst": 163
+          },
+          {
+            "id": 166,
+            "src": 163,
+            "dst": 165
+          },
+          {
+            "id": 168,
+            "src": 165,
+            "dst": 167
+          },
+          {
+            "id": 170,
+            "src": 167,
+            "dst": 169
+          },
+          {
+            "id": 172,
+            "src": 169,
+            "dst": 171
+          }
+        ]
+      }
+    },
+    {
+      "name": "test4",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 173,
+            "stmtID": 1701,
+            "srcEdges": [],
+            "dstEdges": [175]
+          },
+          {
+            "id": 174,
+            "stmtID": 1705,
+            "srcEdges": [175],
+            "dstEdges": [177]
+          },
+          {
+            "id": 176,
+            "stmtID": 1707,
+            "srcEdges": [177],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 175,
+            "src": 173,
+            "dst": 174
+          },
+          {
+            "id": 177,
+            "src": 174,
+            "dst": 176
+          }
+        ]
+      }
+    }
+  ],
+  "contracts": [
+    {
+      "name": "FieldTest1",
+      "methods": [
+        {
+          "name": "FieldTest1.init_1751",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 178,
+                "stmtID": 1728,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        },
+        {
+          "name": "FieldTest1.use_f1",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 179,
+                "stmtID": 1735,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        },
+        {
+          "name": "FieldTest1.forEachUse",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 180,
+                "stmtID": 1745,
+                "srcEdges": [],
+                "dstEdges": [182]
+              },
+              {
+                "id": 181,
+                "stmtID": 1749,
+                "srcEdges": [182, 183],
+                "dstEdges": [183]
+              }
+            ],
+            "edges": [
+              {
+                "id": 182,
+                "src": 180,
+                "dst": 181
+              },
+              {
+                "id": 183,
+                "src": 181,
+                "dst": 181
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "FieldTest2",
+      "methods": [
+        {
+          "name": "FieldTest2.init_1763",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 185,
+                "stmtID": 1761,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "ConstantFieldTest",
+      "methods": [
+        {
+          "name": "ConstantFieldTest.test",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 187,
+                "stmtID": 1793,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "TestContract",
+      "methods": [
+        {
+          "name": "TestContract.receive_internal_fallback_1801",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 189,
+                "stmtID": 1800,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "TestContract2",
+      "methods": [
+        {
+          "name": "TestContract2.receive_internal_fallback_1808",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 191,
+                "stmtID": 1807,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        }
+      ]
+    }
+  ]
+}
