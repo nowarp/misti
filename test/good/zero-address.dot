@@ -1,0 +1,7 @@
+digraph "zero-address" {
+    node [shape=box];
+    subgraph "cluster_SampleContract__init_1657" {
+        label="SampleContract__init_1657";
+        "SampleContract__init_1657_141" [label="newAddress(1, 0x0)",style=filled,fillcolor="#66A7DB"];
+    }
+}

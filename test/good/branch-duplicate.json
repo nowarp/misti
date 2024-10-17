@@ -1,0 +1,154 @@
+{
+  "projectName": "branch-duplicate",
+  "functions": [
+    {
+      "name": "test1",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 144,
+            "stmtID": 1654,
+            "srcEdges": [],
+            "dstEdges": [146]
+          },
+          {
+            "id": 145,
+            "stmtID": 1664,
+            "srcEdges": [146],
+            "dstEdges": [148, 150]
+          },
+          {
+            "id": 147,
+            "stmtID": 1660,
+            "srcEdges": [148],
+            "dstEdges": []
+          },
+          {
+            "id": 149,
+            "stmtID": 1663,
+            "srcEdges": [150],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 146,
+            "src": 144,
+            "dst": 145
+          },
+          {
+            "id": 148,
+            "src": 145,
+            "dst": 147
+          },
+          {
+            "id": 150,
+            "src": 145,
+            "dst": 149
+          }
+        ]
+      }
+    },
+    {
+      "name": "test2",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 151,
+            "stmtID": 1671,
+            "srcEdges": [],
+            "dstEdges": [153]
+          },
+          {
+            "id": 152,
+            "stmtID": 1682,
+            "srcEdges": [153],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 153,
+            "src": 151,
+            "dst": 152
+          }
+        ]
+      }
+    },
+    {
+      "name": "test3",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 154,
+            "stmtID": 1688,
+            "srcEdges": [],
+            "dstEdges": [156]
+          },
+          {
+            "id": 155,
+            "stmtID": 1698,
+            "srcEdges": [156],
+            "dstEdges": [158, 160]
+          },
+          {
+            "id": 157,
+            "stmtID": 1694,
+            "srcEdges": [158],
+            "dstEdges": []
+          },
+          {
+            "id": 159,
+            "stmtID": 1697,
+            "srcEdges": [160],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 156,
+            "src": 154,
+            "dst": 155
+          },
+          {
+            "id": 158,
+            "src": 155,
+            "dst": 157
+          },
+          {
+            "id": 160,
+            "src": 155,
+            "dst": 159
+          }
+        ]
+      }
+    },
+    {
+      "name": "test4",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 161,
+            "stmtID": 1705,
+            "srcEdges": [],
+            "dstEdges": [163]
+          },
+          {
+            "id": 162,
+            "stmtID": 1716,
+            "srcEdges": [163],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 163,
+            "src": 161,
+            "dst": 162
+          }
+        ]
+      }
+    }
+  ],
+  "contracts": []
+}

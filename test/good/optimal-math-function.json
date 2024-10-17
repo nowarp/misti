@@ -1,0 +1,90 @@
+{
+  "projectName": "optimal-math-function",
+  "functions": [
+    {
+      "name": "toCall",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 142,
+            "stmtID": 1663,
+            "srcEdges": [],
+            "dstEdges": []
+          }
+        ],
+        "edges": []
+      }
+    },
+    {
+      "name": "test1",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 143,
+            "stmtID": 1670,
+            "srcEdges": [],
+            "dstEdges": [145]
+          },
+          {
+            "id": 144,
+            "stmtID": 1677,
+            "srcEdges": [145],
+            "dstEdges": [147]
+          },
+          {
+            "id": 146,
+            "stmtID": 1682,
+            "srcEdges": [147],
+            "dstEdges": [149]
+          },
+          {
+            "id": 148,
+            "stmtID": 1689,
+            "srcEdges": [149],
+            "dstEdges": [151]
+          },
+          {
+            "id": 150,
+            "stmtID": 1696,
+            "srcEdges": [151],
+            "dstEdges": [153]
+          },
+          {
+            "id": 152,
+            "stmtID": 1705,
+            "srcEdges": [153],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 145,
+            "src": 143,
+            "dst": 144
+          },
+          {
+            "id": 147,
+            "src": 144,
+            "dst": 146
+          },
+          {
+            "id": 149,
+            "src": 146,
+            "dst": 148
+          },
+          {
+            "id": 151,
+            "src": 148,
+            "dst": 150
+          },
+          {
+            "id": 153,
+            "src": 150,
+            "dst": 152
+          }
+        ]
+      }
+    }
+  ],
+  "contracts": []
+}

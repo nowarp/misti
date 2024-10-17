@@ -1,0 +1,148 @@
+{
+  "projectName": "inheritance-state-mutation",
+  "functions": [],
+  "contracts": [
+    {
+      "name": "C",
+      "methods": [
+        {
+          "name": "C.init_1766",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 143,
+                "stmtID": 1698,
+                "srcEdges": [],
+                "dstEdges": [145]
+              },
+              {
+                "id": 144,
+                "stmtID": 1703,
+                "srcEdges": [145],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 145,
+                "src": 143,
+                "dst": 144
+              }
+            ]
+          }
+        },
+        {
+          "name": "C.updateBalance",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 146,
+                "stmtID": 1710,
+                "srcEdges": [],
+                "dstEdges": [148]
+              },
+              {
+                "id": 147,
+                "stmtID": 1715,
+                "srcEdges": [148],
+                "dstEdges": [150]
+              },
+              {
+                "id": 149,
+                "stmtID": 1723,
+                "srcEdges": [150],
+                "dstEdges": [152]
+              },
+              {
+                "id": 151,
+                "stmtID": 1730,
+                "srcEdges": [152],
+                "dstEdges": [154]
+              },
+              {
+                "id": 153,
+                "stmtID": 1737,
+                "srcEdges": [154],
+                "dstEdges": [156]
+              },
+              {
+                "id": 155,
+                "stmtID": 1744,
+                "srcEdges": [156],
+                "dstEdges": [158]
+              },
+              {
+                "id": 157,
+                "stmtID": 1754,
+                "srcEdges": [158],
+                "dstEdges": [160]
+              },
+              {
+                "id": 159,
+                "stmtID": 1763,
+                "srcEdges": [160],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 148,
+                "src": 146,
+                "dst": 147
+              },
+              {
+                "id": 150,
+                "src": 147,
+                "dst": 149
+              },
+              {
+                "id": 152,
+                "src": 149,
+                "dst": 151
+              },
+              {
+                "id": 154,
+                "src": 151,
+                "dst": 153
+              },
+              {
+                "id": 156,
+                "src": 153,
+                "dst": 155
+              },
+              {
+                "id": 158,
+                "src": 155,
+                "dst": 157
+              },
+              {
+                "id": 160,
+                "src": 157,
+                "dst": 159
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "V",
+      "methods": [
+        {
+          "name": "V.updateBalance",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 162,
+                "stmtID": 1799,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        }
+      ]
+    }
+  ]
+}

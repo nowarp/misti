@@ -101,7 +101,8 @@
     "Dont",
     "consteval",
     "Georgiy",
-    "Komarov"
+    "Komarov",
+    "callgraph"
   ],
   "flagWords": [],
   "ignorePaths": [

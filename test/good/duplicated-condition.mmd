@@ -1,0 +1,14 @@
+graph TD
+subgraph test
+    test_141["let a: Int = 1"]
+    test_142["a = A &gt; 5 ? A &gt; 5 ? 1 : 2 : 3"]
+    test_144["a = A &gt; 5 ? 3 : A &gt; 5 ? 1 : 2"]
+    test_146["if (A &gt; 5)"]
+    test_148["a = 1"]
+    test_150["return a"]:::exitNode
+    test_141 --> test_142
+    test_142 --> test_144
+    test_144 --> test_146
+    test_146 --> test_148
+    test_148 --> test_150
+end

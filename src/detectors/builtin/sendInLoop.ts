@@ -1,4 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
+import { CallGraph } from "../../internals/ir/callGraph";
 import { foldStatements, foldExpressions, isSelf } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
@@ -7,6 +8,7 @@ import {
   AstExpression,
   idText,
 } from "@tact-lang/compiler/dist/grammar/ast";
+import fs from "fs";
 
 /**
  * An optional detector that identifies send functions being called inside loops.
@@ -37,6 +39,10 @@ export class SendInLoop extends ASTDetector {
   severity = Severity.MEDIUM;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+    const callGraph = new CallGraph(cu.ast);
+    callGraph.build();
+    const dotOutput = callGraph.exportToDOT();
+    fs.writeFileSync("callgraph.dot", dotOutput);
     const processedLoopIds = new Set<number>();
     return Array.from(cu.ast.getProgramEntries()).reduce((acc, node) => {
       return acc.concat(

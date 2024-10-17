@@ -1,0 +1,54 @@
+digraph "arg-copy-mutation" {
+    node [shape=box];
+    subgraph "cluster_Test__test" {
+        label="Test__test";
+        "Test__test_146" [label="m.set(3, 3)"];
+        "Test__test_147" [label="a += 1"];
+        "Test__test_149" [label="a = 42"];
+        "Test__test_151" [label="let _b: Int? = m.get(3)"];
+        "Test__test_153" [label="self.m.set(3, 3)",style=filled,fillcolor="#66A7DB"];
+        "Test__test_146" -> "Test__test_147";
+        "Test__test_147" -> "Test__test_149";
+        "Test__test_149" -> "Test__test_151";
+        "Test__test_151" -> "Test__test_153";
+    }
+    subgraph "cluster_Test__testOnce" {
+        label="Test__testOnce";
+        "Test__testOnce_155" [label="m.set(1, 1)"];
+        "Test__testOnce_156" [label="m.set(2, 2)",style=filled,fillcolor="#66A7DB"];
+        "Test__testOnce_155" -> "Test__testOnce_156";
+    }
+    subgraph "cluster_Test__testForeach" {
+        label="Test__testForeach";
+        "Test__testForeach_158" [label="foreach ((key, value) of m)"];
+        "Test__testForeach_159" [label="m.set(3, 3)"];
+        "Test__testForeach_158" -> "Test__testForeach_159";
+        "Test__testForeach_159" -> "Test__testForeach_158";
+    }
+    subgraph "cluster_Test__id" {
+        label="Test__id";
+        "Test__id_162" [label="return m",style=filled,fillcolor="#66A7DB"];
+    }
+    subgraph "cluster_Test__testReturn1" {
+        label="Test__testReturn1";
+        "Test__testReturn1_163" [label="m.set(3, 3)"];
+        "Test__testReturn1_164" [label="if (WHATEVER == 0)"];
+        "Test__testReturn1_166" [label="return m",style=filled,fillcolor="#66A7DB"];
+        "Test__testReturn1_168" [label="return self.id(m)",style=filled,fillcolor="#66A7DB"];
+        "Test__testReturn1_163" -> "Test__testReturn1_164";
+        "Test__testReturn1_164" -> "Test__testReturn1_166";
+        "Test__testReturn1_164" -> "Test__testReturn1_168";
+    }
+    subgraph "cluster_Test__testReturn2" {
+        label="Test__testReturn2";
+        "Test__testReturn2_170" [label="m.set(3, 3)"];
+        "Test__testReturn2_171" [label="if (WHATEVER == 0)"];
+        "Test__testReturn2_173" [label="return m",style=filled,fillcolor="#66A7DB"];
+        "Test__testReturn2_175" [label="let mCopy: map<Int, Int> = m"];
+        "Test__testReturn2_177" [label="return mCopy",style=filled,fillcolor="#66A7DB"];
+        "Test__testReturn2_170" -> "Test__testReturn2_171";
+        "Test__testReturn2_171" -> "Test__testReturn2_173";
+        "Test__testReturn2_171" -> "Test__testReturn2_175";
+        "Test__testReturn2_175" -> "Test__testReturn2_177";
+    }
+}
