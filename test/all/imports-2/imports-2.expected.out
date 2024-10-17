@@ -1,0 +1,8 @@
+[MEDIUM] NeverAccessedVariables: Constant UNUSED is never used
+test/all/imports-2/constants.tact:3:1:
+  2 | const USED_IN_SECOND: Int = 2;
+> 3 | const UNUSED: Int = 3;
+      ^
+  4 | 
+Help: Consider removing the constant
+See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables

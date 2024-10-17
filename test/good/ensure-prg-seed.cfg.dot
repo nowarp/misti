@@ -1,7 +1,0 @@
-digraph "ensure-prg-seed" {
-    node [shape=box];
-    subgraph "cluster_C__test" {
-        label="C__test";
-        "C__test_68" [label="return nativeRandom()",style=filled,fillcolor="#66A7DB"];
-    }
-}

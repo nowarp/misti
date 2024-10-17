@@ -2,7 +2,7 @@
   "projects": [
     {
       "name": "sample",
-      "path": "good/zero-address.tact",
+      "path": "detectors/ZeroAddress.tact",
       "output": "./tmp/output",
       "options": {
         "external": true

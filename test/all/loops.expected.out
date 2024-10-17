@@ -1,0 +1,53 @@
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
+test/all/loops.tact:5:5:
+  4 |   while (i < 10) {
+> 5 |     i = i + 1;
+          ^
+  6 |     sum = sum + i;
+Help: Consider using augmented assignment instead: i += 1
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: sum += i
+test/all/loops.tact:6:5:
+  5 |     i = i + 1;
+> 6 |     sum = sum + i;
+          ^
+  7 |   }
+Help: Consider using augmented assignment instead: sum += i
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
+test/all/loops.tact:15:5:
+  14 |   do {
+> 15 |     i = i + 1;
+           ^
+  16 |     sum = sum + i;
+Help: Consider using augmented assignment instead: i += 1
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: sum += i
+test/all/loops.tact:16:5:
+  15 |     i = i + 1;
+> 16 |     sum = sum + i;
+           ^
+  17 |   } until (i < 10);
+Help: Consider using augmented assignment instead: sum += i
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
+test/all/loops.tact:25:5:
+  24 |   repeat (10) {
+> 25 |     i = i + 1;
+           ^
+  26 |     sum = sum + i;
+Help: Consider using augmented assignment instead: i += 1
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+[INFO] PreferAugmentedAssign: Prefer augmented assignment: sum += i
+test/all/loops.tact:26:5:
+  25 |     i = i + 1;
+> 26 |     sum = sum + i;
+           ^
+  27 |   }
+Help: Consider using augmented assignment instead: sum += i
+See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign

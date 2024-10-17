@@ -1,0 +1,17 @@
+[MEDIUM] NeverAccessedVariables: Write-only variable: a
+test/all/try.tact:2:5:
+  1 | fun test1(): Int {
+> 2 |     let a: Int = 42;
+          ^
+  3 |     try {
+Help: The variable value should be accessed
+See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
+
+[INFO] DumpIsUsed: Found `dump` usage
+test/all/try.tact:19:9:
+  18 |     } catch (err) {
+> 19 |         dump(err);
+               ^
+  20 |     }
+Help: Using `dump` in production code can sometimes indicate complex code that requires additional review
+See: https://nowarp.io/tools/misti/docs/detectors/DumpIsUsed

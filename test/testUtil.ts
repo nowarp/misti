@@ -4,8 +4,8 @@ import { __DANGER_resetNodeId } from "@tact-lang/compiler/dist/grammar/ast";
 import * as fs from "fs";
 import * as path from "path";
 
-export const GOOD_DIR = path.resolve(__dirname, "good");
-export const BAD_DIR = path.resolve(__dirname, "bad");
+export const ALL_DIR = path.resolve(__dirname, "all");
+export const DETECTORS_DIR = path.resolve(__dirname, "detectors");
 
 /**
  * Provides a minimal TAP-like API.
@@ -111,5 +111,5 @@ export function resetIds(): void {
  * Example usage: yarn test tactIR.spec.ts <filepath>
  */
 export function getFilePathArg(): string | undefined {
-  return process.argv.find((arg) => path.resolve(arg).includes(GOOD_DIR));
+  return process.argv.find((arg) => path.resolve(arg).includes(ALL_DIR));
 }

@@ -132,14 +132,15 @@ tags
 docs
 
 # Generated test artifacts
-test/good/**/*.config.json
-test/good/**/*.json
-test/good/**/*.dot
-test/good/**/*.mmd
-test/good/**/*.actual.out
-!test/good/**/*.cfg.json
-!test/good/**/*.cfg.dot
-!test/good/**/*.cfg.mmd
+test/all/**/*.config.json
+test/all/**/*.json
+test/all/**/*.dot
+test/all/**/*.mmd
+test/all/**/*.actual.out
+test/detectors/**/*.actual.out
+!test/all/**/*.cfg.json
+!test/all/**/*.cfg.dot
+!test/all/**/*.cfg.mmd
 
 # Generated code
 src/version-info.ts

@@ -43,13 +43,13 @@ jobs:
 
     - name: Validate expected Mermaid diagrams
       run: |
-        for file in test/good/*.mmd; do
+        for file in test/all/*.mmd; do
           mmdc -i "$file" -o /tmp/skip.svg || exit 1
         done
 
     - name: Validate expected Graphviz files
       run: |
-        for file in test/good/*.dot; do
+        for file in test/all/*.dot; do
           dot -Tdot "$file" -o /dev/null || exit 1
         done
 
