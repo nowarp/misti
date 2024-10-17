@@ -10,6 +10,14 @@ interface DumpImportGraphOptions extends Record<string, unknown> {
 }
 
 /**
+ * Colors used in visual representations.
+ */
+class Colors {
+  public static GREEN = "#90EE90";
+  public static YELLOW = "#FFFF80";
+}
+
+/**
  * A tool that dumps the import graph of the given compilation unit.
  */
 export class DumpImports extends Tool<DumpImportGraphOptions> {
@@ -56,6 +64,10 @@ export class DumpImports extends Tool<DumpImportGraphOptions> {
 
 /**
  * Class responsible for generating a Mermaid diagram representation of an ImportGraph.
+ *
+ * The mermaid representation uses the following styles:
+ * * Files containing contracts are filled with a green color
+ * * Imports from stdlib are filled with a yellow color
  */
 class MermaidDumper {
   /**
@@ -74,8 +86,12 @@ class MermaidDumper {
       }
       const nodeId = `node_${node.idx}`;
       const label = node.name;
-      const style = node.hasContract ? ":::contractNode" : "";
-      diagram += `    ${nodeId}[${label}]${style}\n`;
+      const style = node.hasContract
+        ? ":::contractNode"
+        : node.origin === "stdlib"
+          ? ":::stdlibNode"
+          : "";
+      diagram += `    ${nodeId}["${label}"]${style}\n`;
     });
     // Generate edges
     ig.edges.forEach((edge) => {
@@ -95,9 +111,9 @@ class MermaidDumper {
       const dstId = `node_${dstNode.idx}`;
       diagram += `    ${srcId} --> ${dstId}\n`;
     });
-    // Define styles for nodes with contracts
-    diagram +=
-      "    classDef contractNode fill:#66A7DB,stroke:#333,stroke-width:2px;\n";
+    // Define styles
+    diagram += `    classDef contractNode fill:${Colors.GREEN},stroke:#333,stroke-width:2px;\n`;
+    diagram += `    classDef stdlibNode fill:${Colors.YELLOW},stroke:#333,stroke-width:2px;\n`;
     return diagram;
   }
 }
@@ -106,7 +122,8 @@ class MermaidDumper {
  * Class responsible for generating a Graphviz dot representation of an ImportGraph.
  *
  * The graphviz representation uses the following styles:
- * * Nodes with contracts are filled with a specific color.
+ * * Files containing contracts are filled with a green color
+ * * Imports from stdlib are filled with a yellow color
  */
 class GraphvizDumper {
   /**
@@ -128,7 +145,9 @@ class GraphvizDumper {
       const label = node.name;
       let style = "";
       if (node.hasContract) {
-        style += ',style=filled,fillcolor="#66A7DB"';
+        style += `,style=filled,fillcolor="${Colors.GREEN}"`;
+      } else if (node.origin === "stdlib") {
+        style += `,style=filled,fillcolor="${Colors.YELLOW}"`;
       }
       graph += `    ${nodeId} [label="${label}"${style}];\n`;
     });
