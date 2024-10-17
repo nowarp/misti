@@ -1,13 +1,4 @@
-export {
-  Edge,
-  BasicBlockKind,
-  BasicBlock,
-  FunctionKind,
-  CFG,
-  getPredecessors,
-  getSuccessors,
-  EntryOrigin,
-} from "./cfg";
+export * from "./cfg";
 export { TactASTStore } from "./astStore";
 export * from "./imports";
 export { CompilationUnit, Contract } from "./ir";
