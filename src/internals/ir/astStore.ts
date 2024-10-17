@@ -3,6 +3,7 @@ import {
   AstAsmFunctionDef,
   AstConstantDef,
   AstContract,
+  SrcInfo,
   AstContractInit,
   AstFieldDecl,
   AstFunctionDef,
@@ -15,6 +16,11 @@ import {
   AstStructDecl,
   AstTrait,
 } from "@tact-lang/compiler/dist/grammar/ast";
+
+export type AstItemParams = Partial<{
+  includeStdlib: boolean;
+  filename: string | undefined;
+}>;
 
 /**
  * Provides access to AST elements defined within a single Tact project.
@@ -97,19 +103,23 @@ export class TactASTStore {
    * @param items The collection of items (functions or constants).
    * @param params Additional parameters:
    * - includeStdlib: If true, includes items defined in stdlib.
+   * - filename: Filters out nodes defined in the given file.
    * @returns An iterator for the items.
    */
-  private getItems<T extends { id: number }>(
+  private getItems<T extends { id: number; loc: SrcInfo }>(
     items: Map<number, T>,
-    { includeStdlib = false }: Partial<{ includeStdlib: boolean }> = {},
+    { includeStdlib = false, filename }: AstItemParams = {},
   ): IterableIterator<T> {
-    if (includeStdlib) {
-      return items.values();
-    }
-    const userItems = Array.from(items.values()).filter(
-      (c) => !this.stdlibIds.has(c.id),
-    );
-    return userItems.values();
+    const filteredStdout = includeStdlib
+      ? items.values()
+      : Array.from(items.values())
+          .filter((c) => !this.stdlibIds.has(c.id))
+          .values();
+    return filename === undefined
+      ? filteredStdout
+      : Array.from(filteredStdout)
+          .filter((item: T) => this.fileMatches(item, filename))
+          [Symbol.iterator]();
   }
 
   /**
@@ -118,7 +128,7 @@ export class TactASTStore {
    * - includeStdlib: If true, includes functions defined in stdlib.
    */
   getFunctions(
-    params: Partial<{ includeStdlib: boolean }> = {},
+    params: AstItemParams = {},
   ): IterableIterator<AstFunctionDef | AstReceiver | AstContractInit> {
     return this.getItems(this.functions, params);
   }
@@ -131,51 +141,50 @@ export class TactASTStore {
    * - includeContract: If true, includes constants defined within a contract.
    */
   getConstants(
-    params: Partial<{ includeStdlib: boolean; includeContract: boolean }> = {},
+    params: AstItemParams & { includeContract?: boolean } = {},
   ): IterableIterator<AstConstantDef> {
-    const { includeContract = false } = params;
-    const constants = this.getItems(this.constants, params);
-    function* filterIterator(
-      iterator: IterableIterator<AstConstantDef>,
-      condition: (item: AstConstantDef) => boolean,
-    ): IterableIterator<AstConstantDef> {
-      for (const item of iterator) {
-        if (condition(item)) {
-          yield item;
-        }
-      }
-    }
+    const { includeContract = false, ...restParams } = params;
+    const constants = this.getItems(this.constants, restParams);
     return includeContract
       ? constants
-      : filterIterator(constants, (c) => !this.contractConstants.has(c.id));
+      : this.filterIterator(
+          constants,
+          (c) => !this.contractConstants.has(c.id),
+        );
   }
 
-  getContracts(): IterableIterator<AstContract> {
-    return this.contracts.values();
+  getContracts(params: AstItemParams = {}): IterableIterator<AstContract> {
+    return this.getItems(this.contracts, params);
   }
 
-  getNativeFunctions(): IterableIterator<AstNativeFunctionDecl> {
-    return this.nativeFunctions.values();
+  getNativeFunctions(
+    params: AstItemParams = {},
+  ): IterableIterator<AstNativeFunctionDecl> {
+    return this.getItems(this.nativeFunctions, params);
   }
 
-  getAsmFunctions(): IterableIterator<AstAsmFunctionDef> {
-    return this.asmFunctions.values();
+  getAsmFunctions(
+    params: AstItemParams = {},
+  ): IterableIterator<AstAsmFunctionDef> {
+    return this.getItems(this.asmFunctions, params);
   }
 
-  getPrimitives(): IterableIterator<AstPrimitiveTypeDecl> {
-    return this.primitives.values();
+  getPrimitives(
+    params: AstItemParams = {},
+  ): IterableIterator<AstPrimitiveTypeDecl> {
+    return this.getItems(this.primitives, params);
   }
 
-  getStructs(): IterableIterator<AstStructDecl> {
-    return this.structs.values();
+  getStructs(params: AstItemParams = {}): IterableIterator<AstStructDecl> {
+    return this.getItems(this.structs, params);
   }
 
-  getMessages(): IterableIterator<AstMessageDecl> {
-    return this.messages.values();
+  getMessages(params: AstItemParams = {}): IterableIterator<AstMessageDecl> {
+    return this.getItems(this.messages, params);
   }
 
-  getTraits(): IterableIterator<AstTrait> {
-    return this.traits.values();
+  getTraits(params: AstItemParams = {}): IterableIterator<AstTrait> {
+    return this.getItems(this.traits, params);
   }
 
   /**
@@ -418,5 +427,19 @@ export class TactASTStore {
       });
     });
     return fields;
+  }
+
+  private fileMatches = (node: { loc: SrcInfo }, filename: string): boolean =>
+    node.loc.file !== null && node.loc.file === filename;
+
+  private *filterIterator<T>(
+    iterator: IterableIterator<T>,
+    condition: (item: T) => boolean,
+  ): IterableIterator<T> {
+    for (const item of iterator) {
+      if (condition(item)) {
+        yield item;
+      }
+    }
   }
 }
