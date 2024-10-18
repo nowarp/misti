@@ -98,11 +98,8 @@ export class TactIRBuilder {
   build(): CompilationUnit {
     const functions = this.createFunctions();
     const contracts = this.createContracts();
-
     const tactASTStore = TactASTStoreBuilder.make(this.ctx, this.ast).build();
-
     const callGraph = new CallGraph().build(tactASTStore);
-
     return new CompilationUnit(
       this.projectName,
       tactASTStore,
