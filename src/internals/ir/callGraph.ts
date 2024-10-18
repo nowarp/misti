@@ -184,10 +184,24 @@ export class CallGraph {
     if (!srcNode || !dstNode) {
       return false;
     }
-    for (const edgeId of srcNode.outEdges) {
-      const edge = this.edgesMap.get(edgeId);
-      if (edge && edge.dst === dst) {
+    const queue: number[] = [src];
+    const visited = new Set<number>([src]);
+
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+
+      if (current === dst) {
         return true;
+      }
+      const currentNode = this.nodeMap.get(current);
+      if (currentNode) {
+        for (const edgeId of currentNode.outEdges) {
+          const edge = this.edgesMap.get(edgeId);
+          if (edge && !visited.has(edge.dst)) {
+            visited.add(edge.dst);
+            queue.push(edge.dst);
+          }
+        }
       }
     }
     return false;
