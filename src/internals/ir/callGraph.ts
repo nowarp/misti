@@ -157,12 +157,12 @@ export class CallGraph {
 
   private findOrAddFunction(name: string): number {
     const existingNode = Array.from(this.nodeMap.values()).find(
-      (node) => node.name === name,
+      (node: CGNode) => node.name === name,
     );
     if (existingNode) {
       return existingNode.astId;
     }
-    const newNode = new CGNode(IdxGenerator.next("node"), name);
+    const newNode = new CGNode(IdxGenerator.next("cg_node"), name);
     this.nodeMap.set(newNode.astId, newNode);
     return newNode.astId;
   }
@@ -178,6 +178,21 @@ export class CallGraph {
     }
   }
 
+  areConnected(src: number, dst: number): boolean {
+    const srcNode = this.nodeMap.get(src);
+    const dstNode = this.nodeMap.get(dst);
+    if (!srcNode || !dstNode) {
+      return false;
+    }
+    for (const edgeId of srcNode.outEdges) {
+      const edge = this.edgesMap.get(edgeId);
+      if (edge && edge.dst === dst) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   exportToDOT(): string {
     let dot = "digraph CallGraph {\n";
     for (const node of this.nodeMap.values()) {
@@ -187,7 +202,7 @@ export class CallGraph {
       const srcNode = this.nodeMap.get(edge.src);
       const dstNode = this.nodeMap.get(edge.dst);
       if (srcNode && dstNode) {
-        dot += `  "${srcNode.name}" -> "${dstNode.name}";\n`;
+        dot += `  "${srcNode.name}" -> "${dstNode.name}" [label="${edge.idx}"];\n`;
       } else {
         console.warn(`Missing node for edge: ${edge.src} -> ${edge.dst}`);
       }
