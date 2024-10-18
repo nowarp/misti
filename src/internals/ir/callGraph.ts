@@ -17,7 +17,7 @@ class CGEdge {
   public dst: number;
 
   constructor(src: number, dst: number) {
-    this.idx = IdxGenerator.next("edge");
+    this.idx = IdxGenerator.next("cg_edge");
     this.src = src;
     this.dst = dst;
   }
@@ -29,7 +29,7 @@ class CGNode {
     public astId: number,
     public name: string,
   ) {
-    this.idx = IdxGenerator.next("node");
+    this.idx = IdxGenerator.next("cg_node");
   }
 }
 
@@ -44,6 +44,7 @@ export class CallGraph {
   build() {
     this.addFunctionsToNodes();
     this.analyzeFunctionCalls();
+    return this;
   }
 
   private addFunctionsToNodes() {

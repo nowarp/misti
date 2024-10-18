@@ -39,10 +39,6 @@ export class SendInLoop extends ASTDetector {
   severity = Severity.MEDIUM;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
-    const callGraph = new CallGraph(cu.ast);
-    callGraph.build();
-    const dotOutput = callGraph.exportToDOT();
-    fs.writeFileSync("callgraph.dot", dotOutput);
     const processedLoopIds = new Set<number>();
     return Array.from(cu.ast.getProgramEntries()).reduce((acc, node) => {
       return acc.concat(

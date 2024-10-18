@@ -29,6 +29,7 @@ import {
   isSelfId,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { AstStore } from "@tact-lang/compiler/dist/grammar/store";
+import { CallGraph } from "../callGraph";
 
 /**
  * Generates a unique name used to identify receive functions in CFG.
@@ -91,20 +92,30 @@ export class TactIRBuilder {
     return new TactIRBuilder(ctx, projectName, ast);
   }
 
-  /**
-   * Transforms an AST into a `CompilationUnit` object.
-   */
-  build(): CompilationUnit {
-    const functions = this.createFunctions();
-    const contracts = this.createContracts();
-    return new CompilationUnit(
-      this.projectName,
-      TactASTStoreBuilder.make(this.ctx, this.ast).build(),
-      ImportGraphBuilder.make(this.ctx).build(),
-      functions,
-      contracts,
-    );
-  }
+/**
+ * Transforms an AST into a `CompilationUnit` object.
+ */
+build(): CompilationUnit {
+  const functions = this.createFunctions();
+  const contracts = this.createContracts();
+  
+  // Ensure the correct type of ast is passed (convert if necessary)
+  const tactASTStore = TactASTStoreBuilder.make(this.ctx, this.ast).build();
+
+  // Generate the call graph here and ensure it returns the instance of CallGraph
+  const callGraph = new CallGraph(tactASTStore).build();  // Now returns the CallGraph instance
+
+  // Include callGraph in the CompilationUnit
+  return new CompilationUnit(
+    this.projectName,
+    tactASTStore,  // Now using the correct TactASTStore
+    ImportGraphBuilder.make(this.ctx).build(),
+    functions,
+    contracts,
+    callGraph // Attach the call graph here
+  );
+}
+
 
   /**
    * Assign the unique CFG indices to free function definitions.
