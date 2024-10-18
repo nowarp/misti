@@ -13,11 +13,13 @@ import {
 
 class CGEdge {
   public idx: number;
-  constructor(
-    public src: number,
-    public dst: number,
-  ) {
+  public src: number;
+  public dst: number;
+
+  constructor(src: number, dst: number) {
     this.idx = IdxGenerator.next("edge");
+    this.src = src;
+    this.dst = dst;
   }
 }
 
