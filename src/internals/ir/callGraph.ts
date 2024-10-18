@@ -116,6 +116,11 @@ export class CallGraph {
             this.processExpression(stmt.expression, callerId);
           }
           break;
+        case "statement_augmentedassign":
+          if (stmt.expression) {
+            this.processExpression(stmt.expression, callerId);
+          }
+          break;
         default:
           console.warn(`Unhandled statement type: ${(stmt as any).kind}`, stmt);
       }
@@ -147,15 +152,21 @@ export class CallGraph {
     expr: AstExpression | AstStructFieldInitializer,
     callback: (expr: AstExpression | AstStructFieldInitializer) => void,
   ) {
+    // Call the callback for the current expression
     callback(expr);
-    if ("args" in expr && Array.isArray(expr.args)) {
-      for (const arg of expr.args) {
-        this.forEachExpression(arg, callback);
-      }
-    } else if ("value" in expr) {
-      const initializer = expr as any;
-      if (initializer.value) {
-        this.forEachExpression(initializer.value, callback);
+
+    // Ensure that the current expression is an object before processing further
+    if (typeof expr === "object" && expr !== null) {
+      // Recursively process nested expressions if they exist
+      if ("args" in expr && Array.isArray(expr.args)) {
+        for (const arg of expr.args) {
+          this.forEachExpression(arg, callback);
+        }
+      } else if ("value" in expr) {
+        const initializer = expr as any;
+        if (initializer.value) {
+          this.forEachExpression(initializer.value, callback);
+        }
       }
     }
   }
