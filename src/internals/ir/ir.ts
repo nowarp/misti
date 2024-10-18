@@ -37,7 +37,7 @@ export class CompilationUnit {
     public imports: ImportGraph,
     public functions: Map<CFGIdx, CFG>,
     public contracts: Map<ContractIdx, Contract>,
-    public callGraph: CallGraph
+    public callGraph: CallGraph,
   ) {}
 
   /**

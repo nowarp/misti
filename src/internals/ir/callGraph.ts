@@ -1,3 +1,4 @@
+import { unreachable } from "../util";
 import { TactASTStore } from "./astStore";
 import { IdxGenerator } from "./indices";
 import {
@@ -38,10 +39,11 @@ export class CallGraph {
   public edges: CGEdge[] = [];
   private nodeMap: Map<number, CGNode> = new Map();
   private edgeMap: Map<number, Set<number>> = new Map();
+  private astStore!: TactASTStore;
 
-  constructor(public astStore: TactASTStore) {}
-
-  build() {
+  constructor() {}
+  build(astStore: TactASTStore): CallGraph {
+    this.astStore = astStore;
     this.addFunctionsToNodes();
     this.analyzeFunctionCalls();
     return this;
@@ -70,10 +72,16 @@ export class CallGraph {
   private getFunctionName(
     func: AstFunctionDef | AstReceiver | AstContractInit,
   ): string | undefined {
-    if (func.kind === "function_def") return func.name.text;
-    if (func.kind === "contract_init") return "contract_init";
-    if (func.kind === "receiver") return "receiver";
-    return undefined;
+    switch (func.kind) {
+      case "function_def":
+        return func.name.text;
+      case "contract_init":
+        return "contract_init";
+      case "receiver":
+        return "receiver";
+      default:
+        unreachable(func);
+    }
   }
 
   private processStatements(statements: AstStatement[], callerId: number) {
@@ -118,31 +126,36 @@ export class CallGraph {
     expr: AstExpression | AstStructFieldInitializer,
     callerId: number,
   ) {
-    let calleeId: number | undefined;
+    this.forEachExpression(expr, (nestedExpr) => {
+      let calleeId: number | undefined;
 
-    if ("kind" in expr) {
-      if (expr.kind === "static_call") {
-        const staticCall = expr as AstStaticCall;
+      if (nestedExpr.kind === "static_call") {
+        const staticCall = nestedExpr as AstStaticCall;
         calleeId = this.findOrAddFunction(staticCall.function.text);
-      } else if (expr.kind === "method_call") {
-        const methodCall = expr as AstMethodCall;
+      } else if (nestedExpr.kind === "method_call") {
+        const methodCall = nestedExpr as AstMethodCall;
         calleeId = this.findOrAddFunction(methodCall.method.text);
       }
 
       if (calleeId !== undefined) {
         this.addEdge(callerId, calleeId);
       }
+    });
+  }
 
-      // Recursively process nested expressions
-      if ("args" in expr && Array.isArray(expr.args)) {
-        for (const arg of expr.args) {
-          this.processExpression(arg, callerId);
-        }
+  private forEachExpression(
+    expr: AstExpression | AstStructFieldInitializer,
+    callback: (expr: AstExpression | AstStructFieldInitializer) => void,
+  ) {
+    callback(expr);
+    if ("args" in expr && Array.isArray(expr.args)) {
+      for (const arg of expr.args) {
+        this.forEachExpression(arg, callback);
       }
     } else if ("value" in expr) {
       const initializer = expr as any;
       if (initializer.value) {
-        this.processExpression(initializer.value, callerId);
+        this.forEachExpression(initializer.value, callback);
       }
     }
   }

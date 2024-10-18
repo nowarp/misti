@@ -20,6 +20,7 @@ import { InternalException } from "../../exceptions";
 import { formatPosition } from "../../tact";
 import { TactConfigManager } from "../../tact/config";
 import { unreachable } from "../../util";
+import { CallGraph } from "../callGraph";
 import {
   AstContractDeclaration,
   AstExpression,
@@ -29,7 +30,6 @@ import {
   isSelfId,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { AstStore } from "@tact-lang/compiler/dist/grammar/store";
-import { CallGraph } from "../callGraph";
 
 /**
  * Generates a unique name used to identify receive functions in CFG.
@@ -92,30 +92,26 @@ export class TactIRBuilder {
     return new TactIRBuilder(ctx, projectName, ast);
   }
 
-/**
- * Transforms an AST into a `CompilationUnit` object.
- */
-build(): CompilationUnit {
-  const functions = this.createFunctions();
-  const contracts = this.createContracts();
-  
-  // Ensure the correct type of ast is passed (convert if necessary)
-  const tactASTStore = TactASTStoreBuilder.make(this.ctx, this.ast).build();
+  /**
+   * Transforms an AST into a `CompilationUnit` object.
+   */
+  build(): CompilationUnit {
+    const functions = this.createFunctions();
+    const contracts = this.createContracts();
 
-  // Generate the call graph here and ensure it returns the instance of CallGraph
-  const callGraph = new CallGraph(tactASTStore).build();  // Now returns the CallGraph instance
+    const tactASTStore = TactASTStoreBuilder.make(this.ctx, this.ast).build();
 
-  // Include callGraph in the CompilationUnit
-  return new CompilationUnit(
-    this.projectName,
-    tactASTStore,  // Now using the correct TactASTStore
-    ImportGraphBuilder.make(this.ctx).build(),
-    functions,
-    contracts,
-    callGraph // Attach the call graph here
-  );
-}
+    const callGraph = new CallGraph().build(tactASTStore);
 
+    return new CompilationUnit(
+      this.projectName,
+      tactASTStore,
+      ImportGraphBuilder.make(this.ctx).build(),
+      functions,
+      contracts,
+      callGraph,
+    );
+  }
 
   /**
    * Assign the unique CFG indices to free function definitions.
