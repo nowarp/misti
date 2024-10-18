@@ -12,20 +12,20 @@ import {
   AstStructFieldInitializer,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
-class CGEdge {
+export class CGEdge {
   public idx: number;
-  public src: number;
-  public dst: number;
-
-  constructor(src: number, dst: number) {
+  constructor(
+    public src: number,
+    public dst: number,
+  ) {
     this.idx = IdxGenerator.next("cg_edge");
-    this.src = src;
-    this.dst = dst;
   }
 }
 
-class CGNode {
+export class CGNode {
   public idx: number;
+  public inEdges: Set<number> = new Set();
+  public outEdges: Set<number> = new Set();
   constructor(
     public astId: number,
     public name: string,
@@ -35,33 +35,26 @@ class CGNode {
 }
 
 export class CallGraph {
-  public nodes: CGNode[] = [];
-  public edges: CGEdge[] = [];
   private nodeMap: Map<number, CGNode> = new Map();
-  private edgeMap: Map<number, Set<number>> = new Map();
-  private astStore!: TactASTStore;
-
-  constructor() {}
+  private edgesMap: Map<number, CGEdge> = new Map();
   build(astStore: TactASTStore): CallGraph {
-    this.astStore = astStore;
-    this.addFunctionsToNodes();
-    this.analyzeFunctionCalls();
+    this.addFunctionsToNodes(astStore);
+    this.analyzeFunctionCalls(astStore);
     return this;
   }
 
-  private addFunctionsToNodes() {
-    for (const func of this.astStore.getFunctions()) {
+  private addFunctionsToNodes(astStore: TactASTStore) {
+    for (const func of astStore.getFunctions()) {
       const funcName = this.getFunctionName(func);
       if (funcName) {
         const node = new CGNode(func.id, funcName);
-        this.nodes.push(node);
         this.nodeMap.set(func.id, node);
       }
     }
   }
 
-  private analyzeFunctionCalls() {
-    for (const func of this.astStore.getFunctions()) {
+  private analyzeFunctionCalls(astStore: TactASTStore) {
+    for (const func of astStore.getFunctions()) {
       const funcName = this.getFunctionName(func);
       if (funcName) {
         this.processStatements(func.statements, func.id);
@@ -76,9 +69,9 @@ export class CallGraph {
       case "function_def":
         return func.name.text;
       case "contract_init":
-        return "contract_init";
+        return `contract_init_${func.id}`;
       case "receiver":
-        return "receiver";
+        return `receiver_${func.id}`;
       default:
         unreachable(func);
     }
@@ -112,10 +105,6 @@ export class CallGraph {
         case "statement_let":
         case "statement_return":
         case "statement_assign":
-          if ("expression" in stmt && stmt.expression) {
-            this.processExpression(stmt.expression, callerId);
-          }
-          break;
         case "statement_augmentedassign":
           if (stmt.expression) {
             this.processExpression(stmt.expression, callerId);
@@ -133,7 +122,6 @@ export class CallGraph {
   ) {
     this.forEachExpression(expr, (nestedExpr) => {
       let calleeId: number | undefined;
-
       if (nestedExpr.kind === "static_call") {
         const staticCall = nestedExpr as AstStaticCall;
         calleeId = this.findOrAddFunction(staticCall.function.text);
@@ -141,7 +129,6 @@ export class CallGraph {
         const methodCall = nestedExpr as AstMethodCall;
         calleeId = this.findOrAddFunction(methodCall.method.text);
       }
-
       if (calleeId !== undefined) {
         this.addEdge(callerId, calleeId);
       }
@@ -152,12 +139,9 @@ export class CallGraph {
     expr: AstExpression | AstStructFieldInitializer,
     callback: (expr: AstExpression | AstStructFieldInitializer) => void,
   ) {
-    // Call the callback for the current expression
     callback(expr);
 
-    // Ensure that the current expression is an object before processing further
     if (typeof expr === "object" && expr !== null) {
-      // Recursively process nested expressions if they exist
       if ("args" in expr && Array.isArray(expr.args)) {
         for (const arg of expr.args) {
           this.forEachExpression(arg, callback);
@@ -172,40 +156,34 @@ export class CallGraph {
   }
 
   private findOrAddFunction(name: string): number {
-    const existingFunc = Array.from(this.nodeMap.values()).find(
+    const existingNode = Array.from(this.nodeMap.values()).find(
       (node) => node.name === name,
     );
-    if (existingFunc) return existingFunc.astId;
-
+    if (existingNode) {
+      return existingNode.astId;
+    }
     const newNode = new CGNode(IdxGenerator.next("node"), name);
-    this.nodes.push(newNode);
     this.nodeMap.set(newNode.astId, newNode);
     return newNode.astId;
   }
 
   private addEdge(src: number, dst: number) {
-    if (!this.areConnected(src, dst)) {
+    const srcNode = this.nodeMap.get(src);
+    const dstNode = this.nodeMap.get(dst);
+    if (srcNode && dstNode) {
       const edge = new CGEdge(src, dst);
-      this.edges.push(edge);
-
-      if (!this.edgeMap.has(src)) {
-        this.edgeMap.set(src, new Set());
-      }
-      this.edgeMap.get(src)!.add(dst);
+      this.edgesMap.set(edge.idx, edge);
+      srcNode.outEdges.add(edge.idx);
+      dstNode.inEdges.add(edge.idx);
     }
-  }
-
-  areConnected(src: number, dst: number): boolean {
-    const edgesFromSrc = this.edgeMap.get(src);
-    return edgesFromSrc ? edgesFromSrc.has(dst) : false;
   }
 
   exportToDOT(): string {
     let dot = "digraph CallGraph {\n";
-    for (const node of this.nodes) {
+    for (const node of this.nodeMap.values()) {
       dot += `  "${node.name}" [label="${node.name}"];\n`;
     }
-    for (const edge of this.edges) {
+    for (const edge of this.edgesMap.values()) {
       const srcNode = this.nodeMap.get(edge.src);
       const dstNode = this.nodeMap.get(edge.dst);
       if (srcNode && dstNode) {
