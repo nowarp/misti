@@ -20,6 +20,7 @@ import { InternalException } from "../../exceptions";
 import { formatPosition } from "../../tact";
 import { TactConfigManager } from "../../tact/config";
 import { unreachable } from "../../util";
+import { CallGraph } from "../callGraph";
 import {
   AstContractDeclaration,
   AstExpression,
@@ -97,12 +98,15 @@ export class TactIRBuilder {
   build(): CompilationUnit {
     const functions = this.createFunctions();
     const contracts = this.createContracts();
+    const tactASTStore = TactASTStoreBuilder.make(this.ctx, this.ast).build();
+    const callGraph = new CallGraph().build(tactASTStore);
     return new CompilationUnit(
       this.projectName,
-      TactASTStoreBuilder.make(this.ctx, this.ast).build(),
+      tactASTStore,
       ImportGraphBuilder.make(this.ctx).build(),
       functions,
       contracts,
+      callGraph,
     );
   }
 
