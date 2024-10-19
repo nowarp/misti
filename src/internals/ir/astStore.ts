@@ -18,9 +18,14 @@ import {
   AstTrait,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
+/**
+ * Parameters for filtering AST items.
+ */
 export type AstItemParams = Partial<{
+  /** Include standard library items if true. */
   includeStdlib: boolean;
-  filename: string | undefined;
+  /** Filter items by specific filename. */
+  filename?: string;
 }>;
 
 type Filename = string;
@@ -72,37 +77,51 @@ export class TactASTStore {
   /**
    * Returns top-level program entries in order as they defined in each file.
    */
-  public getProgramEntries(includeStdlib: boolean = false): AstNode[] {
+  public getProgramEntries({
+    includeStdlib = false,
+    filename = undefined,
+  }: Partial<AstItemParams> = {}): Exclude<AstNode, AstModule>[] {
     return Array.from(this.programEntries.values()).flatMap((idSet) =>
-      Array.from(idSet).reduce((acc, id) => {
-        if (!includeStdlib && this.stdlibIds.has(id)) {
+      Array.from(idSet).reduce(
+        (acc, id) => {
+          if (!includeStdlib && this.stdlibIds.has(id)) {
+            return acc;
+          }
+          let astNode: Exclude<AstNode, AstModule> | undefined;
+          if (this.functions.has(id)) {
+            astNode = this.functions.get(id);
+          } else if (this.constants.has(id)) {
+            astNode = this.constants.get(id);
+          } else if (this.contracts.has(id)) {
+            astNode = this.contracts.get(id);
+          } else if (this.nativeFunctions.has(id)) {
+            astNode = this.nativeFunctions.get(id);
+          } else if (this.asmFunctions.has(id)) {
+            astNode = this.asmFunctions.get(id);
+          } else if (this.primitives.has(id)) {
+            astNode = this.primitives.get(id);
+          } else if (this.structs.has(id)) {
+            astNode = this.structs.get(id);
+          } else if (this.messages.has(id)) {
+            astNode = this.messages.get(id);
+          } else if (this.traits.has(id)) {
+            astNode = this.traits.get(id);
+          } else {
+            throw InternalException.make(`No entry found for ID: ${id}`);
+          }
+          if (
+            astNode &&
+            (filename === undefined || this.fileMatches(astNode, filename))
+          ) {
+            acc.push(astNode);
+          }
           return acc;
-        }
-        if (this.functions.has(id)) {
-          acc.push(this.functions.get(id)!);
-        } else if (this.constants.has(id)) {
-          acc.push(this.constants.get(id)!);
-        } else if (this.contracts.has(id)) {
-          acc.push(this.contracts.get(id)!);
-        } else if (this.nativeFunctions.has(id)) {
-          acc.push(this.nativeFunctions.get(id)!);
-        } else if (this.asmFunctions.has(id)) {
-          acc.push(this.asmFunctions.get(id)!);
-        } else if (this.primitives.has(id)) {
-          acc.push(this.primitives.get(id)!);
-        } else if (this.structs.has(id)) {
-          acc.push(this.structs.get(id)!);
-        } else if (this.messages.has(id)) {
-          acc.push(this.messages.get(id)!);
-        } else if (this.traits.has(id)) {
-          acc.push(this.traits.get(id)!);
-        } else {
-          throw InternalException.make(`No entry found for ID: ${id}`);
-        }
-        return acc;
-      }, [] as AstNode[]),
+        },
+        [] as Exclude<AstNode, AstModule>[],
+      ),
     );
   }
+
   /**
    * Returns all the items defined within the program.
    * @param items The collection of items (functions or constants).
