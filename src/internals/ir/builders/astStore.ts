@@ -24,7 +24,7 @@ import { AstStore } from "@tact-lang/compiler/dist/grammar/store";
  * Transforms AstStore to TactASTStore.
  */
 export class TactASTStoreBuilder {
-  private programEntries = new Set<number>();
+  private programEntries: Map<string, Set<number>> = new Map();
   private stdlibIds = new Set<number>();
   private contractConstants = new Set<number>();
   private functions = new Map<
@@ -58,7 +58,14 @@ export class TactASTStoreBuilder {
     processor: (element: T) => void,
   ): void {
     elements.forEach((element) => {
-      this.programEntries.add(element.id);
+      const filename = element.loc.file;
+      if (filename === null) return;
+      const elements = this.programEntries.get(filename);
+      if (elements) {
+        elements.add(element.id);
+      } else {
+        this.programEntries.set(filename, new Set([element.id]));
+      }
       if (definedInStdlib(this.ctx, element.loc)) {
         this.stdlibIds.add(element.id);
       }

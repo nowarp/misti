@@ -9,8 +9,7 @@ import { IdxGenerator } from "./indices";
 import { BasicBlockIdx, CFGIdx, EdgeIdx, FunctionName } from "./types";
 import { InternalException } from "../exceptions";
 import { AstStatement, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
-
-export type EntryOrigin = "user" | "stdlib";
+import { ItemOrigin } from "@tact-lang/compiler/dist/grammar/grammar";
 
 /**
  * Represents an edge in a Control Flow Graph (CFG), connecting two basic blocks.
@@ -117,7 +116,7 @@ export class CFG {
     public name: FunctionName,
     public id: number,
     public kind: FunctionKind,
-    public origin: EntryOrigin,
+    public origin: ItemOrigin,
     public nodes: BasicBlock[],
     public edges: Edge[],
     public ref: SrcInfo,
