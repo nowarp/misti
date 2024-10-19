@@ -37,6 +37,12 @@ export class CGNode {
 export class CallGraph {
   private nodeMap: Map<number, CGNode> = new Map();
   private edgesMap: Map<number, CGEdge> = new Map();
+  public getNodes(): Map<number, CGNode> {
+    return this.nodeMap;
+  }
+  public getEdges(): Map<number, CGEdge> {
+    return this.edgesMap;
+  }
   build(astStore: TactASTStore): CallGraph {
     this.addFunctionsToNodes(astStore);
     this.analyzeFunctionCalls(astStore);
@@ -137,21 +143,23 @@ export class CallGraph {
 
   private forEachExpression(
     expr: AstExpression | AstStructFieldInitializer,
-    callback: (expr: AstExpression | AstStructFieldInitializer) => void,
+    callback: (expr: AstExpression) => void,
   ) {
-    callback(expr);
+    if (expr.kind !== "struct_field_initializer") {
+      callback(expr as AstExpression);
+    }
 
-    if (typeof expr === "object" && expr !== null) {
-      if ("args" in expr && Array.isArray(expr.args)) {
-        for (const arg of expr.args) {
+    switch (expr.kind) {
+      case "static_call":
+      case "method_call": {
+        const callExpr = expr as AstStaticCall | AstMethodCall;
+        for (const arg of callExpr.args) {
           this.forEachExpression(arg, callback);
         }
-      } else if ("value" in expr) {
-        const initializer = expr as any;
-        if (initializer.value) {
-          this.forEachExpression(initializer.value, callback);
-        }
+        break;
       }
+      default:
+        break;
     }
   }
 
@@ -205,23 +213,5 @@ export class CallGraph {
       }
     }
     return false;
-  }
-
-  exportToDOT(): string {
-    let dot = "digraph CallGraph {\n";
-    for (const node of this.nodeMap.values()) {
-      dot += `  "${node.name}" [label="${node.name}"];\n`;
-    }
-    for (const edge of this.edgesMap.values()) {
-      const srcNode = this.nodeMap.get(edge.src);
-      const dstNode = this.nodeMap.get(edge.dst);
-      if (srcNode && dstNode) {
-        dot += `  "${srcNode.name}" -> "${dstNode.name}" [label="${edge.idx}"];\n`;
-      } else {
-        console.warn(`Missing node for edge: ${edge.src} -> ${edge.dst}`);
-      }
-    }
-    dot += "}";
-    return dot;
   }
 }
