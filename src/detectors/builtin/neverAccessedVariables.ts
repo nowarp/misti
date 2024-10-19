@@ -8,7 +8,7 @@ import {
   forEachExpression,
 } from "../../internals/tact";
 import { Transfer } from "../../internals/transfer";
-import { mergeSets, isSubsetOf } from "../../internals/util";
+import { mergeSets, isSetSubsetOf } from "../../internals/util";
 import { unreachable } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector, WarningsBehavior } from "../detector";
@@ -59,8 +59,8 @@ class VariableUsageLattice implements JoinSemilattice<VariableState> {
   leq(a: VariableState, b: VariableState): boolean {
     return (
       [...a.declared.extract()].every((x) => b.declared.has(x)) &&
-      isSubsetOf(a.accessed, b.accessed) &&
-      isSubsetOf(a.written, b.written)
+      isSetSubsetOf(a.accessed, b.accessed) &&
+      isSetSubsetOf(a.written, b.written)
     );
   }
 }
