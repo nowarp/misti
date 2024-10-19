@@ -1,7 +1,7 @@
 import { Tool } from "./tool";
 import { ToolOutput } from "../cli/result";
 import { CompilationUnit } from "../internals/ir";
-import { CGNode, CGEdge, CallGraph } from "../internals/ir/callGraph";
+import { CallGraph, CGEdge, CGNode } from "../internals/ir/callGraph";
 import { unreachable } from "../internals/util";
 import * as fs from "fs";
 import JSONbig from "json-bigint";
@@ -17,49 +17,63 @@ interface DumpCallGraphOptions extends Record<string, unknown> {
  */
 export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
   get defaultOptions(): DumpCallGraphOptions {
-    return {
-      format: "json",
-      outputPath: ".",
-    };
+    throw new Error("Method not implemented.");
   }
-
   getDescription(): string {
-    return "Dumps the Call Graph (CG) of the given compilation unit into various formats (dot, json, mmd).";
+    throw new Error("Method not implemented.");
   }
-
   getOptionDescriptions(): Record<keyof DumpCallGraphOptions, string> {
-    return {
-      format: "The output format for the CG dump: <dot|json|mmd>",
-      outputPath:
-        "Optional: The file path to save the .dot, .json, or .mmd file",
-    };
+    throw new Error("Method not implemented.");
   }
-
-  run(cu: CompilationUnit): ToolOutput | never {
+  private projectName: string;
+  constructor(projectName: string, ctx: any, options: DumpCallGraphOptions) {
+    super(ctx, options);
+    this.projectName = projectName;
+  }
+  static run(cu: CompilationUnit, outputFileName?: string): ToolOutput | never {
+    const dumpCallGraph = new DumpCallGraph(
+      cu.projectName,
+      {},
+      { format: "dot" },
+    );
+    return dumpCallGraph.run(cu, outputFileName);
+  }
+  run(cu: CompilationUnit, outputFileName?: string): ToolOutput | never {
     const callGraph = cu.callGraph;
     const outputPath = this.options.outputPath || ".";
+    const baseName = outputFileName || this.projectName; // Use custom output file name if provided
     switch (this.options.format) {
       case "dot": {
         const dotOutput = GraphvizDumper.dumpCallGraph(callGraph);
-        const outputFilePath = path.join(outputPath, "callgraph.dot");
-        fs.writeFileSync(outputFilePath, dotOutput);
-        return this.makeOutput(cu, `DOT file saved to ${outputFilePath}`);
+        this.saveOutput(outputPath, `${baseName}.callgraph.dot`, dotOutput);
+        return this.makeOutput(
+          cu,
+          `DOT file saved to ${path.join(outputPath, `${baseName}.callgraph.dot`)}`,
+        );
       }
       case "mmd": {
         const mermaidOutput = MermaidDumper.dumpCallGraph(callGraph);
-        const outputFilePath = path.join(outputPath, "callgraph.mmd");
-        fs.writeFileSync(outputFilePath, mermaidOutput);
-        return this.makeOutput(cu, `Mermaid file saved to ${outputFilePath}`);
+        this.saveOutput(outputPath, `${baseName}.callgraph.mmd`, mermaidOutput);
+        return this.makeOutput(
+          cu,
+          `Mermaid file saved to ${path.join(outputPath, `${baseName}.callgraph.mmd`)}`,
+        );
       }
       case "json": {
         const jsonOutput = JSONDumper.dumpCallGraph(callGraph);
-        const outputFilePath = path.join(outputPath, "callgraph.json");
-        fs.writeFileSync(outputFilePath, jsonOutput);
-        return this.makeOutput(cu, `JSON file saved to ${outputFilePath}`);
+        this.saveOutput(outputPath, `${baseName}.callgraph.json`, jsonOutput);
+        return this.makeOutput(
+          cu,
+          `JSON file saved to ${path.join(outputPath, `${baseName}.callgraph.json`)}`,
+        );
       }
       default:
         throw unreachable(this.options.format);
     }
+  }
+  private saveOutput(outputPath: string, fileName: string, data: string): void {
+    const fullPath = path.join(outputPath, fileName);
+    fs.writeFileSync(fullPath, data);
   }
 }
 

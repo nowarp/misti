@@ -12,20 +12,23 @@ import {
   AstStructFieldInitializer,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
+type NodeId = number;
+type EdgeId = number;
+
 export class CGEdge {
-  public idx: number;
+  public idx: EdgeId;
   constructor(
-    public src: number,
-    public dst: number,
+    public src: NodeId,
+    public dst: NodeId,
   ) {
     this.idx = IdxGenerator.next("cg_edge");
   }
 }
 
 export class CGNode {
-  public idx: number;
-  public inEdges: Set<number> = new Set();
-  public outEdges: Set<number> = new Set();
+  public idx: NodeId;
+  public inEdges: Set<EdgeId> = new Set();
+  public outEdges: Set<EdgeId> = new Set();
   constructor(
     public astId: number,
     public name: string,
@@ -35,14 +38,17 @@ export class CGNode {
 }
 
 export class CallGraph {
-  private nodeMap: Map<number, CGNode> = new Map();
-  private edgesMap: Map<number, CGEdge> = new Map();
-  public getNodes(): Map<number, CGNode> {
+  private nodeMap: Map<NodeId, CGNode> = new Map();
+  private edgesMap: Map<EdgeId, CGEdge> = new Map();
+
+  public getNodes(): Map<NodeId, CGNode> {
     return this.nodeMap;
   }
-  public getEdges(): Map<number, CGEdge> {
+
+  public getEdges(): Map<EdgeId, CGEdge> {
     return this.edgesMap;
   }
+
   build(astStore: TactASTStore): CallGraph {
     this.addFunctionsToNodes(astStore);
     this.analyzeFunctionCalls(astStore);
@@ -68,9 +74,14 @@ export class CallGraph {
     }
   }
 
+  /**
+   * Get function name based on its kind.
+   * @param func - The function definition or initializer.
+   * @returns The name of the function.
+   */
   private getFunctionName(
     func: AstFunctionDef | AstReceiver | AstContractInit,
-  ): string | undefined {
+  ): string {
     switch (func.kind) {
       case "function_def":
         return func.name.text;
@@ -83,6 +94,15 @@ export class CallGraph {
     }
   }
 
+  /**
+   * Process the statements of a function.
+   * @param statements - The AST statements.
+   * @param callerId - The ID of the calling function.
+   *
+   * Note: We don't use `foldStatements` or `forEachStatement` here because
+   * the logic is specific to call graph construction, and we want to
+   * maintain control over the traversal and processing.
+   */
   private processStatements(statements: AstStatement[], callerId: number) {
     for (const stmt of statements) {
       switch (stmt.kind) {
@@ -124,10 +144,10 @@ export class CallGraph {
 
   private processExpression(
     expr: AstExpression | AstStructFieldInitializer,
-    callerId: number,
+    callerId: NodeId,
   ) {
     this.forEachExpression(expr, (nestedExpr) => {
-      let calleeId: number | undefined;
+      let calleeId: NodeId | undefined;
       if (nestedExpr.kind === "static_call") {
         const staticCall = nestedExpr as AstStaticCall;
         calleeId = this.findOrAddFunction(staticCall.function.text);
@@ -163,7 +183,7 @@ export class CallGraph {
     }
   }
 
-  private findOrAddFunction(name: string): number {
+  private findOrAddFunction(name: string): NodeId {
     const existingNode = Array.from(this.nodeMap.values()).find(
       (node: CGNode) => node.name === name,
     );
@@ -175,7 +195,7 @@ export class CallGraph {
     return newNode.astId;
   }
 
-  private addEdge(src: number, dst: number) {
+  private addEdge(src: NodeId, dst: NodeId) {
     const srcNode = this.nodeMap.get(src);
     const dstNode = this.nodeMap.get(dst);
     if (srcNode && dstNode) {
@@ -186,14 +206,14 @@ export class CallGraph {
     }
   }
 
-  areConnected(src: number, dst: number): boolean {
+  areConnected(src: NodeId, dst: NodeId): boolean {
     const srcNode = this.nodeMap.get(src);
     const dstNode = this.nodeMap.get(dst);
     if (!srcNode || !dstNode) {
       return false;
     }
-    const queue: number[] = [src];
-    const visited = new Set<number>([src]);
+    const queue: NodeId[] = [src];
+    const visited = new Set<NodeId>([src]);
 
     while (queue.length > 0) {
       const current = queue.shift()!;
