@@ -508,10 +508,10 @@ export class TactASTStore {
       : result;
   }
 
-  public fileMatches = (node: { loc: SrcInfo }, filename: string): boolean =>
+  private fileMatches = (node: { loc: SrcInfo }, filename: string): boolean =>
     node.loc.file !== null && node.loc.file === filename;
 
-  public *filterIterator<T>(
+  private *filterIterator<T>(
     iterator: IterableIterator<T>,
     condition: (item: T) => boolean,
   ): IterableIterator<T> {
