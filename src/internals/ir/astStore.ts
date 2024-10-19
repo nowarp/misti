@@ -520,6 +520,8 @@ export class TactASTStore {
         case "trait":
           result.push(...Array.from(this.getTraits(params)));
           break;
+        default:
+          break;
       }
     }
     return params.filename
