@@ -355,7 +355,7 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       import("./builtin/sendInLoop").then(
         (module) => new module.SendInLoop(ctx),
       ),
-    enabledByDefault: true,
+    enabledByDefault: false,
   },
   CellOverflow: {
     loader: (ctx: MistiContext) =>
