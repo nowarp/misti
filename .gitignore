@@ -144,6 +144,9 @@ test/detectors/**/*.actual.out
 !test/all/**/*.imports.json
 !test/all/**/*.imports.dot
 !test/all/**/*.imports.mmd
+!test/all/**/*.callgraph.json
+!test/all/**/*.callgraph.dot
+!test/all/**/*.callgraph.mmd
 
 # Generated code
 src/version-info.ts
