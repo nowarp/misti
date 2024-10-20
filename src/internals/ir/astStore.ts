@@ -1,4 +1,5 @@
 import { InternalException } from "../exceptions";
+import { mergeMaps } from "../util";
 import {
   AstAsmFunctionDef,
   AstConstantDef,
@@ -61,7 +62,7 @@ export class TactASTStore {
    */
   constructor(
     private stdlibIds = new Set<AstNode["id"]>(),
-    private contractEntries = new Map<AstContract["id"], Set<AstNode["id"]>>(),
+    private contractEntries = new Map<AstNode["id"], Set<AstNode["id"]>>(),
     private programEntries: Map<Filename, Set<AstNode["id"]>>,
     private functions: Map<
       AstNode["id"],
@@ -549,19 +550,49 @@ export class TactASTStore {
 
   /**
    * Retrieves return types from the callable methods defined in the given contract/trait.
+   * @param entryId AST identifier of the contract or trait to analyze.
+   * @param withTraits Include methods from directly or indirectly inherited traits.
    */
   public getMethodReturnTypes(
-    contractId: AstContract["id"],
+    entryId: AstNode["id"],
+    withTraits: boolean = true,
+    visited = new Set<number>(),
   ): Map<MethodName, AstType | null> {
-    const result = new Map<MethodName, AstType | null>();
-    const contractEntries = this.contractEntries.get(contractId);
+    let result = new Map<MethodName, AstType | null>();
+
+    // Avoid recursion if used on AST before typechecking
+    if (visited.has(entryId)) return result;
+    visited.add(entryId);
+
+    // Check the current contract or trait
+    const contractEntries = this.contractEntries.get(entryId);
     if (contractEntries) {
       this.functions.forEach((f) => {
-        // Don't consider receviers/inits since we cannot call them from the contract
+        // Don't consider receivers/inits since we cannot call them from the contract
         if (f.kind === "function_def" && contractEntries.has(f.id))
           result.set(idText(f.name), f.return);
       });
     }
+
+    // Recursively process inherited traits
+    if (withTraits) {
+      const contractOrTrait = this.hasContract(entryId)
+        ? this.getContract(entryId)
+        : this.getTrait(entryId);
+      if (!contractOrTrait) {
+        return result;
+      }
+      contractOrTrait.traits.forEach((traitName) => {
+        const trait = this.findTrait(idText(traitName));
+        if (trait) {
+          result = mergeMaps(
+            result,
+            this.getMethodReturnTypes(trait.id, true, visited),
+          );
+        }
+      });
+    }
+
     return result;
   }
 
