@@ -75,7 +75,7 @@ function processSingleFile(file: string): void {
   const contractName = file.replace(".tact", "");
   const filePath = path.join(ALL_DIR, file);
 
-  const tools: string[] = ["DumpCfg", "DumpImports"];
+  const tools: string[] = ["DumpCfg", "DumpImports", "DumpCallGraph"];
   const formats: string[] = ["json", "dot", "mmd"];
 
   tools.forEach((toolName: string) => {

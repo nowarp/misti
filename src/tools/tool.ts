@@ -100,6 +100,12 @@ const BuiltInTools: Record<string, ToolEntry<any>> = {
         (module) => new module.DumpImports(ctx, options),
       ),
   },
+  DumpCallGraph: {
+    loader: (ctx: MistiContext, options: any) =>
+      import("./dumpCallgraph").then(
+        (module) => new module.DumpCallGraph(ctx, options),
+      ),
+  },
 };
 
 /**
