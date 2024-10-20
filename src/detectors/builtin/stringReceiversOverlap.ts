@@ -3,7 +3,7 @@ import { JoinSemilattice } from "../../internals/lattice";
 import { WorklistSolver } from "../../internals/solver/";
 import { forEachExpression, forEachStatement } from "../../internals/tact";
 import { Transfer } from "../../internals/transfer";
-import { mergeSets, isSubsetOf } from "../../internals/util";
+import { mergeSets, isSetSubsetOf } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";
 import {
@@ -56,8 +56,8 @@ class TaintLattice implements JoinSemilattice<TaintState> {
 
   leq(a: TaintState, b: TaintState): boolean {
     return (
-      isSubsetOf(a.argTaint, b.argTaint) &&
-      isSubsetOf(a.literalTaint, b.literalTaint)
+      isSetSubsetOf(a.argTaint, b.argTaint) &&
+      isSetSubsetOf(a.literalTaint, b.literalTaint)
     );
   }
 }

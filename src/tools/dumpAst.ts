@@ -31,7 +31,7 @@ export class DumpAst extends Tool<DumpAstOptions> {
 
   private dumpJSON(cu: CompilationUnit): string {
     return JSONbig.stringify(
-      cu.ast.getProgramEntries(this.options.dumpStdlib),
+      cu.ast.getProgramEntries({ includeStdlib: this.options.dumpStdlib }),
       null,
       2,
     );

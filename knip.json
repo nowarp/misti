@@ -4,7 +4,8 @@
   "project": ["src/**/*.ts"],
   "ignore": [
     ".github/workflows/tact.yml",
-    "src/internals/warnings.ts"
+    "src/internals/warnings.ts",
+    "src/internals/util.ts"
   ],
   "ignoreDependencies": [
     "@types/jest"

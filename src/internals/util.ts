@@ -7,25 +7,32 @@
 import { InternalException } from "./exceptions";
 import path from "path";
 
-/**
- * Intersection of two lists.
- */
-export const intersection = <T>(l1: T[], l2: T[]): T[] =>
-  l1.filter((element) => l2.includes(element));
-
 export const mergeSets = <T>(lhs: Set<T>, rhs: Set<T>): Set<T> =>
   new Set([...lhs, ...rhs]);
-export const isSubsetOf = <T>(lhs: Set<T>, rhs: Set<T>): boolean =>
+export const isSetSubsetOf = <T>(lhs: Set<T>, rhs: Set<T>): boolean =>
   [...lhs].every((elem) => rhs.has(elem));
+export const intersectSets = <T>(setA: Set<T>, setB: Set<T>): Set<T> =>
+  new Set([...setA].filter((item) => setB.has(item)));
 
 export const mergeLists = <T>(lhs: T[], rhs: T[]): T[] => [...lhs, ...rhs];
 export const isListSubsetOf = <T>(lhs: T[], rhs: T[]): boolean =>
   lhs.every((elem) => rhs.includes(elem));
+export const intersectLists = <T>(l1: T[], l2: T[]): T[] =>
+  l1.filter((element) => l2.includes(element));
 
 export const mergeMaps = <K, V>(lhs: Map<K, V>, rhs: Map<K, V>): Map<K, V> =>
   new Map([...lhs, ...rhs]);
 export const isMapSubsetOf = <K, V>(lhs: Map<K, V>, rhs: Map<K, V>): boolean =>
   [...lhs].every(([key, value]) => rhs.has(key) && rhs.get(key) === value);
+export const intersectMaps = <K, V>(
+  mapA: Map<K, V>,
+  mapB: Map<K, V>,
+): Map<K, V> =>
+  new Map(
+    [...mapA].filter(
+      ([key, value]) => mapB.has(key) && mapB.get(key) === value,
+    ),
+  );
 
 /**
  * Unreachable case for exhaustive checking.

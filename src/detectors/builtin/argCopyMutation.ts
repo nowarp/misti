@@ -7,7 +7,7 @@ import {
   funName,
 } from "../../internals/tact";
 import { hasInExpressions } from "../../internals/tact/iterators";
-import { intersection } from "../../internals/util";
+import { intersectLists } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import {
@@ -202,7 +202,7 @@ export class ArgCopyMutation extends ASTDetector {
   ): Map<string, AstStatement[]> {
     const mutations = collectMutations(stmt, { flatStmts: true });
     const foundMutations = mutations
-      ? intersection(argNames, mutationNames(mutations.mutatedLocals))
+      ? intersectLists(argNames, mutationNames(mutations.mutatedLocals))
       : [];
     return foundMutations.reduce((mutationMap, argName) => {
       const existingStatements = mutationMap.get(argName) || [];
