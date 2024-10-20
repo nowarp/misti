@@ -1,5 +1,3 @@
-// dumpCallgraph.ts
-
 import { Tool } from "./tool";
 import { ToolOutput } from "../cli/result";
 import { MistiContext } from "../internals/context";
@@ -12,9 +10,7 @@ import {
   CGEdgeId,
 } from "../internals/ir/callGraph";
 import { unreachable } from "../internals/util";
-import * as fs from "fs";
 import JSONbig from "json-bigint";
-import * as path from "path";
 
 /**
  * Defines the options for the DumpCallGraph tool.
@@ -22,15 +18,8 @@ import * as path from "path";
 interface DumpCallGraphOptions extends Record<string, unknown> {
   /**
    * The output formats for the call graph dump.
-   * Can include one or more of "dot", "json", "mmd".
    */
-  formats: Array<"dot" | "json" | "mmd">;
-
-  /**
-   * The directory path where the output files will be saved.
-   * Defaults to "./test/all" if not specified.
-   */
-  outputPath?: string;
+  format: "dot" | "json" | "mmd";
 }
 
 /**
@@ -52,8 +41,7 @@ export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
    */
   get defaultOptions(): DumpCallGraphOptions {
     return {
-      formats: ["dot", "mmd", "json"],
-      outputPath: "./test/all",
+      format: "json",
     };
   }
 
@@ -65,59 +53,21 @@ export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
    */
   run(cu: CompilationUnit): ToolOutput | never {
     const callGraph = cu.callGraph;
-    const outputPath = this.options.outputPath || "./test/all";
-    const baseName = cu.projectName;
-    const outputs: string[] = [];
-
-    // Define supported formats
-    const supportedFormats = ["dot", "mmd", "json"] as const;
-    type SupportedFormat = (typeof supportedFormats)[number];
-
-    // Validate specified formats
-    if (
-      !this.options.formats.every((format) =>
-        supportedFormats.includes(format as SupportedFormat),
-      )
-    ) {
-      throw new Error(
-        `Unsupported format specified. Supported formats are: ${supportedFormats.join(", ")}`,
-      );
+    let output: string;
+    switch (this.options.format) {
+      case "dot":
+        output = GraphvizDumper.dumpCallGraph(callGraph);
+        break;
+      case "mmd":
+        output = MermaidDumper.dumpCallGraph(callGraph);
+        break;
+      case "json":
+        output = JSONDumper.dumpCallGraph(callGraph);
+        break;
+      default:
+        throw unreachable(this.options.format);
     }
-    fs.mkdirSync(outputPath, { recursive: true });
-    this.options.formats.forEach((format) => {
-      let outputData: string;
-      let extension: string;
-
-      switch (format) {
-        case "dot": {
-          outputData = GraphvizDumper.dumpCallGraph(callGraph);
-          extension = "callgraph.dot";
-          break;
-        }
-        case "mmd": {
-          outputData = MermaidDumper.dumpCallGraph(callGraph);
-          extension = "callgraph.mmd";
-          break;
-        }
-        case "json": {
-          outputData = JSONDumper.dumpCallGraph(callGraph);
-          extension = "callgraph.json";
-          break;
-        }
-        default:
-          throw unreachable(format);
-      }
-      const fullFileName = `${baseName}.${extension}`;
-      const fullPath = path.join(outputPath, fullFileName);
-      try {
-        fs.writeFileSync(fullPath, outputData, "utf-8");
-        outputs.push(`${extension.toUpperCase()} file saved to ${fullPath}`);
-      } catch (error) {
-        outputs.push(`Failed to save ${extension} file to ${fullPath}`);
-      }
-    });
-    const combinedOutput = outputs.join("\n");
-    return this.makeOutput(cu, combinedOutput);
+    return this.makeOutput(cu, output);
   }
 
   /**
@@ -134,10 +84,7 @@ export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
    */
   getOptionDescriptions(): Record<keyof DumpCallGraphOptions, string> {
     return {
-      formats:
-        "The output formats for the call graph dump: <dot|json|mmd>. Specify one or more formats.",
-      outputPath:
-        "The directory path where the output files will be saved. Defaults to './test/all'.",
+      format: "The output format for the Callgraph dump: <dot|json|mmd>",
     };
   }
 }
