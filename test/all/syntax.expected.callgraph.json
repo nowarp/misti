@@ -1,3 +1,213 @@
-CALLGRAPH.DOT file saved to test/all/syntax.callgraph.dot
-CALLGRAPH.MMD file saved to test/all/syntax.callgraph.mmd
-CALLGRAPH.JSON file saved to test/all/syntax.callgraph.json
+{
+  "nodes": [
+    {
+      "idx": 1,
+      "name": "test_try",
+      "inEdges": [],
+      "outEdges": [
+        1
+      ]
+    },
+    {
+      "idx": 2,
+      "name": "test_loops",
+      "inEdges": [],
+      "outEdges": [
+        2
+      ]
+    },
+    {
+      "idx": 3,
+      "name": "reply",
+      "inEdges": [],
+      "outEdges": [
+        3,
+        4
+      ]
+    },
+    {
+      "idx": 4,
+      "name": "notify",
+      "inEdges": [],
+      "outEdges": [
+        5,
+        6
+      ]
+    },
+    {
+      "idx": 5,
+      "name": "forward",
+      "inEdges": [
+        3,
+        5
+      ],
+      "outEdges": [
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "idx": 6,
+      "name": "getter",
+      "inEdges": [],
+      "outEdges": []
+    },
+    {
+      "idx": 7,
+      "name": "getter",
+      "inEdges": [],
+      "outEdges": []
+    },
+    {
+      "idx": 8,
+      "name": "test",
+      "inEdges": [],
+      "outEdges": []
+    },
+    {
+      "idx": 9,
+      "name": "getA",
+      "inEdges": [
+        12
+      ],
+      "outEdges": []
+    },
+    {
+      "idx": 10,
+      "name": "test",
+      "inEdges": [],
+      "outEdges": [
+        12
+      ]
+    },
+    {
+      "idx": 11,
+      "name": "receiver_1722",
+      "inEdges": [],
+      "outEdges": []
+    },
+    {
+      "idx": 13,
+      "name": "dump",
+      "inEdges": [
+        1
+      ],
+      "outEdges": []
+    },
+    {
+      "idx": 15,
+      "name": "emptyMap",
+      "inEdges": [
+        2
+      ],
+      "outEdges": []
+    },
+    {
+      "idx": 17,
+      "name": "sender",
+      "inEdges": [
+        4,
+        6
+      ],
+      "outEdges": []
+    },
+    {
+      "idx": 19,
+      "name": "context",
+      "inEdges": [
+        7
+      ],
+      "outEdges": []
+    },
+    {
+      "idx": 21,
+      "name": "myBalance",
+      "inEdges": [
+        8
+      ],
+      "outEdges": []
+    },
+    {
+      "idx": 23,
+      "name": "nativeReserve",
+      "inEdges": [
+        9
+      ],
+      "outEdges": []
+    },
+    {
+      "idx": 25,
+      "name": "send",
+      "inEdges": [
+        10,
+        11
+      ],
+      "outEdges": []
+    }
+  ],
+  "edges": [
+    {
+      "idx": 1,
+      "src": 1743,
+      "dst": 12
+    },
+    {
+      "idx": 2,
+      "src": 1804,
+      "dst": 14
+    },
+    {
+      "idx": 3,
+      "src": 1493,
+      "dst": 1647
+    },
+    {
+      "idx": 4,
+      "src": 1493,
+      "dst": 16
+    },
+    {
+      "idx": 5,
+      "src": 1508,
+      "dst": 1647
+    },
+    {
+      "idx": 6,
+      "src": 1508,
+      "dst": 16
+    },
+    {
+      "idx": 7,
+      "src": 1647,
+      "dst": 18
+    },
+    {
+      "idx": 8,
+      "src": 1647,
+      "dst": 20
+    },
+    {
+      "idx": 9,
+      "src": 1647,
+      "dst": 22
+    },
+    {
+      "idx": 10,
+      "src": 1647,
+      "dst": 24
+    },
+    {
+      "idx": 11,
+      "src": 1647,
+      "dst": 24
+    },
+    {
+      "idx": 12,
+      "src": 1721,
+      "dst": 1702
+    }
+  ]
+}
