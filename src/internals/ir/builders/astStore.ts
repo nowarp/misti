@@ -225,4 +225,3 @@ export class TactASTStoreBuilder {
     }
   }
 }
-export { TactASTStore };
