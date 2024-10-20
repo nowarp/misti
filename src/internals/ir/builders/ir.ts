@@ -12,6 +12,7 @@ import {
   FunctionKind,
   FunctionName,
   ProjectName,
+  TactASTStore,
 } from "..";
 import { ImportGraphBuilder } from "./imports";
 import { MistiContext } from "../../context";
@@ -21,7 +22,6 @@ import { TactConfigManager } from "../../tact/config";
 import { unreachable } from "../../util";
 import { CallGraph } from "../callGraph";
 import { TactASTStoreBuilder } from "./astStore";
-import { TactASTStore } from "./astStore";
 import {
   AstContractDeclaration,
   AstExpression,
