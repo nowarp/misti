@@ -10,6 +10,8 @@ fun test() {
     a == 43; // Bad
 
     require(1 == 1, "1"); // OK: This function is not defined in AST
+
+    send(SendParameters{ to: sender(), value: 42 }); // OK: Ignored function
 }
 
 // Check contract methods

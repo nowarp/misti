@@ -13,6 +13,11 @@ import {
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
 /**
+ * Suppressed functions which result typically could be ignored.
+ */
+const IGNORED_FUNCTIONS = new Set<string>(["send"]);
+
+/**
  * A detector that identifies expression statements whose result is unused.
  *
  * ## Why is it bad?
@@ -122,11 +127,13 @@ export class UnusedExpressionResult extends ASTDetector {
           warnings.push(warn());
         }
         break;
-      case "static_call":
-        if (this.freeFunctionReturnTypes.get(idText(expr.function))) {
+      case "static_call": {
+        const funName = idText(expr.function);
+        if (!IGNORED_FUNCTIONS.has(funName) && this.freeFunctionReturnTypes.get(funName)) {
           warnings.push(warn());
         }
         break;
+        }
       case "conditional":
         warnings.push(
           ...this.checkExpression(expr.thenBranch, methodReturnTypes),
