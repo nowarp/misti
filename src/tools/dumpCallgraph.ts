@@ -1,4 +1,3 @@
-
 import { Tool } from "./tool";
 import { ToolOutput } from "../cli/result";
 import { MistiContext } from "../internals/context";
