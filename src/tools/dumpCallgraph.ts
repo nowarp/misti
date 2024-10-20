@@ -1,79 +1,144 @@
+// dumpCallgraph.ts
+
 import { Tool } from "./tool";
 import { ToolOutput } from "../cli/result";
+import { MistiContext } from "../internals/context";
 import { CompilationUnit } from "../internals/ir";
-import { CallGraph, CGEdge, CGNode } from "../internals/ir/callGraph";
+import {
+  CallGraph,
+  CGEdge,
+  CGNode,
+  CGNodeId,
+  CGEdgeId,
+} from "../internals/ir/callGraph";
 import { unreachable } from "../internals/util";
 import * as fs from "fs";
 import JSONbig from "json-bigint";
 import * as path from "path";
 
+/**
+ * Defines the options for the DumpCallGraph tool.
+ */
 interface DumpCallGraphOptions extends Record<string, unknown> {
-  format: "dot" | "json" | "mmd";
+  /**
+   * The output formats for the call graph dump.
+   * Can include one or more of "dot", "json", "mmd".
+   */
+  formats: Array<"dot" | "json" | "mmd">;
+
+  /**
+   * The directory path where the output files will be saved.
+   * Defaults to "./test/all" if not specified.
+   */
   outputPath?: string;
 }
 
 /**
- * A tool that dumps the Call Graph (CG) of the given compilation unit.
+ * A tool that dumps the Call Graph (CG) of the given compilation unit in multiple formats.
  */
 export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
-  get defaultOptions(): DumpCallGraphOptions {
-    throw new Error("Method not implemented.");
-  }
-  getDescription(): string {
-    throw new Error("Method not implemented.");
-  }
-  getOptionDescriptions(): Record<keyof DumpCallGraphOptions, string> {
-    throw new Error("Method not implemented.");
-  }
-  private projectName: string;
-  constructor(projectName: string, ctx: any, options: DumpCallGraphOptions) {
+  /**
+   * Constructs a new DumpCallGraph tool instance.
+   * @param ctx The MistiContext providing necessary context.
+   * @param options The options for dumping the call graph.
+   */
+  constructor(ctx: MistiContext, options: DumpCallGraphOptions) {
     super(ctx, options);
-    this.projectName = projectName;
   }
-  static run(cu: CompilationUnit, outputFileName?: string): ToolOutput | never {
-    const dumpCallGraph = new DumpCallGraph(
-      cu.projectName,
-      {},
-      { format: "dot" },
-    );
-    return dumpCallGraph.run(cu, outputFileName);
+
+  /**
+   * Provides the default options for the DumpCallGraph tool.
+   * Generates all three formats by default and saves them to "./test/all".
+   */
+  get defaultOptions(): DumpCallGraphOptions {
+    return {
+      formats: ["dot", "mmd", "json"],
+      outputPath: "./test/all",
+    };
   }
-  run(cu: CompilationUnit, outputFileName?: string): ToolOutput | never {
+
+  /**
+   * Executes the DumpCallGraph tool.
+   * Generates the call graph in all specified formats and writes them to the output directory.
+   * @param cu The CompilationUnit representing the code to analyze.
+   * @returns A ToolOutput containing messages about the generated files.
+   */
+  run(cu: CompilationUnit): ToolOutput | never {
     const callGraph = cu.callGraph;
-    const outputPath = this.options.outputPath || ".";
-    const baseName = outputFileName || this.projectName; // Use custom output file name if provided
-    switch (this.options.format) {
-      case "dot": {
-        const dotOutput = GraphvizDumper.dumpCallGraph(callGraph);
-        this.saveOutput(outputPath, `${baseName}.callgraph.dot`, dotOutput);
-        return this.makeOutput(
-          cu,
-          `DOT file saved to ${path.join(outputPath, `${baseName}.callgraph.dot`)}`,
-        );
-      }
-      case "mmd": {
-        const mermaidOutput = MermaidDumper.dumpCallGraph(callGraph);
-        this.saveOutput(outputPath, `${baseName}.callgraph.mmd`, mermaidOutput);
-        return this.makeOutput(
-          cu,
-          `Mermaid file saved to ${path.join(outputPath, `${baseName}.callgraph.mmd`)}`,
-        );
-      }
-      case "json": {
-        const jsonOutput = JSONDumper.dumpCallGraph(callGraph);
-        this.saveOutput(outputPath, `${baseName}.callgraph.json`, jsonOutput);
-        return this.makeOutput(
-          cu,
-          `JSON file saved to ${path.join(outputPath, `${baseName}.callgraph.json`)}`,
-        );
-      }
-      default:
-        throw unreachable(this.options.format);
+    const outputPath = this.options.outputPath || "./test/all";
+    const baseName = cu.projectName;
+    const outputs: string[] = [];
+
+    // Define supported formats
+    const supportedFormats = ["dot", "mmd", "json"] as const;
+    type SupportedFormat = (typeof supportedFormats)[number];
+
+    // Validate specified formats
+    if (
+      !this.options.formats.every((format) =>
+        supportedFormats.includes(format as SupportedFormat),
+      )
+    ) {
+      throw new Error(
+        `Unsupported format specified. Supported formats are: ${supportedFormats.join(", ")}`,
+      );
     }
+    fs.mkdirSync(outputPath, { recursive: true });
+    this.options.formats.forEach((format) => {
+      let outputData: string;
+      let extension: string;
+
+      switch (format) {
+        case "dot": {
+          outputData = GraphvizDumper.dumpCallGraph(callGraph);
+          extension = "callgraph.dot";
+          break;
+        }
+        case "mmd": {
+          outputData = MermaidDumper.dumpCallGraph(callGraph);
+          extension = "callgraph.mmd";
+          break;
+        }
+        case "json": {
+          outputData = JSONDumper.dumpCallGraph(callGraph);
+          extension = "callgraph.json";
+          break;
+        }
+        default:
+          throw unreachable(format);
+      }
+      const fullFileName = `${baseName}.${extension}`;
+      const fullPath = path.join(outputPath, fullFileName);
+      try {
+        fs.writeFileSync(fullPath, outputData, "utf-8");
+        outputs.push(`${extension.toUpperCase()} file saved to ${fullPath}`);
+      } catch (error) {
+        outputs.push(`Failed to save ${extension} file to ${fullPath}`);
+      }
+    });
+    const combinedOutput = outputs.join("\n");
+    return this.makeOutput(cu, combinedOutput);
   }
-  private saveOutput(outputPath: string, fileName: string, data: string): void {
-    const fullPath = path.join(outputPath, fileName);
-    fs.writeFileSync(fullPath, data);
+
+  /**
+   * Provides a description of the DumpCallGraph tool.
+   * @returns A string describing the tool.
+   */
+  getDescription(): string {
+    return "Dumps the Call Graph (CG) in multiple formats: DOT, Mermaid, and JSON.";
+  }
+
+  /**
+   * Provides descriptions for each option of the DumpCallGraph tool.
+   * @returns A record mapping each option key to its description.
+   */
+  getOptionDescriptions(): Record<keyof DumpCallGraphOptions, string> {
+    return {
+      formats:
+        "The output formats for the call graph dump: <dot|json|mmd>. Specify one or more formats.",
+      outputPath:
+        "The directory path where the output files will be saved. Defaults to './test/all'.",
+    };
   }
 }
 
@@ -81,16 +146,21 @@ export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
  * Class responsible for generating a Mermaid diagram representation of a CallGraph.
  */
 class MermaidDumper {
+  /**
+   * Generates a Mermaid diagram format string for a given CallGraph.
+   * @param callGraph The CallGraph to be dumped.
+   * @returns The Mermaid diagram representation of the call graph.
+   */
   public static dumpCallGraph(callGraph: CallGraph): string {
     let diagram = "graph TD\n";
     callGraph.getNodes().forEach((node: CGNode) => {
       const nodeId = `node_${node.idx}`;
-      const label = node.name;
+      const label = node.name.replace(/"/g, '\\"');
       diagram += `    ${nodeId}["${label}"]\n`;
     });
     callGraph.getEdges().forEach((edge: CGEdge) => {
-      const srcNode = callGraph.getNodes().get(edge.src);
-      const dstNode = callGraph.getNodes().get(edge.dst);
+      const srcNode = callGraph.getNodes().get(edge.src as CGNodeId);
+      const dstNode = callGraph.getNodes().get(edge.dst as CGNodeId);
       if (!srcNode || !dstNode) return;
       const srcId = `node_${srcNode.idx}`;
       const dstId = `node_${dstNode.idx}`;
@@ -104,17 +174,22 @@ class MermaidDumper {
  * Class responsible for generating a Graphviz dot representation of a CallGraph.
  */
 class GraphvizDumper {
+  /**
+   * Generates a Graphviz dot format string for a given CallGraph.
+   * @param callGraph The CallGraph to be dumped.
+   * @returns The Graphviz dot representation of the call graph.
+   */
   public static dumpCallGraph(callGraph: CallGraph): string {
     let dot = `digraph "CallGraph" {\n`;
     dot += `    node [shape=box];\n`;
     callGraph.getNodes().forEach((node: CGNode) => {
       const nodeId = `node_${node.idx}`;
-      const label = node.name;
+      const label = node.name.replace(/"/g, '\\"'); // Escape double quotes
       dot += `    ${nodeId} [label="${label}"];\n`;
     });
     callGraph.getEdges().forEach((edge: CGEdge) => {
-      const srcNode = callGraph.getNodes().get(edge.src);
-      const dstNode = callGraph.getNodes().get(edge.dst);
+      const srcNode = callGraph.getNodes().get(edge.src as CGNodeId);
+      const dstNode = callGraph.getNodes().get(edge.dst as CGNodeId);
       if (srcNode && dstNode) {
         dot += `    node_${srcNode.idx} -> node_${dstNode.idx} [label="${edge.idx}"];\n`;
       } else {
@@ -130,10 +205,15 @@ class GraphvizDumper {
  * Class responsible for generating a JSON representation of a CallGraph.
  */
 class JSONDumper {
+  /**
+   * Generates a JSON format string for a given CallGraph.
+   * @param callGraph The CallGraph to be dumped.
+   * @returns The JSON representation of the call graph.
+   */
   public static dumpCallGraph(callGraph: CallGraph): string {
     const nodes = Array.from(callGraph.getNodes().values()).map(
       (node: CGNode) => ({
-        idx: node.idx,
+        idx: node.idx as CGNodeId,
         name: node.name,
         inEdges: Array.from(node.inEdges),
         outEdges: Array.from(node.outEdges),
@@ -141,9 +221,9 @@ class JSONDumper {
     );
     const edges = Array.from(callGraph.getEdges().values()).map(
       (edge: CGEdge) => ({
-        idx: edge.idx,
-        src: edge.src,
-        dst: edge.dst,
+        idx: edge.idx as CGEdgeId,
+        src: edge.src as CGNodeId,
+        dst: edge.dst as CGNodeId,
       }),
     );
     const data = {

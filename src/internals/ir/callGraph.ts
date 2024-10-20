@@ -12,23 +12,23 @@ import {
   AstStructFieldInitializer,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
-type NodeId = number;
-type EdgeId = number;
+export type CGNodeId = number;
+export type CGEdgeId = number;
 
 export class CGEdge {
-  public idx: EdgeId;
+  public idx: CGEdgeId;
   constructor(
-    public src: NodeId,
-    public dst: NodeId,
+    public src: CGNodeId,
+    public dst: CGNodeId,
   ) {
     this.idx = IdxGenerator.next("cg_edge");
   }
 }
 
 export class CGNode {
-  public idx: NodeId;
-  public inEdges: Set<EdgeId> = new Set();
-  public outEdges: Set<EdgeId> = new Set();
+  public idx: CGNodeId;
+  public inEdges: Set<CGEdgeId> = new Set();
+  public outEdges: Set<CGEdgeId> = new Set();
   constructor(
     public astId: number,
     public name: string,
@@ -37,24 +37,33 @@ export class CGNode {
   }
 }
 
+/**
+ * The main CallGraph class, which stores the nodes and edges of the graph.
+ */
 export class CallGraph {
-  private nodeMap: Map<NodeId, CGNode> = new Map();
-  private edgesMap: Map<EdgeId, CGEdge> = new Map();
-
-  public getNodes(): Map<NodeId, CGNode> {
+  private nodeMap: Map<CGNodeId, CGNode> = new Map();
+  private edgesMap: Map<CGEdgeId, CGEdge> = new Map();
+  public getNodes(): Map<CGNodeId, CGNode> {
     return this.nodeMap;
   }
-
-  public getEdges(): Map<EdgeId, CGEdge> {
+  public getEdges(): Map<CGEdgeId, CGEdge> {
     return this.edgesMap;
   }
 
+  /**
+   * Build the call graph by analyzing the AST store.
+   * @param astStore - The AST store containing functions and contracts.
+   */
   build(astStore: TactASTStore): CallGraph {
     this.addFunctionsToNodes(astStore);
     this.analyzeFunctionCalls(astStore);
     return this;
   }
 
+  /**
+   * Add functions from the AST store to the call graph as nodes.
+   * @param astStore - The AST store containing functions.
+   */
   private addFunctionsToNodes(astStore: TactASTStore) {
     for (const func of astStore.getFunctions()) {
       const funcName = this.getFunctionName(func);
@@ -65,6 +74,10 @@ export class CallGraph {
     }
   }
 
+  /**
+   * Analyze function calls in the AST store to add edges to the graph.
+   * @param astStore - The AST store containing function definitions.
+   */
   private analyzeFunctionCalls(astStore: TactASTStore) {
     for (const func of astStore.getFunctions()) {
       const funcName = this.getFunctionName(func);
@@ -75,7 +88,7 @@ export class CallGraph {
   }
 
   /**
-   * Get function name based on its kind.
+   * Get the function name based on the type of function (function, receiver, or contract initializer).
    * @param func - The function definition or initializer.
    * @returns The name of the function.
    */
@@ -95,15 +108,11 @@ export class CallGraph {
   }
 
   /**
-   * Process the statements of a function.
+   * Process the statements of a function to identify calls and add them to the call graph.
    * @param statements - The AST statements.
    * @param callerId - The ID of the calling function.
-   *
-   * Note: We don't use `foldStatements` or `forEachStatement` here because
-   * the logic is specific to call graph construction, and we want to
-   * maintain control over the traversal and processing.
    */
-  private processStatements(statements: AstStatement[], callerId: number) {
+  private processStatements(statements: AstStatement[], callerId: CGNodeId) {
     for (const stmt of statements) {
       switch (stmt.kind) {
         case "statement_expression":
@@ -142,12 +151,17 @@ export class CallGraph {
     }
   }
 
+  /**
+   * Process expressions within statements to identify function calls.
+   * @param expr - The expression to process.
+   * @param callerId - The ID of the calling function.
+   */
   private processExpression(
     expr: AstExpression | AstStructFieldInitializer,
-    callerId: NodeId,
+    callerId: CGNodeId,
   ) {
     this.forEachExpression(expr, (nestedExpr) => {
-      let calleeId: NodeId | undefined;
+      let calleeId: CGNodeId | undefined;
       if (nestedExpr.kind === "static_call") {
         const staticCall = nestedExpr as AstStaticCall;
         calleeId = this.findOrAddFunction(staticCall.function.text);
@@ -161,6 +175,11 @@ export class CallGraph {
     });
   }
 
+  /**
+   * Traverse the expressions and apply a callback function to each one.
+   * @param expr - The expression to traverse.
+   * @param callback - The callback function to apply to each nested expression.
+   */
   private forEachExpression(
     expr: AstExpression | AstStructFieldInitializer,
     callback: (expr: AstExpression) => void,
@@ -168,7 +187,6 @@ export class CallGraph {
     if (expr.kind !== "struct_field_initializer") {
       callback(expr as AstExpression);
     }
-
     switch (expr.kind) {
       case "static_call":
       case "method_call": {
@@ -183,7 +201,12 @@ export class CallGraph {
     }
   }
 
-  private findOrAddFunction(name: string): NodeId {
+  /**
+   * Find or add a function to the graph by name.
+   * @param name - The function name.
+   * @returns The ID of the function node.
+   */
+  private findOrAddFunction(name: string): CGNodeId {
     const existingNode = Array.from(this.nodeMap.values()).find(
       (node: CGNode) => node.name === name,
     );
@@ -195,7 +218,12 @@ export class CallGraph {
     return newNode.astId;
   }
 
-  private addEdge(src: NodeId, dst: NodeId) {
+  /**
+   * Add an edge between two nodes in the graph.
+   * @param src - The source node ID.
+   * @param dst - The destination node ID.
+   */
+  private addEdge(src: CGNodeId, dst: CGNodeId) {
     const srcNode = this.nodeMap.get(src);
     const dstNode = this.nodeMap.get(dst);
     if (srcNode && dstNode) {
@@ -206,18 +234,22 @@ export class CallGraph {
     }
   }
 
-  areConnected(src: NodeId, dst: NodeId): boolean {
+  /**
+   * Check if two nodes are connected in the graph.
+   * @param src - The source node ID.
+   * @param dst - The destination node ID.
+   * @returns True if connected, false otherwise.
+   */
+  areConnected(src: CGNodeId, dst: CGNodeId): boolean {
     const srcNode = this.nodeMap.get(src);
     const dstNode = this.nodeMap.get(dst);
     if (!srcNode || !dstNode) {
       return false;
     }
-    const queue: NodeId[] = [src];
-    const visited = new Set<NodeId>([src]);
-
+    const queue: CGNodeId[] = [src];
+    const visited = new Set<CGNodeId>([src]);
     while (queue.length > 0) {
       const current = queue.shift()!;
-
       if (current === dst) {
         return true;
       }
