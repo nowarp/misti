@@ -364,6 +364,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  UnboundMap: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/unboundMap").then(
+        (module) => new module.UnboundMap(ctx),
+      ),
+    enabledByDefault: false,
+  },
 };
 
 /**
