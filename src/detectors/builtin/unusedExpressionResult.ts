@@ -129,11 +129,14 @@ export class UnusedExpressionResult extends ASTDetector {
         break;
       case "static_call": {
         const funName = idText(expr.function);
-        if (!IGNORED_FUNCTIONS.has(funName) && this.freeFunctionReturnTypes.get(funName)) {
+        if (
+          !IGNORED_FUNCTIONS.has(funName) &&
+          this.freeFunctionReturnTypes.get(funName)
+        ) {
           warnings.push(warn());
         }
         break;
-        }
+      }
       case "conditional":
         warnings.push(
           ...this.checkExpression(expr.thenBranch, methodReturnTypes),
