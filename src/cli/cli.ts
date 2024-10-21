@@ -31,12 +31,12 @@ export function createMistiCommand(): Command {
     if (options.listTools) {
       const toolsHelpMessage = await generateToolsHelpMessage();
       logger.info(toolsHelpMessage);
-      process.exit(0);
+      return;
     }
     if (options.listDetectors) {
       const detectorNames = Object.keys(BuiltInDetectors);
       detectorNames.forEach((name) => logger.info(`- ${name}`));
-      process.exit(0);
+      return;
     }
     if (options.newDetector) {
       createDetector(options.newDetector);
