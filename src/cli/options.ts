@@ -72,7 +72,7 @@ export const cliOptions = [
   new Option("--list-tools", "List available tools and their options.").default(
     cliOptionDefaults.listTools,
   ),
-  new Option("--list-detectors", "List available detectors.").default(
+  new Option("--list-detectors", "List available built-in detectors.").default(
     cliOptionDefaults.listDetectors,
   ),
   new Option(
