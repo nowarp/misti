@@ -22,6 +22,7 @@ export interface CLIOptions {
   allDetectors: boolean;
   config: string | undefined;
   newDetector: string | undefined;
+  listDetectors: boolean;
 }
 
 export const cliOptionDefaults: Required<CLIOptions> = {
@@ -42,6 +43,7 @@ export const cliOptionDefaults: Required<CLIOptions> = {
   allDetectors: false,
   config: undefined,
   newDetector: undefined,
+  listDetectors: false,
 };
 
 export const cliOptions = [
@@ -69,6 +71,9 @@ export const cliOptions = [
   ).default(cliOptionDefaults.outputPath),
   new Option("--list-tools", "List available tools and their options.").default(
     cliOptionDefaults.listTools,
+  ),
+  new Option("--list-detectors", "List available detectors.").default(
+    cliOptionDefaults.listDetectors,
   ),
   new Option(
     "-o, --output-format <json|plain>",

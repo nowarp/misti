@@ -13,6 +13,7 @@ import {
 } from "./result";
 import { Logger } from "../internals/logger";
 import { Command } from "commander";
+import { BuiltInDetectors } from "../detectors/detector";
 
 /**
  * Creates and configures the Misti CLI command.
@@ -36,8 +37,22 @@ export function createMistiCommand(): Command {
       createDetector(options.newDetector);
       return;
     }
+    if (options.listDetectors) {
+      listAvailableDetectors();
+      process.exit(0);
+    }
   });
   return command;
+}
+
+/**
+ * Function to list available detectors.
+ */
+function listAvailableDetectors() {
+  console.log("Available Detectors:");
+  for (const detectorName in BuiltInDetectors) {
+    console.log(`- ${detectorName}`);
+  }
 }
 
 /**
