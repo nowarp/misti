@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Add `--list-detectors` CLI option: PR [#192](https://github.com/nowarp/misti/pull/192)
+- `--list-detectors` CLI option: PR [#192](https://github.com/nowarp/misti/pull/192)
 - `SendInLoop` detector: PR [#168](https://github.com/nowarp/misti/pulls/168)
 - `CellOverflow` detector: PR [#177](https://github.com/nowarp/misti/pulls/177)
 - `UnboundMap` detector: Issue [#50](https://github.com/nowarp/misti/issues/50)

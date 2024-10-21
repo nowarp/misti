@@ -72,9 +72,6 @@ export const cliOptions = [
   new Option("--list-tools", "List available tools and their options.").default(
     cliOptionDefaults.listTools,
   ),
-  new Option("--list-detectors", "List available built-in detectors.").default(
-    cliOptionDefaults.listDetectors,
-  ),
   new Option(
     "-o, --output-format <json|plain>",
     "Set the output format for all tools and warnings",
@@ -106,6 +103,9 @@ export const cliOptions = [
   new Option(
     "-m, --min-severity <info|low|medium|high|critical>",
     "Minimum level of severity to report.",
+  ),
+  new Option("--list-detectors", "List available built-in detectors.").default(
+    cliOptionDefaults.listDetectors,
   )
     .default(Severity.INFO)
     .argParser(parseSeverity),
