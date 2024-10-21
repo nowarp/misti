@@ -103,9 +103,7 @@ export const cliOptions = [
   new Option(
     "-m, --min-severity <info|low|medium|high|critical>",
     "Minimum level of severity to report.",
-  ),
-  new Option("--list-detectors", "List available built-in detectors.")
-    .default(cliOptionDefaults.listDetectors)
+  )
     .default(Severity.INFO)
     .argParser(parseSeverity),
   new Option(
@@ -146,5 +144,8 @@ export const cliOptions = [
   ).default(cliOptionDefaults.config),
   new Option("--new-detector <PATH>", "Creates a new custom detector.").default(
     cliOptionDefaults.newDetector,
+  ),
+  new Option("--list-detectors", "List available built-in detectors.").default(
+    cliOptionDefaults.listDetectors,
   ),
 ];
