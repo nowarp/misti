@@ -2,6 +2,7 @@ import { Driver } from "./driver";
 import { cliOptions, STDOUT_PATH } from "./options";
 import { OutputFormat } from "../cli";
 import { createDetector } from "../createDetector";
+import { BuiltInDetectors } from "../detectors/detector";
 import { unreachable } from "../internals/util";
 import { generateToolsHelpMessage } from "../tools/tool";
 import { MISTI_VERSION, TACT_VERSION } from "../version";
@@ -26,10 +27,15 @@ export function createMistiCommand(): Command {
     .arguments("[TACT_CONFIG_PATH|TACT_FILE_PATH]");
   cliOptions.forEach((option) => command.addOption(option));
   command.action(async (_tactPath, options) => {
+    const logger = new Logger();
     if (options.listTools) {
       const toolsHelpMessage = await generateToolsHelpMessage();
-      // eslint-disable-next-line no-console
-      console.log(toolsHelpMessage);
+      logger.info(toolsHelpMessage);
+      process.exit(0);
+    }
+    if (options.listDetectors) {
+      const detectorNames = Object.keys(BuiltInDetectors);
+      detectorNames.forEach((name) => logger.info(`- ${name}`));
       process.exit(0);
     }
     if (options.newDetector) {

@@ -1,0 +1,71 @@
+[MEDIUM] SuspiciousMessageMode: Flag 'CustomSendRemainingValue' is used multiple times in mode expression
+test/detectors/SuspiciousMessageMode.tact:21:46:
+  20 |             value: 0,
+> 21 |             mode: CustomSendRemainingValue | CustomSendRemainingValue
+                                                    ^
+  22 |         });
+Help: Use each flag at most once in the mode expression
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
+
+[MEDIUM] SuspiciousMessageMode: Mode expression should only contain the '|' operator
+test/detectors/SuspiciousMessageMode.tact:30:19:
+  29 |             value: 0,
+> 30 |             mode: CustomSendRemainingValue + CustomSendAllBalance
+                         ^
+  31 |         });
+Help: Use the '|' operator (bitwise OR) to combine flags
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
+
+[MEDIUM] SuspiciousMessageMode: Integer literals should not be used in mode expression; use symbolic constants instead
+test/detectors/SuspiciousMessageMode.tact:39:19:
+  38 |             value: 0,
+> 39 |             mode: 64 // Integer literal instead of symbolic constant
+                         ^
+  40 |         });
+Help: Replace integer literals with symbolic flag constants
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
+
+[MEDIUM] SuspiciousMessageMode: Mode expression should only contain the '|' operator
+test/detectors/SuspiciousMessageMode.tact:57:19:
+  56 |             value: 0,
+> 57 |             mode: CustomSendRemainingValue + CustomSendRemainingValue + 64 // Duplicate flags, '+' operator, integer literal
+                         ^
+  58 |         });
+Help: Use the '|' operator (bitwise OR) to combine flags
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
+
+[MEDIUM] SuspiciousMessageMode: Flag 'CustomSendRemainingValue' is used multiple times in mode expression
+test/detectors/SuspiciousMessageMode.tact:57:46:
+  56 |             value: 0,
+> 57 |             mode: CustomSendRemainingValue + CustomSendRemainingValue + 64 // Duplicate flags, '+' operator, integer literal
+                                                    ^
+  58 |         });
+Help: Use each flag at most once in the mode expression
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
+
+[MEDIUM] SuspiciousMessageMode: Integer literals should not be used in mode expression; use symbolic constants instead
+test/detectors/SuspiciousMessageMode.tact:57:73:
+  56 |             value: 0,
+> 57 |             mode: CustomSendRemainingValue + CustomSendRemainingValue + 64 // Duplicate flags, '+' operator, integer literal
+                                                                               ^
+  58 |         });
+Help: Replace integer literals with symbolic flag constants
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
+
+[MEDIUM] SuspiciousMessageMode: Mode expression should only contain the '|' operator
+test/detectors/SuspiciousMessageMode.tact:66:19:
+  65 |             value: 0,
+> 66 |             mode: (CustomSendRemainingValue * CustomSendAllBalance) - CustomSendIgnoreErrors
+                         ^
+  67 |         });
+Help: Use the '|' operator (bitwise OR) to combine flags
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
+
+[MEDIUM] SuspiciousMessageMode: Mode expression should only contain the '|' operator
+test/detectors/SuspiciousMessageMode.tact:66:20:
+  65 |             value: 0,
+> 66 |             mode: (CustomSendRemainingValue * CustomSendAllBalance) - CustomSendIgnoreErrors
+                          ^
+  67 |         });
+Help: Use the '|' operator (bitwise OR) to combine flags
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
