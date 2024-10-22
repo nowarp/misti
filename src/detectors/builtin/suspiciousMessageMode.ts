@@ -1,5 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
-import { foldExpressions, foldStatements } from "../../internals/tact";
+import { forEachExpression } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import {
@@ -8,7 +8,6 @@ import {
   idText,
   AstOpBinary,
   AstId,
-  AstStaticCall,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
 export class SuspiciousMessageMode extends ASTDetector {
@@ -17,33 +16,17 @@ export class SuspiciousMessageMode extends ASTDetector {
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const warnings: MistiTactWarning[] = [];
     Array.from(cu.ast.getProgramEntries()).forEach((node) => {
-      foldStatements(
-        node,
-        (acc, stmt) => {
-          foldExpressions(
-            stmt,
-            (acc, expr) => {
-              if (this.isSendParametersStruct(expr)) {
-                this.checkSendParameters(expr, acc);
-              }
-              return acc;
-            },
-            acc,
-          );
-          return acc;
-        },
-        warnings,
-      );
+      forEachExpression(node, (expr) => {
+        if (this.isSendParametersStruct(expr)) {
+          this.checkSendParameters(expr, warnings);
+        }
+      });
     });
     return warnings;
   }
-
   private isSendParametersStruct(expr: AstExpression): boolean {
     if (expr.kind === "struct_instance") {
       return idText((expr as AstStructInstance).type) === "SendParameters";
-    }
-    if (expr.kind === "static_call") {
-      return idText((expr as AstStaticCall).function) === "SendParameters";
     }
     return false;
   }
@@ -52,22 +35,9 @@ export class SuspiciousMessageMode extends ASTDetector {
     expr: AstExpression,
     warnings: MistiTactWarning[],
   ): void {
-    let args: any[] = [];
-    if (expr.kind === "struct_instance") {
-      args = (expr as AstStructInstance).args;
-    } else if (expr.kind === "static_call") {
-      args = (expr as AstStaticCall).args;
-    }
-    const modeField = args.find((arg) => {
-      if (arg.kind === "struct_field_initializer") {
-        return idText(arg.field) === "mode";
-      }
-      if (arg.kind === "named_argument") {
-        return idText(arg.name) === "mode";
-      }
-      return false;
-    });
-    if (modeField && modeField.initializer) {
+    const args = (expr as AstStructInstance).args;
+    const modeField = args.find((arg) => idText(arg.field) === "mode");
+    if (modeField) {
       this.checkModeExpression(modeField.initializer, warnings);
     }
   }
@@ -104,7 +74,8 @@ export class SuspiciousMessageMode extends ASTDetector {
                 `Flag '${flagName}' is used multiple times in mode expression`,
                 expr.loc,
                 {
-                  suggestion: `Use each flag at most once in the mode expression`,
+                  suggestion:
+                    "Use each flag at most once in the mode expression",
                 },
               ),
             );
