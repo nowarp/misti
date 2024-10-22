@@ -24,7 +24,7 @@ describe("Misti `main` tests", () => {
   }
 
   it("should produce the same output for `yarn misti` and `./bin/misti`", () => {
-    const testContract = 'test/detectors/NeverAccessedVariables.tact';
+    const testContract = "test/detectors/NeverAccessedVariables.tact";
     const yarnResult = safeExecSync(`yarn misti ${testContract}`);
     const binResult = safeExecSync(`./bin/misti ${testContract}`);
 
