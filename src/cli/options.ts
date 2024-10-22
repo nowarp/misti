@@ -22,6 +22,7 @@ export interface CLIOptions {
   allDetectors: boolean;
   config: string | undefined;
   newDetector: string | undefined;
+  listDetectors: boolean;
 }
 
 export const cliOptionDefaults: Required<CLIOptions> = {
@@ -42,6 +43,7 @@ export const cliOptionDefaults: Required<CLIOptions> = {
   allDetectors: false,
   config: undefined,
   newDetector: undefined,
+  listDetectors: false,
 };
 
 export const cliOptions = [
@@ -142,5 +144,8 @@ export const cliOptions = [
   ).default(cliOptionDefaults.config),
   new Option("--new-detector <PATH>", "Creates a new custom detector.").default(
     cliOptionDefaults.newDetector,
+  ),
+  new Option("--list-detectors", "List available built-in detectors.").default(
+    cliOptionDefaults.listDetectors,
   ),
 ];
