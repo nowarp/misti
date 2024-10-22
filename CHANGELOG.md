@@ -8,14 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- `--list-detectors` CLI option: PR [#192](https://github.com/nowarp/misti/pull/192)
-- `SendInLoop` detector: PR [#168](https://github.com/nowarp/misti/pull/168)
-- `CellOverflow` detector: PR [#177](https://github.com/nowarp/misti/pull/177)
-- `--list-detectors` CLI option: PR [#192](https://github.com/nowarp/misti/pull/192)
 - `SendInLoop` detector: PR [#168](https://github.com/nowarp/misti/pulls/168)
 - `CellOverflow` detector: PR [#177](https://github.com/nowarp/misti/pulls/177)
 - `UnboundMap` detector: Issue [#50](https://github.com/nowarp/misti/issues/50)
 - `UnusedExpressionResult` detector: PR [#190](https://github.com/nowarp/misti/pull/190)
+- `--list-detectors` CLI option: PR [#192](https://github.com/nowarp/misti/pull/192)
 - Import Graph: PR [#180](https://github.com/nowarp/misti/pull/180)
 
 ### Changed
