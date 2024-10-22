@@ -148,4 +148,7 @@ export const cliOptions = [
   new Option("--new-detector <PATH>", "Creates a new custom detector.").default(
     cliOptionDefaults.newDetector,
   ),
+  new Option("--list-detectors", "List available built-in detectors.").default(
+    cliOptionDefaults.listDetectors,
+  ),
 ];
