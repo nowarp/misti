@@ -30,7 +30,7 @@ import {
  * send(SendParameters{
  *     to: recipient,
  *     value: amount,
- *     mode: SendRemainingBalance | SendRemainingBalance, //BAD. Duplicate flag
+ *     mode: SendRemainingBalance | SendRemainingBalance, // Bad: Duplicate flag
  * });
  *
  * // Correct usage:
