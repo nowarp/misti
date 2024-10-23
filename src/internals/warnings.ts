@@ -1,6 +1,5 @@
 import { MistiContext } from "./context";
 import { InternalException } from "./exceptions";
-import { getOriginalPath } from "../cli/path";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import * as path from "path";
 
@@ -128,11 +127,7 @@ export class MistiTactWarning {
           const lcStr = `${lc}`;
           const lcLines = lcStr.split("\n");
           lcLines.shift();
-          const contractPath =
-            ctx.tactPath && ctx.tactPath.kind === "contract"
-              ? getOriginalPath(ctx.tactPath)
-              : loc.file;
-          const shownPath = path.relative(process.cwd(), contractPath);
+          const shownPath = path.relative(process.cwd(), loc.file);
           return `${shownPath}:${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
         })()
       : "";

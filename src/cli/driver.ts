@@ -1,19 +1,14 @@
 import { CLIOptions, cliOptionDefaults } from "./options";
-import { MistiTactPath } from "./path";
-import {
-  MistiResult,
-  ToolOutput,
-  MistiResultTool,
-  WarningOutput,
-} from "./result";
-import { SingleContractProjectManager } from "./singleContract";
+import { MistiResult, ToolOutput, WarningOutput } from "./result";
 import { OutputFormat } from "./types";
 import { Detector, findBuiltInDetector } from "../detectors/detector";
 import { MistiContext } from "../internals/context";
 import { ExecutionException, InternalException } from "../internals/exceptions";
-import { CompilationUnit, ProjectName } from "../internals/ir";
+import { CompilationUnit, ImportGraph, ProjectName } from "../internals/ir";
 import { createIR } from "../internals/ir/builders/";
+import { ImportGraphBuilder } from "../internals/ir/builders/imports";
 import { Logger } from "../internals/logger";
+import { TactConfigManager, parseTactProject } from "../internals/tact";
 import { unreachable } from "../internals/util";
 import {
   MistiTactWarning,
@@ -35,38 +30,18 @@ export class Driver {
   outputPath: string;
   disabledDetectors: Set<string>;
   colorizeOutput: boolean;
-  tactConfigPath: string | undefined;
+  /**
+   * Compilation units representing the actual entrypoints of the analysis targets
+   * based on user's input. Might be empty if no paths are specified.
+   */
+  cus: Map<ProjectName, CompilationUnit>;
   /** Minimum severity level to report warnings. */
   minSeverity: Severity;
   outputFormat: OutputFormat;
-  singleContractProjectManager: SingleContractProjectManager | undefined;
 
-  private constructor(tactPath: string | undefined, options: CLIOptions) {
-    let mistiTactPath: MistiTactPath | undefined;
-    if (tactPath) {
-      const singleContract = tactPath.endsWith(".tact");
-      if (!fs.existsSync(tactPath)) {
-        throw ExecutionException.make(
-          `${singleContract ? "Contract" : "Project"} ${tactPath} is not available.`,
-        );
-      }
-      if (singleContract) {
-        this.singleContractProjectManager =
-          SingleContractProjectManager.fromContractPath(tactPath);
-        this.tactConfigPath =
-          this.singleContractProjectManager.createTempProjectDir();
-        mistiTactPath = {
-          kind: "contract",
-          tempConfigPath: path.resolve(this.tactConfigPath),
-          originalPath: path.resolve(tactPath),
-        };
-      } else {
-        // Tact supports absolute paths only
-        this.tactConfigPath = path.resolve(tactPath);
-        mistiTactPath = { kind: "config", path: path.resolve(tactPath) };
-      }
-    }
-    this.ctx = new MistiContext(mistiTactPath, options);
+  private constructor(tactPaths: string[], options: CLIOptions) {
+    this.ctx = new MistiContext(options);
+    this.cus = this.createCUs(tactPaths);
     this.disabledDetectors = new Set(options.disabledDetectors ?? []);
     this.colorizeOutput = options.colors;
     this.minSeverity = options.minSeverity;
@@ -79,18 +54,86 @@ export class Driver {
    * @param tactPath Path to the Tact project configuration of to a single Tact contract.
    */
   public static async create(
-    tactPath: string | undefined,
+    tactPaths: string[],
     options: Partial<CLIOptions> = {},
   ): Promise<Driver> {
     const mergedOptions: CLIOptions = { ...cliOptionDefaults, ...options };
     this.checkCLIOptions(mergedOptions);
-    const driver = new Driver(tactPath, mergedOptions);
+    const driver = new Driver(tactPaths, mergedOptions);
     await driver.initializeDetectors();
     await driver.initializeTools();
     if (!driver.ctx.souffleAvailable) {
       this.warnOnDisabledDetectors(driver);
     }
     return driver;
+  }
+
+  /**
+   * Resolves the filepaths provided as an input to Misti to initialize the
+   * compilation units which are IR entries to target analysis on.
+   *
+   * @param tactPaths Paths received from the user.
+   * @returns Created compilation units.
+   */
+  private createCUs(tactPaths: string[]): Map<ProjectName, CompilationUnit> {
+    return [...new Set(tactPaths)]
+      .filter(
+        (tactPath) =>
+          fs.existsSync(tactPath) ||
+          (this.ctx.logger.error(`${tactPath} is not available`), false),
+      )
+      .reduce((acc, tactPath) => {
+        // TODO: Check on the available import graphs if some of the inputs are already added
+        let importGraph: ImportGraph;
+        let configManager: TactConfigManager;
+        if (tactPath.endsWith(".tact")) {
+          importGraph = ImportGraphBuilder.make(this.ctx, [tactPath]).build();
+          let projectRoot = importGraph.resolveProjectRoot();
+          if (projectRoot === undefined) {
+            projectRoot = path.dirname(tactPath);
+            this.ctx.logger.warn(
+              `Cannot resolve project path. Trying ${projectRoot}`,
+            );
+          }
+          const projectName = path.basename(tactPath, ".tact") as ProjectName;
+          // TODO: Try to merge them into one of the existing configs.
+          configManager = TactConfigManager.fromContract(
+            projectRoot,
+            tactPath,
+            projectName,
+          );
+          const projectConfig = configManager.findProjectByName(projectName);
+          if (projectConfig === undefined) {
+            throw InternalException.make(
+              [
+                `Cannot find ${projectName} in the configuration file generated for ${tactPath}:`,
+                JSON.stringify(configManager.tactConfig, null, 2),
+              ].join("\n"),
+            );
+          }
+          const ast = parseTactProject(
+            this.ctx,
+            projectConfig,
+            configManager.resolveProjectPath(projectConfig.path),
+          );
+          const cu = createIR(this.ctx, projectName, ast, importGraph);
+          acc.set(projectName, cu);
+        } else {
+          importGraph = ImportGraphBuilder.make(this.ctx, [tactPath]).build();
+          configManager = TactConfigManager.fromConfig(tactPath);
+          configManager.getProjects().forEach((configProject) => {
+            const ast = parseTactProject(
+              this.ctx,
+              configProject,
+              configManager.resolveProjectPath(configProject.path),
+            );
+            const projectName = configProject.name as ProjectName;
+            const cu = createIR(this.ctx, projectName, ast, importGraph);
+            acc.set(projectName, cu);
+          });
+        }
+        return acc;
+      }, new Map<ProjectName, CompilationUnit>());
   }
 
   /**
@@ -245,8 +288,21 @@ export class Driver {
    * Entry point of code analysis and tools execution.
    */
   public async execute(): Promise<MistiResult> {
+    if (this.cus.size === 0) {
+      throw ExecutionException.make(
+        "Please specify a path to a Tact project or Tact contract",
+      );
+    }
+    if (this.detectors.length === 0 && this.tools.length === 0) {
+      this.ctx.logger.warn(
+        "Nothing to execute. Please specify at least one detector or tool.",
+      );
+      return { kind: "ok" };
+    }
     try {
-      return await this.executeImpl();
+      return this.tools.length > 0
+        ? await this.executeTools()
+        : await this.executeAnalysis();
     } catch (err) {
       const result = [] as string[];
       if (err instanceof Error) {
@@ -264,53 +320,15 @@ export class Driver {
   }
 
   /**
-   * Executes checks on all compilation units and reports found warnings sorted by severity.
-   */
-  private async executeImpl(): Promise<MistiResult> | never {
-    try {
-      if (!this.tactConfigPath) {
-        throw ExecutionException.make(
-          "Please specify a path to a Tact project or Tact contract",
-        );
-      }
-      const cus: Map<ProjectName, CompilationUnit> = createIR(
-        this.ctx,
-        this.tactConfigPath,
-      );
-      if (this.detectors.length === 0 && this.tools.length === 0) {
-        this.ctx.logger.warn(
-          "Nothing to execute. Please specify at least one detector or tool.",
-        );
-        return { kind: "ok" };
-      }
-      const result =
-        this.tools.length > 0
-          ? await this.executeTools(cus)
-          : await this.executeAnalysis(cus);
-      return result;
-    } finally {
-      if (this.singleContractProjectManager) {
-        try {
-          this.singleContractProjectManager.cleanup();
-        } catch (error) {
-          throw error;
-        }
-      }
-    }
-  }
-
-  /**
    * Executes all the initialized detectors on the compilation units.
    * @param cus Map of compilation units
    * @returns MistiResult containing detectors output
    */
-  private async executeAnalysis(
-    cus: Map<ProjectName, CompilationUnit>,
-  ): Promise<MistiResult> {
+  private async executeAnalysis(): Promise<MistiResult> {
     const allWarnings = await (async () => {
       const warningsMap = new Map<ProjectName, MistiTactWarning[]>();
       await Promise.all(
-        Array.from(cus.entries()).map(async ([projectName, cu]) => {
+        Array.from(this.cus.entries()).map(async ([projectName, cu]) => {
           const warnings = await this.checkCU(cu);
           warningsMap.set(projectName, warnings);
         }),
@@ -318,7 +336,7 @@ export class Driver {
       return warningsMap;
     })();
     const filteredWarnings: Map<ProjectName, MistiTactWarning[]> =
-      this.filterImportedWarnings(Array.from(cus.keys()), allWarnings);
+      this.filterImportedWarnings(Array.from(this.cus.keys()), allWarnings);
     this.filterSuppressedWarnings(filteredWarnings);
     const reported = new Set<string>();
     const warningsOutput: WarningOutput[] = [];
@@ -358,14 +376,11 @@ export class Driver {
 
   /**
    * Executes all the initialized tools on the compilation units.
-   * @param cus Map of compilation units
    * @returns MistiResult containing tool outputs
    */
-  private async executeTools(
-    cus: Map<ProjectName, CompilationUnit>,
-  ): Promise<MistiResultTool> {
+  private async executeTools(): Promise<MistiResult> {
     const toolOutputs = await Promise.all(
-      Array.from(cus.values()).flatMap((cu) =>
+      Array.from(this.cus.values()).flatMap((cu) =>
         this.tools.map((tool) => {
           try {
             return tool.run(cu);
@@ -432,7 +447,7 @@ export class Driver {
             if (
               new Set(allProjectNames).size === new Set(projects).size &&
               [...new Set(allProjectNames)].every((value) =>
-                new Set(projects).has(value),
+                new Set(projects).has(value as ProjectName),
               )
             ) {
               projectWarnings.push(warn);

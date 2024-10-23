@@ -1,4 +1,4 @@
-export type ProjectName = string;
+export type ProjectName = string & { readonly __brand: unique symbol };
 export type FunctionName = string;
 export type ContractName = string;
 

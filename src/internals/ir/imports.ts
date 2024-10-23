@@ -1,6 +1,7 @@
 import { IdxGenerator } from "./indices";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import { ItemOrigin } from "@tact-lang/compiler/dist/grammar/grammar";
+import path from "path";
 
 export type ImportNodeIdx = number;
 export type ImportEdgeIdx = number;
@@ -88,6 +89,44 @@ export class ImportGraph {
    */
   public forEachEdge(callback: (edge: ImportEdge) => void): void {
     this.edges.forEach(callback);
+  }
+
+  /**
+   * Resolves project root based on the import directives.
+   * The project root is a directory including all the imported files.
+   *
+   * @returns Project root directory or undefined if there are no user imports.
+   */
+  public resolveProjectRoot(): string | undefined {
+    let projectRoot: string | undefined;
+    this.nodes.forEach((node) => {
+      if (node.origin === "user") {
+        if (!projectRoot) {
+          projectRoot = path.dirname(node.importPath);
+        } else {
+          if (!projectRoot.includes(path.dirname(node.importPath))) {
+            projectRoot = this.findCommonParent(
+              projectRoot,
+              path.dirname(node.importPath),
+            );
+          }
+        }
+      }
+    });
+    return projectRoot;
+  }
+
+  /**
+   * Finds the common parent directory between two paths.
+   */
+  private findCommonParent(path1: string, path2: string): string {
+    const parts1 = path1.split(path.sep);
+    const parts2 = path2.split(path.sep);
+    let i = 0;
+    while (i < parts1.length && i < parts2.length && parts1[i] === parts2[i]) {
+      i++;
+    }
+    return parts1.slice(0, i).join(path.sep) || path.sep;
   }
 
   /**
