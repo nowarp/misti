@@ -1,5 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
-import { forEachExpression } from "../../internals/tact/iterators";
+import { forEachExpression } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import {
@@ -7,7 +7,6 @@ import {
   AstStructInstance,
   idText,
   AstOpBinary,
-  AstOpUnary,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
@@ -22,6 +21,7 @@ import {
  * - Warns if integer literals are used instead of symbolic constants.
  * - Warns if the same flag is used multiple times in the `mode` expression.
  * - Warns if function calls are used in the `mode` expression.
+ * - Warns if unary operators are used in the `mode` expression.
  *
  * ## Example
  *
@@ -30,14 +30,14 @@ import {
  * send(SendParameters{
  *     to: recipient,
  *     value: amount,
- *     mode: SendRemainingBalance | SendRemainingBalance, //BAD. Duplicate flag
+ *     mode: SendRemainingBalance | SendRemainingBalance // Bad: Duplicate flag
  * });
  *
  * // Correct usage:
  * send(SendParameters{
  *     to: recipient,
  *     value: amount,
- *     mode: SendRemainingBalance | SendDestroyIfZero //OK
+ *     mode: SendRemainingBalance | SendDestroyIfZero // Ok
  * });
  * ```
  */
@@ -46,29 +46,27 @@ export class SuspiciousMessageMode extends ASTDetector {
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const warnings: MistiTactWarning[] = [];
-    for (const node of cu.ast.getProgramEntries()) {
+    Array.from(cu.ast.getProgramEntries()).forEach((node) => {
       forEachExpression(node, (expr) => {
         if (this.isSendParametersStruct(expr)) {
           this.checkSendParameters(expr, warnings);
         }
       });
-    }
+    });
     return warnings;
   }
 
-  private isSendParametersStruct(
-    expr: AstExpression,
-  ): expr is AstStructInstance {
+  private isSendParametersStruct(expr: AstExpression): boolean {
     return expr.kind === "struct_instance"
-      ? idText(expr.type) === "SendParameters"
+      ? idText((expr as AstStructInstance).type) === "SendParameters"
       : false;
   }
 
   private checkSendParameters(
-    expr: AstStructInstance,
+    expr: AstExpression,
     warnings: MistiTactWarning[],
   ): void {
-    const args = expr.args;
+    const args = (expr as AstStructInstance).args;
     const modeField = args.find((arg) => idText(arg.field) === "mode");
     if (modeField) {
       this.checkModeExpression(modeField.initializer, warnings);
@@ -80,7 +78,7 @@ export class SuspiciousMessageMode extends ASTDetector {
     warnings: MistiTactWarning[],
   ): void {
     const flagsUsed = new Set<string>();
-    const traverse = (e: AstExpression): void => {
+    forEachExpression(expr, (e) => {
       switch (e.kind) {
         case "op_binary":
           const opBinary = e as AstOpBinary;
@@ -96,12 +94,19 @@ export class SuspiciousMessageMode extends ASTDetector {
               ),
             );
           }
-          traverse(opBinary.left);
-          traverse(opBinary.right);
           break;
-        case "op_unary":
-          const opUnary = e as AstOpUnary;
-          traverse(opUnary.operand);
+        case "static_call":
+        case "method_call":
+          warnings.push(
+            this.makeWarning(
+              "Function calls should not be used in mode expression; use symbolic constants instead",
+              e.loc,
+              {
+                suggestion:
+                  "Replace function calls with symbolic flag constants",
+              },
+            ),
+          );
           break;
         case "id":
           const flagName = idText(e);
@@ -131,23 +136,9 @@ export class SuspiciousMessageMode extends ASTDetector {
             ),
           );
           break;
-        case "static_call":
-        case "method_call":
-          warnings.push(
-            this.makeWarning(
-              "Function calls should not be used in mode expression; use symbolic constants instead",
-              e.loc,
-              {
-                suggestion:
-                  "Replace function calls with symbolic flag constants",
-              },
-            ),
-          );
-          break;
         default:
           break;
       }
-    };
-    traverse(expr);
+    });
   }
 }

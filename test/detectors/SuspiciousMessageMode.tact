@@ -4,7 +4,7 @@ contract SendParametersTestContract {
         send(SendParameters{
             to: sender(),
             value: 0,
-            mode: SendRemainingValue | SendPayGasSeparately //OK
+            mode: SendRemainingValue | SendPayGasSeparately // Ok
         });
     }
 
@@ -13,7 +13,7 @@ contract SendParametersTestContract {
         send(SendParameters{
             to: sender(),
             value: 0,
-            mode: SendRemainingValue | SendRemainingValue //BAD
+            mode: SendRemainingValue | SendRemainingValue // Bad
         });
     }
 
@@ -22,7 +22,7 @@ contract SendParametersTestContract {
         send(SendParameters{
             to: sender(),
             value: 0,
-            mode: SendRemainingValue + SendIgnoreErrors //BAD
+            mode: SendRemainingValue + SendIgnoreErrors // Bad
         });
     }
 
@@ -31,7 +31,7 @@ contract SendParametersTestContract {
         send(SendParameters{
             to: sender(),
             value: 0,
-            mode: 64 //BAD. Integer literal instead of symbolic constant 
+            mode: 64 // Bad: Integer literal instead of symbolic constant 
         });
     }
 
@@ -40,7 +40,7 @@ contract SendParametersTestContract {
         send(SendParameters{
             to: sender(),
             value: 0,
-            mode: SendRemainingBalance | SendDestroyIfZero | SendIgnoreErrors //OK
+            mode: SendRemainingBalance | SendDestroyIfZero | SendIgnoreErrors // Ok
         });
     }
 
@@ -49,7 +49,7 @@ contract SendParametersTestContract {
         send(SendParameters{
             to: sender(),
             value: 0,
-            mode: SendRemainingValue + SendRemainingValue + 64 //BAD. Duplicate flags, '+' operator, integer literal 
+            mode: SendRemainingValue + SendRemainingValue + 64 // Bad: Duplicate flags, '+' operator, integer literal 
         });
     }
 
@@ -58,7 +58,7 @@ contract SendParametersTestContract {
         send(SendParameters{
             to: sender(),
             value: 0,
-            mode: -(SendRemainingValue * SendPayGasSeparately) - SendIgnoreErrors //BAD
+            mode: -(SendRemainingValue * SendPayGasSeparately) - SendIgnoreErrors // Bad
         });
     }
 
@@ -71,7 +71,7 @@ contract SendParametersTestContract {
         send(SendParameters{
             to: sender(),
             value: 0,
-            mode: self.functionReturningLiteral() //BAD. Uses integer literal instead of symbolic constant
+            mode: self.functionReturningLiteral() //Bad: Uses integer literal instead of symbolic constant
         });
     }
 
@@ -81,7 +81,7 @@ contract SendParametersTestContract {
         send(SendParameters{
             to: sender(),
             value: 0,
-            mode: modeFlag //OK
+            mode: modeFlag // Ok
         });
     }
 }
