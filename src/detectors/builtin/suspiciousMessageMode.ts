@@ -1,5 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
-import { forEachExpression } from "../../internals/tact";
+import { forEachExpression } from "../../internals/tact/iterators";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import {
@@ -7,64 +7,80 @@ import {
   AstStructInstance,
   idText,
   AstOpBinary,
+  AstOpUnary,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
  * Detects suspicious usage of the `mode` field in `SendParameters` struct instances.
  *
- * ## Why is it important?
+ * ## Why is it bad?
  * Incorrect usage of the `mode` field in `SendParameters` can lead to unintended behavior when sending messages,
  * such as incorrect flags being set, which can cause security vulnerabilities or unexpected contract behavior.
  *
- * ## What it checks
+ * **What it checks:**
  * - Ensures that the `mode` expression only uses the bitwise OR operator `|`.
  * - Warns if integer literals are used instead of symbolic constants.
- * - Warns if the same flag is used multiple times in the mode expression.
+ * - Warns if the same flag is used multiple times in the `mode` expression.
+ * - Warns if function calls are used in the `mode` expression.
  *
  * ## Example
  *
  * ```tact
  * // Suspicious usage:
- * sendParameters.mode = 0x01 | 0x01; // Duplicate flag
+ * send(SendParameters{
+ *     to: recipient,
+ *     value: amount,
+ *     mode: SendRemainingBalance | SendRemainingBalance, //BAD. Duplicate flag
+ * });
  *
  * // Correct usage:
- * sendParameters.mode = FLAG_ONE | FLAG_TWO;
+ * send(SendParameters{
+ *     to: recipient,
+ *     value: amount,
+ *     mode: SendRemainingBalance | SendDestroyIfZero //OK
+ * });
  * ```
  */
 export class SuspiciousMessageMode extends ASTDetector {
   severity = Severity.MEDIUM;
+
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const warnings: MistiTactWarning[] = [];
-    Array.from(cu.ast.getProgramEntries()).forEach((node) => {
+    for (const node of cu.ast.getProgramEntries()) {
       forEachExpression(node, (expr) => {
         if (this.isSendParametersStruct(expr)) {
           this.checkSendParameters(expr, warnings);
         }
       });
-    });
+    }
     return warnings;
   }
-  private isSendParametersStruct(expr: AstExpression): boolean {
+
+  private isSendParametersStruct(
+    expr: AstExpression,
+  ): expr is AstStructInstance {
     return expr.kind === "struct_instance"
-      ? idText((expr as AstStructInstance).type) === "SendParameters"
+      ? idText(expr.type) === "SendParameters"
       : false;
   }
+
   private checkSendParameters(
-    expr: AstExpression,
+    expr: AstStructInstance,
     warnings: MistiTactWarning[],
   ): void {
-    const args = (expr as AstStructInstance).args;
+    const args = expr.args;
     const modeField = args.find((arg) => idText(arg.field) === "mode");
     if (modeField) {
       this.checkModeExpression(modeField.initializer, warnings);
     }
   }
+
   private checkModeExpression(
     expr: AstExpression,
     warnings: MistiTactWarning[],
   ): void {
     const flagsUsed = new Set<string>();
-    forEachExpression(expr, (e) => {
+    const traverse = (e: AstExpression): void => {
       switch (e.kind) {
         case "op_binary":
           const opBinary = e as AstOpBinary;
@@ -80,13 +96,19 @@ export class SuspiciousMessageMode extends ASTDetector {
               ),
             );
           }
+          traverse(opBinary.left);
+          traverse(opBinary.right);
+          break;
+        case "op_unary":
+          const opUnary = e as AstOpUnary;
+          traverse(opUnary.operand);
           break;
         case "id":
           const flagName = idText(e);
           if (flagsUsed.has(flagName)) {
             warnings.push(
               this.makeWarning(
-                `Flag '${flagName}' is used multiple times in mode expression`,
+                `Flag \`${flagName}\` is used multiple times in the \`mode\` expression`,
                 e.loc,
                 {
                   suggestion:
@@ -109,9 +131,23 @@ export class SuspiciousMessageMode extends ASTDetector {
             ),
           );
           break;
+        case "static_call":
+        case "method_call":
+          warnings.push(
+            this.makeWarning(
+              "Function calls should not be used in mode expression; use symbolic constants instead",
+              e.loc,
+              {
+                suggestion:
+                  "Replace function calls with symbolic flag constants",
+              },
+            ),
+          );
+          break;
         default:
           break;
       }
-    });
+    };
+    traverse(expr);
   }
 }
