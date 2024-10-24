@@ -1,5 +1,3 @@
-// src/detectors/builtin/EtaLikeSimplifications.ts
-
 import { CompilationUnit } from "../../internals/ir";
 import { forEachStatement, forEachExpression } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
@@ -14,33 +12,58 @@ import {
   AstConditional,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
+/**
+ * Detects opportunities for simplifying code by eliminating redundant boolean expressions and statements.
+ *
+ * ## Why is it bad?
+ * Redundant code can make programs less efficient and harder to read. Simplifying such code improves readability,
+ * maintainability, and can prevent potential logical errors.
+ *
+ * **What it checks:**
+ * - `if` statements that return boolean literals directly based on a condition.
+ * - Comparisons of boolean expressions with boolean literals (`true` or `false`).
+ * - Conditional expressions (ternary operators) that return boolean literals.
+ *
+ * ## Example
+ *
+ * ```tact
+ * // Redundant 'if' statement:
+ * if (condition) {
+ *     return true;
+ * } else {
+ *     return false;
+ * }
+ * // Simplify to:
+ * return condition;
+ *
+ * // Redundant comparison:
+ * return a == true;
+ * // Simplify to:
+ * return a;
+ *
+ * // Redundant conditional expression:
+ * return b ? true : false;
+ * // Simplify to:
+ * return b;
+ * ```
+ */
 export class EtaLikeSimplifications extends ASTDetector {
   severity = Severity.LOW;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
-    console.log("EtaLikeSimplifications detector is running");
     const warnings: MistiTactWarning[] = [];
-
     const entries = cu.ast.getProgramEntries();
-    console.log("Number of program entries:", entries.length);
-
     for (const node of entries) {
       this.analyzeNode(node, warnings);
     }
-
     return warnings;
   }
 
   private analyzeNode(node: AstNode, warnings: MistiTactWarning[]): void {
-    console.log("Analyzing node:", node.kind);
-
     forEachStatement(node, (stmt) => {
-      console.log("Statement kind:", stmt.kind);
       this.checkStatement(stmt, warnings);
     });
-
     forEachExpression(node, (expr) => {
-      console.log("Expression kind:", expr.kind);
       this.checkExpression(expr, warnings);
     });
   }
@@ -51,7 +74,6 @@ export class EtaLikeSimplifications extends ASTDetector {
   ): void {
     if (stmt.kind === "statement_condition") {
       const ifStmt = stmt;
-
       if (
         ifStmt.trueStatements.length === 1 &&
         ifStmt.falseStatements &&
@@ -61,7 +83,6 @@ export class EtaLikeSimplifications extends ASTDetector {
       ) {
         const trueReturn = ifStmt.trueStatements[0] as AstStatementReturn;
         const falseReturn = ifStmt.falseStatements[0] as AstStatementReturn;
-
         if (
           this.isBooleanLiteral(trueReturn.expression, true) &&
           this.isBooleanLiteral(falseReturn.expression, false)
@@ -84,15 +105,14 @@ export class EtaLikeSimplifications extends ASTDetector {
     expr: AstExpression,
     warnings: MistiTactWarning[],
   ): void {
-    // Check for `boolean_expression == true` or `boolean_expression == false`
     if (expr.kind === "op_binary") {
       const binaryExpr = expr as AstOpBinary;
       if (binaryExpr.op === "==" || binaryExpr.op === "!=") {
-        const { left, right } = binaryExpr;
+        const { right } = binaryExpr;
         if (this.isBooleanLiteral(right)) {
           warnings.push(
             this.makeWarning(
-              `Redundant comparison with boolean literal`,
+              "Redundant comparison with boolean literal",
               expr.loc,
               {
                 suggestion: `Use '${this.getSimplifiedBooleanExpression(
@@ -104,8 +124,6 @@ export class EtaLikeSimplifications extends ASTDetector {
         }
       }
     }
-
-    // Check for conditional expressions like `cond ? true : false`
     if (expr.kind === "conditional") {
       const conditionalExpr = expr as AstConditional;
       if (
@@ -117,7 +135,9 @@ export class EtaLikeSimplifications extends ASTDetector {
             "Simplify conditional expression by using the condition directly",
             expr.loc,
             {
-              suggestion: `Use '${this.getConditionText(conditionalExpr.condition)}' instead`,
+              suggestion: `Use '${this.getConditionText(
+                conditionalExpr.condition,
+              )}' instead`,
             },
           ),
         );

@@ -390,7 +390,7 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       import("./builtin/etaLikeSimplifications").then(
         (module) => new module.EtaLikeSimplifications(ctx),
       ),
-    enabledByDefault: false,
+    enabledByDefault: true,
   },
 };
 
