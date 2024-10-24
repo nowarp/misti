@@ -47,7 +47,10 @@ export class SuspiciousMessageMode extends ASTDetector {
     const warnings: MistiTactWarning[] = [];
     Array.from(cu.ast.getProgramEntries()).forEach((node) => {
       forEachExpression(node, (expr) => {
-        if (this.isSendParametersStruct(expr)) {
+        if (
+          expr.kind === "struct_instance" &&
+          idText(expr.type) === "SendParameters"
+        ) {
           this.checkSendParameters(expr, warnings);
         }
       });
@@ -55,17 +58,11 @@ export class SuspiciousMessageMode extends ASTDetector {
     return warnings;
   }
 
-  private isSendParametersStruct(expr: AstExpression): boolean {
-    return expr.kind === "struct_instance"
-      ? idText((expr as AstStructInstance).type) === "SendParameters"
-      : false;
-  }
-
   private checkSendParameters(
-    expr: AstExpression,
+    expr: AstStructInstance,
     warnings: MistiTactWarning[],
   ): void {
-    const args = (expr as AstStructInstance).args;
+    const args = expr.args;
     const modeField = args.find((arg) => idText(arg.field) === "mode");
     if (modeField) {
       this.checkModeExpression(modeField.initializer, warnings);
