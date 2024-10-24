@@ -62,11 +62,6 @@ contract SendParametersTestContract {
         });
     }
 
-    // Using a function call that returns an integer literal: should trigger a warning
-    fun functionReturningLiteral(): Int {
-        return 64; //OK
-    }
-
     // Correct usage with variables
     fun correctUsageWithVariables() {
         let modeFlag: Int = SendRemainingValue | SendIgnoreErrors;
