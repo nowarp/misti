@@ -138,12 +138,12 @@ test/all/**/*.dot
 test/all/**/*.mmd
 test/all/**/*.actual.out
 test/detectors/**/*.actual.out
-!test/all/**/*.cfg.json
-!test/all/**/*.cfg.dot
-!test/all/**/*.cfg.mmd
-!test/all/**/*.imports.json
-!test/all/**/*.imports.dot
-!test/all/**/*.imports.mmd
+!test/all/**/*.expected.cfg.json
+!test/all/**/*.expected.cfg.dot
+!test/all/**/*.expected.cfg.mmd
+!test/all/**/*.expected.imports.json
+!test/all/**/*.expected.imports.dot
+!test/all/**/*.expected.imports.mmd
 
 # Generated code
 src/version-info.ts
