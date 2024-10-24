@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--list-detectors` CLI option: PR [#192](https://github.com/nowarp/misti/pull/192)
 - Import Graph: PR [#180](https://github.com/nowarp/misti/pull/180)
 - Leverage `ImportGraph` to resolve entry points: PR [#194](https://github.com/nowarp/misti/pull/194)
-- Accept directory as input: PR [#195](https://github.com/nowarp/misti/pull/194)
+- Accept directory as input: PR [#195](https://github.com/nowarp/misti/pull/195)
 
 ### Changed
 - Improved and optimized the test suite: PR [#184](https://github.com/nowarp/misti/pull/184)
