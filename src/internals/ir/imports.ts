@@ -113,7 +113,7 @@ export class ImportGraph {
         }
       }
     });
-    return projectRoot;
+    return projectRoot ? path.resolve(projectRoot) : undefined;
   }
 
   /**

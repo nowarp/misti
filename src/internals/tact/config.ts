@@ -67,11 +67,18 @@ export class TactConfigManager {
         },
       ],
     };
-    return new TactConfigManager(projectRoot, tactConfig);
+    return new TactConfigManager(path.resolve(projectRoot), tactConfig);
   }
 
-  public get tactConfig(): TactConfig {
+  public getConfig(): TactConfig {
     return this.config;
+  }
+
+  /**
+   * Returns absolute path to the project root.
+   */
+  public getProjectRoot(): string {
+    return this.projectRoot;
   }
 
   /**

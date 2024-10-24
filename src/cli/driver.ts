@@ -107,15 +107,11 @@ export class Driver {
             throw InternalException.make(
               [
                 `Cannot find ${projectName} in the configuration file generated for ${tactPath}:`,
-                JSON.stringify(configManager.tactConfig, null, 2),
+                JSON.stringify(configManager.getConfig, null, 2),
               ].join("\n"),
             );
           }
-          const ast = parseTactProject(
-            this.ctx,
-            projectConfig,
-            configManager.resolveProjectPath(projectConfig.path),
-          );
+          const ast = parseTactProject(this.ctx, projectConfig, projectRoot);
           const cu = createIR(this.ctx, projectName, ast, importGraph);
           acc.set(projectName, cu);
         } else {
@@ -125,7 +121,7 @@ export class Driver {
             const ast = parseTactProject(
               this.ctx,
               configProject,
-              configManager.resolveProjectPath(configProject.path),
+              configManager.getProjectRoot(),
             );
             const projectName = configProject.name as ProjectName;
             const cu = createIR(this.ctx, projectName, ast, importGraph);
