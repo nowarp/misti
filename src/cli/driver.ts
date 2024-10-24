@@ -17,6 +17,7 @@ import {
 } from "../internals/warnings";
 import { Tool, findBuiltInTool } from "../tools/tool";
 import fs from "fs";
+import ignore from "ignore";
 import JSONbig from "json-bigint";
 import path from "path";
 
@@ -77,6 +78,18 @@ export class Driver {
    */
   private createCUs(tactPaths: string[]): Map<ProjectName, CompilationUnit> {
     return [...new Set(tactPaths)]
+      .reduce((acc, tactPath) => {
+        if (fs.statSync(tactPath).isDirectory()) {
+          const tactFiles = this.collectTactFiles(tactPath);
+          this.ctx.logger.debug(
+            `Collected Tact files from ${tactPath}:\n${tactFiles.map((tactFile) => "- " + tactFile).join("\n")}`,
+          );
+          acc.push(...tactFiles);
+        } else {
+          acc.push(tactPath);
+        }
+        return acc;
+      }, [] as string[])
       .filter(
         (tactPath) =>
           fs.existsSync(tactPath) ||
@@ -115,6 +128,7 @@ export class Driver {
           const cu = createIR(this.ctx, projectName, ast, importGraph);
           acc.set(projectName, cu);
         } else {
+          // Tact configuration file
           configManager = TactConfigManager.fromConfig(tactPath);
           importGraph = ImportGraphBuilder.make(
             this.ctx,
@@ -133,6 +147,36 @@ export class Driver {
         }
         return acc;
       }, new Map<ProjectName, CompilationUnit>());
+  }
+
+  /**
+   * Collects all the .tact files in the given directory with respect to ignore heuristics.
+   * @param dir The directory to search in.
+   * @returns The list of .tact files.
+   */
+  private collectTactFiles(dir: string): string[] {
+    let results: string[] = [];
+    const files = fs.readdirSync(dir);
+
+    // If .gitignore exists, use it to ignore files
+    const gitignorePath = findGitignore(dir);
+    let ig = ignore();
+    if (gitignorePath) {
+      ig = ignore().add(fs.readFileSync(gitignorePath, "utf8"));
+    }
+
+    files.forEach((file) => {
+      const fullPath = path.join(dir, file);
+      const relativePath = path.relative(dir, fullPath);
+      if (!ig.ignores(relativePath) && !fullPath.includes("node_modules")) {
+        if (fs.statSync(fullPath).isDirectory()) {
+          results = results.concat(this.collectTactFiles(fullPath));
+        } else if (file.endsWith(".tact")) {
+          results.push(fullPath);
+        }
+      }
+    });
+    return results;
   }
 
   /**
@@ -559,4 +603,21 @@ export class Driver {
       );
     }
   }
+}
+
+/**
+ * Finds the .gitignore file in the given directory or any of its parent directories.
+ * @param startDir The directory to start searching from.
+ * @returns The path to the .gitignore file or null if not found.
+ */
+function findGitignore(startDir: string): string | null {
+  let currentDir = startDir;
+  while (currentDir !== path.parse(currentDir).root) {
+    const gitignorePath = path.join(currentDir, ".gitignore");
+    if (fs.existsSync(gitignorePath)) {
+      return gitignorePath;
+    }
+    currentDir = path.dirname(currentDir);
+  }
+  return null;
 }
