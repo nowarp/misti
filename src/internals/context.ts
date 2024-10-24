@@ -1,4 +1,4 @@
-import { MistiConfig } from "./config";
+import { MistiConfig, MistiEnv } from "./config";
 import { DebugLogger, Logger, QuietLogger, TraceLogger } from "./logger";
 import { CLIOptions, cliOptionDefaults } from "../cli";
 import { throwZodError } from "./exceptions";
@@ -56,7 +56,7 @@ export class MistiContext {
             : new Logger();
 
     // Add backtraces to the logger output if requested
-    if (process.env.MISTI_TRACE === "1") {
+    if (MistiEnv.MISTI_TRACE) {
       this.logger = new TraceLogger();
     }
   }

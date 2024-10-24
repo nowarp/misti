@@ -2,6 +2,7 @@ import { CLIOptions, cliOptionDefaults } from "./options";
 import { MistiResult, ToolOutput, WarningOutput } from "./result";
 import { OutputFormat } from "./types";
 import { Detector, findBuiltInDetector } from "../detectors/detector";
+import { MistiEnv } from "../internals/config";
 import { MistiContext } from "../internals/context";
 import { ExecutionException, InternalException } from "../internals/exceptions";
 import { CompilationUnit, ImportGraph, ProjectName } from "../internals/ir";
@@ -20,6 +21,7 @@ import fs from "fs";
 import ignore from "ignore";
 import JSONbig from "json-bigint";
 import path from "path";
+import { setTimeout } from "timers/promises";
 
 /**
  * Manages the initialization and execution of detectors for analyzing compilation units.
@@ -348,7 +350,7 @@ export class Driver {
       const result = [] as string[];
       if (err instanceof Error) {
         result.push(err.message);
-        if (err.stack !== undefined && process.env.MISTI_TRACE === "1") {
+        if (err.stack !== undefined && MistiEnv.MISTI_TRACE) {
           result.push(err.stack);
         }
       } else {
@@ -591,9 +593,23 @@ export class Driver {
         return [];
       }
       this.ctx.logger.debug(`${cu.projectName}: Running ${detector.id}`);
-      const warnings = await detector.check(cu);
-      this.ctx.logger.debug(`${cu.projectName}: Finished ${detector.id}`);
-      return warnings;
+      try {
+        const warnings = await Promise.race([
+          detector.check(cu),
+          setTimeout(MistiEnv.MISTI_TIMEOUT, []).then(() => {
+            throw new Error(
+              `Detector ${detector.id} timed out after ${MistiEnv.MISTI_TIMEOUT}ms`,
+            );
+          }),
+        ]);
+        this.ctx.logger.debug(`${cu.projectName}: Finished ${detector.id}`);
+        return warnings;
+      } catch (error) {
+        this.ctx.logger.error(
+          `${cu.projectName}: Error in ${detector.id}: ${error}`,
+        );
+        return [];
+      }
     });
     try {
       return (await Promise.all(warningsPromises)).flat();
