@@ -77,10 +77,16 @@ export class ImportGraphBuilder {
 
     imports.reduce((acc, importNode) => {
       const importPath = importNode.path.value;
-      const resolvedPath = path.resolve(
+      let resolvedPath = path.resolve(
         path.dirname(filePath),
         this.resolveStdlibPath(importPath),
       );
+      // TODO: We should use a Tact API function call when this is fixed:
+      //       https://github.com/tact-lang/tact/issues/982
+      resolvedPath =
+        resolvedPath.endsWith(".tact") || resolvedPath.endsWith(".fc")
+          ? resolvedPath
+          : resolvedPath + ".tact";
       const targetNodeIdx = this.processFile(
         resolvedPath,
         nodes,
@@ -111,6 +117,8 @@ export class ImportGraphBuilder {
    *
    * Tact API doesn't provide functions to work with paths, so we replicate this:
    * https://github.com/tact-lang/tact/blob/2315d035f5f9a22cad42657561c1a0eaef997b05/src/imports/resolveLibrary.ts#L26
+   *
+   * TODO: Should be replaced when https://github.com/tact-lang/tact/issues/982 is implemented.
    */
   private resolveStdlibPath(importPath: string): string {
     const stdlibPrefix = "@stdlib/";
