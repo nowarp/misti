@@ -385,13 +385,6 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
-  SuspiciousMessageMode: {
-    loader: (ctx: MistiContext) =>
-      import("./builtin/suspiciousMessageMode").then(
-        (module) => new module.SuspiciousMessageMode(ctx),
-      ),
-    enabledByDefault: true,
-  },
   EtaLikeSimplifications: {
     loader: (ctx: MistiContext) =>
       import("./builtin/etaLikeSimplifications").then(
