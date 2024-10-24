@@ -24,7 +24,7 @@ export function createMistiCommand(): Command {
     .name("misti")
     .description("TON Static Analyzer")
     .version(`Misti ${MISTI_VERSION}\nSupported Tact version: ${TACT_VERSION}`)
-    .arguments("[TACT_CONFIG_PATH|TACT_FILE_PATH]");
+    .arguments("[paths...]");
   cliOptions.forEach((option) => command.addOption(option));
   command.action(async (_tactPath, options) => {
     const logger = new Logger();
@@ -56,7 +56,7 @@ export async function runMistiCommand(
   command: Command = createMistiCommand(),
 ): Promise<[Driver, MistiResult]> {
   await command.parseAsync(args, { from: "user" });
-  const driver = await Driver.create(command.args[0], command.opts());
+  const driver = await Driver.create(command.args, command.opts());
   const result = await driver.execute();
   return [driver, result];
 }

@@ -27,19 +27,29 @@ import { Node, NonterminalNode } from "ohm-js";
 import path from "path";
 
 export class ImportGraphBuilder {
-  private constructor(private ctx: MistiContext) {}
+  private constructor(
+    private readonly ctx: MistiContext,
+    private readonly entryPoints: string[],
+  ) {}
 
-  public static make(ctx: MistiContext): ImportGraphBuilder {
-    return new ImportGraphBuilder(ctx);
+  /**
+   * Creates an ImportGraphBuilder.
+   *
+   * @param ctx Misti context.
+   * @param entryPoints Absolute paths to entry points to build import graph from.
+   */
+  public static make(
+    ctx: MistiContext,
+    entryPoints: string[],
+  ): ImportGraphBuilder {
+    return new ImportGraphBuilder(ctx, entryPoints);
   }
 
   public build(): ImportGraph {
     const nodes: ImportNode[] = [];
     const edges: ImportEdge[] = [];
     const visited = new Set<string>();
-    this.ctx
-      .getEntryPoints()
-      .forEach((e) => this.processFile(e, nodes, edges, visited));
+    this.entryPoints.forEach((e) => this.processFile(e, nodes, edges, visited));
     return new ImportGraph(nodes, edges);
   }
 
@@ -55,19 +65,11 @@ export class ImportGraphBuilder {
     visited.add(filePath);
 
     const fileContent = fs.readFileSync(filePath, "utf8");
-    const imports = Parser.parseImports(fileContent, filePath, "user");
-
-    // Use the actual path when working in single contract mode, not the temporary directory.
-    let importPath = filePath;
-    if (this.ctx.tactPath && this.ctx.tactPath.kind === "contract") {
-      const tempDir = path.dirname(this.ctx.tactPath.tempConfigPath);
-      importPath = path.relative(tempDir, filePath);
-    }
-
+    const imports = ParserHack.parseImports(fileContent, filePath, "user");
     const node = new ImportNode(
       this.generateNodeName(filePath),
       definedInStdlib(this.ctx, filePath) ? "stdlib" : "user",
-      importPath,
+      filePath,
       this.determineLanguage(filePath),
       this.hasContract(fileContent),
     );
@@ -155,7 +157,7 @@ export class ImportGraphBuilder {
 
 // TODO: Should be removed when https://github.com/tact-lang/tact/issues/965 is fixed.
 // eslint-disable-next-line @typescript-eslint/no-namespace
-export namespace Parser {
+export namespace ParserHack {
   let CURRENT_FILE: string | null;
   let ORIGIN: ItemOrigin | null;
 
