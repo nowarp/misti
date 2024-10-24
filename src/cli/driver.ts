@@ -115,8 +115,11 @@ export class Driver {
           const cu = createIR(this.ctx, projectName, ast, importGraph);
           acc.set(projectName, cu);
         } else {
-          importGraph = ImportGraphBuilder.make(this.ctx, [tactPath]).build();
           configManager = TactConfigManager.fromConfig(tactPath);
+          importGraph = ImportGraphBuilder.make(
+            this.ctx,
+            configManager.getEntryPoints(),
+          ).build();
           configManager.getProjects().forEach((configProject) => {
             const ast = parseTactProject(
               this.ctx,
@@ -285,9 +288,7 @@ export class Driver {
    */
   public async execute(): Promise<MistiResult> {
     if (this.cus.size === 0) {
-      throw ExecutionException.make(
-        "Please specify a path to a Tact project or Tact contract",
-      );
+      return { kind: "ok" };
     }
     if (this.detectors.length === 0 && this.tools.length === 0) {
       this.ctx.logger.warn(

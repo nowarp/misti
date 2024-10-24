@@ -140,9 +140,9 @@ export class TactConfigManager {
   }
 
   /**
-   * Returns the entry points specified in the Tact configuration file (existent or not).
+   * Returns absolute paths to entry points specified in the Tact configuration file.
    */
   public getEntryPoints(): string[] {
-    return this.config.projects.map((p) => p.path);
+    return this.config.projects.map((p) => this.resolveProjectPath(p.path));
   }
 }
