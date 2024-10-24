@@ -11,14 +11,13 @@ import {
   Edge,
   FunctionKind,
   FunctionName,
+  ImportGraph,
   ProjectName,
 } from "..";
 import { TactASTStoreBuilder } from "./astStore";
-import { ImportGraphBuilder } from "./imports";
 import { MistiContext } from "../../context";
 import { InternalException } from "../../exceptions";
 import { formatPosition } from "../../tact";
-import { TactConfigManager } from "../../tact/config";
 import { unreachable } from "../../util";
 import {
   AstContractDeclaration,
@@ -79,6 +78,7 @@ export class TactIRBuilder {
     private ctx: MistiContext,
     private projectName: ProjectName,
     private ast: AstStore,
+    private imports: ImportGraph,
   ) {
     this.registerFunctions();
     this.registerContracts();
@@ -87,8 +87,9 @@ export class TactIRBuilder {
     ctx: MistiContext,
     projectName: ProjectName,
     ast: AstStore,
+    imports: ImportGraph,
   ): TactIRBuilder {
-    return new TactIRBuilder(ctx, projectName, ast);
+    return new TactIRBuilder(ctx, projectName, ast, imports);
   }
 
   /**
@@ -100,7 +101,7 @@ export class TactIRBuilder {
     return new CompilationUnit(
       this.projectName,
       TactASTStoreBuilder.make(this.ctx, this.ast).build(),
-      ImportGraphBuilder.make(this.ctx).build(),
+      this.imports,
       functions,
       contracts,
     );
@@ -540,19 +541,17 @@ export class TactIRBuilder {
 }
 
 /**
- * Creates the Intermediate Representation (IR) for projects defined in a Tact configuration file.
+ * Creates the Intermediate Representation (IR) for the given projects.
+ *
+ * @param ast AST parsed using the Tact parser.
+ * @param imports An optional imports graph for the given projects, if available.
  * @returns A mapping of project names to their corresponding CompilationUnit objects.
  */
 export function createIR(
   ctx: MistiContext,
-  tactConfigPath: string,
-): Map<ProjectName, CompilationUnit> {
-  const configManager = new TactConfigManager(ctx, tactConfigPath);
-  const astEntries: Map<ProjectName, AstStore> =
-    configManager.parseTactProjects();
-  return Array.from(astEntries).reduce((acc, [projectName, ast]) => {
-    const cu = TactIRBuilder.make(ctx, projectName, ast).build();
-    acc.set(projectName, cu);
-    return acc;
-  }, new Map<ProjectName, CompilationUnit>());
+  projectName: ProjectName,
+  ast: AstStore,
+  imports: ImportGraph,
+): CompilationUnit {
+  return TactIRBuilder.make(ctx, projectName, ast, imports).build();
 }

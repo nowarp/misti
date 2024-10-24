@@ -1,34 +1,116 @@
+import { ExecutionException, throwZodError } from "../exceptions";
 import { ProjectName } from "../ir";
-import { getStdlibPath } from "./stdlib";
-import { MistiContext } from "../context";
 import {
-  ExecutionException,
-  TactException,
-  throwZodError,
-} from "../exceptions";
-import {
-  ConfigProject,
   Config as TactConfig,
+  ConfigProject,
   parseConfig,
 } from "@tact-lang/compiler/dist/config/parseConfig";
-import { CompilerContext } from "@tact-lang/compiler/dist/context";
-import { getRawAST } from "@tact-lang/compiler/dist/grammar/store";
-import { AstStore } from "@tact-lang/compiler/dist/grammar/store";
-import { enableFeatures } from "@tact-lang/compiler/dist/pipeline/build";
-import { precompile } from "@tact-lang/compiler/dist/pipeline/precompile";
-import { createNodeFileSystem } from "@tact-lang/compiler/dist/vfs/createNodeFileSystem";
 import fs from "fs";
 import path from "path";
 
+/**
+ * Manages the logic around the Tact configuration file.
+ *
+ * Tact config describes the structure of the project, and includes the entry
+ * points to run compilation and analysis on.
+ */
 export class TactConfigManager {
-  /** Tact config parsed with Zod. */
-  public config: TactConfig;
+  private constructor(
+    /**
+     * An absolute path to the root directory storing the configuration file.
+     *
+     * If the config is generated for the Tact contract, it should be a directory containing all the imported files.
+     */
+    private projectRoot: string,
+    /** Tact config parsed with Zod. */
+    private config: TactConfig,
+  ) {}
 
-  constructor(
-    private ctx: MistiContext,
-    private tactConfigPath: string,
-  ) {
-    this.config = this.readTactConfig();
+  /**
+   * Creates a TactConfigManager from a Tact configuration file typically specified by the user.
+   *
+   * @param ctx Misti context.
+   * @param tactConfigPath Path to the Tact configuration file.
+   */
+  public static fromConfig(tactConfigPath: string): TactConfigManager {
+    return new TactConfigManager(
+      path.resolve(path.dirname(tactConfigPath)),
+      this.readTactConfig(tactConfigPath),
+    );
+  }
+
+  /**
+   * Creates a TactConfigManager from a single Tact contract.
+   *
+   * @param ctx Misti context.
+   * @param projectName Name of the project.
+   * @param contractPath Path to the Tact contract.
+   */
+  public static fromContract(
+    projectRoot: string,
+    contractPath: string,
+    projectName: ProjectName = path.basename(
+      contractPath,
+      ".tact",
+    ) as ProjectName,
+  ): TactConfigManager {
+    const tactConfig: TactConfig = {
+      projects: [
+        {
+          name: projectName,
+          path: path.relative(projectRoot, contractPath),
+          output: "/tmp/misti/output", // never used
+          options: {
+            debug: false,
+            external: true,
+          },
+        },
+      ],
+    };
+    return new TactConfigManager(path.resolve(projectRoot), tactConfig);
+  }
+
+  public getConfig(): TactConfig {
+    return this.config;
+  }
+
+  /**
+   * Returns absolute path to the project root.
+   */
+  public getProjectRoot(): string {
+    return this.projectRoot;
+  }
+
+  /**
+   * Gets projects defined within the configuration file.
+   */
+  public getProjects(): ConfigProject[] {
+    return this.config.projects;
+  }
+
+  /**
+   * Find the project config based on the provided name.
+   */
+  public findProjectByName(
+    projectName: ProjectName,
+  ): ConfigProject | undefined {
+    return this.config.projects.find((project) => projectName === project.name);
+  }
+
+  /**
+   * Find the project config based on the provided path.
+   */
+  public findProjectByPath(projectPath: string): ConfigProject | undefined {
+    return this.config.projects.find(
+      (project) => projectPath === this.resolveProjectPath(project.path),
+    );
+  }
+
+  /**
+   * Returns an absolute path or the project based on the project path.
+   */
+  public resolveProjectPath(projectPath: string): string {
+    return path.resolve(this.projectRoot, projectPath);
   }
 
   /**
@@ -37,8 +119,8 @@ export class TactConfigManager {
    * @throws If the config file does not exist or cannot be parsed.
    * @returns The parsed TactConfig object.
    */
-  private readTactConfig(): TactConfig {
-    const resolvedPath = path.resolve(this.tactConfigPath);
+  private static readTactConfig(tactConfigPath: string): TactConfig {
+    const resolvedPath = path.resolve(tactConfigPath);
     if (!fs.existsSync(resolvedPath)) {
       throw ExecutionException.make(
         `Unable to find config file at ${resolvedPath}`,
@@ -58,31 +140,9 @@ export class TactConfigManager {
   }
 
   /**
-   * Parses the projects defined in the Tact configuration file, generating an AST for each.
-   * @param config The Tact configuration object.
-   * @returns A mapping of project names to their corresponding ASTs.
+   * Returns absolute paths to entry points specified in the Tact configuration file.
    */
-  public parseTactProjects(): Map<ProjectName, AstStore> {
-    const project = createNodeFileSystem(
-      path.dirname(this.tactConfigPath),
-      false,
-    );
-    const stdlibPath = this.ctx.config.tactStdlibPath ?? getStdlibPath();
-    const stdlib = createNodeFileSystem(stdlibPath, false);
-    return this.config.projects.reduce(
-      (acc: Map<ProjectName, AstStore>, projectConfig: ConfigProject) => {
-        this.ctx.logger.debug(`Parsing project ${projectConfig.name} ...`);
-        try {
-          let ctx = new CompilerContext();
-          ctx = enableFeatures(ctx, this.ctx.logger, projectConfig);
-          ctx = precompile(ctx, project, stdlib, projectConfig.path);
-          acc.set(projectConfig.name, getRawAST(ctx));
-          return acc;
-        } catch (error: unknown) {
-          throw TactException.make(error);
-        }
-      },
-      new Map<ProjectName, AstStore>(),
-    );
+  public getEntryPoints(): string[] {
+    return this.config.projects.map((p) => this.resolveProjectPath(p.path));
   }
 }

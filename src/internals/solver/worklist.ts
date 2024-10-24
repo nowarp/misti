@@ -8,7 +8,7 @@ import {
   getPredecessors,
   getSuccessors,
 } from "../ir";
-import { JoinSemilattice } from "../lattice";
+import { Semilattice, JoinSemilattice, MeetSemilattice } from "../lattice";
 import { Transfer } from "../transfer";
 
 /**
@@ -17,9 +17,6 @@ import { Transfer } from "../transfer";
  * This type is used to specify the direction of the dataflow analysis being performed.
  * - `forward`: Represents a forward dataflow analysis, where information flows from the entry point of a program towards the exit.
  * - `backward`: Represents a backward dataflow analysis, where information flows from the exit point of a program towards the entry.
- *
- * Forward analysis is typically used for problems like reaching definitions, live variable analysis, and constant propagation.
- * Backward analysis is often used for problems such as liveness analysis and backwards slicing.
  */
 export type AnalysisKind = "forward" | "backward";
 
@@ -33,18 +30,19 @@ export class WorklistSolver<State> implements Solver<State> {
   private readonly cu: CompilationUnit;
   private readonly cfg: CFG;
   private transfer: Transfer<State>;
-  private readonly lattice: JoinSemilattice<State>;
+  private readonly lattice: Semilattice<State>;
   private readonly kind: AnalysisKind;
 
   /**
    * @param transfer An object that defines the transfer operation for a node and its state.
-   * @param lattice An instance of a lattice that defines the join, bottom, and leq operations.
+   * @param lattice An instance of a semilattice that defines the necessary operations.
+   * @param kind The kind of analysis ("forward" or "backward").
    */
   constructor(
     cu: CompilationUnit,
     cfg: CFG,
     transfer: Transfer<State>,
-    lattice: JoinSemilattice<State>,
+    lattice: Semilattice<State>,
     kind: AnalysisKind,
   ) {
     this.cu = cu;
@@ -63,8 +61,16 @@ export class WorklistSolver<State> implements Solver<State> {
     const worklist: BasicBlock[] = [...this.cfg.nodes];
 
     const bbs: BasicBlock[] = this.cfg.nodes;
+
+    // Initialize all node states
     bbs.forEach((bb) => {
-      results.setState(bb.idx, this.lattice.bottom());
+      if (this.isJoinSemilattice(this.lattice)) {
+        results.setState(bb.idx, this.lattice.bottom());
+      } else if (this.isMeetSemilattice(this.lattice)) {
+        results.setState(bb.idx, this.lattice.top());
+      } else {
+        throw InternalException.make("Unsupported semilattice type");
+      }
     });
 
     while (worklist.length > 0) {
@@ -74,9 +80,24 @@ export class WorklistSolver<State> implements Solver<State> {
           ? getPredecessors(this.cfg, bb)
           : getSuccessors(this.cfg, bb);
 
-      const inState = neighbors.reduce((acc, neighbor) => {
-        return this.lattice.join(acc, results.getState(neighbor.idx)!);
-      }, this.lattice.bottom());
+      const neighborStates = neighbors.map(
+        (neighbor) => results.getState(neighbor.idx)!,
+      );
+
+      let inState: State;
+      if (this.isJoinSemilattice(this.lattice)) {
+        const joinLattice = this.lattice as JoinSemilattice<State>;
+        inState = neighborStates.reduce((acc, state) => {
+          return joinLattice.join(acc, state);
+        }, joinLattice.bottom());
+      } else if (this.isMeetSemilattice(this.lattice)) {
+        const meetLattice = this.lattice as MeetSemilattice<State>;
+        inState = neighborStates.reduce((acc, state) => {
+          return meetLattice.meet(acc, state);
+        }, meetLattice.top());
+      } else {
+        throw InternalException.make("Unsupported semilattice type");
+      }
 
       const stmt = this.cu.ast.getStatement(bb.stmtID);
       if (stmt === undefined) {
@@ -88,7 +109,7 @@ export class WorklistSolver<State> implements Solver<State> {
 
       if (!this.lattice.leq(outState, results.getState(bb.idx)!)) {
         results.setState(bb.idx, outState);
-        // Push predecessors or successors based on the analysis kind
+        // Push successors or predecessors based on the analysis kind
         worklist.push(
           ...(this.kind === "forward"
             ? getSuccessors(this.cfg, bb)
@@ -102,5 +123,17 @@ export class WorklistSolver<State> implements Solver<State> {
 
   public solve(): SolverResults<State> {
     return this.findFixpoint();
+  }
+
+  private isJoinSemilattice(
+    lattice: Semilattice<State>,
+  ): lattice is JoinSemilattice<State> {
+    return (lattice as JoinSemilattice<State>).join !== undefined;
+  }
+
+  private isMeetSemilattice(
+    lattice: Semilattice<State>,
+  ): lattice is MeetSemilattice<State> {
+    return (lattice as MeetSemilattice<State>).meet !== undefined;
   }
 }

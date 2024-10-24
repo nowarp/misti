@@ -7,9 +7,38 @@ import {
   AstStructInstance,
   idText,
   AstOpBinary,
-  AstId,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
+/**
+ * Detects suspicious usage of the `mode` field in `SendParameters` struct instances.
+ *
+ * ## Why is it bad?
+ * Incorrect usage of the `mode` field in `SendParameters` can lead to unintended behavior when sending messages,
+ * such as incorrect flags being set, which can cause security vulnerabilities or unexpected contract behavior.
+ *
+ * **What it checks:**
+ * - Ensures that the `mode` expression only uses the bitwise OR operator `|`.
+ * - Warns if integer literals are used instead of symbolic constants.
+ * - Warns if the same flag is used multiple times in the `mode` expression.
+ *
+ * ## Example
+ *
+ * ```tact
+ * // Suspicious usage:
+ * send(SendParameters{
+ *     to: recipient,
+ *     value: amount,
+ *     mode: SendRemainingBalance | SendRemainingBalance // Bad: Duplicate flag
+ * });
+ *
+ * // Correct usage:
+ * send(SendParameters{
+ *     to: recipient,
+ *     value: amount,
+ *     mode: SendRemainingBalance | SendDestroyIfZero // Ok
+ * });
+ * ```
+ */
 export class SuspiciousMessageMode extends ASTDetector {
   severity = Severity.MEDIUM;
 
@@ -17,25 +46,22 @@ export class SuspiciousMessageMode extends ASTDetector {
     const warnings: MistiTactWarning[] = [];
     Array.from(cu.ast.getProgramEntries()).forEach((node) => {
       forEachExpression(node, (expr) => {
-        if (this.isSendParametersStruct(expr)) {
+        if (
+          expr.kind === "struct_instance" &&
+          idText(expr.type) === "SendParameters"
+        ) {
           this.checkSendParameters(expr, warnings);
         }
       });
     });
     return warnings;
   }
-  private isSendParametersStruct(expr: AstExpression): boolean {
-    if (expr.kind === "struct_instance") {
-      return idText((expr as AstStructInstance).type) === "SendParameters";
-    }
-    return false;
-  }
 
   private checkSendParameters(
-    expr: AstExpression,
+    expr: AstStructInstance,
     warnings: MistiTactWarning[],
   ): void {
-    const args = (expr as AstStructInstance).args;
+    const args = expr.args;
     const modeField = args.find((arg) => idText(arg.field) === "mode");
     if (modeField) {
       this.checkModeExpression(modeField.initializer, warnings);
@@ -47,15 +73,15 @@ export class SuspiciousMessageMode extends ASTDetector {
     warnings: MistiTactWarning[],
   ): void {
     const flagsUsed = new Set<string>();
-    const traverse = (expr: AstExpression): void => {
-      switch (expr.kind) {
+    forEachExpression(expr, (e) => {
+      switch (e.kind) {
         case "op_binary":
-          const opBinary = expr as AstOpBinary;
+          const opBinary = e as AstOpBinary;
           if (opBinary.op !== "|") {
             warnings.push(
               this.makeWarning(
                 "Mode expression should only contain the '|' operator",
-                expr.loc,
+                e.loc,
                 {
                   suggestion:
                     "Use the '|' operator (bitwise OR) to combine flags",
@@ -63,31 +89,28 @@ export class SuspiciousMessageMode extends ASTDetector {
               ),
             );
           }
-          traverse(opBinary.left);
-          traverse(opBinary.right);
           break;
         case "id":
-          const flagName = idText(expr as AstId);
+          const flagName = idText(e);
           if (flagsUsed.has(flagName)) {
             warnings.push(
               this.makeWarning(
-                `Flag '${flagName}' is used multiple times in mode expression`,
-                expr.loc,
+                `Flag \`${flagName}\` is used multiple times in the \`mode\` expression`,
+                e.loc,
                 {
                   suggestion:
                     "Use each flag at most once in the mode expression",
                 },
               ),
             );
-          } else {
-            flagsUsed.add(flagName);
           }
+          flagsUsed.add(flagName);
           break;
         case "number":
           warnings.push(
             this.makeWarning(
               "Integer literals should not be used in mode expression; use symbolic constants instead",
-              expr.loc,
+              e.loc,
               {
                 suggestion:
                   "Replace integer literals with symbolic flag constants",
@@ -98,7 +121,6 @@ export class SuspiciousMessageMode extends ASTDetector {
         default:
           break;
       }
-    };
-    traverse(expr);
+    });
   }
 }

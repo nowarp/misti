@@ -191,3 +191,23 @@ export class MistiConfig {
     });
   }
 }
+
+/**
+ * Environment variables to configure advanced Misti options.
+ */
+export class MistiEnv {
+  /**
+   * Timeout for the detector execution in milliseconds.
+   */
+  public static MISTI_TIMEOUT: number = parseInt(
+    process.env.MISTI_TIMEOUT || "15000",
+    10,
+  );
+
+  /**
+   * Whether to trace the execution.
+   */
+  public static MISTI_TRACE: boolean = process.env.MISTI_TRACE
+    ? process.env.MISTI_TRACE === "1"
+    : false;
+}
