@@ -76,7 +76,34 @@ export class Driver {
    * @returns Created compilation units.
    */
   private createCUs(tactPaths: string[]): Map<ProjectName, CompilationUnit> {
+    const collectTactFiles = (dir: string): string[] => {
+      let results: string[] = [];
+      const files = fs.readdirSync(dir);
+      for (const file of files) {
+        const fullPath = path.join(dir, file);
+        if (fs.statSync(fullPath).isDirectory()) {
+          if (!fullPath.includes("node_modules")) {
+            results = results.concat(collectTactFiles(fullPath));
+          }
+        } else if (file.endsWith(".tact")) {
+          results.push(fullPath);
+        }
+      }
+      return results;
+    };
     return [...new Set(tactPaths)]
+      .reduce((acc, tactPath) => {
+        if (fs.statSync(tactPath).isDirectory()) {
+          const tactFiles = collectTactFiles(tactPath);
+          this.ctx.logger.debug(
+            `Collected Tact files from ${tactPath}:\n${tactFiles.map((tactFile) => "- " + tactFile).join("\n")}`,
+          );
+          acc.push(...tactFiles);
+        } else {
+          acc.push(tactPath);
+        }
+        return acc;
+      }, [] as string[])
       .filter(
         (tactPath) =>
           fs.existsSync(tactPath) ||
@@ -115,6 +142,7 @@ export class Driver {
           const cu = createIR(this.ctx, projectName, ast, importGraph);
           acc.set(projectName, cu);
         } else {
+          // Tact configuration file
           configManager = TactConfigManager.fromConfig(tactPath);
           importGraph = ImportGraphBuilder.make(
             this.ctx,
