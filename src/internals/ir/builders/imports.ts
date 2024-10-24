@@ -64,7 +64,14 @@ export class ImportGraphBuilder {
     }
     visited.add(filePath);
 
-    const fileContent = fs.readFileSync(filePath, "utf8");
+    let fileContent = "";
+    try {
+      fileContent = fs.readFileSync(filePath, "utf8");
+    } catch {
+      this.ctx.logger.warn(
+        `Cannot find imported file: ${filePath}. The analysis might not work.`,
+      );
+    }
     const imports = ParserHack.parseImports(fileContent, filePath, "user");
     const node = new ImportNode(
       this.generateNodeName(filePath),
