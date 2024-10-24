@@ -69,12 +69,3 @@ test/detectors/SuspiciousMessageMode.tact:61:21:
   62 |         });
 Help: Use the '|' operator (bitwise OR) to combine flags
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
-
-[MEDIUM] SuspiciousMessageMode: Function calls should not be used in mode expression; use symbolic constants instead
-test/detectors/SuspiciousMessageMode.tact:74:19:
-  73 |             value: 0,
-> 74 |             mode: self.functionReturningLiteral() //Bad: Uses integer literal instead of symbolic constant
-                         ^
-  75 |         });
-Help: Replace function calls with symbolic flag constants
-See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode

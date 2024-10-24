@@ -67,14 +67,6 @@ contract SendParametersTestContract {
         return 64; //OK
     }
 
-    fun functionCallWithLiteral() {
-        send(SendParameters{
-            to: sender(),
-            value: 0,
-            mode: self.functionReturningLiteral() //Bad: Uses integer literal instead of symbolic constant
-        });
-    }
-
     // Correct usage with variables
     fun correctUsageWithVariables() {
         let modeFlag: Int = SendRemainingValue | SendIgnoreErrors;

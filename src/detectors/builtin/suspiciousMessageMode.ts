@@ -21,7 +21,6 @@ import {
  * - Warns if integer literals are used instead of symbolic constants.
  * - Warns if the same flag is used multiple times in the `mode` expression.
  * - Warns if function calls are used in the `mode` expression.
- * - Warns if unary operators are used in the `mode` expression.
  *
  * ## Example
  *
@@ -94,19 +93,6 @@ export class SuspiciousMessageMode extends ASTDetector {
               ),
             );
           }
-          break;
-        case "static_call":
-        case "method_call":
-          warnings.push(
-            this.makeWarning(
-              "Function calls should not be used in mode expression; use symbolic constants instead",
-              e.loc,
-              {
-                suggestion:
-                  "Replace function calls with symbolic flag constants",
-              },
-            ),
-          );
           break;
         case "id":
           const flagName = idText(e);
