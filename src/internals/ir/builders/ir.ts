@@ -15,7 +15,6 @@ import {
   ProjectName,
   TactASTStore,
 } from "..";
-import { TactASTStoreBuilder } from "./astStore";
 import { MistiContext } from "../../context";
 import { InternalException } from "../../exceptions";
 import { formatPosition } from "../../tact";
