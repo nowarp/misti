@@ -138,4 +138,7 @@ digraph "sample-jetton" {
         label="JettonDefaultWallet__get_wallet_data";
         "JettonDefaultWallet__get_wallet_data_125" [label="return JettonWalletData{balance: self.balance, owner: self.owner, master: self.master, walletCode: initOf JettonDefaultWallet(self.master, self.owner).code}",style=filled,fillcolor="#66A7DB"];
     }
+"94" -> "28";
+"99" -> "28";
+"103" -> "35";
 }

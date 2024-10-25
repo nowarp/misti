@@ -163,11 +163,13 @@ class GraphvizDumper {
     let output = "";
     cu.forEachBasicBlock(
       cu.ast,
-      (cfg: CFG, bb: BasicBlock, _: AstStatement) => {
+      (_cfg: CFG, bb: BasicBlock, _: AstStatement) => {
         if (bb.kind.kind === "call") {
           bb.kind.callees.forEach((calleeIdx) => {
-            if (cfg.getBasicBlock(calleeIdx)) {
-              output += `"${bb.idx}" -> "${calleeIdx}";\n`;
+            const cfg = cu.findCFGByIdx(calleeIdx);
+            if (cfg && cfg.nodes.length > 0) {
+              // TODO: We should connect with a dummy start node instead
+              output += `"${bb.idx}" -> "${cfg.nodes[0].idx}";\n`;
             }
           });
         }
