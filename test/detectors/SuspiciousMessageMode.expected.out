@@ -69,3 +69,12 @@ test/detectors/SuspiciousMessageMode.tact:61:21:
   62 |         });
 Help: Use the '|' operator (bitwise OR) to combine flags
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
+
+[MEDIUM] SuspiciousMessageMode: Setting `mode` to `0` is redundant as it has no effect.
+test/detectors/SuspiciousMessageMode.tact:79:15:
+  78 |         value: 0,
+> 79 |         mode: 0 // Bad: Should trigger warning about `mode: 0` being redundant
+                     ^
+  80 |     });
+Help: Remove the `mode` field or set it to a meaningful value.
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode

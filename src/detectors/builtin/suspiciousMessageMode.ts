@@ -72,6 +72,20 @@ export class SuspiciousMessageMode extends ASTDetector {
     expr: AstExpression,
     warnings: MistiTactWarning[],
   ): void {
+    if (expr.kind === "number" && expr.value === 0n) {
+      warnings.push(
+        this.makeWarning(
+          "Setting `mode` to `0` is redundant as it has no effect.",
+          expr.loc,
+          {
+            suggestion:
+              "Remove the `mode` field or set it to a meaningful value.",
+          },
+        ),
+      );
+      return;
+    }
+
     const flagsUsed = new Set<string>();
     forEachExpression(expr, (e) => {
       switch (e.kind) {
