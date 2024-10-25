@@ -1,4 +1,5 @@
 import {
+  ContractIdx,
   BasicBlock,
   BasicBlockIdx,
   BasicBlockKind,
@@ -6,19 +7,18 @@ import {
   CFGIdx,
   CompilationUnit,
   Contract,
-  ContractIdx,
   ContractName,
   Edge,
   FunctionKind,
   FunctionName,
+  ImportGraph,
   ProjectName,
   TactASTStore,
 } from "..";
-import { ImportGraphBuilder } from "./imports";
+import { TactASTStoreBuilder } from "./astStore";
 import { MistiContext } from "../../context";
 import { InternalException } from "../../exceptions";
 import { formatPosition } from "../../tact";
-import { TactConfigManager } from "../../tact/config";
 import { unreachable } from "../../util";
 import { CallGraph } from "../callGraph";
 import { TactASTStoreBuilder } from "./astStore";
@@ -92,6 +92,7 @@ export class TactIRBuilder {
     private ctx: MistiContext,
     private projectName: ProjectName,
     private ast: AstStore,
+    private imports: ImportGraph,
   ) {
     this.registerFunctions();
     this.registerContracts();
@@ -100,8 +101,9 @@ export class TactIRBuilder {
     ctx: MistiContext,
     projectName: ProjectName,
     ast: AstStore,
+    imports: ImportGraph,
   ): TactIRBuilder {
-    return new TactIRBuilder(ctx, projectName, ast);
+    return new TactIRBuilder(ctx, projectName, ast, imports);
   }
 
   /**
@@ -114,8 +116,8 @@ export class TactIRBuilder {
     const callGraph = TactCallGraphBuilder.buildCallGraph(tactASTStore);
     return new CompilationUnit(
       this.projectName,
-      tactASTStore,
-      ImportGraphBuilder.make(this.ctx).build(),
+      TactASTStoreBuilder.make(this.ctx, this.ast).build(),
+      this.imports,
       functions,
       contracts,
       callGraph,
@@ -128,14 +130,15 @@ export class TactIRBuilder {
   private registerFunctions(): void {
     this.functionIndexes = this.ast.functions.reduce((acc, fun) => {
       if (fun.kind == "function_def") {
+        const funName = fun.name.text as FunctionName;
         const idx = this.registerCFGIdx(
-          fun.name.text,
+          funName,
           fun.id,
           "function",
           fun.loc.origin,
           fun.loc,
         );
-        acc.set(fun.name.text, idx);
+        acc.set(funName, idx);
       }
       return acc;
     }, new Map<FunctionName, CFGIdx>());
@@ -148,12 +151,13 @@ export class TactIRBuilder {
   private createFunctions(): Map<CFGIdx, CFG> {
     return this.ast.functions.reduce((acc, fun) => {
       if (fun.kind == "function_def") {
-        const idx = this.functionIndexes.get(fun.name.text)!;
+        const funName = fun.name.text as FunctionName;
+        const idx = this.functionIndexes.get(funName)!;
         acc.set(
           idx,
           this.createCFGFromStatements(
             idx,
-            fun.name.text,
+            funName,
             fun.id,
             "function",
             fun.loc.origin,
@@ -172,13 +176,21 @@ export class TactIRBuilder {
   private getMethodInfo(
     decl: AstContractDeclaration,
     contractId: number,
-  ): [string | undefined, FunctionKind | undefined, AstStatement[] | null] {
+  ): [
+    FunctionName | undefined,
+    FunctionKind | undefined,
+    AstStatement[] | null,
+  ] {
     return decl.kind === "function_def"
-      ? [decl.name.text, "method", decl.statements]
+      ? [decl.name.text as FunctionName, "method", decl.statements]
       : decl.kind === "contract_init"
-        ? [`init_${contractId}`, "method", decl.statements]
+        ? [`init_${contractId}` as FunctionName, "method", decl.statements]
         : decl.kind === "receiver"
-          ? [generateReceiveName(decl), "receive", decl.statements]
+          ? [
+              generateReceiveName(decl) as FunctionName,
+              "receive",
+              decl.statements,
+            ]
           : [undefined, undefined, null];
   }
 
@@ -188,7 +200,7 @@ export class TactIRBuilder {
   private registerContracts(): void {
     this.methodIndexes = this.ast.types.reduce((acc, entry) => {
       if (entry.kind == "contract") {
-        const contractName = entry.name.text;
+        const contractName = entry.name.text as ContractName;
         const methodsMap = entry.declarations.reduce((methodAcc, decl) => {
           const [name, kind, _] = this.getMethodInfo(decl, entry.id);
           // NOTE: We don't create CFG entries for asm functions.
@@ -216,7 +228,7 @@ export class TactIRBuilder {
   private createContracts(): Map<ContractIdx, Contract> {
     return this.ast.types.reduce((acc, entry) => {
       if (entry.kind == "contract") {
-        const contractName = entry.name.text;
+        const contractName = entry.name.text as ContractName;
         const methodsMap = this.methodIndexes.get(contractName)!;
         const methodCFGs = entry.declarations.reduce((methodAcc, decl) => {
           const [name, kind, stmts] = this.getMethodInfo(decl, entry.id);
@@ -296,11 +308,15 @@ export class TactIRBuilder {
     parentCalls: Set<CFGIdx> = new Set(),
   ): Set<CFGIdx> {
     switch (expr.kind) {
-      case "method_call": // method
+      case "method_call":
         if (expr.self.kind === "id" && isSelfId(expr.self)) {
-          const contractMethods = this.methodIndexes.get(expr.self.text);
+          const contractMethods = this.methodIndexes.get(
+            expr.self.text as ContractName,
+          );
           if (contractMethods) {
-            const methodIdx = contractMethods.get(expr.method.text);
+            const methodIdx = contractMethods.get(
+              expr.method.text as FunctionName,
+            );
             if (methodIdx !== undefined) {
               parentCalls.add(methodIdx);
             } else {
@@ -325,8 +341,10 @@ export class TactIRBuilder {
         expr.args.forEach((arg) => this.collectFunctionCalls(arg, parentCalls));
         this.collectFunctionCalls(expr.self, parentCalls);
         break;
-      case "static_call": // free function
-        const funcIdx = this.functionIndexes.get(expr.function.text);
+      case "static_call":
+        const funcIdx = this.functionIndexes.get(
+          expr.function.text as FunctionName,
+        );
         if (funcIdx !== undefined) {
           parentCalls.add(funcIdx);
         }
@@ -556,19 +574,17 @@ export class TactIRBuilder {
 }
 
 /**
- * Creates the Intermediate Representation (IR) for projects defined in a Tact configuration file.
+ * Creates the Intermediate Representation (IR) for the given projects.
+ *
+ * @param ast AST parsed using the Tact parser.
+ * @param imports An optional imports graph for the given projects, if available.
  * @returns A mapping of project names to their corresponding CompilationUnit objects.
  */
 export function createIR(
   ctx: MistiContext,
-  tactConfigPath: string,
-): Map<ProjectName, CompilationUnit> {
-  const configManager = new TactConfigManager(ctx, tactConfigPath);
-  const astEntries: Map<ProjectName, AstStore> =
-    configManager.parseTactProjects();
-  return Array.from(astEntries).reduce((acc, [projectName, ast]) => {
-    const cu = TactIRBuilder.make(ctx, projectName, ast).build();
-    acc.set(projectName, cu);
-    return acc;
-  }, new Map<ProjectName, CompilationUnit>());
+  projectName: ProjectName,
+  ast: AstStore,
+  imports: ImportGraph,
+): CompilationUnit {
+  return TactIRBuilder.make(ctx, projectName, ast, imports).build();
 }

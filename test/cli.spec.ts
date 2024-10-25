@@ -15,7 +15,7 @@ describe("CLI Argument Parsing", () => {
     });
     await runMistiCommand(args);
     expect(driverMakeSpy).toHaveBeenCalledWith(
-      TACT_CONFIG_PATH,
+      [TACT_CONFIG_PATH],
       expect.objectContaining({
         verbose: true,
       }),
@@ -33,7 +33,7 @@ describe("CLI Argument Parsing", () => {
     });
     await runMistiCommand(args);
     expect(driverMakeSpy).toHaveBeenCalledWith(
-      TACT_CONFIG_PATH,
+      [TACT_CONFIG_PATH],
       expect.objectContaining({
         outputFormat: "json",
       }),

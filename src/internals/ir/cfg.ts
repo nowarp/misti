@@ -6,10 +6,14 @@
  */
 import { TactASTStore } from "./astStore";
 import { IdxGenerator } from "./indices";
-import { BasicBlockIdx, CFGIdx, EdgeIdx, FunctionName } from "./types";
+import { FunctionName } from "./types";
 import { InternalException } from "../exceptions";
 import { AstStatement, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import { ItemOrigin } from "@tact-lang/compiler/dist/grammar/grammar";
+
+export type EdgeIdx = number & { readonly __brand: unique symbol };
+export type BasicBlockIdx = number & { readonly __brand: unique symbol };
+export type CFGIdx = number & { readonly __brand: unique symbol };
 
 /**
  * Represents an edge in a Control Flow Graph (CFG), connecting two basic blocks.
@@ -24,7 +28,7 @@ export class Edge {
     public src: BasicBlockIdx,
     public dst: BasicBlockIdx,
   ) {
-    this.idx = IdxGenerator.next("cfg_edge");
+    this.idx = IdxGenerator.next("cfg_edge") as EdgeIdx;
   }
 }
 
@@ -61,12 +65,12 @@ export type BasicBlockKind =
 export class BasicBlock {
   public idx: BasicBlockIdx;
   constructor(
-    public stmtID: number,
+    public stmtID: AstStatement["id"],
     public kind: BasicBlockKind,
     public srcEdges: Set<EdgeIdx> = new Set<EdgeIdx>(),
     public dstEdges: Set<EdgeIdx> = new Set<EdgeIdx>(),
   ) {
-    this.idx = IdxGenerator.next("cfg_bb");
+    this.idx = IdxGenerator.next("cfg_bb") as BasicBlockIdx;
   }
 
   /**
@@ -122,7 +126,7 @@ export class CFG {
     public ref: SrcInfo,
     idx: CFGIdx | undefined = undefined,
   ) {
-    this.idx = idx ? idx : IdxGenerator.next("cfg");
+    this.idx = idx ? idx : (IdxGenerator.next("cfg") as CFGIdx);
     this.bbsMap = new Map();
     this.initializeMapping(this.bbsMap, nodes);
     this.edgesMap = new Map();
@@ -163,7 +167,7 @@ export class CFG {
     isSrc: boolean,
   ): BasicBlock[] | undefined {
     return Array.from(edgeIdxs).reduce(
-      (acc, srcIdx: BasicBlockIdx) => {
+      (acc, srcIdx) => {
         if (acc === undefined) {
           return undefined;
         }

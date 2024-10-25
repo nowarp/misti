@@ -3,6 +3,7 @@ import { ToolOutput } from "../cli/result";
 import { CompilationUnit, ImportGraph } from "../internals/ir";
 import { unreachable } from "../internals/util";
 import JSONbig from "json-bigint";
+import path from "path";
 
 interface DumpImportGraphOptions extends Record<string, unknown> {
   format: "dot" | "json" | "mmd";
@@ -191,7 +192,7 @@ class JSONDumper {
         idx: node.idx,
         name: node.name,
         origin: node.origin,
-        importPath: node.importPath,
+        importPath: path.relative(process.cwd(), node.importPath),
         language: node.language,
         hasContract: node.hasContract,
         inEdges: Array.from(node.inEdges),

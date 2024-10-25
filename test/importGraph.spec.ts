@@ -2,6 +2,8 @@ import {
   ImportGraph,
   ImportNode,
   ImportEdge,
+  ImportEdgeIdx,
+  ImportNodeIdx,
 } from "../src/internals/ir/imports";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import { ItemOrigin } from "@tact-lang/compiler/dist/grammar/grammar";
@@ -22,7 +24,7 @@ describe("ImportGraph", () => {
       "tact",
       true,
     );
-    node1.idx = 1;
+    node1.idx = 1 as ImportNodeIdx;
     node2 = new ImportNode(
       "Node2",
       {} as ItemOrigin,
@@ -30,7 +32,7 @@ describe("ImportGraph", () => {
       "tact",
       false,
     );
-    node2.idx = 2;
+    node2.idx = 2 as ImportNodeIdx;
     node3 = new ImportNode(
       "Node3",
       {} as ItemOrigin,
@@ -38,13 +40,13 @@ describe("ImportGraph", () => {
       "func",
       true,
     );
-    node3.idx = 3;
+    node3.idx = 3 as ImportNodeIdx;
 
     // Create edges from node1 to node2 and node2 to node3
     edge1 = new ImportEdge(node1.idx, node2.idx, {} as SrcInfo);
-    edge1.idx = 1;
+    edge1.idx = 1 as ImportEdgeIdx;
     edge2 = new ImportEdge(node2.idx, node3.idx, {} as SrcInfo);
-    edge2.idx = 2;
+    edge2.idx = 2 as ImportEdgeIdx;
 
     // Update node inEdges and outEdges
     node1.outEdges.add(edge1.idx);

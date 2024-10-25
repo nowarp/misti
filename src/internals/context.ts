@@ -1,11 +1,8 @@
-import { MistiConfig } from "./config";
+import { MistiConfig, MistiEnv } from "./config";
 import { DebugLogger, Logger, QuietLogger, TraceLogger } from "./logger";
 import { CLIOptions, cliOptionDefaults } from "../cli";
 import { throwZodError } from "./exceptions";
-import { TactConfigManager } from "./tact/config";
-import { MistiTactPath, getActualPath, getProjectDirectory } from "../cli/path";
 import { execSync } from "child_process";
-import path from "path";
 
 /**
  * Represents the context for a Misti run.
@@ -20,18 +17,9 @@ export class MistiContext {
   readonly souffleAvailable: boolean;
 
   /**
-   * Path to the Tact contract/configuration provided by the user.
-   */
-  readonly tactPath: MistiTactPath | undefined;
-
-  /**
    * Initializes the context for Misti, setting up configuration and appropriate logger.
    */
-  constructor(
-    tactPath: MistiTactPath | undefined,
-    options: CLIOptions = cliOptionDefaults,
-  ) {
-    this.tactPath = tactPath;
+  constructor(options: CLIOptions = cliOptionDefaults) {
     this.souffleAvailable = this.checkSouffleInstallation(
       options.souffleBinary,
     );
@@ -68,7 +56,7 @@ export class MistiContext {
             : new Logger();
 
     // Add backtraces to the logger output if requested
-    if (process.env.MISTI_TRACE === "1") {
+    if (MistiEnv.MISTI_TRACE) {
       this.logger = new TraceLogger();
     }
   }
@@ -83,22 +71,5 @@ export class MistiContext {
     } catch (error) {
       return false;
     }
-  }
-
-  /**
-   * Returns entry points taking into account the user's configuration.
-   *
-   * @returns Absolute paths to entrypoint files.
-   */
-  public getEntryPoints(): string[] {
-    if (this.tactPath === undefined) {
-      return [];
-    }
-    const configPath = getActualPath(this.tactPath);
-    const projectDir = getProjectDirectory(this.tactPath);
-    const configManager = new TactConfigManager(this, configPath);
-    return configManager.config.projects.map((project) =>
-      path.resolve(projectDir, project.path),
-    );
   }
 }

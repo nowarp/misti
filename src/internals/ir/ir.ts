@@ -3,20 +3,15 @@
  *
  * @packageDocumentation
  */
+import { CFGIdx, ContractName, FunctionName, ProjectName } from ".";
 import { TactASTStore } from "./astStore";
 import { CallGraph } from "./callGraph";
 import { BasicBlock, CFG } from "./cfg";
 import { ImportGraph } from "./imports";
 import { IdxGenerator } from "./indices";
-import {
-  BasicBlockIdx,
-  CFGIdx,
-  ContractIdx,
-  ContractName,
-  FunctionName,
-  ProjectName,
-} from "./types";
 import { AstStatement, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
+
+export type ContractIdx = number & { readonly __brand: unique symbol };
 
 /**
  * Represents a Compilation Unit, encapsulating the information necessary for
@@ -44,7 +39,7 @@ export class CompilationUnit {
    * Looks for a CFG with a specific index.
    * @returns Found CFG or `undefined` if not found.
    */
-  public findCFGByIdx(idx: BasicBlockIdx): CFG | undefined {
+  public findCFGByIdx(idx: CFGIdx): CFG | undefined {
     const funCfg = this.functions.get(idx);
     if (funCfg) return funCfg;
     return Array.from(this.contracts.values())
@@ -175,6 +170,6 @@ export class Contract {
     public ref: SrcInfo,
     idx: ContractIdx | undefined = undefined,
   ) {
-    this.idx = idx ? idx : IdxGenerator.next("ir_contract");
+    this.idx = idx ? idx : (IdxGenerator.next("ir_contract") as ContractIdx);
   }
 }

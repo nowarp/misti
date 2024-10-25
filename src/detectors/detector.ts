@@ -371,6 +371,20 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: false,
   },
+  UnusedExpressionResult: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/unusedExpressionResult").then(
+        (module) => new module.UnusedExpressionResult(ctx),
+      ),
+    enabledByDefault: true,
+  },
+  SuspiciousMessageMode: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/suspiciousMessageMode").then(
+        (module) => new module.SuspiciousMessageMode(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**

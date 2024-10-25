@@ -64,7 +64,7 @@ export class ArgCopyMutation extends ASTDetector {
             fun.kind === "function_def" &&
             this.usedInAllReturns(
               argName,
-              returnStatements.get(idText(fun.name))!,
+              returnStatements.get(idText(fun.name) as FunctionName)!,
             )
           ) {
             return;

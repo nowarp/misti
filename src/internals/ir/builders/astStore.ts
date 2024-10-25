@@ -4,6 +4,7 @@ import { definedInStdlib } from "../../tact/stdlib";
 import { unreachable } from "../../util";
 import {
   AstAsmFunctionDef,
+  AstNode,
   AstConstantDef,
   AstContract,
   AstContractInit,
@@ -26,7 +27,8 @@ import { AstStore } from "@tact-lang/compiler/dist/grammar/store";
 export class TactASTStoreBuilder {
   private programEntries: Map<string, Set<number>> = new Map();
   private stdlibIds = new Set<number>();
-  private contractConstants = new Set<number>();
+  /** Items defined within contracts and traits */
+  private contractEntries = new Map<AstContract["id"], Set<AstNode["id"]>>();
   private functions = new Map<
     number,
     AstFunctionDef | AstReceiver | AstContractInit
@@ -102,7 +104,7 @@ export class TactASTStoreBuilder {
   public build(): TactASTStore {
     return new TactASTStore(
       this.stdlibIds,
-      this.contractConstants,
+      this.contractEntries,
       this.programEntries,
       this.functions,
       this.constants,
@@ -142,6 +144,7 @@ export class TactASTStoreBuilder {
   private processTrait(trait: AstTrait): void {
     this.traits.set(trait.id, trait);
     for (const decl of trait.declarations) {
+      this.addContractEntry(trait.id, decl.id);
       switch (decl.kind) {
         case "field_decl":
           // Do nothing, as they are accessible through trait definitions
@@ -155,7 +158,6 @@ export class TactASTStoreBuilder {
           break;
         case "constant_def":
           this.constants.set(decl.id, decl);
-          this.contractConstants.add(decl.id);
           break;
         case "constant_decl":
         case "function_decl":
@@ -169,6 +171,7 @@ export class TactASTStoreBuilder {
   private processContract(contract: AstContract): void {
     this.contracts.set(contract.id, contract);
     for (const decl of contract.declarations) {
+      this.addContractEntry(contract.id, decl.id);
       switch (decl.kind) {
         case "field_decl":
           // Do nothing, as they are accessible through contract definitions
@@ -183,7 +186,6 @@ export class TactASTStoreBuilder {
           break;
         case "constant_def":
           this.constants.set(decl.id, decl);
-          this.contractConstants.add(decl.id);
           break;
         default:
           unreachable(decl);
@@ -230,5 +232,15 @@ export class TactASTStoreBuilder {
       default:
         unreachable(stmt);
     }
+  }
+
+  private addContractEntry(
+    contractId: AstNode["id"],
+    nodeId: AstNode["id"],
+  ): void {
+    this.contractEntries.set(
+      contractId,
+      (this.contractEntries.get(contractId) || new Set()).add(nodeId),
+    );
   }
 }

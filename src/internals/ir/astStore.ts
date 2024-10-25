@@ -1,8 +1,12 @@
 import { InternalException } from "../exceptions";
+import { mergeMaps } from "../util";
+import { FunctionName } from "./types";
 import {
   AstAsmFunctionDef,
   AstConstantDef,
+  idText,
   AstModule,
+  AstType,
   AstContract,
   SrcInfo,
   AstContractInit,
@@ -42,7 +46,7 @@ export class TactASTStore {
    * by their unique AST identifiers.
    *
    * @param stdlibIds Identifiers of AST elements defined in stdlib.
-   * @param contractConstants Identifiers of constants defined within contracts.
+   * @param contractEntries Items defined within contracts and traits.
    * @param programEntries Identifiers of AST elements defined on the top-level of each file.
    * @param functions Functions and methods including user-defined and special methods.
    * @param constants Constants defined across the compilation unit.
@@ -57,7 +61,7 @@ export class TactASTStore {
    */
   constructor(
     private stdlibIds = new Set<AstNode["id"]>(),
-    private contractConstants = new Set<AstNode["id"]>(),
+    private contractEntries = new Map<AstNode["id"], Set<AstNode["id"]>>(),
     private programEntries: Map<Filename, Set<AstNode["id"]>>,
     private functions: Map<
       AstNode["id"],
@@ -168,10 +172,7 @@ export class TactASTStore {
     const constants = this.getItems(this.constants, restParams);
     return includeContract
       ? constants
-      : this.filterIterator(
-          constants,
-          (c) => !this.contractConstants.has(c.id),
-        );
+      : this.filterIterator(constants, (c) => !this.isContractItem(c.id));
   }
 
   public getContracts(
@@ -528,6 +529,87 @@ export class TactASTStore {
       ? result.filter((item) => item.loc.file === params.filename)
       : result;
   }
+
+  /**
+   * Retrieves return types from the callable functions available within CompilationUnit.
+   */
+  public getReturnTypes(): Map<FunctionName, AstType | null> {
+    const result = new Map<FunctionName, AstType | null>();
+    this.asmFunctions.forEach((f) =>
+      result.set(idText(f.name) as FunctionName, f.return),
+    );
+    this.functions.forEach((f) => {
+      if (!this.isContractItem(f.id))
+        result.set(
+          // Other kinds of functions cannot be present on the top-level
+          idText((f as AstFunctionDef).name) as FunctionName,
+          (f as AstFunctionDef).return,
+        );
+    });
+    return result;
+  }
+
+  /**
+   * Retrieves return types from the callable methods defined in the given contract/trait.
+   * @param entryId AST identifier of the contract or trait to analyze.
+   * @param withTraits Include methods from directly or indirectly inherited traits.
+   */
+  public getMethodReturnTypes(
+    entryId: AstNode["id"],
+    withTraits: boolean = true,
+    visited = new Set<number>(),
+  ): Map<FunctionName, AstType | null> {
+    let result = new Map<FunctionName, AstType | null>();
+
+    // Avoid recursion if used on AST before typechecking
+    if (visited.has(entryId)) return result;
+    visited.add(entryId);
+
+    // Check the current contract or trait
+    const contractEntries = this.contractEntries.get(entryId);
+    if (contractEntries) {
+      this.functions.forEach((f) => {
+        // Don't consider receivers/inits since we cannot call them from the contract
+        if (f.kind === "function_def" && contractEntries.has(f.id))
+          result.set(idText(f.name) as FunctionName, f.return);
+      });
+    }
+
+    // Recursively process inherited traits
+    if (withTraits) {
+      const contractOrTrait = this.hasContract(entryId)
+        ? this.getContract(entryId)
+        : this.getTrait(entryId);
+      if (!contractOrTrait) {
+        return result;
+      }
+      contractOrTrait.traits.forEach((traitName) => {
+        const trait = this.findTrait(idText(traitName));
+        if (trait) {
+          result = mergeMaps(
+            result,
+            this.getMethodReturnTypes(trait.id, true, visited),
+          );
+        }
+      });
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns true iff `itemId` present in any of the contract/trait items.
+   */
+  private isContractItem(itemId: AstNode["id"]): boolean {
+    if (this.isContractItemCache.has(itemId))
+      return this.isContractItemCache.get(itemId)!;
+    const result = [...this.contractEntries.values()].some((set) =>
+      set.has(itemId),
+    );
+    this.isContractItemCache.set(itemId, result);
+    return result;
+  }
+  private isContractItemCache = new Map<AstNode["id"], boolean>();
 
   private fileMatches = (node: { loc: SrcInfo }, filename: string): boolean =>
     node.loc.file !== null && node.loc.file === filename;
