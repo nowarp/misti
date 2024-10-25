@@ -16,13 +16,13 @@ test/detectors/SuspiciousMessageMode.tact:25:19:
 Help: Use the '|' operator (bitwise OR) to combine flags
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 
-[MEDIUM] SuspiciousMessageMode: Integer literals should not be used in mode expression; use symbolic constants instead
+[MEDIUM] SuspiciousMessageMode: Integer literals should not be used in mode expression.
 test/detectors/SuspiciousMessageMode.tact:34:19:
   33 |             value: 0,
 > 34 |             mode: 64 // Bad: Integer literal instead of symbolic constant 
                          ^
   35 |         });
-Help: Replace integer literals with symbolic flag constants
+Help: Replace `64` with `SendRemainingValue`
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 
 [MEDIUM] SuspiciousMessageMode: Mode expression should only contain the '|' operator
@@ -43,13 +43,13 @@ test/detectors/SuspiciousMessageMode.tact:52:40:
 Help: Use each flag at most once in the mode expression
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 
-[MEDIUM] SuspiciousMessageMode: Integer literals should not be used in mode expression; use symbolic constants instead
+[MEDIUM] SuspiciousMessageMode: Integer literals should not be used in mode expression.
 test/detectors/SuspiciousMessageMode.tact:52:61:
   51 |             value: 0,
 > 52 |             mode: SendRemainingValue + SendRemainingValue + 64 // Bad: Duplicate flags, '+' operator, integer literal 
                                                                    ^
   53 |         });
-Help: Replace integer literals with symbolic flag constants
+Help: Replace `64` with `SendRemainingValue`
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 
 [MEDIUM] SuspiciousMessageMode: Mode expression should only contain the '|' operator
