@@ -1,5 +1,6 @@
 import { InternalException } from "../exceptions";
 import { mergeMaps } from "../util";
+import { FunctionName } from "./types";
 import {
   AstAsmFunctionDef,
   AstConstantDef,
@@ -31,8 +32,6 @@ export type AstItemParams = Partial<{
   filename?: string;
 }>;
 
-type FunctionName = string;
-type MethodName = string;
 type Filename = string;
 
 /**
@@ -536,12 +535,14 @@ export class TactASTStore {
    */
   public getReturnTypes(): Map<FunctionName, AstType | null> {
     const result = new Map<FunctionName, AstType | null>();
-    this.asmFunctions.forEach((f) => result.set(idText(f.name), f.return));
+    this.asmFunctions.forEach((f) =>
+      result.set(idText(f.name) as FunctionName, f.return),
+    );
     this.functions.forEach((f) => {
       if (!this.isContractItem(f.id))
         result.set(
           // Other kinds of functions cannot be present on the top-level
-          idText((f as AstFunctionDef).name),
+          idText((f as AstFunctionDef).name) as FunctionName,
           (f as AstFunctionDef).return,
         );
     });
@@ -557,8 +558,8 @@ export class TactASTStore {
     entryId: AstNode["id"],
     withTraits: boolean = true,
     visited = new Set<number>(),
-  ): Map<MethodName, AstType | null> {
-    let result = new Map<MethodName, AstType | null>();
+  ): Map<FunctionName, AstType | null> {
+    let result = new Map<FunctionName, AstType | null>();
 
     // Avoid recursion if used on AST before typechecking
     if (visited.has(entryId)) return result;
@@ -570,7 +571,7 @@ export class TactASTStore {
       this.functions.forEach((f) => {
         // Don't consider receivers/inits since we cannot call them from the contract
         if (f.kind === "function_def" && contractEntries.has(f.id))
-          result.set(idText(f.name), f.return);
+          result.set(idText(f.name) as FunctionName, f.return);
       });
     }
 

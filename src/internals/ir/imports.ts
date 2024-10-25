@@ -3,8 +3,8 @@ import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import { ItemOrigin } from "@tact-lang/compiler/dist/grammar/grammar";
 import path from "path";
 
-export type ImportNodeIdx = number;
-export type ImportEdgeIdx = number;
+export type ImportNodeIdx = number & { readonly __brand: unique symbol };
+export type ImportEdgeIdx = number & { readonly __brand: unique symbol };
 export type ImportLanguage = "tact" | "func";
 export type ImportDirection = "forward" | "backward";
 
@@ -27,7 +27,7 @@ export class ImportNode {
     public inEdges: Set<ImportEdgeIdx> = new Set(),
     public outEdges: Set<ImportEdgeIdx> = new Set(),
   ) {
-    this.idx = IdxGenerator.next("import_node");
+    this.idx = IdxGenerator.next("import_node") as ImportNodeIdx;
   }
 }
 
@@ -42,7 +42,7 @@ export class ImportEdge {
     /** Source location of the `import` statement. */
     public loc: SrcInfo,
   ) {
-    this.idx = IdxGenerator.next("import_edge");
+    this.idx = IdxGenerator.next("import_edge") as ImportEdgeIdx;
   }
 }
 

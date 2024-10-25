@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Improved and optimized the test suite: PR [#184](https://github.com/nowarp/misti/pull/184)
+- Introduced the branded type pattern to improve type safety: Issue [#191](https://github.com/nowarp/misti/issues/191)
 
 ## [0.4.2] - 2024-10-12
 
