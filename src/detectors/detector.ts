@@ -385,6 +385,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  ProperExitCodeUsage: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/properExitCodeUsage").then(
+        (module) => new module.ProperExitCodeUsage(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**

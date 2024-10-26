@@ -1,0 +1,19 @@
+[HIGH] ProperExitCodeUsage: Improper exit code used: 128.
+test/detectors/ProperExitCodeUsage.tact:11:9:
+  10 |     receive("Bad Example!") {
+> 11 |         nativeThrowUnless(self.InvalidExitCode, sender() == self.owner);
+               ^
+  12 |     }
+Use exit codes within the allowed range (256-65535, excluding 128).
+Help: Adjust exit codes accordingly.
+See: https://nowarp.io/tools/misti/docs/detectors/ProperExitCodeUsage
+
+[HIGH] ProperExitCodeUsage: Improper exit code used: 70000.
+test/detectors/ProperExitCodeUsage.tact:25:9:
+  24 |     receive("Bad Example!") {
+> 25 |         nativeThrowUnless(self.ExcessiveExitCode, sender() == self.owner);
+               ^
+  26 |     }
+Use exit codes within the allowed range (256-65535, excluding 128).
+Help: Adjust exit codes accordingly.
+See: https://nowarp.io/tools/misti/docs/detectors/ProperExitCodeUsage
