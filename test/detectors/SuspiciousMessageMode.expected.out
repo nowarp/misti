@@ -43,7 +43,7 @@ test/detectors/SuspiciousMessageMode.tact:52:40:
 Help: Use each flag at most once in the mode expression
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 
-[MEDIUM] SuspiciousMessageMode: Integer literals should not be used in mode expression.
+[MEDIUM] SuspiciousMessageMode: Integer literals should not be used in mode expression
 test/detectors/SuspiciousMessageMode.tact:52:61:
   51 |             value: 0,
 > 52 |             mode: SendRemainingValue + SendRemainingValue + 64 // Bad: Duplicate flags, '+' operator, integer literal 
