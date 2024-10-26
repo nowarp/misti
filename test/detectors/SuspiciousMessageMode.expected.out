@@ -16,7 +16,7 @@ test/detectors/SuspiciousMessageMode.tact:25:19:
 Help: Use the '|' operator (bitwise OR) to combine flags
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 
-[MEDIUM] SuspiciousMessageMode: Integer literals should not be used in mode expression.
+[MEDIUM] SuspiciousMessageMode: Integer literals should not be used in mode expression
 test/detectors/SuspiciousMessageMode.tact:34:19:
   33 |             value: 0,
 > 34 |             mode: 64 // Bad: Integer literal instead of symbolic constant 
