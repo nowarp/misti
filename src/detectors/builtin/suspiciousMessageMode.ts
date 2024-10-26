@@ -107,13 +107,18 @@ export class SuspiciousMessageMode extends ASTDetector {
           flagsUsed.add(flagName);
           break;
         case "number":
+          let suggestion: string = `Replace integer literal \`${e.value}\` with symbolic flag constants`;
+          if (e.value === 64n) {
+            suggestion = "Replace `64` with `SendRemainingValue`";
+          } else if (e.value === 128n) {
+            suggestion = "Replace `128` with `SendRemainingBalance`";
+          }
           warnings.push(
             this.makeWarning(
-              "Integer literals should not be used in mode expression; use symbolic constants instead",
+              "Integer literals should not be used in mode expression",
               e.loc,
               {
-                suggestion:
-                  "Replace integer literals with symbolic flag constants",
+                suggestion,
               },
             ),
           );
