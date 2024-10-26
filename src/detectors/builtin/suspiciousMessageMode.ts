@@ -115,7 +115,7 @@ export class SuspiciousMessageMode extends ASTDetector {
           }
           warnings.push(
             this.makeWarning(
-              "Integer literals should not be used in mode expression.",
+              "Integer literals should not be used in mode expression",
               e.loc,
               {
                 suggestion,
