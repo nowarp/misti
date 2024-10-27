@@ -47,17 +47,27 @@ export class ShortCircuitCondition extends ASTDetector {
       fun,
       (acc, stmt) => {
         forEachExpression(stmt, (expr) => {
-          if (expr.kind === "op_binary" && expr.op === "&&") {
+          if (
+            expr.kind === "op_binary" &&
+            (expr.op === "&&" || expr.op === "||")
+          ) {
             const leftConst = this.isConstantExpression(expr.left);
             const rightConst = this.isConstantExpression(expr.right);
-            if (!leftConst && rightConst) {
+            const leftExpensive = this.isExpensiveFunction(expr.left);
+            if (
+              (expr.op === "&&" && !leftConst && rightConst) ||
+              (expr.op === "||" && leftConst && !rightConst)
+            ) {
               acc.push(
                 this.makeWarning(
-                  "Consider moving constant condition to the left for short-circuit optimization",
+                  `Consider reordering: ${
+                    leftExpensive
+                      ? "Move expensive function call to the end."
+                      : "Move constant to the left."
+                  }`,
                   expr.loc,
                   {
-                    suggestion:
-                      "Reorder conditions to evaluate constants first",
+                    suggestion: `Reorder to optimize ${expr.op} condition short-circuiting`,
                   },
                 ),
               );
@@ -67,6 +77,13 @@ export class ShortCircuitCondition extends ASTDetector {
         return acc;
       },
       [] as MistiTactWarning[],
+    );
+  }
+
+  private isExpensiveFunction(expr: AstExpression): boolean {
+    const expensiveFunctions = ["long_running_fun", "expensive_function"];
+    return (
+      expr.kind === "method_call" && expensiveFunctions.includes(expr.kind)
     );
   }
 

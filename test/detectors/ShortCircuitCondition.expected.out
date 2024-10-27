@@ -1,26 +1,35 @@
-[LOW] ShortCircuitCondition: Consider moving constant condition to the left for short-circuit optimization
+[LOW] ShortCircuitCondition: Consider reordering: Move constant to the left.
 test/detectors/ShortCircuitCondition.tact:6:17:
   5 |     fun testCondition1(): Bool {
-> 6 |         return (self.expensiveCheck() && (self.a > 10));
+> 6 |         return (self.expensiveCheck() && (self.a > 10)); // Bad
                       ^
   7 |     }
-Help: Reorder conditions to evaluate constants first
+Help: Reorder to optimize && condition short-circuiting
 See: https://nowarp.io/tools/misti/docs/detectors/ShortCircuitCondition
 
-[LOW] ShortCircuitCondition: Consider moving constant condition to the left for short-circuit optimization
+[LOW] ShortCircuitCondition: Consider reordering: Move constant to the left.
+test/detectors/ShortCircuitCondition.tact:11:17:
+  10 |     fun testCondition2(): Bool {
+> 11 |         return (true || self.expensiveCheck());  // Bad
+                       ^
+  12 |     }
+Help: Reorder to optimize || condition short-circuiting
+See: https://nowarp.io/tools/misti/docs/detectors/ShortCircuitCondition
+
+[LOW] ShortCircuitCondition: Consider reordering: Move constant to the left.
 test/detectors/ShortCircuitCondition.tact:16:17:
   15 |     fun testCondition3(): Bool {
 > 16 |         return ((self.a > 0) && self.expensiveCheck() && false); //Bad: Should warn for moving false left
                        ^
   17 |     }
-Help: Reorder conditions to evaluate constants first
+Help: Reorder to optimize && condition short-circuiting
 See: https://nowarp.io/tools/misti/docs/detectors/ShortCircuitCondition
 
-[LOW] ShortCircuitCondition: Consider moving constant condition to the left for short-circuit optimization
+[LOW] ShortCircuitCondition: Consider reordering: Move constant to the left.
 test/detectors/ShortCircuitCondition.tact:21:14:
   20 |     fun testCondition4(): Bool {
 > 21 |         if ((self.expensiveCheck() && (self.a < 3)) || ((self.a > 10) && true)) {
                     ^
   22 |             return true; // Bad: Should warn for moving constants to the left
-Help: Reorder conditions to evaluate constants first
+Help: Reorder to optimize && condition short-circuiting
 See: https://nowarp.io/tools/misti/docs/detectors/ShortCircuitCondition
