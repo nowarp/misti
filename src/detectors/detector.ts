@@ -385,6 +385,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  ShortCircuitCondition: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/shortCircuitCondition").then(
+        (module) => new module.ShortCircuitCondition(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**
