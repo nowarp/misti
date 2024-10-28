@@ -10,47 +10,33 @@ import {
   CGEdgeId,
 } from "../internals/ir/callGraph";
 import { unreachable } from "../internals/util";
+import * as fs from "fs";
 import JSONbig from "json-bigint";
+import * as path from "path";
 
 /**
  * Defines the options for the DumpCallGraph tool.
  */
 interface DumpCallGraphOptions extends Record<string, unknown> {
-  /**
-   * The output formats for the call graph dump.
-   */
   format: "dot" | "json" | "mmd";
+  outputPath?: string;
 }
 
 /**
  * A tool that dumps the Call Graph (CG) of the given compilation unit in multiple formats.
  */
 export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
-  /**
-   * Constructs a new DumpCallGraph tool instance.
-   * @param ctx The MistiContext providing necessary context.
-   * @param options The options for dumping the call graph.
-   */
   constructor(ctx: MistiContext, options: DumpCallGraphOptions) {
     super(ctx, options);
   }
 
-  /**
-   * Provides the default options for the DumpCallGraph tool.
-   * Generates all three formats by default and saves them to "./test/all".
-   */
   get defaultOptions(): DumpCallGraphOptions {
     return {
       format: "json",
+      outputPath: "./output",
     };
   }
 
-  /**
-   * Executes the DumpCallGraph tool.
-   * Generates the call graph in all specified formats and writes them to the output directory.
-   * @param cu The CompilationUnit representing the code to analyze.
-   * @returns A ToolOutput containing messages about the generated files.
-   */
   run(cu: CompilationUnit): ToolOutput | never {
     const callGraph = cu.callGraph;
     let output: string;
@@ -67,48 +53,53 @@ export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
       default:
         throw unreachable(this.options.format);
     }
+
+    const outputPath = this.options.outputPath || ".";
+    const outputFile = path.join(
+      outputPath,
+      `callgraph.${this.options.format}`,
+    );
+    fs.writeFileSync(outputFile, output, "utf8");
     return this.makeOutput(cu, output);
   }
 
-  /**
-   * Provides a description of the DumpCallGraph tool.
-   * @returns A string describing the tool.
-   */
   getDescription(): string {
     return "Dumps the Call Graph (CG) in multiple formats: DOT, Mermaid, and JSON.";
   }
 
-  /**
-   * Provides descriptions for each option of the DumpCallGraph tool.
-   * @returns A record mapping each option key to its description.
-   */
   getOptionDescriptions(): Record<keyof DumpCallGraphOptions, string> {
     return {
       format: "The output format for the Callgraph dump: <dot|json|mmd>",
+      outputPath: "The output directory path for the call graph file",
     };
   }
 }
 
-/**
- * Class responsible for generating a Mermaid diagram representation of a CallGraph.
- */
 class MermaidDumper {
-  /**
-   * Generates a Mermaid diagram format string for a given CallGraph.
-   * @param callGraph The CallGraph to be dumped.
-   * @returns The Mermaid diagram representation of the call graph.
-   */
   public static dumpCallGraph(callGraph: CallGraph): string {
+    if (!callGraph || callGraph.getNodes().size === 0) {
+      return 'graph TD\n    empty["Empty Call Graph"]';
+    }
     let diagram = "graph TD\n";
     callGraph.getNodes().forEach((node: CGNode) => {
+      if (!node || typeof node.idx === "undefined") return;
       const nodeId = `node_${node.idx}`;
-      const label = node.name.replace(/"/g, '\\"');
+      const label = node.name?.replace(/"/g, '\\"') || "Unknown";
       diagram += `    ${nodeId}["${label}"]\n`;
     });
     callGraph.getEdges().forEach((edge: CGEdge) => {
+      if (
+        !edge ||
+        typeof edge.src === "undefined" ||
+        typeof edge.dst === "undefined"
+      )
+        return;
       const srcNode = callGraph.getNodes().get(edge.src as CGNodeId);
       const dstNode = callGraph.getNodes().get(edge.dst as CGNodeId);
-      if (!srcNode || !dstNode) return;
+      if (!srcNode || !dstNode) {
+        console.warn(`Invalid edge: ${edge.src} -> ${edge.dst}`);
+        return;
+      }
       const srcId = `node_${srcNode.idx}`;
       const dstId = `node_${dstNode.idx}`;
       diagram += `    ${srcId} --> ${dstId}\n`;
@@ -117,66 +108,70 @@ class MermaidDumper {
   }
 }
 
-/**
- * Class responsible for generating a Graphviz dot representation of a CallGraph.
- */
 class GraphvizDumper {
-  /**
-   * Generates a Graphviz dot format string for a given CallGraph.
-   * @param callGraph The CallGraph to be dumped.
-   * @returns The Graphviz dot representation of the call graph.
-   */
   public static dumpCallGraph(callGraph: CallGraph): string {
-    let dot = `digraph "CallGraph" {\n`;
-    dot += `    node [shape=box];\n`;
+    if (!callGraph || callGraph.getNodes().size === 0) {
+      return 'digraph "CallGraph" {\n    node [shape=box];\n    empty [label="Empty Call Graph"];\n}\n';
+    }
+    let dot = `digraph "CallGraph" {\n    node [shape=box];\n`;
     callGraph.getNodes().forEach((node: CGNode) => {
+      if (!node || typeof node.idx === "undefined") return;
       const nodeId = `node_${node.idx}`;
-      const label = node.name.replace(/"/g, '\\"'); // Escape double quotes
+      const label = node.name?.replace(/"/g, '\\"') || "Unknown";
       dot += `    ${nodeId} [label="${label}"];\n`;
     });
     callGraph.getEdges().forEach((edge: CGEdge) => {
+      if (
+        !edge ||
+        typeof edge.src === "undefined" ||
+        typeof edge.dst === "undefined"
+      )
+        return;
       const srcNode = callGraph.getNodes().get(edge.src as CGNodeId);
       const dstNode = callGraph.getNodes().get(edge.dst as CGNodeId);
-      if (srcNode && dstNode) {
-        dot += `    node_${srcNode.idx} -> node_${dstNode.idx} [label="${edge.idx}"];\n`;
-      } else {
-        console.warn(`Missing node for edge: ${edge.src} -> ${edge.dst}`);
+      if (!srcNode || !dstNode) {
+        console.warn(`Invalid edge: ${edge.src} -> ${edge.dst}`);
+        return;
       }
+      dot += `    node_${srcNode.idx} -> node_${dstNode.idx} [label="${edge.idx}"];\n`;
     });
     dot += `}\n`;
     return dot;
   }
 }
 
-/**
- * Class responsible for generating a JSON representation of a CallGraph.
- */
 class JSONDumper {
-  /**
-   * Generates a JSON format string for a given CallGraph.
-   * @param callGraph The CallGraph to be dumped.
-   * @returns The JSON representation of the call graph.
-   */
   public static dumpCallGraph(callGraph: CallGraph): string {
-    const nodes = Array.from(callGraph.getNodes().values()).map(
-      (node: CGNode) => ({
+    if (!callGraph) {
+      return JSONbig.stringify({ nodes: [], edges: [] }, null, 2);
+    }
+    const nodes = Array.from(callGraph.getNodes().values())
+      .filter((node: CGNode) => node && typeof node.idx !== "undefined")
+      .map((node: CGNode) => ({
         idx: node.idx as CGNodeId,
-        name: node.name,
-        inEdges: Array.from(node.inEdges),
-        outEdges: Array.from(node.outEdges),
-      }),
-    );
-    const edges = Array.from(callGraph.getEdges().values()).map(
-      (edge: CGEdge) => ({
+        name: node.name || "Unknown",
+        inEdges: Array.from(node.inEdges || []),
+        outEdges: Array.from(node.outEdges || []),
+      }));
+    const edges = Array.from(callGraph.getEdges().values())
+      .filter((edge: CGEdge) => {
+        const isValid =
+          edge &&
+          typeof edge.idx !== "undefined" &&
+          typeof edge.src !== "undefined" &&
+          typeof edge.dst !== "undefined" &&
+          callGraph.getNodes().has(edge.src as CGNodeId) &&
+          callGraph.getNodes().has(edge.dst as CGNodeId);
+        if (!isValid) {
+          console.warn(`Skipping invalid edge: ${edge?.src} -> ${edge?.dst}`);
+        }
+        return isValid;
+      })
+      .map((edge: CGEdge) => ({
         idx: edge.idx as CGEdgeId,
         src: edge.src as CGNodeId,
         dst: edge.dst as CGNodeId,
-      }),
-    );
-    const data = {
-      nodes,
-      edges,
-    };
-    return JSONbig.stringify(data, null, 2);
+      }));
+    return JSONbig.stringify({ nodes, edges }, null, 2);
   }
 }
