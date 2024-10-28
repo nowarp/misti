@@ -6,7 +6,10 @@ import {
 } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
-import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
+import {
+  AstExpression,
+  AstMethodCall,
+} from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
  * A detector that suggests optimizing boolean expressions to leverage short-circuit evaluation.
@@ -81,10 +84,23 @@ export class ShortCircuitCondition extends ASTDetector {
   }
 
   private isExpensiveFunction(expr: AstExpression): boolean {
-    const expensiveFunctions = ["long_running_fun", "expensive_function"];
-    return (
-      expr.kind === "method_call" && expensiveFunctions.includes(expr.kind)
-    );
+    if (expr.kind === "method_call") {
+      if (expr.args.length > 2) return true;
+      return this.hasNestedCallsOrRecursion(expr);
+    }
+    return false;
+  }
+
+  private hasNestedCallsOrRecursion(expr: AstMethodCall): boolean {
+    for (const arg of expr.args) {
+      if (
+        arg.kind === "method_call" ||
+        (arg.kind === "id" && arg.text === expr.method.text)
+      ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private isConstantExpression(expr: AstExpression): boolean {
