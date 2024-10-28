@@ -12,7 +12,7 @@ Misti is a static analysis tool designed for smart contracts on the [TON blockch
 - **Custom Detectors**: Create [custom detectors](https://nowarp.io/tools/misti/docs/hacking/custom-detector) to solve specific problems in your code or to provide a thorough security review if you are an auditor.
 
 ## Getting Started
-1. Install Soufflé according to [the official installation instruction](https://souffle-lang.github.io/install).
+1. (optional) Install Soufflé according to [the official installation instruction](https://souffle-lang.github.io/install).
 
 2. Misti is distributed via npm and should be added to your Tact project [in the same way](https://github.com/tact-lang/tact?tab=readme-ov-file#installation) as Tact itself:
 ```bash
