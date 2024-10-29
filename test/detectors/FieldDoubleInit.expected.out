@@ -1,8 +1,8 @@
-[MEDIUM] FieldDoubleInit: Field a is initialized twice
-test/detectors/FieldDoubleInit.tact:4:9:
-  3 |     init(x: Int) {
-> 4 |         self.a = x; // Should be highlighted
+[MEDIUM] FieldDoubleInit: Field a1 is initialized twice
+test/detectors/FieldDoubleInit.tact:5:9:
+  4 |     init(x: Int) {
+> 5 |         self.a1 = x; // Should be highlighted
               ^
-  5 |     }
+  6 |         // @misti:suppress FieldDoubleInit
 Help: Consider initializing the field only in its declaration or in the `init` function
 See: https://nowarp.io/tools/misti/docs/detectors/FieldDoubleInit

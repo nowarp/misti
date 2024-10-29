@@ -104,17 +104,10 @@ export abstract class Detector {
       suggestion: string;
     }> = {},
   ): MistiTactWarning {
-    return MistiTactWarning.make(
-      this.ctx,
-      this.id,
-      description,
-      this.severity,
-      loc,
-      {
-        ...data,
-        docURL: hasBuiltInDetector(this.id) ? makeDocURL(this.id) : undefined,
-      },
-    );
+    return MistiTactWarning.make(this.id, description, this.severity, loc, {
+      ...data,
+      docURL: hasBuiltInDetector(this.id) ? makeDocURL(this.id) : undefined,
+    });
   }
 }
 
