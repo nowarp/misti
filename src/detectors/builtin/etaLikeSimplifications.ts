@@ -1,5 +1,6 @@
 import { CompilationUnit } from "../../internals/ir";
 import { forEachStatement, forEachExpression } from "../../internals/tact";
+import { evalToType, evalsToValue } from "../../internals/tact/";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import {
@@ -150,13 +151,10 @@ export class EtaLikeSimplifications extends ASTDetector {
     value?: boolean,
   ): boolean {
     if (!expr) return false;
-    if (expr.kind === "boolean") {
-      if (value === undefined) {
-        return true;
-      }
-      return expr.value === value;
+    if (value === undefined) {
+      return evalToType(expr, "boolean") !== undefined;
     }
-    return false;
+    return evalsToValue(expr, "boolean", value);
   }
 
   private getSimplifiedBooleanExpression(binaryExpr: AstOpBinary): string {
