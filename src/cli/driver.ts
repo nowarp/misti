@@ -511,10 +511,36 @@ export class Driver {
   }
 
   /**
-   * Filters out the warnings suppressed in the configuration files.
+   * Filters out the suppressed warnings.
    * Mutates the input map removing suppressed warnings.
    */
   private filterSuppressedWarnings(
+    warnings: Map<ProjectName, MistiTactWarning[]>,
+  ): void {
+    this.filterSuppressedInAnnotations(warnings);
+    this.filterSuppressedInConfig(warnings);
+  }
+
+  /**
+   * Filters out the warnings suppressed in the code annotations.
+   * Mutates the input map removing suppressed warnings.
+   */
+  private filterSuppressedInAnnotations(
+    warnings: Map<ProjectName, MistiTactWarning[]>,
+  ): void {
+    warnings.forEach((projectWarnings, projectName) => {
+      const filteredWarnings = projectWarnings.filter(
+        (warning) => !warning.isSuppressed(),
+      );
+      warnings.set(projectName, filteredWarnings);
+    });
+  }
+
+  /**
+   * Filters out the warnings suppressed in the configuration files.
+   * Mutates the input map removing suppressed warnings.
+   */
+  private filterSuppressedInConfig(
     warnings: Map<ProjectName, MistiTactWarning[]>,
   ): void {
     this.ctx.config.suppressions.forEach((suppression) => {
