@@ -18,7 +18,7 @@ import * as path from "path";
  * Defines the options for the DumpCallGraph tool.
  */
 interface DumpCallGraphOptions extends Record<string, unknown> {
-  format: "dot" | "json" | "mmd";
+  formats: Array<"dot" | "json" | "mmd">;
   outputPath?: string;
 }
 
@@ -32,35 +32,70 @@ export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
 
   get defaultOptions(): DumpCallGraphOptions {
     return {
-      format: "json",
-      outputPath: "./output",
+      formats: ["dot", "mmd", "json"],
+      outputPath: "./test/all",
     };
   }
 
+  /**
+   * Executes the DumpCallGraph tool.
+   * @param cu The CompilationUnit representing the code to analyze.
+   * @returns A ToolOutput containing messages about the generated files.
+   */
   run(cu: CompilationUnit): ToolOutput | never {
     const callGraph = cu.callGraph;
-    let output: string;
-    switch (this.options.format) {
-      case "dot":
-        output = GraphvizDumper.dumpCallGraph(callGraph);
-        break;
-      case "mmd":
-        output = MermaidDumper.dumpCallGraph(callGraph);
-        break;
-      case "json":
-        output = JSONDumper.dumpCallGraph(callGraph);
-        break;
-      default:
-        throw unreachable(this.options.format);
+    const outputPath = this.options.outputPath || "./test/all";
+    const baseName = cu.projectName;
+    const outputs: string[] = [];
+
+    const supportedFormats = ["dot", "mmd", "json"] as const;
+    type SupportedFormat = (typeof supportedFormats)[number];
+
+    if (
+      !this.options.formats.every((format) =>
+        supportedFormats.includes(format as SupportedFormat),
+      )
+    ) {
+      throw new Error(
+        `Unsupported format specified. Supported formats are: ${supportedFormats.join(", ")}`,
+      );
     }
 
-    const outputPath = this.options.outputPath || ".";
-    const outputFile = path.join(
-      outputPath,
-      `callgraph.${this.options.format}`,
-    );
-    fs.writeFileSync(outputFile, output, "utf8");
-    return this.makeOutput(cu, output);
+    fs.mkdirSync(outputPath, { recursive: true });
+
+    this.options.formats.forEach((format) => {
+      let outputData: string;
+      let extension: string;
+
+      switch (format) {
+        case "dot":
+          outputData = GraphvizDumper.dumpCallGraph(callGraph);
+          extension = "callgraph.dot";
+          break;
+        case "mmd":
+          outputData = MermaidDumper.dumpCallGraph(callGraph);
+          extension = "callgraph.mmd";
+          break;
+        case "json":
+          outputData = JSONDumper.dumpCallGraph(callGraph);
+          extension = "callgraph.json";
+          break;
+        default:
+          throw unreachable(format);
+      }
+
+      const fullFileName = `${baseName}.${extension}`;
+      const fullPath = path.join(outputPath, fullFileName);
+      try {
+        fs.writeFileSync(fullPath, outputData, "utf-8");
+        outputs.push(`${extension.toUpperCase()} file saved to ${fullPath}`);
+      } catch (error) {
+        outputs.push(`Failed to save ${extension} file to ${fullPath}`);
+      }
+    });
+
+    const combinedOutput = outputs.join("\n");
+    return this.makeOutput(cu, combinedOutput);
   }
 
   getDescription(): string {
@@ -69,8 +104,10 @@ export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
 
   getOptionDescriptions(): Record<keyof DumpCallGraphOptions, string> {
     return {
-      format: "The output format for the Callgraph dump: <dot|json|mmd>",
-      outputPath: "The output directory path for the call graph file",
+      formats:
+        "The output formats for the call graph dump: <dot|json|mmd>. Specify one or more formats.",
+      outputPath:
+        "The directory path where the output files will be saved. Defaults to './test/all'.",
     };
   }
 }

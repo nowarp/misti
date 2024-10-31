@@ -1,7 +1,6 @@
 import { CompilationUnit } from "../../internals/ir";
 import { foldStatements, foldExpressions, isSelf } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { DumpCallGraph } from "../../tools/dumpCallgraph";
 import { ASTDetector } from "../detector";
 import {
   AstStatement,
@@ -38,11 +37,6 @@ export class SendInLoop extends ASTDetector {
   severity = Severity.MEDIUM;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
-    const dumpCallGraphTool = new DumpCallGraph(this.ctx, {
-      format: "dot",
-      outputPath: ".",
-    });
-    dumpCallGraphTool.run(cu);
     const processedLoopIds = new Set<number>();
     return Array.from(cu.ast.getProgramEntries()).reduce((acc, node) => {
       return acc.concat(

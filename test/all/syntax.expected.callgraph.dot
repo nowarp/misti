@@ -1,33 +1,3 @@
-digraph "CallGraph" {
-    node [shape=box];
-    node_1 [label="test_try"];
-    node_2 [label="test_loops"];
-    node_3 [label="reply"];
-    node_4 [label="notify"];
-    node_5 [label="forward"];
-    node_6 [label="getter"];
-    node_7 [label="getter"];
-    node_8 [label="test"];
-    node_9 [label="getA"];
-    node_10 [label="test"];
-    node_11 [label="receiver_1722"];
-    node_13 [label="dump"];
-    node_15 [label="emptyMap"];
-    node_17 [label="sender"];
-    node_19 [label="context"];
-    node_21 [label="myBalance"];
-    node_23 [label="nativeReserve"];
-    node_25 [label="send"];
-    node_1 -> node_13 [label="1"];
-    node_2 -> node_15 [label="2"];
-    node_3 -> node_5 [label="3"];
-    node_3 -> node_17 [label="4"];
-    node_4 -> node_5 [label="5"];
-    node_4 -> node_17 [label="6"];
-    node_5 -> node_19 [label="7"];
-    node_5 -> node_21 [label="8"];
-    node_5 -> node_23 [label="9"];
-    node_5 -> node_25 [label="10"];
-    node_5 -> node_25 [label="11"];
-    node_10 -> node_9 [label="12"];
-}
+CALLGRAPH.DOT file saved to test/all/syntax.callgraph.dot
+CALLGRAPH.MMD file saved to test/all/syntax.callgraph.mmd
+CALLGRAPH.JSON file saved to test/all/syntax.callgraph.json
