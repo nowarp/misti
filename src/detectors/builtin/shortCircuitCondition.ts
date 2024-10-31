@@ -1,5 +1,6 @@
 import { CompilationUnit } from "../../internals/ir";
 import {
+  evalsToValue,
   foldStatements,
   forEachExpression,
   findInExpressions,
@@ -14,21 +15,21 @@ import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
  *
  * ## Why is it bad?
  * TVM supports short-circuit operations. When using logical AND (`&&`) or logical OR (`||`) operations,
- * placing cheaper conditions first can prevent unnecessary execution
+ * placing constant or cheaper conditions first can prevent unnecessary execution
  * of expensive operations when the result is already determined.
  *
  * ## Example
  * ```tact
  * // Bad: Expensive operation is always executed
- * if (expensive_function() && cheap_condition) {
+ * if (expensive_function() && constant_false) {
  *   // ...
  * }
  * ```
  *
  * Use instead:
  * ```tact
- * // Good: Expensive operation is skipped when cheap_condition is false
- * if (cheap_condition && expensive_function()) {
+ * // Good: Expensive operation is skipped when constant_false is false
+ * if (constant_false && expensive_function()) {
  *   // ...
  * }
  * ```
@@ -54,6 +55,8 @@ export class ShortCircuitCondition extends ASTDetector {
           ) {
             const leftExpensive = this.containsExpensiveCall(expr.left);
             const rightExpensive = this.containsExpensiveCall(expr.right);
+            const leftIsConstant = this.isConstantExpression(expr.left);
+            const rightIsConstant = this.isConstantExpression(expr.right);
             if (
               leftExpensive &&
               !rightExpensive &&
@@ -65,6 +68,23 @@ export class ShortCircuitCondition extends ASTDetector {
                   expr.loc,
                   {
                     suggestion: `Place cheaper conditions on the left to leverage short-circuiting: ${prettyPrint(
+                      expr.right,
+                    )} ${expr.op} ${prettyPrint(expr.left)}`,
+                  },
+                ),
+              );
+            }
+            if (
+              !leftIsConstant &&
+              rightIsConstant &&
+              !this.containsInitOf(expr.left)
+            ) {
+              acc.push(
+                this.makeWarning(
+                  `Consider reordering: Move constant to the left`,
+                  expr.loc,
+                  {
+                    suggestion: `Reorder to optimize ${expr.op} condition short-circuiting: ${prettyPrint(
                       expr.right,
                     )} ${expr.op} ${prettyPrint(expr.left)}`,
                   },
@@ -88,6 +108,18 @@ export class ShortCircuitCondition extends ASTDetector {
           (e.kind === "method_call" || e.kind === "static_call") &&
           !this.containsInitOf(e),
       ) !== null
+    );
+  }
+
+  private isConstantExpression(expr: AstExpression | null): boolean {
+    if (!expr) return false;
+    return (
+      evalsToValue(expr, "boolean", true) ||
+      evalsToValue(expr, "boolean", false) ||
+      expr.kind === "boolean" ||
+      expr.kind === "number" ||
+      expr.kind === "string" ||
+      expr.kind === "null"
     );
   }
 
