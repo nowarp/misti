@@ -12,7 +12,7 @@ Misti is a static analysis tool designed for smart contracts on the [TON blockch
 - **Custom Detectors**: Create [custom detectors](https://nowarp.io/tools/misti/docs/hacking/custom-detector) to solve specific problems in your code or to provide a thorough security review if you are an auditor.
 
 ## Getting Started
-1. *(optional)* Install Soufflé according to [the official installation instruction](https://souffle-lang.github.io/install) to enable more built-in functionality.
+1. *(optional)* [Install Soufflé](https://souffle-lang.github.io/install) to enable more built-in functionality.
 
 2. Install Misti:
 ```bash
