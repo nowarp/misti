@@ -119,18 +119,11 @@ class MermaidDumper {
     }
     let diagram = "graph TD\n";
     callGraph.getNodes().forEach((node: CGNode) => {
-      if (!node || typeof node.idx === "undefined") return;
       const nodeId = `node_${node.idx}`;
       const label = node.name?.replace(/"/g, '\\"') || "Unknown";
       diagram += `    ${nodeId}["${label}"]\n`;
     });
     callGraph.getEdges().forEach((edge: CGEdge) => {
-      if (
-        !edge ||
-        typeof edge.src === "undefined" ||
-        typeof edge.dst === "undefined"
-      )
-        return;
       const srcNode = callGraph.getNodes().get(edge.src as CGNodeId);
       const dstNode = callGraph.getNodes().get(edge.dst as CGNodeId);
       if (!srcNode || !dstNode) {
@@ -148,29 +141,25 @@ class MermaidDumper {
 class GraphvizDumper {
   public static dumpCallGraph(callGraph: CallGraph): string {
     if (!callGraph || callGraph.getNodes().size === 0) {
+      console.warn("Empty call graph or no nodes available.");
       return 'digraph "CallGraph" {\n    node [shape=box];\n    empty [label="Empty Call Graph"];\n}\n';
     }
     let dot = `digraph "CallGraph" {\n    node [shape=box];\n`;
     callGraph.getNodes().forEach((node: CGNode) => {
-      if (!node || typeof node.idx === "undefined") return;
       const nodeId = `node_${node.idx}`;
       const label = node.name?.replace(/"/g, '\\"') || "Unknown";
       dot += `    ${nodeId} [label="${label}"];\n`;
     });
     callGraph.getEdges().forEach((edge: CGEdge) => {
-      if (
-        !edge ||
-        typeof edge.src === "undefined" ||
-        typeof edge.dst === "undefined"
-      )
-        return;
       const srcNode = callGraph.getNodes().get(edge.src as CGNodeId);
       const dstNode = callGraph.getNodes().get(edge.dst as CGNodeId);
-      if (!srcNode || !dstNode) {
-        console.warn(`Invalid edge: ${edge.src} -> ${edge.dst}`);
-        return;
+      if (srcNode && dstNode) {
+        dot += `    node_${srcNode.idx} -> node_${dstNode.idx} [label="${edge.idx}"];\n`;
+      } else {
+        console.warn(
+          `Skipping edge due to missing nodes: ${edge.src} -> ${edge.dst}`,
+        );
       }
-      dot += `    node_${srcNode.idx} -> node_${dstNode.idx} [label="${edge.idx}"];\n`;
     });
     dot += `}\n`;
     return dot;
