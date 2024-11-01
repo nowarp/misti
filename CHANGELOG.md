@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `shortCircuitCondition` detector: PR [#202](https://github.com/nowarp/misti/pull/202)
 - `SuspiciousMessageMode` detector: PR [#193](https://github.com/nowarp/misti/pull/193)
 - `SendInLoop` detector: PR [#168](https://github.com/nowarp/misti/pull/168)
 - `CellOverflow` detector: PR [#177](https://github.com/nowarp/misti/pull/177)
