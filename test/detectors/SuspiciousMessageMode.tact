@@ -71,4 +71,12 @@ contract SendParametersTestContract {
             mode: modeFlag // Ok
         });
     }
+    
+    fun modeZeroUsage() {
+    send(SendParameters{
+        to: sender(),
+        value: 0,
+        mode: 0 // Bad: Should trigger warning about `mode: 0` being redundant
+    });
+}
 }
