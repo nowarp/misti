@@ -1,7 +1,7 @@
-import { MistiContext } from "./context";
+import { getMistiAnnotation } from "./annotation";
 import { InternalException } from "./exceptions";
+import { srcInfoToString } from "./tact";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
-import * as path from "path";
 
 /**
  * Enumerates the levels of severity that can be assigned to detected findings.
@@ -99,7 +99,6 @@ export class MistiTactWarning {
    * @returns A new MistiTactWarning containing the warning message and source code reference.
    */
   public static make(
-    ctx: MistiContext,
     detectorId: string,
     description: string,
     severity: Severity,
@@ -118,19 +117,6 @@ export class MistiTactWarning {
       docURL = undefined,
       suggestion = undefined,
     } = data;
-    const pos = loc.file
-      ? (() => {
-          const lc = loc.interval.getLineAndColumn() as {
-            lineNum: number;
-            colNum: number;
-          };
-          const lcStr = `${lc}`;
-          const lcLines = lcStr.split("\n");
-          lcLines.shift();
-          const shownPath = path.relative(process.cwd(), loc.file);
-          return `${shownPath}:${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
-        })()
-      : "";
     const extraDescriptionStr =
       extraDescription === undefined ? "" : extraDescription + "\n";
     const suggestionStr = suggestion === undefined ? "" : `Help: ${suggestion}`;
@@ -138,12 +124,25 @@ export class MistiTactWarning {
     const msg = [
       description,
       "\n",
-      pos,
+      srcInfoToString(loc),
       extraDescriptionStr,
       suggestionStr,
       docURLStr,
     ].join("");
     return new MistiTactWarning(detectorId, msg, loc, severity);
+  }
+
+  /**
+   * Checks whether this warning is suppressing using a Misti annotation.
+   */
+  public isSuppressed(): boolean {
+    const annotation = getMistiAnnotation(this.loc);
+    if (annotation && annotation.kind === "suppress") {
+      return (
+        annotation.detectors.find((d) => d === this.detectorId) !== undefined
+      );
+    }
+    return false;
   }
 }
 

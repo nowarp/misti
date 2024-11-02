@@ -8,11 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `ShortCircuitCondition` detector: PR [#202](https://github.com/nowarp/misti/pull/202)
+
+## [0.5.0] - 2024-10-31
+
+### Added
 - `SuspiciousMessageMode` detector: PR [#193](https://github.com/nowarp/misti/pull/193)
 - `SendInLoop` detector: PR [#168](https://github.com/nowarp/misti/pull/168)
 - `CellOverflow` detector: PR [#177](https://github.com/nowarp/misti/pull/177)
 - `UnboundMap` detector: Issue [#50](https://github.com/nowarp/misti/issues/50)
 - `UnusedExpressionResult` detector: PR [#190](https://github.com/nowarp/misti/pull/190)
+- Warning suppressions: PR [#203](https://github.com/nowarp/misti/pull/203)
 - `--list-detectors` CLI option: PR [#192](https://github.com/nowarp/misti/pull/192)
 - Import Graph: PR [#180](https://github.com/nowarp/misti/pull/180)
 - Leverage `ImportGraph` to resolve entry points: PR [#194](https://github.com/nowarp/misti/pull/194)

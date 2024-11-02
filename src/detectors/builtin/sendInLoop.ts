@@ -1,5 +1,9 @@
 import { CompilationUnit } from "../../internals/ir";
-import { foldStatements, foldExpressions, isSelf } from "../../internals/tact";
+import {
+  forEachStatement,
+  foldExpressions,
+  isSelf,
+} from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import {
@@ -38,18 +42,16 @@ export class SendInLoop extends ASTDetector {
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const processedLoopIds = new Set<number>();
-    return Array.from(cu.ast.getProgramEntries()).reduce((acc, node) => {
-      return acc.concat(
-        ...foldStatements(
-          node,
-          (acc, stmt) => {
-            return acc.concat(this.analyzeStatement(stmt, processedLoopIds));
-          },
-          acc,
-          { flatStmts: true },
-        ),
-      );
-    }, [] as MistiTactWarning[]);
+    const allWarnings: MistiTactWarning[] = [];
+
+    Array.from(cu.ast.getProgramEntries()).forEach((node) => {
+      forEachStatement(node, (stmt) => {
+        const warnings = this.analyzeStatement(stmt, processedLoopIds);
+        allWarnings.push(...warnings);
+      });
+    });
+
+    return allWarnings;
   }
 
   private analyzeStatement(
