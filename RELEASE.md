@@ -1,8 +1,8 @@
 # Misti Release Checklist
 
 - [ ] Release new Misti version
-  - [ ] Run: `yarn release -- --dry-run` to ensure everything works as expected
-  - [ ] Run: `yarn release --` and follow the instructions
+  - [ ] Run: `yarn release --dry-run` to ensure everything works as expected
+  - [ ] Run: `yarn release` and follow the instructions
 - [ ] Create a GitHub release
 - [ ] Prepare [documentation](https://github.com/nowarp/nowarp.github.io/):
   - [ ] Update the supported Tact version in the introduction page

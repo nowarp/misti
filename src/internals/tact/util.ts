@@ -347,3 +347,20 @@ export function collectConditions(
   }
   return conditions;
 }
+
+/**
+ * Converts SrcInfo to the string representation shown to the user.
+ */
+export function srcInfoToString(loc: SrcInfo): string {
+  const lc = loc.interval.getLineAndColumn() as {
+    lineNum: number;
+    colNum: number;
+  };
+  const lcStr = `${lc}`;
+  const lcLines = lcStr.split("\n");
+  lcLines.shift();
+  const shownPath = loc.file
+    ? path.relative(process.cwd(), loc.file) + ":"
+    : "";
+  return `${shownPath}${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
+}

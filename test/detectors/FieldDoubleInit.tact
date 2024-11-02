@@ -1,7 +1,10 @@
 contract Test1 {
-    a: Int = 0;
+    a1: Int = 0;
+    a2: Int = 0;
     init(x: Int) {
-        self.a = x; // Should be highlighted
+        self.a1 = x; // Should be highlighted
+        // @misti:suppress FieldDoubleInit
+        self.a2 = x; // OK: Suppressed
     }
 }
 
