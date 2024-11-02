@@ -76,5 +76,5 @@ test/detectors/SuspiciousMessageMode.tact:79:15:
 > 79 |         mode: 0 // Bad: Should trigger warning about `mode: 0` being redundant
                      ^
   80 |     });
-Help: Remove the `mode` field or set it to a meaningful value.
+Help: Remove the `mode` field or set it to `SendDefaultMode`.
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode

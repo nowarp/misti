@@ -79,7 +79,7 @@ export class SuspiciousMessageMode extends ASTDetector {
           expr.loc,
           {
             suggestion:
-              "Remove the `mode` field or set it to a meaningful value.",
+              "Remove the `mode` field or set it to `SendDefaultMode`.",
           },
         ),
       );
