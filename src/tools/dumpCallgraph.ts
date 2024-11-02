@@ -15,7 +15,7 @@ import JSONbig from "json-bigint";
 import * as path from "path";
 
 /**
- * Defines the options for the DumpCallGraph tool.
+ * Defines options for the `DumpCallGraph` tool.
  */
 interface DumpCallGraphOptions extends Record<string, unknown> {
   formats: Array<"dot" | "json" | "mmd">;
@@ -26,11 +26,19 @@ interface DumpCallGraphOptions extends Record<string, unknown> {
  * A tool that dumps the Call Graph (CG) of the given compilation unit in multiple formats.
  */
 export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
+  /**
+   * Creates a new instance of the `DumpCallGraph` tool.
+   * @param ctx Context in which the tool operates.
+   * @param options Options for configuring the tool.
+   */
   constructor(ctx: MistiContext, options: DumpCallGraphOptions) {
     super(ctx, options);
   }
 
-  get defaultOptions(): DumpCallGraphOptions {
+  /**
+   * Provides default options for the tool.
+   */
+  public get defaultOptions(): DumpCallGraphOptions {
     return {
       formats: ["dot", "mmd", "json"],
       outputPath: "./test/all",
@@ -38,19 +46,20 @@ export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
   }
 
   /**
-   * Executes the DumpCallGraph tool.
-   * @param cu The CompilationUnit representing the code to analyze.
-   * @returns A ToolOutput containing messages about the generated files.
+   * Executes `DumpCallGraph` tool.
+   * @param cu `CompilationUnit` representing the code to analyze.
+   * @returns A `ToolOutput` containing messages about the generated files.
    */
-  run(cu: CompilationUnit): ToolOutput | never {
+  public run(cu: CompilationUnit): ToolOutput | never {
     const callGraph = cu.callGraph;
     const outputPath = this.options.outputPath || "./test/all";
-    const baseName = cu.projectName;
+    const baseName = cu.projectName || "callgraph";
     const outputs: string[] = [];
 
     const supportedFormats = ["dot", "mmd", "json"] as const;
     type SupportedFormat = (typeof supportedFormats)[number];
 
+    // Validate requested formats
     if (
       !this.options.formats.every((format) =>
         supportedFormats.includes(format as SupportedFormat),
@@ -61,8 +70,10 @@ export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
       );
     }
 
+    // Ensure output directory exists
     fs.mkdirSync(outputPath, { recursive: true });
 
+    // Generate and save the call graph in each requested format
     this.options.formats.forEach((format) => {
       let outputData: string;
       let extension: string;
@@ -90,7 +101,9 @@ export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
         fs.writeFileSync(fullPath, outputData, "utf-8");
         outputs.push(`${extension.toUpperCase()} file saved to ${fullPath}`);
       } catch (error) {
-        outputs.push(`Failed to save ${extension} file to ${fullPath}`);
+        outputs.push(
+          `Failed to save ${extension} file to ${fullPath}: ${error}`,
+        );
       }
     });
 
@@ -98,11 +111,19 @@ export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
     return this.makeOutput(cu, combinedOutput);
   }
 
-  getDescription(): string {
+  /**
+   * Provides a description of the tool.
+   * @returns A string describing the tool.
+   */
+  public getDescription(): string {
     return "Dumps the Call Graph (CG) in multiple formats: DOT, Mermaid, and JSON.";
   }
 
-  getOptionDescriptions(): Record<keyof DumpCallGraphOptions, string> {
+  /**
+   * Provides descriptions for each option.
+   * @returns An object mapping option names to their descriptions.
+   */
+  public getOptionDescriptions(): Record<keyof DumpCallGraphOptions, string> {
     return {
       formats:
         "The output formats for the call graph dump: <dot|json|mmd>. Specify one or more formats.",
@@ -112,7 +133,15 @@ export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
   }
 }
 
+/**
+ * Utility class to dump the call graph in Mermaid format.
+ */
 class MermaidDumper {
+  /**
+   * Generates a Mermaid-formatted string representing the call graph.
+   * @param callGraph Call graph to dump.
+   * @returns A string in Mermaid format.
+   */
   public static dumpCallGraph(callGraph: CallGraph): string {
     if (!callGraph || callGraph.getNodes().size === 0) {
       return 'graph TD\n    empty["Empty Call Graph"]';
@@ -138,7 +167,15 @@ class MermaidDumper {
   }
 }
 
+/**
+ * Utility class to dump the call graph in DOT (Graphviz) format.
+ */
 class GraphvizDumper {
+  /**
+   * Generates a DOT-formatted string representing the call graph.
+   * @param callGraph Call graph to dump.
+   * @returns A string in DOT format.
+   */
   public static dumpCallGraph(callGraph: CallGraph): string {
     if (!callGraph || callGraph.getNodes().size === 0) {
       console.warn("Empty call graph or no nodes available.");
@@ -154,7 +191,7 @@ class GraphvizDumper {
       const srcNode = callGraph.getNodes().get(edge.src as CGNodeId);
       const dstNode = callGraph.getNodes().get(edge.dst as CGNodeId);
       if (srcNode && dstNode) {
-        dot += `    node_${srcNode.idx} -> node_${dstNode.idx} [label="${edge.idx}"];\n`;
+        dot += `    node_${srcNode.idx} -> node_${dstNode.idx};\n`;
       } else {
         console.warn(
           `Skipping edge due to missing nodes: ${edge.src} -> ${edge.dst}`,
@@ -166,7 +203,15 @@ class GraphvizDumper {
   }
 }
 
+/**
+ * Utility class to dump the call graph in JSON format.
+ */
 class JSONDumper {
+  /**
+   * Serializes the call graph into a JSON-formatted string.
+   * @param callGraph Call graph to dump.
+   * @returns A JSON string representing call graph.
+   */
   public static dumpCallGraph(callGraph: CallGraph): string {
     if (!callGraph) {
       return JSONbig.stringify({ nodes: [], edges: [] }, null, 2);
