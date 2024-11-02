@@ -8,10 +8,11 @@ import {
   AstStatement,
   AstExpression,
   AstOpBinary,
-  idText,
   AstStatementReturn,
   AstConditional,
+  AstOpUnary,
 } from "@tact-lang/compiler/dist/grammar/ast";
+import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
 /**
  * Detects opportunities for simplifying code by eliminating redundant boolean expressions and statements.
@@ -93,7 +94,7 @@ export class EtaLikeSimplifications extends ASTDetector {
               "Simplify 'if' statement by returning the condition directly",
               stmt.loc,
               {
-                suggestion: "Replace with 'return condition;'",
+                suggestion: `return ${prettyPrint(ifStmt.condition)};`,
               },
             ),
           );
@@ -111,14 +112,13 @@ export class EtaLikeSimplifications extends ASTDetector {
       if (binaryExpr.op === "==" || binaryExpr.op === "!=") {
         const { right } = binaryExpr;
         if (this.isBooleanLiteral(right)) {
+          const simplified = this.getSimplifiedBooleanExpression(binaryExpr);
           warnings.push(
             this.makeWarning(
               "Redundant comparison with boolean literal",
               expr.loc,
               {
-                suggestion: `Use '${this.getSimplifiedBooleanExpression(
-                  binaryExpr,
-                )}' instead`,
+                suggestion: prettyPrint(simplified),
               },
             ),
           );
@@ -136,9 +136,7 @@ export class EtaLikeSimplifications extends ASTDetector {
             "Simplify conditional expression by using the condition directly",
             expr.loc,
             {
-              suggestion: `Use '${this.getConditionText(
-                conditionalExpr.condition,
-              )}' instead`,
+              suggestion: prettyPrint(conditionalExpr.condition),
             },
           ),
         );
@@ -150,41 +148,38 @@ export class EtaLikeSimplifications extends ASTDetector {
     expr: AstExpression | null | undefined,
     value?: boolean,
   ): boolean {
-    if (!expr) return false;
+    if (expr == null) return false;
     if (value === undefined) {
       return evalToType(expr, "boolean") !== undefined;
     }
     return evalsToValue(expr, "boolean", value);
   }
 
-  private getSimplifiedBooleanExpression(binaryExpr: AstOpBinary): string {
-    const exprText = (expr: AstExpression): string => {
-      if (expr.kind === "id") {
-        return idText(expr);
-      }
-      return "expression";
-    };
-
+  private getSimplifiedBooleanExpression(
+    binaryExpr: AstOpBinary,
+  ): AstExpression {
+    const negated = binaryExpr.op === "!=";
     if (this.isBooleanLiteral(binaryExpr.right, true)) {
-      if (binaryExpr.op === "==") {
-        return exprText(binaryExpr.left);
-      } else {
-        return `!${exprText(binaryExpr.left)}`;
-      }
+      return negated
+        ? ({
+            kind: "op_unary",
+            op: "!",
+            operand: binaryExpr.left,
+            id: binaryExpr.id,
+            loc: binaryExpr.loc,
+          } as AstOpUnary)
+        : binaryExpr.left;
     } else if (this.isBooleanLiteral(binaryExpr.right, false)) {
-      if (binaryExpr.op === "==") {
-        return `!${exprText(binaryExpr.left)}`;
-      } else {
-        return exprText(binaryExpr.left);
-      }
+      return negated
+        ? binaryExpr.left
+        : ({
+            kind: "op_unary",
+            op: "!",
+            operand: binaryExpr.left,
+            id: binaryExpr.id,
+            loc: binaryExpr.loc,
+          } as AstOpUnary);
     }
-    return "expression";
-  }
-
-  private getConditionText(expr: AstExpression): string {
-    if (expr.kind === "id") {
-      return idText(expr);
-    }
-    return "condition";
+    return binaryExpr;
   }
 }
