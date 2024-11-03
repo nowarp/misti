@@ -385,6 +385,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  SuspiciousLoop: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/suspiciousLoop").then(
+        (module) => new module.SuspiciousLoop(ctx),
+      ),
+    enabledByDefault: false,
+  },
 };
 
 /**
