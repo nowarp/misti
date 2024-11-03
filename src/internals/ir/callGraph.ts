@@ -11,9 +11,8 @@ import {
   AstMethodCall,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
-// Define types for node and edge identifiers
-export type CGNodeId = number;
-export type CGEdgeId = number;
+type CGNodeId = number & { readonly brand: unique symbol };
+type CGEdgeId = number & { readonly brand: unique symbol };
 
 /**
  * Represents an edge in the call graph, indicating a call from one function to another.
@@ -30,7 +29,7 @@ export class CGEdge {
     public src: CGNodeId,
     public dst: CGNodeId,
   ) {
-    this.idx = IdxGenerator.next("cg_edge");
+    this.idx = IdxGenerator.next("cg_edge") as CGEdgeId;
   }
 }
 
@@ -44,14 +43,14 @@ export class CGNode {
 
   /**
    * Creates a new node in the call graph.
-   * @param astId The AST node ID associated with this function, if any.
-   * @param name The name of the function or method.
+   * @param astId AST node ID associated with this function, if any.
+   * @param name Name of the function or method.
    */
   constructor(
     public astId: number | undefined,
     public name: string,
   ) {
-    this.idx = IdxGenerator.next("cg_node");
+    this.idx = IdxGenerator.next("cg_node") as CGNodeId;
   }
 }
 
@@ -81,20 +80,32 @@ export class CallGraph {
 
   /**
    * Builds call graph from the provided AST store.
-   * @param astStore The AST store containing function definitions.
-   * @returns The constructed `CallGraph` instance.
+   * @param astStore AST store containing function definitions.
+   * @returns Constructed `CallGraph` instance.
    */
   public build(astStore: TactASTStore): CallGraph {
-    this.addFunctionsToNodes(astStore);
+    for (const func of astStore.getFunctions()) {
+      const funcName = this.getFunctionName(func);
+      if (funcName) {
+        const node = new CGNode(func.id, funcName);
+        this.nodeMap.set(node.idx, node);
+        this.nameToNodeId.set(funcName, node.idx);
+      } else {
+        console.warn(
+          `Function with id ${func.id} has no name and will be skipped.`,
+        );
+      }
+    }
+
     this.analyzeFunctionCalls(astStore);
     return this;
   }
 
   /**
-   * Determines whether there is a path from the source node to the destination node.
-   * @param src The source node ID.
-   * @param dst The destination node ID.
-   * @returns `true` if a path exists, `false` otherwise.
+   * Checks if there’s a path from the source node to the destination node in the call graph.
+   * @param src - The source node ID.
+   * @param dst - The destination node ID.
+   * @returns True if a path exists, false otherwise.
    */
   public areConnected(src: CGNodeId, dst: CGNodeId): boolean {
     const srcNode = this.nodeMap.get(src);
@@ -123,30 +134,18 @@ export class CallGraph {
     return false;
   }
 
-  // Adds functions from the AST store to the call graph as nodes.
-  private addFunctionsToNodes(astStore: TactASTStore) {
-    for (const func of astStore.getFunctions()) {
-      const funcName = this.getFunctionName(func);
-      if (funcName) {
-        const node = new CGNode(func.id, funcName);
-        this.nodeMap.set(node.idx, node);
-        this.nameToNodeId.set(funcName, node.idx);
-      } else {
-        console.warn(
-          `Function with id ${func.id} has no name and will be skipped.`,
-        );
-      }
-    }
-  }
-
-  // Analyzes function bodies to identify function calls and adds edges accordingly.
+  /**
+   * Analyzes function bodies to identify function calls and adds edges accordingly.
+   */
   private analyzeFunctionCalls(astStore: TactASTStore) {
     for (const func of astStore.getFunctions()) {
       const funcName = this.getFunctionName(func);
       if (funcName) {
-        const callerId = this.getNodeIdByName(funcName);
+        const callerId = this.nameToNodeId.get(funcName);
         if (callerId !== undefined) {
-          this.processFunctionBody(func, callerId);
+          forEachExpression(func, (expr) => {
+            this.processExpression(expr, callerId);
+          });
         } else {
           console.warn(`Caller function ${funcName} not found in node map.`);
         }
@@ -169,21 +168,6 @@ export class CallGraph {
         unreachable(func);
         return undefined;
     }
-  }
-
-  // Gets node ID associated with a given function name.
-  private getNodeIdByName(name: string): CGNodeId | undefined {
-    return this.nameToNodeId.get(name);
-  }
-
-  // Processes body of a function to find function calls.
-  private processFunctionBody(
-    func: AstFunctionDef | AstReceiver | AstContractInit,
-    callerId: CGNodeId,
-  ) {
-    forEachExpression(func, (expr) => {
-      this.processExpression(expr, callerId);
-    });
   }
 
   // Processes an expression to identify function calls and adds edges.
