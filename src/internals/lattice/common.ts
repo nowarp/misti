@@ -1,5 +1,6 @@
 /**
  * Interface for a join semilattice that introduces the join operation.
+ *
  * @template T The type of elements in the semilattice.
  */
 export interface JoinSemilattice<T> {
@@ -61,6 +62,7 @@ export type Semilattice<T> = JoinSemilattice<T> | MeetSemilattice<T>;
 
 /**
  * Implementation of a join semilattice for sets.
+ *
  * @template T The type of elements in the sets.
  */
 export class SetJoinSemilattice<T> implements JoinSemilattice<Set<T>> {
@@ -88,6 +90,7 @@ export class SetJoinSemilattice<T> implements JoinSemilattice<Set<T>> {
 
 /**
  * Implementation of a meet semilattice for sets.
+ *
  * @template T The type of elements in the sets.
  */
 export class SetMeetSemilattice<T> implements MeetSemilattice<Set<T>> {
