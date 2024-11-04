@@ -3,14 +3,14 @@ import { Num, NumImpl } from "./num";
 export type Interval = [NumImpl, NumImpl];
 
 /**
- * Infinite-length lattice representing interval of numbers.
+ * Infinite-length join semilattice lattice representing interval of numbers.
  */
-export class IntervalLattice {
+export class IntervalJoinSemiLattice {
   static FullInterval: Interval = [Num.m(), Num.p()];
   static EmptyInterval: Interval = [Num.p(), Num.m()];
 
-  static bottom: Interval = IntervalLattice.EmptyInterval;
-  static top: Interval = IntervalLattice.FullInterval;
+  static bottom: Interval = IntervalJoinSemiLattice.EmptyInterval;
+  static top: Interval = IntervalJoinSemiLattice.FullInterval;
 
   /**
    * Number as interval.
@@ -21,19 +21,19 @@ export class IntervalLattice {
   }
 
   /**
-   * Least upper bound (lub) of two intervals.
+   * Joins two elements, returning the least upper bound (lub) of the two intervals.
    */
-  static lub(x: Interval, y: Interval): Interval {
+  static join(x: Interval, y: Interval): Interval {
     if (
-      IntervalLattice.isFullInterval(x) ||
-      IntervalLattice.isFullInterval(y)
+      IntervalJoinSemiLattice.isFullInterval(x) ||
+      IntervalJoinSemiLattice.isFullInterval(y)
     ) {
-      return IntervalLattice.FullInterval;
+      return IntervalJoinSemiLattice.FullInterval;
     }
-    if (IntervalLattice.isEmptyInterval(x)) {
+    if (IntervalJoinSemiLattice.isEmptyInterval(x)) {
       return y;
     }
-    if (IntervalLattice.isEmptyInterval(y)) {
+    if (IntervalJoinSemiLattice.isEmptyInterval(y)) {
       return x;
     }
     const lower = Num.min(x[0], y[0]);
@@ -77,7 +77,7 @@ export class IntervalLattice {
    * Abstract binary `-` on intervals.
    */
   static minus(a: Interval, b: Interval): Interval {
-    return IntervalLattice.plus(a, IntervalLattice.inv(b));
+    return IntervalJoinSemiLattice.plus(a, IntervalJoinSemiLattice.inv(b));
   }
 
   /**
@@ -99,7 +99,7 @@ export class IntervalLattice {
    * Abstract `/` on intervals.
    */
   static div(a: Interval, b: Interval): Interval {
-    if (IntervalLattice.containsZero(b)) {
+    if (IntervalJoinSemiLattice.containsZero(b)) {
       throw new Error("Division by interval containing zero");
     }
     const quotients = [
@@ -128,10 +128,10 @@ export class IntervalLattice {
    */
   static eq(a: Interval, b: Interval): Interval {
     if (
-      IntervalLattice.isFullInterval(a) ||
-      IntervalLattice.isFullInterval(b)
+      IntervalJoinSemiLattice.isFullInterval(a) ||
+      IntervalJoinSemiLattice.isFullInterval(b)
     ) {
-      return IntervalLattice.FullInterval;
+      return IntervalJoinSemiLattice.FullInterval;
     }
     if (
       a[0].kind === "IntNum" &&
@@ -140,7 +140,7 @@ export class IntervalLattice {
       b[0] === b[1] &&
       a[0].value === b[0].value
     ) {
-      return IntervalLattice.num(1);
+      return IntervalJoinSemiLattice.num(1);
     }
     return [Num.int(0), Num.int(1)];
   }
@@ -150,23 +150,23 @@ export class IntervalLattice {
    */
   static gt(a: Interval, b: Interval): Interval {
     if (
-      IntervalLattice.isFullInterval(a) ||
-      IntervalLattice.isFullInterval(b)
+      IntervalJoinSemiLattice.isFullInterval(a) ||
+      IntervalJoinSemiLattice.isFullInterval(b)
     ) {
-      return IntervalLattice.FullInterval;
+      return IntervalJoinSemiLattice.FullInterval;
     }
     if (Num.compare(a[1], b[0]) < 0) {
-      return IntervalLattice.num(1);
+      return IntervalJoinSemiLattice.num(1);
     }
     if (Num.compare(a[0], b[1]) > 0) {
-      return IntervalLattice.num(0);
+      return IntervalJoinSemiLattice.num(0);
     }
     return [Num.int(0), Num.int(1)];
   }
 
   static widen(a: Interval, b: Interval): Interval {
-    const lower = IntervalLattice.widenNum(a[0], b[0], true);
-    const upper = IntervalLattice.widenNum(a[1], b[1], false);
+    const lower = IntervalJoinSemiLattice.widenNum(a[0], b[0], true);
+    const upper = IntervalJoinSemiLattice.widenNum(a[1], b[1], false);
     return [lower, upper];
   }
 
