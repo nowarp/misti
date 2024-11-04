@@ -104,17 +104,10 @@ export abstract class Detector {
       suggestion: string;
     }> = {},
   ): MistiTactWarning {
-    return MistiTactWarning.make(
-      this.ctx,
-      this.id,
-      description,
-      this.severity,
-      loc,
-      {
-        ...data,
-        docURL: hasBuiltInDetector(this.id) ? makeDocURL(this.id) : undefined,
-      },
-    );
+    return MistiTactWarning.make(this.id, description, this.severity, loc, {
+      ...data,
+      docURL: hasBuiltInDetector(this.id) ? makeDocURL(this.id) : undefined,
+    });
   }
 }
 
@@ -382,6 +375,20 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
     loader: (ctx: MistiContext) =>
       import("./builtin/suspiciousMessageMode").then(
         (module) => new module.SuspiciousMessageMode(ctx),
+      ),
+    enabledByDefault: true,
+  },
+  ShortCircuitCondition: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/shortCircuitCondition").then(
+        (module) => new module.ShortCircuitCondition(ctx),
+      ),
+    enabledByDefault: true,
+  },
+  EtaLikeSimplifications: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/etaLikeSimplifications").then(
+        (module) => new module.EtaLikeSimplifications(ctx),
       ),
     enabledByDefault: true,
   },
