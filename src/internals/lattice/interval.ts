@@ -3,7 +3,8 @@ import { Num, NumImpl } from "./num";
 export type Interval = [NumImpl, NumImpl];
 
 /**
- * Infinite-length join semilattice lattice representing interval of numbers.
+ * Infinite-length join semilattice lattice representing interval of numbers
+ * with abstract interpretation operations over intervals.
  */
 export class IntervalJoinSemiLattice {
   static FullInterval: Interval = [Num.m(), Num.p()];
@@ -21,7 +22,8 @@ export class IntervalJoinSemiLattice {
   }
 
   /**
-   * Joins two elements, returning the least upper bound (lub) of the two intervals.
+   * Joins two elements, returning the least upper bound (lub) of the two
+   * intervals.
    */
   static join(x: Interval, y: Interval): Interval {
     if (
