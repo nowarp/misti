@@ -9,7 +9,6 @@ import {
   AstExpression,
   AstOpBinary,
   AstStatementReturn,
-  AstConditional,
   AstOpUnary,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
@@ -126,17 +125,16 @@ export class EtaLikeSimplifications extends ASTDetector {
       }
     }
     if (expr.kind === "conditional") {
-      const conditionalExpr = expr as AstConditional;
       if (
-        this.isBooleanLiteral(conditionalExpr.thenBranch, true) &&
-        this.isBooleanLiteral(conditionalExpr.elseBranch, false)
+        this.isBooleanLiteral(expr.thenBranch, true) &&
+        this.isBooleanLiteral(expr.elseBranch, false)
       ) {
         warnings.push(
           this.makeWarning(
             "Simplify conditional expression by using the condition directly",
             expr.loc,
             {
-              suggestion: prettyPrint(conditionalExpr.condition),
+              suggestion: prettyPrint(expr.condition),
             },
           ),
         );
@@ -145,7 +143,7 @@ export class EtaLikeSimplifications extends ASTDetector {
   }
 
   private isBooleanLiteral(
-    expr: AstExpression | null | undefined,
+    expr: AstExpression | null,
     value?: boolean,
   ): boolean {
     if (expr == null) return false;
