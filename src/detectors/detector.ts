@@ -385,6 +385,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  EtaLikeSimplifications: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/etaLikeSimplifications").then(
+        (module) => new module.EtaLikeSimplifications(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**
