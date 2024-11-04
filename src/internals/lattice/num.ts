@@ -1,8 +1,8 @@
 /**
  * Numbers that could include positive and negative infinitiy.
  *
- * We use these instead of `number` to distinguish infinities, since in Node.js
- * positive and negative infinities are numbers as well.
+ * We use these instead of `bigint` to distinguish infinities.
+ * positive and negative infinities.
  *
  * @packageDocumentation
  */
@@ -13,7 +13,7 @@ export type NumImpl = IntNum | PInf | MInf;
 
 export interface IntNum {
   kind: "IntNum";
-  value: number;
+  value: bigint;
 }
 
 /**
@@ -39,7 +39,7 @@ export class Num {
    * @param value The numeric value to wrap
    * @returns An IntNum object
    */
-  static int(value: number): IntNum {
+  static int(value: bigint): IntNum {
     return { kind: "IntNum", value };
   }
 
@@ -89,15 +89,15 @@ export class Num {
    * - zero if a = b
    * - positive if a > b
    */
-  static compare(a: NumImpl, b: NumImpl): number {
+  static compare(a: NumImpl, b: NumImpl): bigint {
     if (a.kind === "IntNum" && b.kind === "IntNum") {
       return a.value - b.value;
     } else if (a.kind === b.kind) {
-      return 0;
+      return 0n;
     } else if (a.kind === "MInf" || b.kind === "PInf") {
-      return -1;
+      return -1n;
     } else {
-      return 1;
+      return 1n;
     }
   }
 
@@ -118,7 +118,7 @@ export class Num {
   }
 
   static isZero(n: NumImpl): boolean {
-    return n.kind === "IntNum" && n.value === 0;
+    return n.kind === "IntNum" && n.value === 0n;
   }
 
   static divide(a: NumImpl, b: NumImpl): NumImpl {
@@ -130,7 +130,7 @@ export class Num {
     }
     if (a.kind === "IntNum") {
       if (b.kind === "PInf" || b.kind === "MInf") {
-        return this.int(0);
+        return this.int(0n);
       }
     }
     if (b.kind === "IntNum") {
@@ -148,13 +148,13 @@ export class Num {
       }
     }
     if (a.kind === b.kind) {
-      return this.int(1);
+      return this.int(1n);
     }
     if (
       (a.kind === "PInf" && b.kind === "MInf") ||
       (a.kind === "MInf" && b.kind === "PInf")
     ) {
-      return this.int(-1);
+      return this.int(-1n);
     }
     throw InternalException.make("Invalid NumImpl types for division");
   }
@@ -164,7 +164,7 @@ export class Num {
       return this.int(a.value * b.value);
     }
     if (this.isZero(a) || this.isZero(b)) {
-      return this.int(0);
+      return this.int(0n);
     }
     if (
       (a.kind === "PInf" || a.kind === "MInf") &&
@@ -189,8 +189,8 @@ export class Num {
       ) {
         return this.m();
       }
-      if (a.value === 0) {
-        return this.int(0);
+      if (a.value === 0n) {
+        return this.int(0n);
       }
     }
     if (b.kind === "IntNum") {

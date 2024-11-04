@@ -16,7 +16,7 @@ export class IntervalJoinSemiLattice {
   /**
    * Number as interval.
    */
-  static num(i: number): Interval {
+  static num(i: bigint): Interval {
     const n = Num.int(i);
     return [n, n];
   }
