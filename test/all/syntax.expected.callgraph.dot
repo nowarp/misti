@@ -1,3 +1,33 @@
-CALLGRAPH.DOT file saved to test/all/syntax.callgraph.dot
-CALLGRAPH.MMD file saved to test/all/syntax.callgraph.mmd
-CALLGRAPH.JSON file saved to test/all/syntax.callgraph.json
+digraph "CallGraph" {
+    node [shape=box];
+    node_1 [label="test_try"];
+    node_2 [label="test_loops"];
+    node_3 [label="reply"];
+    node_4 [label="notify"];
+    node_5 [label="forward"];
+    node_6 [label="getter"];
+    node_7 [label="getter"];
+    node_8 [label="test"];
+    node_9 [label="getA"];
+    node_10 [label="test"];
+    node_11 [label="receiver_1722"];
+    node_12 [label="dump"];
+    node_13 [label="emptyMap"];
+    node_14 [label="sender"];
+    node_15 [label="context"];
+    node_16 [label="myBalance"];
+    node_17 [label="nativeReserve"];
+    node_18 [label="send"];
+    node_1 -> node_12;
+    node_2 -> node_13;
+    node_3 -> node_5;
+    node_3 -> node_14;
+    node_4 -> node_5;
+    node_4 -> node_14;
+    node_5 -> node_15;
+    node_5 -> node_16;
+    node_5 -> node_17;
+    node_5 -> node_18;
+    node_5 -> node_18;
+    node_10 -> node_9;
+}

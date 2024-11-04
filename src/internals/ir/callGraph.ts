@@ -1,14 +1,16 @@
 import { unreachable } from "../util";
 import { TactASTStore } from "./astStore";
 import { IdxGenerator } from "./indices";
+import { MistiContext } from "../../";
+import { Logger } from "../../internals/logger";
 import { forEachExpression } from "../tact/iterators";
 import {
   AstFunctionDef,
   AstReceiver,
   AstContractInit,
   AstExpression,
-  AstStaticCall,
   AstMethodCall,
+  AstStaticCall,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
 type CGNodeId = number & { readonly brand: unique symbol };
@@ -17,14 +19,9 @@ type CGEdgeId = number & { readonly brand: unique symbol };
 /**
  * Represents an edge in the call graph, indicating a call from one function to another.
  */
-export class CGEdge {
+class CGEdge {
   public idx: CGEdgeId;
 
-  /**
-   * Creates a new edge in the call graph.
-   * @param src The source node ID (caller function).
-   * @param dst The destination node ID (callee function).
-   */
   constructor(
     public src: CGNodeId,
     public dst: CGNodeId,
@@ -36,16 +33,11 @@ export class CGEdge {
 /**
  * Represents a node in the call graph, corresponding to a function or method.
  */
-export class CGNode {
+class CGNode {
   public idx: CGNodeId;
   public inEdges: Set<CGEdgeId> = new Set();
   public outEdges: Set<CGEdgeId> = new Set();
 
-  /**
-   * Creates a new node in the call graph.
-   * @param astId AST node ID associated with this function, if any.
-   * @param name Name of the function or method.
-   */
   constructor(
     public astId: number | undefined,
     public name: string,
@@ -54,35 +46,24 @@ export class CGNode {
   }
 }
 
-/**
- * Represents call graph, managing nodes (functions) and edges (calls).
- */
 export class CallGraph {
   private nodeMap: Map<CGNodeId, CGNode> = new Map();
   private edgesMap: Map<CGEdgeId, CGEdge> = new Map();
   private nameToNodeId: Map<string, CGNodeId> = new Map();
+  private logger: Logger;
 
-  /**
-   * Retrieves all nodes in the call graph.
-   * @returns A map of node IDs to `CGNode` instances.
-   */
+  constructor(private ctx: MistiContext) {
+    this.logger = ctx.logger;
+  }
+
   public getNodes(): Map<CGNodeId, CGNode> {
     return this.nodeMap;
   }
 
-  /**
-   * Retrieves all edges in the call graph.
-   * @returns A map of edge IDs to `CGEdge` instances.
-   */
   public getEdges(): Map<CGEdgeId, CGEdge> {
     return this.edgesMap;
   }
 
-  /**
-   * Builds call graph from the provided AST store.
-   * @param astStore AST store containing function definitions.
-   * @returns Constructed `CallGraph` instance.
-   */
   public build(astStore: TactASTStore): CallGraph {
     for (const func of astStore.getFunctions()) {
       const funcName = this.getFunctionName(func);
@@ -91,22 +72,15 @@ export class CallGraph {
         this.nodeMap.set(node.idx, node);
         this.nameToNodeId.set(funcName, node.idx);
       } else {
-        console.warn(
+        this.logger.error(
           `Function with id ${func.id} has no name and will be skipped.`,
         );
       }
     }
-
     this.analyzeFunctionCalls(astStore);
     return this;
   }
 
-  /**
-   * Checks if there’s a path from the source node to the destination node in the call graph.
-   * @param src - The source node ID.
-   * @param dst - The destination node ID.
-   * @returns True if a path exists, false otherwise.
-   */
   public areConnected(src: CGNodeId, dst: CGNodeId): boolean {
     const srcNode = this.nodeMap.get(src);
     const dstNode = this.nodeMap.get(dst);
@@ -134,26 +108,24 @@ export class CallGraph {
     return false;
   }
 
-  /**
-   * Analyzes function bodies to identify function calls and adds edges accordingly.
-   */
   private analyzeFunctionCalls(astStore: TactASTStore) {
     for (const func of astStore.getFunctions()) {
       const funcName = this.getFunctionName(func);
       if (funcName) {
         const callerId = this.nameToNodeId.get(funcName);
         if (callerId !== undefined) {
-          forEachExpression(func, (expr) => {
-            this.processExpression(expr, callerId);
-          });
+          forEachExpression(func, (expr) =>
+            this.processExpression(expr, callerId),
+          );
         } else {
-          console.warn(`Caller function ${funcName} not found in node map.`);
+          this.logger.warn(
+            `Caller function ${funcName} not found in node map.`,
+          );
         }
       }
     }
   }
 
-  // Retrieves function name based on its kind.
   private getFunctionName(
     func: AstFunctionDef | AstReceiver | AstContractInit,
   ): string | undefined {
@@ -170,7 +142,6 @@ export class CallGraph {
     }
   }
 
-  // Processes an expression to identify function calls and adds edges.
   private processExpression(expr: AstExpression, callerId: CGNodeId) {
     if (expr.kind === "static_call") {
       const staticCall = expr as AstStaticCall;
@@ -179,7 +150,7 @@ export class CallGraph {
         const calleeId = this.findOrAddFunction(functionName);
         this.addEdge(callerId, calleeId);
       } else {
-        console.warn(
+        this.logger.warn(
           `Static call expression missing function name at caller ${callerId}`,
         );
       }
@@ -190,27 +161,24 @@ export class CallGraph {
         const calleeId = this.findOrAddFunction(methodName);
         this.addEdge(callerId, calleeId);
       } else {
-        console.warn(
+        this.logger.warn(
           `Method call expression missing method name at caller ${callerId}`,
         );
       }
     }
   }
 
-  // Finds an existing function node by name or adds a new one if it doesn't exist.
   private findOrAddFunction(name: string): CGNodeId {
     const nodeId = this.nameToNodeId.get(name);
     if (nodeId !== undefined) {
       return nodeId;
     }
-
     const newNode = new CGNode(undefined, name);
     this.nodeMap.set(newNode.idx, newNode);
     this.nameToNodeId.set(name, newNode.idx);
     return newNode.idx;
   }
 
-  // Adds an edge between two nodes in the call graph.
   private addEdge(src: CGNodeId, dst: CGNodeId) {
     const srcNode = this.nodeMap.get(src);
     const dstNode = this.nodeMap.get(dst);
@@ -220,7 +188,9 @@ export class CallGraph {
       srcNode.outEdges.add(edge.idx);
       dstNode.inEdges.add(edge.idx);
     } else {
-      console.warn(`Cannot add edge from ${src} to ${dst}: node(s) not found.`);
+      this.logger.warn(
+        `Cannot add edge from ${src} to ${dst}: node(s) not found.`,
+      );
     }
   }
 }

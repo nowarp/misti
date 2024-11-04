@@ -1,3 +1,118 @@
-CALLGRAPH.DOT file saved to test/all/sample-jetton.callgraph.dot
-CALLGRAPH.MMD file saved to test/all/sample-jetton.callgraph.mmd
-CALLGRAPH.JSON file saved to test/all/sample-jetton.callgraph.json
+graph TD
+    node_1["reply"]
+    node_2["notify"]
+    node_3["forward"]
+    node_4["requireOwner"]
+    node_5["owner"]
+    node_6["receiver_1734"]
+    node_7["contract_init_1817"]
+    node_8["receiver_1857"]
+    node_9["receiver_1882"]
+    node_10["receiver_1905"]
+    node_11["receiver_1939"]
+    node_12["receiver_2000"]
+    node_13["mint"]
+    node_14["requireWallet"]
+    node_15["getJettonWalletInit"]
+    node_16["get_jetton_data"]
+    node_17["get_wallet_address"]
+    node_18["contract_init_2359"]
+    node_19["receiver_2517"]
+    node_20["receiver_2687"]
+    node_21["msgValue"]
+    node_22["receiver_2832"]
+    node_23["receiver_2876"]
+    node_24["get_wallet_data"]
+    node_25["sender"]
+    node_26["context"]
+    node_27["myBalance"]
+    node_28["nativeReserve"]
+    node_29["send"]
+    node_30["nativeThrowUnless"]
+    node_31["toCell"]
+    node_32["require"]
+    node_33["contractAddress"]
+    node_34["myAddress"]
+    node_35["emptySlice"]
+    node_36["readForwardFee"]
+    node_37["min"]
+    node_38["ton"]
+    node_39["loadUint"]
+    node_40["loadCoins"]
+    node_1 --> node_3
+    node_1 --> node_25
+    node_2 --> node_3
+    node_2 --> node_25
+    node_3 --> node_26
+    node_3 --> node_27
+    node_3 --> node_28
+    node_3 --> node_29
+    node_3 --> node_29
+    node_4 --> node_30
+    node_4 --> node_25
+    node_6 --> node_4
+    node_6 --> node_1
+    node_6 --> node_31
+    node_8 --> node_26
+    node_8 --> node_32
+    node_8 --> node_32
+    node_8 --> node_13
+    node_9 --> node_26
+    node_9 --> node_32
+    node_9 --> node_13
+    node_10 --> node_26
+    node_10 --> node_32
+    node_11 --> node_4
+    node_12 --> node_14
+    node_12 --> node_29
+    node_12 --> node_31
+    node_13 --> node_32
+    node_13 --> node_15
+    node_13 --> node_29
+    node_13 --> node_33
+    node_13 --> node_31
+    node_13 --> node_34
+    node_13 --> node_35
+    node_14 --> node_26
+    node_14 --> node_15
+    node_14 --> node_32
+    node_14 --> node_33
+    node_15 --> node_34
+    node_16 --> node_15
+    node_16 --> node_34
+    node_17 --> node_15
+    node_17 --> node_33
+    node_19 --> node_26
+    node_19 --> node_32
+    node_19 --> node_36
+    node_19 --> node_36
+    node_19 --> node_32
+    node_19 --> node_37
+    node_19 --> node_38
+    node_19 --> node_32
+    node_19 --> node_33
+    node_19 --> node_29
+    node_19 --> node_31
+    node_20 --> node_26
+    node_20 --> node_32
+    node_20 --> node_33
+    node_20 --> node_32
+    node_20 --> node_29
+    node_20 --> node_31
+    node_20 --> node_21
+    node_20 --> node_36
+    node_20 --> node_29
+    node_20 --> node_31
+    node_21 --> node_27
+    node_21 --> node_37
+    node_22 --> node_26
+    node_22 --> node_32
+    node_22 --> node_32
+    node_22 --> node_36
+    node_22 --> node_32
+    node_22 --> node_29
+    node_22 --> node_31
+    node_23 --> node_39
+    node_23 --> node_39
+    node_23 --> node_40
+    node_23 --> node_32
