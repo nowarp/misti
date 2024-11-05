@@ -9,7 +9,7 @@ import {
   getSuccessors,
 } from "../ir";
 import { Semilattice, JoinSemilattice, MeetSemilattice } from "../lattice";
-import { Num, Interval, IntervalLattice } from "../lattice/";
+import { Num, Interval, IntervalJoinSemiLattice } from "../lattice/";
 import { Transfer } from "../transfer";
 
 /**
@@ -243,7 +243,7 @@ export class WideningWorklistSolver<
    */
   private applyWidening(oldState: State, newState: State): State {
     if (this.isIntervalState(oldState) && this.isIntervalState(newState)) {
-      const widenedState = IntervalLattice.widen(
+      const widenedState = IntervalJoinSemiLattice.widen(
         oldState as Interval,
         newState as Interval,
       );
