@@ -185,3 +185,20 @@ export class IntervalJoinSemiLattice {
     }
   }
 }
+
+/**
+ * Converts the interval to a string representation
+ */
+export function intervalToString(interval: Interval): string {
+  if (IntervalJoinSemiLattice.isFullInterval(interval)) {
+    return "(-∞, +∞)";
+  }
+  if (IntervalJoinSemiLattice.isEmptyInterval(interval)) {
+    return "∅";
+  }
+  const [low, high] = interval;
+  if (Num.compare(low, high) === 0n) {
+    return Num.toString(low);
+  }
+  return `(${Num.toString(low)}, ${Num.toString(high)})`;
+}

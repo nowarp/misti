@@ -220,9 +220,9 @@ export class Num {
     if (n.kind === "IntNum") {
       return n.value.toString();
     } else if (n.kind === "PInf") {
-      return "+inf";
+      return "+∞";
     } else if (n.kind === "MInf") {
-      return "-inf";
+      return "-∞";
     } else {
       return "unknown";
     }
