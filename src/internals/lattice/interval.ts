@@ -16,7 +16,7 @@ export class IntervalJoinSemiLattice {
   /**
    * Number as interval.
    */
-  static num(i: bigint): Interval {
+  static num(i: bigint | number): Interval {
     const n = Num.int(i);
     return [n, n];
   }
@@ -173,7 +173,7 @@ export class IntervalJoinSemiLattice {
   }
 
   static widenNum(a: NumImpl, b: NumImpl, isLower: boolean): NumImpl {
-    if (Num.compare(a, b) === 0) {
+    if (Num.compare(a, b) === 0n) {
       return a;
     }
     if (isLower) {

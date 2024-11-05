@@ -39,8 +39,9 @@ export class Num {
    * @param value The numeric value to wrap
    * @returns An IntNum object
    */
-  static int(value: bigint): IntNum {
-    return { kind: "IntNum", value };
+  static int(value: bigint | number): IntNum {
+    const bigIntValue = typeof value === "number" ? BigInt(value) : value;
+    return { kind: "IntNum", value: bigIntValue };
   }
 
   /**
