@@ -108,7 +108,7 @@ export class CallGraph {
    * Determines if there exists a path in the call graph from the source node to the destination node.
    * This method performs a breadth-first search to find if the destination node is reachable from the source node.
    *
-   * @param src - The ID of the source node to start the search from
+   * @param src The ID of the source node to start the search from
    * @param dst The ID of the destination node to search for
    * @returns true if there exists a path from src to dst in the call graph, false otherwise
    *          Returns false if either src or dst node IDs are not found in the graph
