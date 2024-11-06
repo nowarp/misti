@@ -215,7 +215,7 @@ export class CallGraph {
 
   /**
    * Finds or adds a function to the call graph by name.
-   * @param name - The name of the function to find or add.
+   * @param name The name of the function to find or add.
    * @returns The ID of the found or added function node.
    */
   private findOrAddFunction(name: string): CGNodeId {
