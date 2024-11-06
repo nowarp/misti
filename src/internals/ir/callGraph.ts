@@ -39,7 +39,7 @@ class CGNode {
   public outEdges: Set<CGEdgeId> = new Set();
 
   /**
-   * `astId` might be `undefined` if this node doesn’t have a corresponding AST entry,
+   * @param astId AST id of the relevant function definition. It might be `undefined` if this node doesn’t have a corresponding AST entry,
    * which indicates an issue in Misti.
    */
   constructor(
