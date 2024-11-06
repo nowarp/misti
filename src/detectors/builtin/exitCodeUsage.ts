@@ -63,7 +63,7 @@ export class ExitCodeLattice implements JoinSemilattice<VariableState> {
 export class ExitCodeTransfer implements Transfer<VariableState> {
   transfer(
     inState: VariableState,
-    bb: BasicBlock,
+    _bb: BasicBlock,
     stmt: AstStatement,
   ): VariableState {
     const outState = new Map(inState);

@@ -9,7 +9,7 @@
 
          // Bad
          let code2: Int = 256;
-         code2 -= 10;
+         code2 = code2 - 10;
          nativeThrowUnless(code2, sender() == self.owner);
 
          // OK: No false positive
