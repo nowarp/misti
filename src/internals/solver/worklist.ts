@@ -73,12 +73,11 @@ export abstract class AbstractWorklistSolver<State> implements Solver<State> {
    */
   public findFixpoint(): SolverResults<State> {
     const results = new SolverResults<State>();
+    const iterationCounts: Map<number, number> = new Map();
     const worklist: BasicBlock[] = [...this.cfg.nodes];
 
-    const iterationCounts: Map<number, number> = new Map();
-
-    // Initialize all node states
-    this.cfg.nodes.forEach((bb) => {
+    // Initialize all basic block states
+    worklist.forEach((bb) => {
       if (this.isJoinSemilattice(this.lattice)) {
         results.setState(bb.idx, this.lattice.bottom());
       } else if (this.isMeetSemilattice(this.lattice)) {
@@ -90,7 +89,7 @@ export abstract class AbstractWorklistSolver<State> implements Solver<State> {
     });
 
     while (worklist.length > 0) {
-      const bb = worklist.pop()!;
+      const bb = worklist.shift()!;
       const neighbors =
         this.kind === "forward"
           ? getPredecessors(this.cfg, bb)
