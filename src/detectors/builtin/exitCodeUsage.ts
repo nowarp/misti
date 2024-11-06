@@ -22,11 +22,11 @@ import {
   AstNumber,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
-export type Variable = string & { readonly __brand: unique symbol };
+type Variable = string & { readonly __brand: unique symbol };
 
-export type VariableState = Map<Variable, Interval>;
+type VariableState = Map<Variable, Interval>;
 
-export class ExitCodeLattice implements JoinSemilattice<VariableState> {
+class ExitCodeLattice implements JoinSemilattice<VariableState> {
   bottom(): VariableState {
     return new Map();
   }
@@ -60,7 +60,7 @@ export class ExitCodeLattice implements JoinSemilattice<VariableState> {
   }
 }
 
-export class ExitCodeTransfer implements Transfer<VariableState> {
+class ExitCodeTransfer implements Transfer<VariableState> {
   transfer(
     inState: VariableState,
     _bb: BasicBlock,
