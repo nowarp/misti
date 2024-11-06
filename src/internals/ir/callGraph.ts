@@ -162,7 +162,7 @@ export class CallGraph {
 
   /**
    * Extracts the function name based on its type.
-   * @param func - The function definition, receiver, or contract initializer.
+   * @param func The function definition, receiver, or contract initializer.
    * @returns The function name if available; otherwise, `undefined`.
    */
   private getFunctionName(
