@@ -5,6 +5,7 @@
  */
 import { CFGIdx, ContractName, FunctionName, ProjectName } from ".";
 import { TactASTStore } from "./astStore";
+import { CallGraph } from "./callGraph";
 import { BasicBlock, CFG } from "./cfg";
 import { ImportGraph } from "./imports";
 import { IdxGenerator } from "./indices";
@@ -31,6 +32,7 @@ export class CompilationUnit {
     public imports: ImportGraph,
     public functions: Map<CFGIdx, CFG>,
     public contracts: Map<ContractIdx, Contract>,
+    public callGraph: CallGraph,
   ) {}
 
   /**
