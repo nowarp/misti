@@ -183,7 +183,7 @@ export class CallGraph {
   /**
    * Processes an expression, identifying static and method calls to add edges.
    * @param expr The AST expression to process.
-   * @param callerId - The ID of the calling node.
+   * @param callerId The ID of the calling node.
    */
   private processExpression(expr: AstExpression, callerId: CGNodeId) {
     if (expr.kind === "static_call") {
