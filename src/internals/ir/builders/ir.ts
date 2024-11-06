@@ -61,7 +61,7 @@ export class TactCallGraphBuilder {
    * @param astStore The TactASTStore containing AST nodes and function definitions.
    * @returns A CallGraph instance built from the AST nodes.
    */
-  static buildCallGraph(ctx: MistiContext, astStore: TactASTStore): CallGraph {
+  static make(ctx: MistiContext, astStore: TactASTStore): CallGraph {
     const callGraph = new CallGraph(ctx);
     return callGraph.build(astStore);
   }
@@ -112,7 +112,7 @@ export class TactIRBuilder {
     const functions = this.createFunctions();
     const contracts = this.createContracts();
     const tactASTStore = TactASTStoreBuilder.make(this.ctx, this.ast).build();
-    const callGraph = TactCallGraphBuilder.buildCallGraph(
+    const callGraph = TactCallGraphBuilder.make(
       this.ctx,
       tactASTStore,
     );
