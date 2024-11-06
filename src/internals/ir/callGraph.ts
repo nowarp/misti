@@ -242,7 +242,6 @@ export class CallGraph {
       this.edgesMap.set(edge.idx, edge);
       srcNode.outEdges.add(edge.idx);
       dstNode.inEdges.add(edge.idx);
-      this.logger.debug(`Created edge from ${src} to ${dst}`);
     } else {
       this.logger.warn(
         `Cannot add edge from ${src} to ${dst}: node(s) not found.`,
