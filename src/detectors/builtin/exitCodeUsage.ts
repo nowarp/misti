@@ -8,6 +8,7 @@ import {
   intervalToString,
 } from "../../internals/lattice";
 import { WideningWorklistSolver } from "../../internals/solver";
+import { findInExpressions } from "../../internals/tact/iterators";
 import { Transfer } from "../../internals/transfer";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";
@@ -20,7 +21,6 @@ import {
   AstStatementLet,
   AstNumber,
 } from "@tact-lang/compiler/dist/grammar/ast";
-import { findInExpressions } from "../../internals/tact/iterators";
 
 export type Variable = string & { readonly __brand: unique symbol };
 
