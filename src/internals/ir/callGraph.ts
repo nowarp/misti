@@ -142,7 +142,7 @@ export class CallGraph {
 
   /**
    * Analyzes function calls in the AST store and adds corresponding edges in the call graph.
-   * @param astStore - The AST store to analyze for function calls.
+   * @param astStore The AST store to analyze for function calls.
    */
   private analyzeFunctionCalls(astStore: TactASTStore) {
     for (const func of astStore.getFunctions()) {
