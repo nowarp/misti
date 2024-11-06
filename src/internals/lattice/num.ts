@@ -1,5 +1,5 @@
 /**
- * Numbers that could include positive and negative infinitiy.
+ * Numbers that could include positive and negative infinity.
  *
  * We use these instead of `bigint` to distinguish infinities.
  * positive and negative infinities.
@@ -17,14 +17,14 @@ export interface IntNum {
 }
 
 /**
- * Positive infinitiy.
+ * Positive infinity.
  */
 export interface PInf {
   kind: "PInf";
 }
 
 /**
- * Negative infinitiy.
+ * Negative infinity.
  */
 export interface MInf {
   kind: "MInf";
