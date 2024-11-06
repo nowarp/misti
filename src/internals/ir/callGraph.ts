@@ -232,7 +232,7 @@ export class CallGraph {
   /**
    * Adds an edge between two nodes in the call graph.
    * @param src - The source node ID.
-   * @param dst - The destination node ID.
+   * @param dst The destination node ID.
    */
   private addEdge(src: CGNodeId, dst: CGNodeId) {
     const srcNode = this.nodeMap.get(src);
