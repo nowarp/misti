@@ -49,9 +49,7 @@ class CGNode {
   ) {
     this.idx = IdxGenerator.next("cg_node") as CGNodeId;
     if (astId === undefined) {
-      this.logger.debug(
-        `CGNode created without AST ID for function "${name}"`,
-      );
+      this.logger.debug(`CGNode created without AST ID for function "${name}"`);
     }
   }
 }
