@@ -38,11 +38,21 @@ class CGNode {
   public inEdges: Set<CGEdgeId> = new Set();
   public outEdges: Set<CGEdgeId> = new Set();
 
+  /**
+   * `astId` might be `undefined` if this node doesn’t have a corresponding AST entry,
+   * which indicates an issue in Misti.
+   */
   constructor(
     public astId: number | undefined,
     public name: string,
+    private logger: Logger,
   ) {
     this.idx = IdxGenerator.next("cg_node") as CGNodeId;
+    if (astId === undefined) {
+      this.logger.debug(
+        `CGNode created without AST ID for function "${name}". Possible bug in Misti.`,
+      );
+    }
   }
 }
 
@@ -68,7 +78,7 @@ export class CallGraph {
     for (const func of astStore.getFunctions()) {
       const funcName = this.getFunctionName(func);
       if (funcName) {
-        const node = new CGNode(func.id, funcName);
+        const node = new CGNode(func.id, funcName, this.logger);
         this.nodeMap.set(node.idx, node);
         this.nameToNodeId.set(funcName, node.idx);
       } else {
@@ -81,15 +91,15 @@ export class CallGraph {
     return this;
   }
 
-/**
- * Determines if there exists a path in the call graph from the source node to the destination node.
- * This method performs a breadth-first search to find if the destination node is reachable from the source node.
- * 
- * @param src - The ID of the source node to start the search from
- * @param dst - The ID of the destination node to search for
- * @returns true if there exists a path from src to dst in the call graph, false otherwise
- *          Returns false if either src or dst node IDs are not found in the graph
- */
+  /**
+   * Determines if there exists a path in the call graph from the source node to the destination node.
+   * This method performs a breadth-first search to find if the destination node is reachable from the source node.
+   *
+   * @param src - The ID of the source node to start the search from
+   * @param dst - The ID of the destination node to search for
+   * @returns true if there exists a path from src to dst in the call graph, false otherwise
+   *          Returns false if either src or dst node IDs are not found in the graph
+   */
   public areConnected(src: CGNodeId, dst: CGNodeId): boolean {
     const srcNode = this.nodeMap.get(src);
     const dstNode = this.nodeMap.get(dst);
@@ -181,7 +191,7 @@ export class CallGraph {
     if (nodeId !== undefined) {
       return nodeId;
     }
-    const newNode = new CGNode(undefined, name);
+    const newNode = new CGNode(undefined, name, this.logger);
     this.nodeMap.set(newNode.idx, newNode);
     this.nameToNodeId.set(name, newNode.idx);
     return newNode.idx;
@@ -195,6 +205,7 @@ export class CallGraph {
       this.edgesMap.set(edge.idx, edge);
       srcNode.outEdges.add(edge.idx);
       dstNode.inEdges.add(edge.idx);
+      this.logger.debug(`Created edge from ${src} to ${dst}`);
     } else {
       this.logger.warn(
         `Cannot add edge from ${src} to ${dst}: node(s) not found.`,
