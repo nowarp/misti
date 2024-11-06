@@ -147,7 +147,6 @@ export class CallGraph {
         return `receiver_${func.id}`;
       default:
         unreachable(func);
-        return undefined;
     }
   }
 
