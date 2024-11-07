@@ -2,7 +2,7 @@
 Misti is a static analysis tool designed for smart contracts on the [TON blockchain](https://ton.org/).
 
 #### Language Support
-- [Tact](https://tact-lang.org/): 26 detectors [are available](https://nowarp.io/tools/misti/docs/next/detectors)
+- [Tact](https://tact-lang.org/): 27 detectors [are available](https://nowarp.io/tools/misti/docs/next/detectors)
 - [FunC](https://docs.ton.org/develop/func/overview) support is [planned](https://github.com/nowarp/misti/issues/56) by the end of the year
 
 #### Features
@@ -21,7 +21,7 @@ npm install -g @nowarp/misti
 
 3. Run Misti by specifying a Tact contract, project config, or directory to check:
 ```bash
-misti path/to/contracts
+misti path/to/src/contracts
 ```
 
 See [Misti Configuration](https://nowarp.io/tools/misti/docs/tutorial/getting-started/) for available options, or [Developing Misti](https://nowarp.io/tools/misti/docs/next/hacking/developing-misti) for advanced instructions. Blueprint users should refer to the [appropriate documentation page](https://nowarp.io/tools/misti/docs/tutorial/blueprint).
