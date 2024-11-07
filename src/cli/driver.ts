@@ -618,7 +618,9 @@ export class Driver {
         );
         return [];
       }
-      this.ctx.logger.debug(`${cu.projectName}: Running ${detector.id}`);
+      this.ctx.logger.debug(
+        `${cu.projectName}: Running ${detector.id} for ${cu.projectName}`,
+      );
       try {
         const warnings = await Promise.race([
           detector.check(cu),
