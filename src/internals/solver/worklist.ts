@@ -72,11 +72,12 @@ export abstract class AbstractWorklistSolver<State> implements Solver<State> {
    * @returns The results of solving the dataflow problem.
    */
   public findFixpoint(): SolverResults<State> {
+    // Track results and how many times we've visited each node
     const results = new SolverResults<State>();
     const iterationCounts: Map<number, number> = new Map();
-    const worklist: BasicBlock[] = [...this.cfg.nodes];
 
-    // Initialize all basic block states
+    // Initialize each block with lattice extremal value (⊥ for join, ⊤ for meet)
+    const worklist: BasicBlock[] = [...this.cfg.nodes];
     worklist.forEach((bb) => {
       if (this.isJoinSemilattice(this.lattice)) {
         results.setState(bb.idx, this.lattice.bottom());
@@ -90,16 +91,17 @@ export abstract class AbstractWorklistSolver<State> implements Solver<State> {
 
     while (worklist.length > 0) {
       const bb = worklist.shift()!;
-      const neighbors =
+
+      // Compute input state by combining states from predecessors/successors
+      // depending on analysis direction (forward/backward)
+      let inState: State;
+      const neighborStates = (
         this.kind === "forward"
           ? getPredecessors(this.cfg, bb)
-          : getSuccessors(this.cfg, bb);
+          : getSuccessors(this.cfg, bb)
+      ).map((neighbor) => results.getState(neighbor.idx)!);
 
-      const neighborStates = neighbors.map(
-        (neighbor) => results.getState(neighbor.idx)!,
-      );
-
-      let inState: State;
+      // Apply lattice operation (join/meet) to combine neighbor states
       if (this.isJoinSemilattice(this.lattice)) {
         const joinLattice = this.lattice as JoinSemilattice<State>;
         inState = neighborStates.reduce((acc, state) => {
@@ -114,28 +116,28 @@ export abstract class AbstractWorklistSolver<State> implements Solver<State> {
         throw InternalException.make("Unsupported semilattice type");
       }
 
+      // Fetch and validate the AST statement for this basic block
       const stmt = this.cu.ast.getStatement(bb.stmtID);
       if (stmt === undefined) {
         throw InternalException.make(
           `Cannot find statement #${bb.stmtID} defined within node #${bb.idx}`,
         );
       }
-      const newOutState = this.transfer.transfer(inState, bb, stmt);
 
-      const oldOutState = results.getState(bb.idx)!;
+      // Apply transfer function and get previous state for comparison
+      let currentOut = this.transfer.transfer(inState, bb, stmt);
+      const previousOut = results.getState(bb.idx)!;
 
-      // Increment iteration count
+      // Track visits to handle widening/narrowing in derived classes
       const iterations = iterationCounts.get(bb.idx)! + 1;
       iterationCounts.set(bb.idx, iterations);
 
-      const updatedOutState = this.updateState(
-        oldOutState,
-        newOutState,
-        iterations,
-      );
+      // Let derived solver classes apply their state update strategy
+      currentOut = this.updateState(previousOut, currentOut, iterations);
 
-      if (!this.lattice.leq(updatedOutState, oldOutState)) {
-        results.setState(bb.idx, updatedOutState);
+      // If state changed (not less than or equal), update and propagate
+      if (!this.lattice.leq(currentOut, previousOut)) {
+        results.setState(bb.idx, currentOut);
         worklist.push(
           ...(this.kind === "forward"
             ? getSuccessors(this.cfg, bb)
@@ -172,19 +174,11 @@ export abstract class AbstractWorklistSolver<State> implements Solver<State> {
  */
 export class WorklistSolver<State> extends AbstractWorklistSolver<State> {
   protected updateState(
-    oldState: State,
+    _oldState: State,
     newState: State,
     _iterations: number,
   ): State {
-    if (this.isJoinSemilattice(this.lattice)) {
-      const joinLattice = this.lattice as JoinSemilattice<State>;
-      return joinLattice.join(oldState, newState);
-    } else if (this.isMeetSemilattice(this.lattice)) {
-      const meetLattice = this.lattice as MeetSemilattice<State>;
-      return meetLattice.meet(oldState, newState);
-    } else {
-      throw InternalException.make("Unsupported semilattice type");
-    }
+    return newState;
   }
 }
 
