@@ -83,9 +83,14 @@ export class Interval {
     return new Interval(Num.min(...products), Num.max(...products));
   }
 
+  /**
+   * Abstract division.
+   *
+   * @returns A division result or a full interval if attempting to divide by zero.
+   */
   div(other: Interval): Interval {
     if (other.containsZero()) {
-      throw new Error("Division by interval containing zero");
+      return Interval.FULL;
     }
     const quotients = [
       Num.divide(this.low, other.low),

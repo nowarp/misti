@@ -2,6 +2,13 @@
      owner: Address;
      init() { self.owner = sender(); }
 
+     fun testDivByZero(unknown: Int) {
+         // OK: No exception
+         let a: Int = 128;
+         let b: Int = a / unknown;
+         nativeThrowUnless(b, sender() == self.owner);
+     }
+
      receive("test") {
          // Bad
          let code1: Int = 128;
