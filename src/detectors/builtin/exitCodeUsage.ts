@@ -1,13 +1,11 @@
 import { InternalException } from "../../internals/exceptions";
 import { CFG, BasicBlock, CompilationUnit } from "../../internals/ir";
 import {
-  Interval,
-  Num,
   IntervalJoinSemiLattice,
   JoinSemilattice,
-  intervalToString,
   WideningLattice,
 } from "../../internals/lattice";
+import { Interval, Num } from "../../internals/numbers";
 import { WideningWorklistSolver } from "../../internals/solver";
 import { findInExpressions } from "../../internals/tact/iterators";
 import { Transfer } from "../../internals/transfer";
@@ -51,7 +49,7 @@ class ExitCodeLattice
   leq(a: VariableState, b: VariableState): boolean {
     for (const [variable, intervalA] of a.entries()) {
       const intervalB = b.get(variable) || this.intervalLattice.bottom();
-      if (IntervalJoinSemiLattice.gt(intervalA, intervalB)) {
+      if (!this.intervalLattice.leq(intervalA, intervalB)) {
         return false;
       }
     }
@@ -105,7 +103,7 @@ class ExitCodeTransfer implements Transfer<VariableState> {
   }
 
   private extractVariableName(expr: AstExpression): string | null {
-    return (expr.kind === "id") ? idText(expr) : null;
+    return expr.kind === "id" ? idText(expr) : null;
   }
 
   private evaluateExpression(
@@ -115,7 +113,7 @@ class ExitCodeTransfer implements Transfer<VariableState> {
     if (expr.kind === "number") {
       const exprNum = expr as AstNumber;
       const value = BigInt(exprNum.value);
-      return IntervalJoinSemiLattice.num(value);
+      return Interval.fromNum(value);
     } else if (expr.kind === "id") {
       const varName = idText(expr) as Variable;
       return state.get(varName) || IntervalJoinSemiLattice.topValue;
@@ -124,13 +122,13 @@ class ExitCodeTransfer implements Transfer<VariableState> {
       const rightInterval = this.evaluateExpression(expr.right, state);
       switch (expr.op) {
         case "+":
-          return IntervalJoinSemiLattice.plus(leftInterval, rightInterval);
+          return leftInterval.plus(rightInterval);
         case "-":
-          return IntervalJoinSemiLattice.minus(leftInterval, rightInterval);
+          return leftInterval.minus(rightInterval);
         case "*":
-          return IntervalJoinSemiLattice.times(leftInterval, rightInterval);
+          return leftInterval.times(rightInterval);
         case "/":
-          return IntervalJoinSemiLattice.div(leftInterval, rightInterval);
+          return leftInterval.div(rightInterval);
         default:
           return IntervalJoinSemiLattice.topValue;
       }
@@ -238,7 +236,7 @@ export class ExitCodeUsage extends DataflowDetector {
             `Exit code variable "${varName}" has value outside allowed range`,
             exitVariable.loc,
             {
-              extraDescription: `Exit codes 0-255 are reserved. Variable value: ${intervalToString(interval)}`,
+              extraDescription: `Exit codes 0-255 are reserved. Variable value: ${interval.toString()}`,
               suggestion: "Use a value between 256 and 65535",
             },
           ),
@@ -248,8 +246,8 @@ export class ExitCodeUsage extends DataflowDetector {
   }
 
   private isOutsideAllowedRange(interval: Interval): boolean {
-    const lowerBound = interval[0];
-    const upperBound = interval[1];
+    const lowerBound = interval.low;
+    const upperBound = interval.high;
 
     // Developer-allowed range is 256 to 65535
     const belowMin = Num.compare(upperBound, Num.int(256n)) < 0;

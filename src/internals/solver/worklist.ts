@@ -12,10 +12,9 @@ import {
   Semilattice,
   JoinSemilattice,
   MeetSemilattice,
-  intervalToString,
   WideningLattice,
 } from "../lattice";
-import { Num, Interval, IntervalJoinSemiLattice } from "../lattice/";
+import { Num } from "../numbers/";
 import { Transfer } from "../transfer";
 
 /**
