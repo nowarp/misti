@@ -8,7 +8,13 @@ import {
   getPredecessors,
   getSuccessors,
 } from "../ir";
-import { Semilattice, JoinSemilattice, MeetSemilattice } from "../lattice";
+import {
+  Semilattice,
+  JoinSemilattice,
+  MeetSemilattice,
+  WideningLattice,
+} from "../lattice";
+import { Num } from "../numbers/";
 import { Transfer } from "../transfer";
 
 /**
@@ -26,12 +32,12 @@ export type AnalysisKind = "forward" | "backward";
  * This class encapsulates the control flow graph (CFG), node state transformations,
  * and lattice properties necessary for the computation of fixpoints in dataflow equations.
  */
-export class WorklistSolver<State> implements Solver<State> {
-  private readonly cu: CompilationUnit;
-  private readonly cfg: CFG;
-  private transfer: Transfer<State>;
-  private readonly lattice: Semilattice<State>;
-  private readonly kind: AnalysisKind;
+export abstract class AbstractWorklistSolver<State> implements Solver<State> {
+  protected readonly cu: CompilationUnit;
+  protected readonly cfg: CFG;
+  protected transfer: Transfer<State>;
+  protected readonly lattice: Semilattice<State>;
+  protected readonly kind: AnalysisKind;
 
   /**
    * @param transfer An object that defines the transfer operation for a node and its state.
@@ -53,17 +59,31 @@ export class WorklistSolver<State> implements Solver<State> {
   }
 
   /**
+   * Abstract method to update the state of a node.
+   *
+   * @param oldState The previous state of the node.
+   * @param newState The newly computed state of the node.
+   * @param iterations The number of times the node has been processed.
+   * @returns The updated state after applying join/meet/widening/narrowing.
+   */
+  protected abstract updateState(
+    oldState: State,
+    newState: State,
+    iterations: number,
+  ): State;
+
+  /**
    * Finds a fixpoint using the worklist algorithm.
    * @returns The results of solving the dataflow problem.
    */
   public findFixpoint(): SolverResults<State> {
+    // Track results and how many times we've visited each node
     const results = new SolverResults<State>();
+    const iterationCounts: Map<number, number> = new Map();
+
+    // Initialize each block with lattice extremal value (⊥ for join, ⊤ for meet)
     const worklist: BasicBlock[] = [...this.cfg.nodes];
-
-    const bbs: BasicBlock[] = this.cfg.nodes;
-
-    // Initialize all node states
-    bbs.forEach((bb) => {
+    worklist.forEach((bb) => {
       if (this.isJoinSemilattice(this.lattice)) {
         results.setState(bb.idx, this.lattice.bottom());
       } else if (this.isMeetSemilattice(this.lattice)) {
@@ -71,20 +91,22 @@ export class WorklistSolver<State> implements Solver<State> {
       } else {
         throw InternalException.make("Unsupported semilattice type");
       }
+      iterationCounts.set(bb.idx, 0);
     });
 
     while (worklist.length > 0) {
-      const bb = worklist.pop()!;
-      const neighbors =
+      const bb = worklist.shift()!;
+
+      // Compute input state by combining states from predecessors/successors
+      // depending on analysis direction (forward/backward)
+      let inState: State;
+      const neighborStates = (
         this.kind === "forward"
           ? getPredecessors(this.cfg, bb)
-          : getSuccessors(this.cfg, bb);
+          : getSuccessors(this.cfg, bb)
+      ).map((neighbor) => results.getState(neighbor.idx)!);
 
-      const neighborStates = neighbors.map(
-        (neighbor) => results.getState(neighbor.idx)!,
-      );
-
-      let inState: State;
+      // Apply lattice operation (join/meet) to combine neighbor states
       if (this.isJoinSemilattice(this.lattice)) {
         const joinLattice = this.lattice as JoinSemilattice<State>;
         inState = neighborStates.reduce((acc, state) => {
@@ -99,17 +121,28 @@ export class WorklistSolver<State> implements Solver<State> {
         throw InternalException.make("Unsupported semilattice type");
       }
 
+      // Fetch and validate the AST statement for this basic block
       const stmt = this.cu.ast.getStatement(bb.stmtID);
       if (stmt === undefined) {
         throw InternalException.make(
           `Cannot find statement #${bb.stmtID} defined within node #${bb.idx}`,
         );
       }
-      const outState = this.transfer.transfer(inState, bb, stmt);
 
-      if (!this.lattice.leq(outState, results.getState(bb.idx)!)) {
-        results.setState(bb.idx, outState);
-        // Push successors or predecessors based on the analysis kind
+      // Apply transfer function and get previous state for comparison
+      let currentOut = this.transfer.transfer(inState, bb, stmt);
+      const previousOut = results.getState(bb.idx)!;
+
+      // Track visits to handle widening/narrowing in derived classes
+      const iterations = iterationCounts.get(bb.idx)! + 1;
+      iterationCounts.set(bb.idx, iterations);
+
+      // Let derived solver classes apply their state update strategy
+      currentOut = this.updateState(previousOut, currentOut, iterations);
+
+      // If state changed (not less than or equal), update and propagate
+      if (!this.lattice.leq(currentOut, previousOut)) {
+        results.setState(bb.idx, currentOut);
         worklist.push(
           ...(this.kind === "forward"
             ? getSuccessors(this.cfg, bb)
@@ -125,15 +158,94 @@ export class WorklistSolver<State> implements Solver<State> {
     return this.findFixpoint();
   }
 
-  private isJoinSemilattice(
+  protected isJoinSemilattice(
     lattice: Semilattice<State>,
   ): lattice is JoinSemilattice<State> {
-    return (lattice as JoinSemilattice<State>).join !== undefined;
+    return "join" in lattice && typeof lattice.join === "function";
   }
 
-  private isMeetSemilattice(
+  protected isMeetSemilattice(
     lattice: Semilattice<State>,
   ): lattice is MeetSemilattice<State> {
-    return (lattice as MeetSemilattice<State>).meet !== undefined;
+    return "meet" in lattice && typeof lattice.meet === "function";
+  }
+}
+
+/**
+ * WorklistSolver performs a standard worklist-based iterative analysis relying
+ * solely on the lattice's join or meet operation to update states.
+ *
+ * @template State The type representing the state in the analysis.
+ */
+export class WorklistSolver<State> extends AbstractWorklistSolver<State> {
+  protected updateState(
+    _oldState: State,
+    newState: State,
+    _iterations: number,
+  ): State {
+    return newState;
+  }
+}
+
+/**
+ * WideningWorklistSolver performs a worklist-based iterative analysis using
+ * widening to accelerate convergence when a specified iteration threshold is
+ * reached.
+ *
+ * @template State The type representing the state in the analysis.
+ */
+export class WideningWorklistSolver<
+  State,
+> extends AbstractWorklistSolver<State> {
+  private readonly maxIterations: number;
+
+  /**
+   * @param maxIterations Number of iterations after which widening is applied.
+   */
+  constructor(
+    cu: CompilationUnit,
+    cfg: CFG,
+    transfer: Transfer<State>,
+    lattice: WideningLattice<State>,
+    kind: AnalysisKind,
+    maxIterations: number = 5,
+  ) {
+    super(cu, cfg, transfer, lattice, kind);
+    this.maxIterations = maxIterations;
+  }
+
+  protected updateState(
+    oldState: State,
+    newState: State,
+    iterations: number,
+  ): State {
+    if (iterations >= this.maxIterations) {
+      // Apply widening
+      return (this.lattice as WideningLattice<State>).widen(oldState, newState);
+    } else {
+      // Use standard join or meet
+      if (this.isJoinSemilattice(this.lattice)) {
+        const joinLattice = this.lattice as JoinSemilattice<State>;
+        return joinLattice.join(oldState, newState);
+      } else if (this.isMeetSemilattice(this.lattice)) {
+        const meetLattice = this.lattice as MeetSemilattice<State>;
+        return meetLattice.meet(oldState, newState);
+      } else {
+        throw InternalException.make("Unsupported semilattice type");
+      }
+    }
+  }
+
+  /**
+   * Type guard to check if the value is a numeric type.
+   * @param n The value to check.
+   * @returns True if the value is a Num, false otherwise.
+   */
+  private isNum(n: any): n is Num {
+    return (
+      typeof n === "object" &&
+      "kind" in n &&
+      (n.kind === "IntNum" || n.kind === "PInf" || n.kind === "MInf")
+    );
   }
 }

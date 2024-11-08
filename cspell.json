@@ -102,7 +102,9 @@
     "consteval",
     "Georgiy",
     "Komarov",
-    "callgraph"
+    "callgraph",
+    "nums",
+    "extremal"
   ],
   "flagWords": [],
   "ignorePaths": [

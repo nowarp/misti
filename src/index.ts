@@ -7,6 +7,7 @@ export * from "./internals/transfer";
 export * from "./internals/tact";
 export * from "./internals/logger";
 export * from "./internals/lattice";
+export * from "./internals/numbers";
 export * from "./internals/exceptions";
 export * from "./internals/config";
 export * from "./internals/context";
