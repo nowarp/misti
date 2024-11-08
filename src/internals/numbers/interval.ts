@@ -37,6 +37,27 @@ export class Interval {
     return this.low.kind === "PInf" && this.high.kind === "MInf";
   }
 
+  /**
+   * Checks if this interval is less than or equal to other interval.
+   */
+  leq(other: Interval): boolean {
+    if (this.isEmpty()) return true; // empty interval is less than everything
+    if (other.isEmpty()) return false; // nothing is less than empty (except empty)
+    if (other.isFull()) return true; // everything is less than full interval
+    if (this.isFull()) return false; // full interval is not less than anything (except full)
+    return (
+      Num.compare(this.low, other.low) <= 0 &&
+      Num.compare(this.high, other.high) <= 0
+    );
+  }
+
+  eq(other: Interval): boolean {
+    return (
+      Num.compare(this.low, other.low) == 0n &&
+      Num.compare(this.high, other.high) == 0n
+    );
+  }
+
   plus(other: Interval): Interval {
     return new Interval(
       Num.add(this.low, other.low),

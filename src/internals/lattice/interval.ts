@@ -30,33 +30,24 @@ export class IntervalJoinSemiLattice
     }
     if (x.isEmpty()) return y;
     if (y.isEmpty()) return x;
-
     return new Interval(Num.min(x.low, y.low), Num.max(x.high, y.high));
   }
 
+  /**
+   * Implements the widening operator (∇) for intervals to ensure termination
+   * of fixed point computations.
+   *
+   * @param a First interval operand
+   * @param b Second interval operand (typically the newer value)
+   * @returns Widened interval that over-approximates both inputs
+   */
   widen(a: Interval, b: Interval): Interval {
-    if (this.eq(a, b)) {
-      return IntervalJoinSemiLattice.bottomValue;
-    }
+    if (a.isEmpty()) return b;
+    if (b.isEmpty()) return a;
+    if (a.isFull() || b.isFull()) return Interval.FULL;
     const lower = this.widenNum(a.low, b.low, true);
     const upper = this.widenNum(a.high, b.high, false);
     return new Interval(lower, upper);
-  }
-
-  /**
-   * Checks if interval a is less than or equal to interval b.
-   */
-  leq(a: Interval, b: Interval): boolean {
-    return Num.compare(a.low, b.low) <= 0 && Num.compare(a.high, b.high) <= 0;
-  }
-
-  /**
-   * Checks if interval a equal to interval b.
-   * Returns true if a's lower bound is greater than or equal to b's lower bound
-   * and a's upper bound is less than or equal to b's upper bound.
-   */
-  eq(a: Interval, b: Interval): boolean {
-    return Num.compare(a.low, b.low) == 0n && Num.compare(a.high, b.high) == 0n;
   }
 
   private widenNum(a: NumImpl, b: NumImpl, isLower: boolean): NumImpl {
@@ -68,5 +59,9 @@ export class IntervalJoinSemiLattice
     } else {
       return Num.compare(b, a) > 0 ? b : Num.p();
     }
+  }
+
+  leq(x: Interval, y: Interval): boolean {
+    return x.leq(y);
   }
 }

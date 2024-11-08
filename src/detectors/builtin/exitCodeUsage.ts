@@ -29,6 +29,8 @@ class ExitCodeLattice
   implements JoinSemilattice<VariableState>, WideningLattice<VariableState>
 {
   private intervalLattice = new IntervalJoinSemiLattice();
+  private widenCount = new Map<Variable, number>();
+  private readonly WIDENING_THRESHOLD = 3;
 
   bottom(): VariableState {
     return new Map();
@@ -59,15 +61,24 @@ class ExitCodeLattice
   widen(oldState: VariableState, newState: VariableState): VariableState {
     const result = new Map<Variable, Interval>();
     const variables = new Set([...oldState.keys(), ...newState.keys()]);
+
     for (const variable of variables) {
+      // Track widening iterations per variable
+      const count = (this.widenCount.get(variable) || 0) + 1;
+      this.widenCount.set(variable, count);
       const intervalOld =
         oldState.get(variable) || this.intervalLattice.bottom();
       const intervalNew =
         newState.get(variable) || this.intervalLattice.bottom();
-      const widenedInterval = this.intervalLattice.widen(
-        intervalOld,
-        intervalNew,
-      );
+
+      // If we've widened too many times, jump straight to ±∞
+      let widenedInterval: Interval;
+      if (count > this.WIDENING_THRESHOLD) {
+        widenedInterval = IntervalJoinSemiLattice.topValue;
+      } else {
+        widenedInterval = this.intervalLattice.widen(intervalOld, intervalNew);
+      }
+
       result.set(variable, widenedInterval);
     }
     return result;
