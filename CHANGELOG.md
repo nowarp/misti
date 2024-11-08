@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ExitCodeUsage` detector: PR [#207](https://github.com/nowarp/misti/pull/207)
 - `EtaLikeSimplifications` detector: PR [#198](https://github.com/nowarp/misti/pull/198)
 - `ShortCircuitCondition` detector: PR [#202](https://github.com/nowarp/misti/pull/202)
-
 - Add Callgraph: PR [#185](https://github.com/nowarp/misti/pull/185)
 
 ### Changed
