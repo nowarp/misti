@@ -6,6 +6,7 @@ import {
   IntervalJoinSemiLattice,
   JoinSemilattice,
   intervalToString,
+  WideningLattice,
 } from "../../internals/lattice";
 import { WideningWorklistSolver } from "../../internals/solver";
 import { findInExpressions } from "../../internals/tact/iterators";
@@ -26,7 +27,11 @@ type Variable = string & { readonly __brand: unique symbol };
 
 type VariableState = Map<Variable, Interval>;
 
-class ExitCodeLattice implements JoinSemilattice<VariableState> {
+class ExitCodeLattice
+  implements JoinSemilattice<VariableState>, WideningLattice<VariableState>
+{
+  private intervalLattice = new IntervalJoinSemiLattice();
+
   bottom(): VariableState {
     return new Map();
   }
@@ -35,9 +40,9 @@ class ExitCodeLattice implements JoinSemilattice<VariableState> {
     const result = new Map<Variable, Interval>();
     const variables = new Set([...a.keys(), ...b.keys()]);
     for (const variable of variables) {
-      const intervalA = a.get(variable) || IntervalJoinSemiLattice.bottom;
-      const intervalB = b.get(variable) || IntervalJoinSemiLattice.bottom;
-      const joinedInterval = IntervalJoinSemiLattice.join(intervalA, intervalB);
+      const intervalA = a.get(variable) || this.intervalLattice.bottom();
+      const intervalB = b.get(variable) || this.intervalLattice.bottom();
+      const joinedInterval = this.intervalLattice.join(intervalA, intervalB);
       result.set(variable, joinedInterval);
     }
     return result;
@@ -45,18 +50,29 @@ class ExitCodeLattice implements JoinSemilattice<VariableState> {
 
   leq(a: VariableState, b: VariableState): boolean {
     for (const [variable, intervalA] of a.entries()) {
-      const intervalB = b.get(variable) || IntervalJoinSemiLattice.bottom;
-      if (!this.intervalLeq(intervalA, intervalB)) {
+      const intervalB = b.get(variable) || this.intervalLattice.bottom();
+      if (IntervalJoinSemiLattice.gt(intervalA, intervalB)) {
         return false;
       }
     }
     return true;
   }
 
-  private intervalLeq(a: Interval, b: Interval): boolean {
-    const lower = Num.compare(a[0], b[0]) >= 0;
-    const upper = Num.compare(a[1], b[1]) <= 0;
-    return lower && upper;
+  widen(oldState: VariableState, newState: VariableState): VariableState {
+    const result = new Map<Variable, Interval>();
+    const variables = new Set([...oldState.keys(), ...newState.keys()]);
+    for (const variable of variables) {
+      const intervalOld =
+        oldState.get(variable) || this.intervalLattice.bottom();
+      const intervalNew =
+        newState.get(variable) || this.intervalLattice.bottom();
+      const widenedInterval = this.intervalLattice.widen(
+        intervalOld,
+        intervalNew,
+      );
+      result.set(variable, widenedInterval);
+    }
+    return result;
   }
 }
 
@@ -89,10 +105,7 @@ class ExitCodeTransfer implements Transfer<VariableState> {
   }
 
   private extractVariableName(expr: AstExpression): string | null {
-    if (expr.kind === "id") {
-      return idText(expr);
-    }
-    return null;
+    return (expr.kind === "id") ? idText(expr) : null;
   }
 
   private evaluateExpression(
@@ -105,7 +118,7 @@ class ExitCodeTransfer implements Transfer<VariableState> {
       return IntervalJoinSemiLattice.num(value);
     } else if (expr.kind === "id") {
       const varName = idText(expr) as Variable;
-      return state.get(varName) || IntervalJoinSemiLattice.top;
+      return state.get(varName) || IntervalJoinSemiLattice.topValue;
     } else if (expr.kind === "op_binary") {
       const leftInterval = this.evaluateExpression(expr.left, state);
       const rightInterval = this.evaluateExpression(expr.right, state);
@@ -119,10 +132,10 @@ class ExitCodeTransfer implements Transfer<VariableState> {
         case "/":
           return IntervalJoinSemiLattice.div(leftInterval, rightInterval);
         default:
-          return IntervalJoinSemiLattice.top;
+          return IntervalJoinSemiLattice.topValue;
       }
     }
-    return IntervalJoinSemiLattice.top;
+    return IntervalJoinSemiLattice.topValue;
   }
 }
 

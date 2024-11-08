@@ -3,7 +3,7 @@
  *
  * @template T The type of elements in the semilattice.
  */
-export interface JoinSemilattice<T> {
+export interface JoinSemilattice<T> extends Semilattice<T> {
   /**
    * Represents the bottom element of the lattice.
    * @returns The bottom element.
@@ -31,7 +31,7 @@ export interface JoinSemilattice<T> {
  * Interface for a meet semilattice that introduces the meet operation.
  * @template T The type of elements in the semilattice.
  */
-export interface MeetSemilattice<T> {
+export interface MeetSemilattice<T> extends Semilattice<T> {
   /**
    * Represents the top element of the lattice.
    * @returns The top element.
@@ -55,10 +55,15 @@ export interface MeetSemilattice<T> {
   leq(a: T, b: T): boolean;
 }
 
-/**
- * Union type representing either a join or meet semilattice.
- */
-export type Semilattice<T> = JoinSemilattice<T> | MeetSemilattice<T>;
+export interface Semilattice<T> {
+  /**
+   * Determines if one element in the semilattice is less than or equal to another element.
+   * @param a The element to compare.
+   * @param b The element to compare against.
+   * @returns `true` if `a` is less than or equal to `b`, otherwise `false`.
+   */
+  leq(a: T, b: T): boolean;
+}
 
 /**
  * Implementation of a join semilattice for sets.

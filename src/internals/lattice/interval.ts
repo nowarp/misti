@@ -1,4 +1,6 @@
+import { JoinSemilattice } from "./common";
 import { Num, NumImpl } from "./num";
+import { WideningLattice } from "./widening";
 
 export type Interval = [NumImpl, NumImpl];
 
@@ -6,12 +8,22 @@ export type Interval = [NumImpl, NumImpl];
  * Infinite-length join semilattice lattice representing interval of numbers
  * with abstract interpretation operations over intervals.
  */
-export class IntervalJoinSemiLattice {
+export class IntervalJoinSemiLattice
+  implements JoinSemilattice<Interval>, WideningLattice<Interval>
+{
   static FullInterval: Interval = [Num.m(), Num.p()];
   static EmptyInterval: Interval = [Num.p(), Num.m()];
 
-  static bottom: Interval = IntervalJoinSemiLattice.EmptyInterval;
-  static top: Interval = IntervalJoinSemiLattice.FullInterval;
+  static bottomValue: Interval = IntervalJoinSemiLattice.EmptyInterval;
+  static topValue: Interval = IntervalJoinSemiLattice.FullInterval;
+
+  bottom(): Interval {
+    return IntervalJoinSemiLattice.bottomValue;
+  }
+
+  top(): Interval {
+    return IntervalJoinSemiLattice.topValue;
+  }
 
   /**
    * Number as interval.
@@ -25,7 +37,7 @@ export class IntervalJoinSemiLattice {
    * Joins two elements, returning the least upper bound (lub) of the two
    * intervals.
    */
-  static join(x: Interval, y: Interval): Interval {
+  join(x: Interval, y: Interval): Interval {
     if (
       IntervalJoinSemiLattice.isFullInterval(x) ||
       IntervalJoinSemiLattice.isFullInterval(y)
@@ -40,6 +52,12 @@ export class IntervalJoinSemiLattice {
     }
     const lower = Num.min(x[0], y[0]);
     const upper = Num.max(x[1], y[1]);
+    return [lower, upper];
+  }
+
+  widen(a: Interval, b: Interval): Interval {
+    const lower = this.widenNum(a[0], b[0], true);
+    const upper = this.widenNum(a[1], b[1], false);
     return [lower, upper];
   }
 
@@ -166,13 +184,11 @@ export class IntervalJoinSemiLattice {
     return [Num.int(0), Num.int(1)];
   }
 
-  static widen(a: Interval, b: Interval): Interval {
-    const lower = IntervalJoinSemiLattice.widenNum(a[0], b[0], true);
-    const upper = IntervalJoinSemiLattice.widenNum(a[1], b[1], false);
-    return [lower, upper];
+  leq(a: Interval, b: Interval): boolean {
+    return Num.compare(a[0], b[0]) >= 0 && Num.compare(a[1], b[1]) <= 0;
   }
 
-  static widenNum(a: NumImpl, b: NumImpl, isLower: boolean): NumImpl {
+  widenNum(a: NumImpl, b: NumImpl, isLower: boolean): NumImpl {
     if (Num.compare(a, b) === 0n) {
       return a;
     }

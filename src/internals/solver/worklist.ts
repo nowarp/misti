@@ -8,7 +8,13 @@ import {
   getPredecessors,
   getSuccessors,
 } from "../ir";
-import { Semilattice, JoinSemilattice, MeetSemilattice } from "../lattice";
+import {
+  Semilattice,
+  JoinSemilattice,
+  MeetSemilattice,
+  intervalToString,
+  WideningLattice,
+} from "../lattice";
 import { Num, Interval, IntervalJoinSemiLattice } from "../lattice/";
 import { Transfer } from "../transfer";
 
@@ -156,13 +162,13 @@ export abstract class AbstractWorklistSolver<State> implements Solver<State> {
   protected isJoinSemilattice(
     lattice: Semilattice<State>,
   ): lattice is JoinSemilattice<State> {
-    return (lattice as JoinSemilattice<State>).join !== undefined;
+    return "join" in lattice && typeof lattice.join === "function";
   }
 
   protected isMeetSemilattice(
     lattice: Semilattice<State>,
   ): lattice is MeetSemilattice<State> {
-    return (lattice as MeetSemilattice<State>).meet !== undefined;
+    return "meet" in lattice && typeof lattice.meet === "function";
   }
 }
 
@@ -201,7 +207,7 @@ export class WideningWorklistSolver<
     cu: CompilationUnit,
     cfg: CFG,
     transfer: Transfer<State>,
-    lattice: Semilattice<State>,
+    lattice: WideningLattice<State>,
     kind: AnalysisKind,
     maxIterations: number = 5,
   ) {
@@ -216,7 +222,7 @@ export class WideningWorklistSolver<
   ): State {
     if (iterations >= this.maxIterations) {
       // Apply widening
-      return this.applyWidening(oldState, newState);
+      return (this.lattice as WideningLattice<State>).widen(oldState, newState);
     } else {
       // Use standard join or meet
       if (this.isJoinSemilattice(this.lattice)) {
@@ -229,35 +235,6 @@ export class WideningWorklistSolver<
         throw InternalException.make("Unsupported semilattice type");
       }
     }
-  }
-
-  /**
-   * Applies the widening operation to accelerate convergence.
-   */
-  private applyWidening(oldState: State, newState: State): State {
-    if (this.isIntervalState(oldState) && this.isIntervalState(newState)) {
-      const widenedState = IntervalJoinSemiLattice.widen(
-        oldState as Interval,
-        newState as Interval,
-      );
-      return widenedState as unknown as State;
-    } else {
-      return newState;
-    }
-  }
-
-  /**
-   * Determines if the state is an interval state.
-   * @param state The state to check.
-   * @returns True if the state is an interval, false otherwise.
-   */
-  private isIntervalState(state: State): boolean {
-    return (
-      Array.isArray(state) &&
-      state.length === 2 &&
-      this.isNum(state[0]) &&
-      this.isNum(state[1])
-    );
   }
 
   /**
