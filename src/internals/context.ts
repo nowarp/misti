@@ -1,5 +1,10 @@
 import { MistiConfig, MistiEnv } from "./config";
-import { DebugLogger, Logger, QuietLogger, TraceLogger } from "./logger";
+import {
+  DebugLogger,
+  Logger,
+  QuietLogger,
+  TraceLogger,
+} from "./logger";
 import { CLIOptions, cliOptionDefaults } from "../cli";
 import { throwZodError } from "./exceptions";
 import { execSync } from "child_process";
@@ -8,8 +13,8 @@ import { execSync } from "child_process";
  * Represents the context for a Misti run.
  */
 export class MistiContext {
-  logger: Logger;
-  config: MistiConfig;
+  public logger: Logger;
+  public config: MistiConfig;
 
   /**
    * Indicates whether a Souffle binary is available.

@@ -632,7 +632,21 @@ export class Driver {
         ]);
         this.ctx.logger.debug(`${cu.projectName}: Finished ${detector.id}`);
         return warnings;
-      } catch (error) {
+      } catch (err) {
+        let error: string = "";
+        if (err instanceof Error) {
+          const result = [] as string[];
+          result.push(err.message);
+          if (
+            err.stack !== undefined &&
+            this.ctx.config.verbosity === "debug"
+          ) {
+            result.push(err.stack);
+          }
+          error = result.join("\n");
+        } else {
+          error = `${err}`;
+        }
         this.ctx.logger.error(
           `${cu.projectName}: Error in ${detector.id}: ${error}`,
         );
