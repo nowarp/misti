@@ -12,6 +12,8 @@ export class IntervalJoinSemiLattice
   static bottomValue: Interval = Interval.EMPTY;
   static topValue: Interval = Interval.FULL;
 
+  constructor() {}
+
   bottom(): Interval {
     return IntervalJoinSemiLattice.bottomValue;
   }

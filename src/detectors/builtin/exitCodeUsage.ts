@@ -28,9 +28,13 @@ type VariableState = Map<Variable, Interval>;
 class ExitCodeLattice
   implements JoinSemilattice<VariableState>, WideningLattice<VariableState>
 {
-  private intervalLattice = new IntervalJoinSemiLattice();
+  private intervalLattice;
   private widenCount = new Map<Variable, number>();
   private readonly WIDENING_THRESHOLD = 3;
+
+  constructor() {
+    this.intervalLattice = new IntervalJoinSemiLattice();
+  }
 
   bottom(): VariableState {
     return new Map();
