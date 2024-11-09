@@ -143,7 +143,7 @@ export class ImportGraphBuilder {
   private determineLanguage(filePath: string): ImportLanguage | never {
     return filePath.endsWith(".tact")
       ? "tact"
-      : filePath.endsWith(".func")
+      : filePath.endsWith(".fc")
         ? "func"
         : (() => {
             throw ExecutionException.make(
@@ -157,7 +157,7 @@ export class ImportGraphBuilder {
    */
   private generateNodeName(filePath: string): string {
     const basename = path.basename(filePath);
-    const basenameWithoutExtension = basename.replace(/\.(tact|func)$/, "");
+    const basenameWithoutExtension = basename.replace(/\.(tact|func|fc)$/, "");
     if (definedInStdlib(this.ctx, filePath)) {
       const relativePath = path.relative(this.getStdlibLibsPath(), filePath);
       return `@stdlib/${relativePath}`.replace(/\\/g, "/");
