@@ -1,4 +1,5 @@
 import { forEachExpression } from "./iterators";
+import { InternalException } from "../exceptions";
 import { unreachable } from "../util";
 import { AstComparator } from "@tact-lang/compiler/dist/";
 import {
@@ -363,4 +364,67 @@ export function srcInfoToString(loc: SrcInfo): string {
     ? path.relative(process.cwd(), loc.file) + ":"
     : "";
   return `${shownPath}${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
+}
+
+/**
+ * Collects a chain of method calls.
+ *
+ * The return format is the following: `expr.method1().method2()`, where `expr`
+ * might be a function call, e.g.:
+ *
+ * beginCell().loadRef(c).endCell();
+ * ^^^^^^^^^^^ ^^^^^^^^^^ ^^^^^^^^^^
+ *    self      calls[0]   calls[1]
+ *
+ * @returns An array of expressions representing the method call chain and the
+ *          first receiver that might be an expression creating a callable
+ *          object, or undefined if it's not a method call chain.
+ */
+export function getMethodCallsChain(
+  expr: AstExpression,
+): { self: AstExpression; calls: AstMethodCall[] } | undefined {
+  const calls: AstMethodCall[] = [];
+  let currentExpr: AstExpression = expr;
+  while (currentExpr.kind === "method_call") {
+    const methodCall = currentExpr as AstMethodCall;
+    calls.push(methodCall);
+    currentExpr = methodCall.self;
+  }
+  if (currentExpr.kind === "static_call" || calls.length > 0) {
+    return { self: currentExpr, calls };
+  }
+  return undefined;
+}
+
+/**
+ * Returns true if the given expression represents a call of the function `name`
+ * with `argsNum` arguments.
+ */
+export function isFunctionCall(
+  expr: AstExpression,
+  name: string,
+  argsNum: number,
+): boolean {
+  return (
+    expr.kind === "static_call" &&
+    idText(expr.function) === name &&
+    expr.args.length === argsNum
+  );
+}
+
+/**
+ * Returns true if the given expression is a call of the supported stdlib function.
+ */
+export function isStdlibCall(name: string, expr: AstExpression): boolean {
+  const stdlibFunctions: Record<string, number> = {
+    beginCell: 0,
+    endCell: 0,
+    emptyCell: 0,
+    emptySlice: 0,
+  } as const;
+  const expectedArgs = stdlibFunctions[name];
+  if (expectedArgs === undefined) {
+    throw InternalException.make(`Unknown stdlib function: ${name}`);
+  }
+  return isFunctionCall(expr, name, expectedArgs);
 }

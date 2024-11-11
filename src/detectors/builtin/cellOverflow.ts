@@ -2,7 +2,7 @@ import { InternalException } from "../../internals/exceptions";
 import { BasicBlock, CFG, CompilationUnit } from "../../internals/ir";
 import { JoinSemilattice } from "../../internals/lattice";
 import { WorklistSolver } from "../../internals/solver/";
-import { evalToType } from "../../internals/tact/";
+import { evalToType, isStdlibCall } from "../../internals/tact/";
 import { forEachExpression } from "../../internals/tact/iterators";
 import { Transfer } from "../../internals/transfer";
 import {
@@ -101,14 +101,6 @@ function addCalls(
   }
 }
 
-function isBeginCell(firstReceiver: AstExpression): boolean {
-  return (
-    firstReceiver.kind === "static_call" &&
-    idText(firstReceiver.function) === "beginCell" &&
-    firstReceiver.args.length === 0
-  );
-}
-
 function hasEndCell(calls: Map<MethodAstId, MethodCallInfo>): boolean {
   const lastCall = Array.from(calls.values()).pop();
   return lastCall !== undefined && idText(lastCall.method) === "endCell";
@@ -184,7 +176,7 @@ class CellOverflowTransfer implements Transfer<CellOverflowState> {
     // Builder initialization starts with `beginCell()`.
     // If it ends with `endCell()`, it will be processed in processStoreCalls as
     // a temporary Cell object.
-    if (isBeginCell(firstReceiver) && !hasEndCell(calls)) {
+    if (isStdlibCall("beginCell", firstReceiver) && !hasEndCell(calls)) {
       addLocalBuilder(outState, stmt.name);
       addCalls(outState, idText(stmt.name), calls);
     }
@@ -248,7 +240,7 @@ class CellOverflowTransfer implements Transfer<CellOverflowState> {
     firstReceiver: AstExpression,
     calls: Map<MethodAstId, MethodCallInfo>,
   ): boolean {
-    return isBeginCell(firstReceiver) && hasEndCell(calls);
+    return isStdlibCall("beginCell", firstReceiver) && hasEndCell(calls);
   }
 
   /**

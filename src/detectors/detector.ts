@@ -399,6 +399,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  CellUnderflow: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/cellUnderflow").then(
+        (module) => new module.CellUnderflow(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**
