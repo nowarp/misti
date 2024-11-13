@@ -1,4 +1,5 @@
 import { forEachExpression } from "./iterators";
+import { evalToType } from "../../internals/tact/";
 import { InternalException } from "../exceptions";
 import { unreachable } from "../util";
 import { AstComparator } from "@tact-lang/compiler/dist/";
@@ -421,10 +422,90 @@ export function isStdlibCall(name: string, expr: AstExpression): boolean {
     endCell: 0,
     emptyCell: 0,
     emptySlice: 0,
+    storeRef: 1,
+    loadRef: 0,
   } as const;
   const expectedArgs = stdlibFunctions[name];
   if (expectedArgs === undefined) {
     throw InternalException.make(`Unknown stdlib function: ${name}`);
   }
   return isFunctionCall(expr, name, expectedArgs);
+}
+
+/**
+ * Size of the Address variable stored in Cell.
+ */
+export const ADDRESS_SIZE = 267n;
+
+/**
+ * Returns the size of the storage added by the given `.store` method call.
+ */
+export function getConstantStoreSize(call: AstMethodCall): bigint | undefined {
+  switch (idText(call.method)) {
+    case "storeBool":
+    case "storeBit":
+      return 1n;
+    case "storeCoins": {
+      if (call.args.length !== 1) return undefined;
+      // The serialization size varies from 4 to 124 bits:
+      // https://docs.tact-lang.org/book/integers/#serialization-coins
+      const value = evalToType(call.args[0], "bigint");
+      if (value !== undefined) {
+        const numValue = Number(value);
+        if (!isNaN(numValue) && isFinite(numValue)) {
+          // We use the following logic from ton-core in order to compute the size:
+          // https://github.com/ton-org/ton-core/blob/00fa47e03c2a78c6dd9d09e517839685960bc2fd/src/boc/BitBuilder.ts#L212
+          const sizeBytes = Math.ceil(numValue.toString(2).length / 8);
+          const sizeBits = sizeBytes * 8;
+          // 44-bit unsigned big-endian integer storing the byte length of the
+          // value provided
+          const sizeLength = 4;
+          return BigInt(sizeBits + sizeLength);
+        }
+      }
+      return undefined;
+    }
+    case "storeAddress":
+      return ADDRESS_SIZE;
+    case "storeInt":
+    case "storeUint": {
+      if (call.args.length !== 2) return undefined;
+      const value = evalToType(call.args[1], "bigint");
+      return value === undefined ? undefined : (value as bigint);
+    }
+    case "storeBuilder":
+    case "storeSlice":
+      return undefined;
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Returns the size of the storage substrated by the given `.load` method call.
+ */
+export function getConstantLoadSize(call: AstMethodCall): bigint | undefined {
+  switch (idText(call.method)) {
+    case "loadBool":
+    case "loadBit":
+      return 1n;
+    case "loadCoins": {
+      // The size is dynamically loaded from the cell, thus we cannot retrieve it statically:
+      // https://github.com/ton-org/ton-core/blob/00fa47e03c2a78c6dd9d09e517839685960bc2fd/src/boc/BitReader.ts#L290
+      return undefined;
+    }
+    case "loadAddress":
+      return ADDRESS_SIZE;
+    case "loadInt":
+    case "loadUint": {
+      if (call.args.length !== 1) return undefined;
+      const value = evalToType(call.args[0], "bigint");
+      return value === undefined ? undefined : (value as bigint);
+    }
+    case "loadBuilder":
+    case "loadSlice":
+      return undefined;
+    default:
+      return undefined;
+  }
 }

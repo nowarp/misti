@@ -2,7 +2,7 @@ import { InternalException } from "../../internals/exceptions";
 import { BasicBlock, CFG, CompilationUnit } from "../../internals/ir";
 import { JoinSemilattice } from "../../internals/lattice";
 import { WorklistSolver } from "../../internals/solver/";
-import { evalToType, isStdlibCall } from "../../internals/tact/";
+import { isStdlibCall, getConstantStoreSize } from "../../internals/tact/";
 import { forEachExpression } from "../../internals/tact/iterators";
 import { Transfer } from "../../internals/transfer";
 import {
@@ -32,10 +32,7 @@ import {
 const UNDECIDABLE = 0n;
 
 type BuilderName = string;
-type MethodAstId = number;
-
-/** Part of the method call focused on the used method and its arguments. */
-type MethodCallInfo = { method: AstId; args: AstExpression[]; loc: SrcInfo };
+type MethodAstId = AstMethodCall["id"];
 
 /** Temporary cell objects: `beginCell().<ops>.endCell()` */
 type TempCell = {
@@ -43,7 +40,7 @@ type TempCell = {
   loc: SrcInfo;
   // Method calls other than `beginCell`.
   // Includes `endCell` for consistency.
-  calls: Map<MethodAstId, MethodCallInfo>;
+  calls: Map<MethodAstId, AstMethodCall>;
 };
 
 interface CellOverflowState {
@@ -52,7 +49,7 @@ interface CellOverflowState {
   // Local variables of the Builder type and information on methods calls used over them
   localBuilders: Map<
     BuilderName,
-    { def: SrcInfo; calls: Map<MethodAstId, MethodCallInfo> }
+    { def: SrcInfo; calls: Map<MethodAstId, AstMethodCall> }
   >;
 }
 
@@ -62,7 +59,7 @@ interface CellOverflowState {
 function addLocalBuilder(
   state: CellOverflowState,
   id: AstId,
-  calls: Map<MethodAstId, MethodCallInfo> = new Map(),
+  calls: Map<MethodAstId, AstMethodCall> = new Map(),
 ): void {
   state.localBuilders.set(idText(id), { def: id.loc, calls });
 }
@@ -73,7 +70,7 @@ function addLocalBuilder(
 function addCalls(
   state: CellOverflowState,
   name: BuilderName,
-  calls: Map<MethodAstId, MethodCallInfo>,
+  calls: Map<MethodAstId, AstMethodCall>,
 ): void | never {
   if (calls.size === 0) {
     return;
@@ -82,7 +79,7 @@ function addCalls(
   if (builder) {
     if (!hasEndCell(builder.calls)) {
       const filterCallsBeforeEndCell = (
-        calls: Map<MethodAstId, MethodCallInfo>,
+        calls: Map<MethodAstId, AstMethodCall>,
       ) => {
         const endCellIndex = Array.from(calls.values()).findIndex((call) =>
           hasEndCell(new Map([[call.method.id, call]])),
@@ -101,7 +98,7 @@ function addCalls(
   }
 }
 
-function hasEndCell(calls: Map<MethodAstId, MethodCallInfo>): boolean {
+function hasEndCell(calls: Map<MethodAstId, AstMethodCall>): boolean {
   const lastCall = Array.from(calls.values()).pop();
   return lastCall !== undefined && idText(lastCall.method) === "endCell";
 }
@@ -213,17 +210,13 @@ class CellOverflowTransfer implements Transfer<CellOverflowState> {
   private getMethodCallsChain(
     expr: AstExpression,
   ):
-    | { firstReceiver: AstExpression; calls: Map<MethodAstId, MethodCallInfo> }
+    | { firstReceiver: AstExpression; calls: Map<MethodAstId, AstMethodCall> }
     | undefined {
-    const calls = new Map<MethodAstId, MethodCallInfo>();
+    const calls = new Map<MethodAstId, AstMethodCall>();
     let currentExpr: AstExpression = expr;
     while (currentExpr.kind === "method_call") {
       const methodCall = currentExpr as AstMethodCall;
-      calls.set(methodCall.method.id, {
-        method: methodCall.method,
-        args: methodCall.args,
-        loc: methodCall.loc,
-      });
+      calls.set(methodCall.method.id, methodCall);
       currentExpr = methodCall.self;
     }
     if (currentExpr.kind === "static_call" || calls.size > 0) {
@@ -238,7 +231,7 @@ class CellOverflowTransfer implements Transfer<CellOverflowState> {
    */
   private isTempCell(
     firstReceiver: AstExpression,
-    calls: Map<MethodAstId, MethodCallInfo>,
+    calls: Map<MethodAstId, AstMethodCall>,
   ): boolean {
     return isStdlibCall("beginCell", firstReceiver) && hasEndCell(calls);
   }
@@ -368,7 +361,7 @@ export class CellOverflow extends DataflowDetector {
    */
   private checkOverflows(
     loc: SrcInfo,
-    calls: Map<MethodAstId, MethodCallInfo>,
+    calls: Map<MethodAstId, AstMethodCall>,
     localBuilders: CellOverflowState["localBuilders"],
     builder?: BuilderName,
   ): MistiTactWarning[] {
@@ -376,13 +369,13 @@ export class CellOverflow extends DataflowDetector {
     const { storeRefs, storesSize } = Array.from(calls.values()).reduce(
       ({ storeRefs, storesSize }, call) => {
         // Process storeRef
-        if (idText(call.method) === "storeRef") {
+        if (isStdlibCall("storeRef", call)) {
           // NOTE: We don't count storeMaybeRef since it could be null and
           // requires additional analysis
           storeRefs += 1;
         }
         // Process other store-operations
-        storesSize += this.getStoreCost(call, localBuilders, new Set(builder));
+        storesSize += this.getStoreSize(call, localBuilders, new Set(builder));
         return { storeRefs, storesSize };
       },
       { storeRefs: 0, storesSize: 0n } as {
@@ -415,84 +408,43 @@ export class CellOverflow extends DataflowDetector {
   }
 
   /**
-   * Returns the storage cost in bits for each store operation.
+   * Returns the storage size in bits for each store operation.
    * https://github.com/tact-lang/tact/blob/2315d035f5f9a22cad42657561c1a0eaef997b05/stdlib/std/cells.tact
    */
-  private getStoreCost(
-    call: MethodCallInfo,
+  private getStoreSize(
+    call: AstMethodCall,
     localBuilders: CellOverflowState["localBuilders"],
     visited: Set<BuilderName> = new Set(),
   ): bigint {
-    const checkArgLength = (expectedLength: number): boolean => {
-      if (call.args.length !== expectedLength) {
-        this.ctx.logger.error(
-          [
-            `.${idText(call.method)}(...) is expected to have ${expectedLength} argument(s).`,
-            "Perhaps, you should update Misti.",
-          ].join(" "),
-        );
-        return false;
-      }
-      return true;
-    };
-    switch (idText(call.method)) {
-      case "storeBool":
-      case "storeBit":
-        return 1n;
-      case "storeCoins": {
-        if (!checkArgLength(1)) return UNDECIDABLE;
-        // The serialization size varies from 4 to 124 bits:
-        // https://docs.tact-lang.org/book/integers/#serialization-coins
-        const value = evalToType(call.args[0], "bigint");
-        if (value !== undefined) {
-          const numValue = Number(value);
-          if (!isNaN(numValue) && isFinite(numValue)) {
-            // We use the following logic from ton-core in order to compute the size:
-            // https://github.com/ton-org/ton-core/blob/00fa47e03c2a78c6dd9d09e517839685960bc2fd/src/boc/BitBuilder.ts#L212
-            const sizeBytes = Math.ceil(numValue.toString(2).length / 8);
-            const sizeBits = sizeBytes * 8;
-            // 44-bit unsigned big-endian integer storing the byte length of the
-            // value provided
-            const sizeLength = 4;
-            return BigInt(sizeBits + sizeLength);
-          }
-        }
-        return UNDECIDABLE;
-      }
-      case "storeAddress":
-        return 267n;
-      case "storeInt":
-      case "storeUint": {
-        if (!checkArgLength(2)) return UNDECIDABLE;
-        const value = evalToType(call.args[1], "bigint");
-        return value === undefined ? UNDECIDABLE : (value as bigint);
-      }
-      case "storeBuilder": {
-        // Try to find a stored builder in the dataflow state.
-        if (!checkArgLength(1)) return UNDECIDABLE;
-        const arg = call.args[0];
-        if (arg.kind === "id") {
-          const builderName = idText(arg);
-          if (visited.has(builderName)) {
-            return 0n; // Avoid infinite recursion
-          }
-          const builder = localBuilders.get(builderName);
-          if (builder) {
-            visited.add(builderName);
-            const res = Array.from(builder.calls.values()).reduce(
-              (acc, bCall) =>
-                acc + this.getStoreCost(bCall, localBuilders, visited),
-              0n,
-            );
-            return res;
-          }
-        }
-        return UNDECIDABLE;
-      }
-      case "storeSlice":
-        return UNDECIDABLE;
-      default:
-        return UNDECIDABLE;
+    // Try to extract constant store size
+    const size = getConstantStoreSize(call);
+    if (size !== undefined) {
+      return size;
     }
+
+    // Process assignments to known local builders
+    if (idText(call.method) === "storeBuilder") {
+      // Try to find a stored builder in the dataflow state.
+      if (call.args.length !== 1) return UNDECIDABLE;
+      const arg = call.args[0];
+      if (arg.kind === "id") {
+        const builderName = idText(arg);
+        if (visited.has(builderName)) {
+          return 0n; // Avoid infinite recursion
+        }
+        const builder = localBuilders.get(builderName);
+        if (builder) {
+          visited.add(builderName);
+          const res = Array.from(builder.calls.values()).reduce(
+            (acc, bCall) =>
+              acc + this.getStoreSize(bCall, localBuilders, visited),
+            0n,
+          );
+          return res;
+        }
+      }
+    }
+
+    return UNDECIDABLE;
   }
 }
