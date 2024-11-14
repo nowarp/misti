@@ -29,12 +29,7 @@ import {
   AstMethodCall,
   AstStatementAssign,
 } from "@tact-lang/compiler/dist/grammar/ast";
-
-/**
- * The storage used by the store operation or the presence of the reference is
- * statically unknown.
- */
-const UNDECIDABLE = 0n;
+import { Interval } from "../../internals/numbers";
 
 type VariableName = string & { readonly __brand: unique symbol };
 enum VariableKind {
@@ -52,14 +47,14 @@ enum VariableKind {
  */
 type VariableStorage = {
   /**
-   * Number of refs after `.storeRef()` and `.loadRef()` calls.
+   * A possible number of refs after `.storeRef()` and `.loadRef()` calls.
    */
-  refsNum: number;
+  refsNum: Interval;
   /**
-   * Number of storage bits added with `.store*()` and consumed with `.load*()`
-   * calls.
+   * Possible range of storage bits added with `.store*()` and consumed with
+   * `.load*()` calls.
    */
-  dataSize: bigint;
+  dataSize: Interval;
 };
 
 /**
@@ -452,63 +447,104 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     variable: VariableRhs,
     call: AstMethodCall,
   ): void {
-    if (isStdlibCall("storeRef", call)) {
-      variable.value.storage.refsNum += 1;
+    const storedRefs = this.getStoredRefs(call);
+    if (storedRefs !== undefined) {
+      variable.value.storage.refsNum =
+        variable.value.storage.refsNum.plus(storedRefs);
       return;
     }
-    if (isStdlibCall("loadRef", call)) {
-      variable.value.storage.refsNum -= 1;
+    const loadedRefs = this.getLoadedRefs(call);
+    if (loadedRefs !== undefined) {
+      variable.value.storage.refsNum =
+        variable.value.storage.refsNum.minus(loadedRefs);
       return;
     }
     const storeSize = this.getStoreSize(out, call);
-    if (storeSize > 0n) {
-      variable.value.storage.dataSize += storeSize;
+    if (storeSize !== undefined) {
+      variable.value.storage.dataSize =
+        variable.value.storage.dataSize.plus(storeSize);
       return;
     }
     const loadSize = this.getLoadSize(out, call);
-    if (loadSize > 0n) {
-      variable.value.storage.dataSize -= loadSize;
+    if (loadSize !== undefined) {
+      variable.value.storage.dataSize =
+        variable.value.storage.dataSize.minus(loadSize);
       return;
     }
+  }
+
+  /**
+   * Returns the number of references possible stored by the method call.
+   *
+   * @returns The interval of possible number of references of undefined if it doesn't store references.
+   */
+  private getStoredRefs(call: AstMethodCall): Interval | undefined {
+    // TODO: check kind of variable?
+    if (isStdlibCall("storeRef", call)) {
+      return Interval.fromNum(1);
+    }
+    if (isStdlibCall("maybeStoreRef", call)) {
+      return Interval.fromNums(0, 1);
+    }
+    return undefined;
+  }
+
+  /**
+   * Returns the number of references possible loaded by the method call.
+   *
+   * @returns The interval of possible number of references of undefined if it doesn't load references.
+   */
+  private getLoadedRefs(call: AstMethodCall): Interval | undefined {
+    // TODO: check kind of variable?
+    if (isStdlibCall("loadRef", call)) {
+      return Interval.fromNum(1);
+    }
+    return undefined;
   }
 
   /**
    * Returns the storage cost in bits for store operations.
    * https://github.com/tact-lang/tact/blob/2315d035f5f9a22cad42657561c1a0eaef997b05/stdlib/std/cells.tact
+   *
+   * @returns The interval of possible stored value or undefined if there are no store calls.
    */
   private getStoreSize(
     out: CellUnderflowState,
     call: AstMethodCall,
     visited: Set<VariableName> = new Set(),
-  ): bigint {
+  ): Interval | undefined {
     // TODO: check kind of variable
     // Try to extract constant store size
     const size = getConstantStoreSize(call);
     if (size !== undefined) {
-      return size;
+      return Interval.fromNum(size);
     }
     // TODO: use local variables from `out`
-    return UNDECIDABLE;
+    // TODO return Interval.EMPTY if `store` call but the size is undecidable
+    return undefined;
   }
 
   /**
    * Returns the storage cost in bits for load operations.
    * https://github.com/tact-lang/tact/blob/2315d035f5f9a22cad42657561c1a0eaef997b05/stdlib/std/cells.tact
+   *
+   * @returns The interval of possible loaded value or undefined if there are no load calls.
    */
   private getLoadSize(
     out: CellUnderflowState,
     call: AstMethodCall,
     visited: Set<VariableName> = new Set(),
-  ): bigint {
+  ): Interval | undefined {
     // TODO: check kind of variable
     // Try to extract constant store size
     const size = getConstantLoadSize(call);
     if (size !== undefined) {
-      return size;
+      return Interval.fromNum(size);
     }
     // TODO Support preload operations
     // TODO: use local variables from `out`
-    return UNDECIDABLE;
+    // TODO return Interval.EMPTY if `load` call but the size is undecidable
+    return undefined;
   }
 
   /**

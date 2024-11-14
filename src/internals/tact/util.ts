@@ -463,6 +463,7 @@ export function getConstantStoreSize(call: AstMethodCall): bigint | undefined {
           return BigInt(sizeBits + sizeLength);
         }
       }
+      // TODO: Return an interval of possible values
       return undefined;
     }
     case "storeAddress":
@@ -492,6 +493,7 @@ export function getConstantLoadSize(call: AstMethodCall): bigint | undefined {
     case "loadCoins": {
       // The size is dynamically loaded from the cell, thus we cannot retrieve it statically:
       // https://github.com/ton-org/ton-core/blob/00fa47e03c2a78c6dd9d09e517839685960bc2fd/src/boc/BitReader.ts#L290
+      // TODO: Return an interval of possible values
       return undefined;
     }
     case "loadAddress":
@@ -500,6 +502,7 @@ export function getConstantLoadSize(call: AstMethodCall): bigint | undefined {
     case "loadUint": {
       if (call.args.length !== 1) return undefined;
       const value = evalToType(call.args[0], "bigint");
+      // TODO: Return an interval of possible values
       return value === undefined ? undefined : (value as bigint);
     }
     case "loadBuilder":
