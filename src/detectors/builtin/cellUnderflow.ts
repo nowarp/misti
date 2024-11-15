@@ -1,6 +1,7 @@
 import { InternalException } from "../../internals/exceptions";
 import { BasicBlock, CFG, CompilationUnit } from "../../internals/ir";
 import { JoinSemilattice } from "../../internals/lattice";
+import { Interval, Num } from "../../internals/numbers";
 import { WorklistSolver } from "../../internals/solver/";
 import {
   getConstantStoreSize,
@@ -30,7 +31,6 @@ import {
   AstStatementAssign,
   AstNode,
 } from "@tact-lang/compiler/dist/grammar/ast";
-import { Interval, Num } from "../../internals/numbers";
 
 type VariableName = string & { readonly __brand: unique symbol };
 enum VariableKind {

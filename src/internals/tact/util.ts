@@ -1,6 +1,5 @@
 import { forEachExpression } from "./iterators";
 import { evalToType } from "../../internals/tact/";
-import { InternalException } from "../exceptions";
 import { unreachable } from "../util";
 import { AstComparator } from "@tact-lang/compiler/dist/";
 import {
