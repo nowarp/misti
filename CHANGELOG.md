@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `SuspiciousMessageMode` detector now suggests using SendDefaultMode instead of 0 for mode: PR [#199](https://github.com/nowarp/misti/pull/199/)
 
+### Fixed
+- Missing Module `version-info` When Installing Misti from GitHub: Issue [#216](https://github.com/nowarp/misti/issues/216/)
+
 ## [0.5.0] - 2024-10-31
 
 ### Added
