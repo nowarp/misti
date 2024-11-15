@@ -247,10 +247,7 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
    * Adds new local variables to the output state, if there is anything that
    * could lead to the Cell Underflow problem.
    */
-  private processLet(
-    out: CellUnderflowState,
-    stmt: AstStatementLet,
-  ): void {
+  private processLet(out: CellUnderflowState, stmt: AstStatementLet): void {
     const callsChain = getMethodCallsChain(stmt.expression);
     if (callsChain === undefined) return;
     const { self, calls } = callsChain;
@@ -366,16 +363,8 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       value = {
         kind: VariableKind.Cell,
         storage: {
-          refsNum: {
-            undecidable: false,
-            stored: Interval.fromNum(0),
-            loaded: Interval.fromNum(0),
-          },
-          dataSize: {
-            undecidable: false,
-            stored: Interval.fromNum(0),
-            loaded: Interval.fromNum(0),
-          },
+          refsNum: createEmptyStorageValue(),
+          dataSize: createEmptyStorageValue(),
         },
       } as UnknownVariable;
     }
@@ -383,16 +372,8 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       value = {
         kind: VariableKind.Slice,
         storage: {
-          refsNum: {
-            undecidable: false,
-            stored: Interval.fromNum(0),
-            loaded: Interval.fromNum(0),
-          },
-          dataSize: {
-            undecidable: false,
-            stored: Interval.fromNum(0),
-            loaded: Interval.fromNum(0),
-          },
+          refsNum: createEmptyStorageValue(),
+          dataSize: createEmptyStorageValue(),
         },
       };
     }
@@ -400,16 +381,8 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       value = {
         kind: VariableKind.Builder,
         storage: {
-          refsNum: {
-            undecidable: false,
-            stored: Interval.fromNum(0),
-            loaded: Interval.fromNum(0),
-          },
-          dataSize: {
-            undecidable: false,
-            stored: Interval.fromNum(0),
-            loaded: Interval.fromNum(0),
-          },
+          refsNum: createEmptyStorageValue(),
+          dataSize: createEmptyStorageValue(),
         },
       };
     }
@@ -873,4 +846,12 @@ export class CellUnderflow extends DataflowDetector {
   private checkKnownVariable(variable: Variable): MistiTactWarning[] {
     return this.checkVariable(variable, variable.loc);
   }
+}
+
+function createEmptyStorageValue(): StorageValue {
+  return {
+    undecidable: false,
+    stored: Interval.fromNum(0),
+    loaded: Interval.fromNum(0),
+  };
 }
