@@ -142,4 +142,8 @@ export class Interval {
     if (Num.compare(this.low, this.high) === 0n) return this.low.toString();
     return `(${this.low.toString()}, ${this.high.toString()})`;
   }
+
+  clone(): Interval {
+    return new Interval(this.low, this.high);
+  }
 }

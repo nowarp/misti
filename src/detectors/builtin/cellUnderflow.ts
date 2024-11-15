@@ -473,10 +473,7 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
         kind: "unknown",
         value: {
           kind: newKind,
-          storage: {
-            refsNum: variable.value.storage.refsNum,
-            dataSize: variable.value.storage.dataSize,
-          },
+          storage: deepCopyVariableStorage(variable.value.storage),
         } as UnknownVariable,
       };
       variables.push(newVariable);
@@ -636,10 +633,7 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       name,
       kind: variable.value.kind,
       loc: lhs.loc,
-      storage: {
-        refsNum: variable.value.storage.refsNum,
-        dataSize: variable.value.storage.dataSize,
-      },
+      storage: deepCopyVariableStorage(variable.value.storage),
     };
 
     // Update the appropriate map based on variable kind
@@ -682,6 +676,27 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       });
     });
   }
+}
+
+/**
+ * Deep copies a StorageValue object
+ */
+function deepCopyStorage(storage: StorageValue): StorageValue {
+  return {
+    undecidable: storage.undecidable,
+    stored: storage.stored.clone(),
+    loaded: storage.loaded.clone(),
+  };
+}
+
+/**
+ * Deep copies VariableStorage
+ */
+function deepCopyVariableStorage(storage: VariableStorage): VariableStorage {
+  return {
+    refsNum: deepCopyStorage(storage.refsNum),
+    dataSize: deepCopyStorage(storage.dataSize)
+  };
 }
 
 /**
