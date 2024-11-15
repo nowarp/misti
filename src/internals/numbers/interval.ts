@@ -139,7 +139,7 @@ export class Interval {
   toString(): string {
     if (this.isFull()) return "(-∞, +∞)";
     if (this.isEmpty()) return "∅";
-    if (Num.compare(this.low, this.high) === 0n) return Num.toString(this.low);
-    return `(${Num.toString(this.low)}, ${Num.toString(this.high)})`;
+    if (Num.compare(this.low, this.high) === 0n) return this.low.toString();
+    return `(${this.low.toString()}, ${this.high.toString()})`;
   }
 }

@@ -392,7 +392,7 @@ export function getMethodCallsChain(
     currentExpr = methodCall.self;
   }
   if (currentExpr.kind === "static_call" || calls.length > 0) {
-    return { self: currentExpr, calls };
+    return { self: currentExpr, calls: calls.reverse() };
   }
   return undefined;
 }
@@ -414,7 +414,24 @@ export function isFunctionCall(
 }
 
 /**
- * Returns true if the given expression is a call of the supported stdlib function.
+ * Returns true if the given expression represents a call of the method `name`
+ * with `argsNum` arguments.
+ */
+export function isMethodCall(
+  expr: AstExpression,
+  name: string,
+  argsNum: number,
+): boolean {
+  return (
+    expr.kind === "method_call" &&
+    idText(expr.method) === name &&
+    expr.args.length === argsNum
+  );
+}
+
+/**
+ * Returns true if the given expression is a call of the supported stdlib
+ * function or method.
  */
 export function isStdlibCall(name: string, expr: AstExpression): boolean {
   const stdlibFunctions: Record<string, number> = {
@@ -422,14 +439,24 @@ export function isStdlibCall(name: string, expr: AstExpression): boolean {
     endCell: 0,
     emptyCell: 0,
     emptySlice: 0,
+  };
+  const stdlibMethods: Record<string, number> = {
+    storeMaybeRef: 1,
     storeRef: 1,
     loadRef: 0,
-  } as const;
-  const expectedArgs = stdlibFunctions[name];
-  if (expectedArgs === undefined) {
-    throw InternalException.make(`Unknown stdlib function: ${name}`);
+  };
+
+  const expectedFunctionArgs = stdlibFunctions[name];
+  if (expectedFunctionArgs !== undefined) {
+    return isFunctionCall(expr, name, expectedFunctionArgs);
   }
-  return isFunctionCall(expr, name, expectedArgs);
+
+  const expectedMethodArgs = stdlibMethods[name];
+  if (expectedMethodArgs !== undefined) {
+    return isMethodCall(expr, name, expectedMethodArgs);
+  }
+
+  return false;
 }
 
 /**

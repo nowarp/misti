@@ -29,7 +29,7 @@ import {
   AstMethodCall,
   AstStatementAssign,
 } from "@tact-lang/compiler/dist/grammar/ast";
-import { Interval } from "../../internals/numbers";
+import { Interval, Num } from "../../internals/numbers";
 
 type VariableName = string & { readonly __brand: unique symbol };
 enum VariableKind {
@@ -40,6 +40,21 @@ enum VariableKind {
   Struct = "struct",
 }
 
+type StorageValue = {
+  /**
+   * It is not possible to reason about this value using static analysis.
+   */
+  undecidable: boolean;
+  /**
+   * A possible number of refs stored with `.storeRef()` calls.
+   */
+  stored: Interval;
+  /**
+   * A possible number of refs loaded with `.loadRef()` calls.
+   */
+  loaded: Interval;
+};
+
 /**
  * Tracks data stored by this variable.
  * It includes only statically decidable information. Storage operations with
@@ -47,14 +62,13 @@ enum VariableKind {
  */
 type VariableStorage = {
   /**
-   * A possible number of refs after `.storeRef()` and `.loadRef()` calls.
+   * Possible number of references stored or loaded for this variable.
    */
-  refsNum: Interval;
+  refsNum: StorageValue;
   /**
-   * Possible range of storage bits added with `.store*()` and consumed with
-   * `.load*()` calls.
+   * Possible number of data bits stored or loaded for this variable.
    */
-  dataSize: Interval;
+  dataSize: StorageValue;
 };
 
 /**
@@ -62,8 +76,8 @@ type VariableStorage = {
  */
 type Variable = {
   name: VariableName;
-  kind: VariableKind;
   loc: SrcInfo;
+  kind: VariableKind;
   storage: VariableStorage;
 };
 
@@ -348,17 +362,53 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     if (isStdlibCall("emptyCell", self)) {
       value = {
         kind: VariableKind.Cell,
+        storage: {
+          refsNum: {
+            undecidable: false,
+            stored: Interval.fromNum(0),
+            loaded: Interval.fromNum(0),
+          },
+          dataSize: {
+            undecidable: false,
+            stored: Interval.fromNum(0),
+            loaded: Interval.fromNum(0),
+          },
+        },
       } as UnknownVariable;
     }
     if (isStdlibCall("emptySlice", self)) {
       value = {
         kind: VariableKind.Slice,
-      } as UnknownVariable;
+        storage: {
+          refsNum: {
+            undecidable: false,
+            stored: Interval.fromNum(0),
+            loaded: Interval.fromNum(0),
+          },
+          dataSize: {
+            undecidable: false,
+            stored: Interval.fromNum(0),
+            loaded: Interval.fromNum(0),
+          },
+        },
+      };
     }
     if (isStdlibCall("beginCell", self)) {
       value = {
         kind: VariableKind.Builder,
-      } as UnknownVariable;
+        storage: {
+          refsNum: {
+            undecidable: false,
+            stored: Interval.fromNum(0),
+            loaded: Interval.fromNum(0),
+          },
+          dataSize: {
+            undecidable: false,
+            stored: Interval.fromNum(0),
+            loaded: Interval.fromNum(0),
+          },
+        },
+      };
     }
     // TODO Handle initialization of messages and structures
     return value ? { kind: "unknown", value } : null;
@@ -421,7 +471,13 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     if (newKind !== variable.value.kind) {
       const newVariable: VariableRhs = {
         kind: "unknown",
-        value: { kind: newKind } as UnknownVariable,
+        value: {
+          kind: newKind,
+          storage: {
+            refsNum: variable.value.storage.refsNum,
+            dataSize: variable.value.storage.dataSize,
+          },
+        } as UnknownVariable,
       };
       variables.push(newVariable);
 
@@ -447,28 +503,28 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     variable: VariableRhs,
     call: AstMethodCall,
   ): void {
-    const storedRefs = this.getStoredRefs(call);
+    const storedRefs = this.getStoredRefs(variable, call);
     if (storedRefs !== undefined) {
-      variable.value.storage.refsNum =
-        variable.value.storage.refsNum.plus(storedRefs);
+      variable.value.storage.refsNum.stored =
+        variable.value.storage.refsNum.stored.plus(storedRefs);
       return;
     }
-    const loadedRefs = this.getLoadedRefs(call);
+    const loadedRefs = this.getLoadedRefs(variable, call);
     if (loadedRefs !== undefined) {
-      variable.value.storage.refsNum =
-        variable.value.storage.refsNum.minus(loadedRefs);
+      variable.value.storage.refsNum.loaded =
+        variable.value.storage.refsNum.loaded.plus(loadedRefs);
       return;
     }
     const storeSize = this.getStoreSize(out, call);
     if (storeSize !== undefined) {
-      variable.value.storage.dataSize =
-        variable.value.storage.dataSize.plus(storeSize);
+      variable.value.storage.dataSize.stored =
+        variable.value.storage.dataSize.stored.plus(storeSize);
       return;
     }
     const loadSize = this.getLoadSize(out, call);
     if (loadSize !== undefined) {
-      variable.value.storage.dataSize =
-        variable.value.storage.dataSize.minus(loadSize);
+      variable.value.storage.dataSize.loaded =
+        variable.value.storage.dataSize.loaded.plus(loadSize);
       return;
     }
   }
@@ -476,14 +532,23 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
   /**
    * Returns the number of references possible stored by the method call.
    *
-   * @returns The interval of possible number of references of undefined if it doesn't store references.
+   * @returns The interval of possible number of references of undefined if it
+   *          doesn't store references.
    */
-  private getStoredRefs(call: AstMethodCall): Interval | undefined {
-    // TODO: check kind of variable?
-    if (isStdlibCall("storeRef", call)) {
+  private getStoredRefs(
+    variable: VariableRhs,
+    call: AstMethodCall,
+  ): Interval | undefined {
+    if (
+      variable.value.kind === VariableKind.Builder &&
+      isStdlibCall("storeRef", call)
+    ) {
       return Interval.fromNum(1);
     }
-    if (isStdlibCall("maybeStoreRef", call)) {
+    if (
+      variable.value.kind === VariableKind.Builder &&
+      isStdlibCall("storeMaybeRef", call)
+    ) {
       return Interval.fromNums(0, 1);
     }
     return undefined;
@@ -492,11 +557,17 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
   /**
    * Returns the number of references possible loaded by the method call.
    *
-   * @returns The interval of possible number of references of undefined if it doesn't load references.
+   * @returns The interval of possible number of references of undefined if it
+   *          doesn't load references.
    */
-  private getLoadedRefs(call: AstMethodCall): Interval | undefined {
-    // TODO: check kind of variable?
-    if (isStdlibCall("loadRef", call)) {
+  private getLoadedRefs(
+    variable: VariableRhs,
+    call: AstMethodCall,
+  ): Interval | undefined {
+    if (
+      variable.value.kind === VariableKind.Slice &&
+      isStdlibCall("loadRef", call)
+    ) {
       return Interval.fromNum(1);
     }
     return undefined;
@@ -565,7 +636,10 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       name,
       kind: variable.value.kind,
       loc: lhs.loc,
-      storage: variable.value.storage,
+      storage: {
+        refsNum: variable.value.storage.refsNum,
+        dataSize: variable.value.storage.dataSize,
+      },
     };
 
     // Update the appropriate map based on variable kind
@@ -707,112 +781,66 @@ export class CellUnderflow extends DataflowDetector {
   }
 
   /**
-   * Checks for cell underflows in the intermedite variable.
+   * Checks any variable type for potential cell underflow issues.
+   *
+   * The checker always overapproximates in order to avoid false positives.
+   *
+   * @param variable The variable to check (known or unknown)
+   * @param loc Source location for error reporting
+   */
+  private checkVariable(
+    variable: UnknownVariable | Variable,
+    loc: SrcInfo,
+  ): MistiTactWarning[] {
+    const warnings: MistiTactWarning[] = [];
+    const { refsNum, dataSize } = variable.storage;
+
+    // Check if we might load more refs than we stored
+    const netRefs = refsNum.stored.minus(refsNum.loaded);
+    if (!refsNum.undecidable && Num.lt(netRefs.high, Num.int(0))) {
+      warnings.push(
+        this.makeWarning(`Reference count might go below 0`, loc, {
+          extraDescription: `The possible number of references stored (${refsNum.stored.toString()}) is less than loaded (${refsNum.loaded.toString()})`,
+          suggestion:
+            "Remove extra .loadRef operations or store more refs first",
+        }),
+      );
+    }
+
+    // Check if we might load more data than we stored
+    const netData = dataSize.stored.minus(dataSize.loaded);
+    if (!dataSize.undecidable && Num.lt(netData.high, Num.int(0))) {
+      warnings.push(
+        this.makeWarning(`Data size might go below 0`, loc, {
+          extraDescription: `The possible data size stored (${dataSize.stored.toString()}) is less than loaded (${dataSize.loaded.toString()})`,
+          suggestion: "Remove extra .load operations or store more data first",
+        }),
+      );
+    }
+
+    return warnings;
+  }
+
+  /**
+   * Checks any variable type for potential cell underflow issues.
+   *
+   * @param variable The variable to check (known or unknown)
+   * @param loc Source location for error reporting
    */
   private checkIntermediateVariable(
     variable: UnknownVariable,
     loc: SrcInfo,
   ): MistiTactWarning[] {
-    switch (variable.kind) {
-      case VariableKind.Builder:
-        return this.checkBuilder(variable, loc);
-      case VariableKind.Cell:
-        return this.checkCell(variable, loc);
-      case VariableKind.Slice:
-        return this.checkSlice(variable, loc);
-      case VariableKind.Message:
-        return this.checkMessage(variable, loc);
-      case VariableKind.Struct:
-        return this.checkStruct(variable, loc);
-      default:
-        unreachable(variable.kind);
-    }
+    return this.checkVariable(variable, loc);
   }
 
   /**
-   * Checks for cell underflows in a known variable.
+   * Checks any variable type for potential cell underflow issues.
+   *
+   * @param variable The variable to check (known or unknown)
+   * @param loc Source location for error reporting
    */
   private checkKnownVariable(variable: Variable): MistiTactWarning[] {
-    switch (variable.kind) {
-      case VariableKind.Builder:
-        return this.checkBuilder(variable, variable.loc);
-      case VariableKind.Cell:
-        return this.checkCell(variable, variable.loc);
-      case VariableKind.Slice:
-        return this.checkSlice(variable, variable.loc);
-      case VariableKind.Message:
-        return this.checkMessage(variable, variable.loc);
-      case VariableKind.Struct:
-        return this.checkStruct(variable, variable.loc);
-      default:
-        unreachable(variable.kind);
-    }
-  }
-
-  /**
-   * Checks Builder variables for potential cell underflow issues.
-   *
-   * @param variable The Builder variable to check
-   * @param loc Source location for error reporting
-   */
-  private checkBuilder(
-    variable: UnknownVariable,
-    loc: SrcInfo,
-  ): MistiTactWarning[] {
-    const warnings: MistiTactWarning[] = [];
-    return warnings;
-  }
-
-  /**
-   * Checks Cell variables for potential underflow when converting to slices
-   * or accessing cell data directly.
-   *
-   * @param variable The Cell variable to check
-   * @param loc Source location for error reporting
-   */
-  private checkCell(
-    variable: UnknownVariable,
-    loc: SrcInfo,
-  ): MistiTactWarning[] {
-    return [];
-  }
-
-  /**
-   * Checks Slice variables for load operations that could cause underflow.
-   *
-   * @param variable The Slice variable to check
-   * @param loc Source location for error reporting
-   */
-  private checkSlice(
-    variable: UnknownVariable,
-    loc: SrcInfo,
-  ): MistiTactWarning[] {
-    return [];
-  }
-
-  /**
-   * Checks Message variables for potential underflow when accessing message data.
-   *
-   * @param variable The Message variable to check
-   * @param loc Source location for error reporting
-   */
-  private checkMessage(
-    variable: UnknownVariable,
-    loc: SrcInfo,
-  ): MistiTactWarning[] {
-    return [];
-  }
-
-  /**
-   * Checks Struct variables for potential underflow when serializing/deserializing.
-   *
-   * @param variable The Struct variable to check
-   * @param loc Source location for error reporting
-   */
-  private checkStruct(
-    variable: UnknownVariable,
-    loc: SrcInfo,
-  ): MistiTactWarning[] {
-    return [];
+    return this.checkVariable(variable, variable.loc);
   }
 }
