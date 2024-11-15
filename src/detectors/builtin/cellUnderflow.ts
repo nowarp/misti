@@ -31,7 +31,6 @@ import {
   AstNode,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { Interval, Num } from "../../internals/numbers";
-import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
 type VariableName = string & { readonly __brand: unique symbol };
 enum VariableKind {
