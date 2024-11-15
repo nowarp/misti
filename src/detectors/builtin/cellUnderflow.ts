@@ -28,8 +28,10 @@ import {
   idText,
   AstMethodCall,
   AstStatementAssign,
+  AstNode,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { Interval, Num } from "../../internals/numbers";
+import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
 type VariableName = string & { readonly __brand: unique symbol };
 enum VariableKind {
@@ -234,18 +236,19 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     stmt: AstStatement,
   ): void {
     if (stmt.kind === "statement_let") {
-      this.addLocalVariable(outState, stmt);
+      this.processLet(outState, stmt);
     } else if (stmt.kind === "statement_assign") {
       this.processAssignment(outState, stmt);
+    } else {
+      this.processIntermediateCalls(outState, stmt);
     }
-    this.processIntermediateCalls(outState, stmt);
   }
 
   /**
    * Adds new local variables to the output state, if there is anything that
    * could lead to the Cell Underflow problem.
    */
-  private addLocalVariable(
+  private processLet(
     out: CellUnderflowState,
     stmt: AstStatementLet,
   ): void {
@@ -323,7 +326,8 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
   ): VariableRhs[] {
     const variable = this.processSelf(out, self);
     if (variable) {
-      return this.interpretCalls(out, variable, calls);
+      const interpreted = this.interpretCalls(out, variable, calls);
+      return interpreted.length === 0 ? [variable] : interpreted;
     }
     return [];
   }
@@ -427,7 +431,7 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     variable: VariableRhs,
     calls: AstMethodCall[],
   ): VariableRhs[] {
-    if (calls.length === 0) return [variable];
+    if (calls.length === 0) return [];
     const call = calls[0];
     const methodName = idText(call.method);
 
@@ -665,9 +669,21 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     out: CellUnderflowState,
     stmt: AstStatement,
   ): void {
+    const visited: Set<AstNode["id"]> = new Set();
     forEachExpression(stmt, (expr) => {
       const callsChain = getMethodCallsChain(expr);
       if (callsChain === undefined) return;
+
+      // Check if these calls were previously processed
+      let hasUnvisited = false;
+      callsChain.calls.forEach((c) => {
+        if (visited.has(c.id)) {
+          hasUnvisited = true;
+        }
+        visited.add(c.id);
+      });
+      if (!hasUnvisited) return;
+
       const { self, calls } = callsChain;
       this.processCalls(out, self, calls).forEach((variable) => {
         if (variable.kind === "unknown") {
@@ -695,7 +711,7 @@ function deepCopyStorage(storage: StorageValue): StorageValue {
 function deepCopyVariableStorage(storage: VariableStorage): VariableStorage {
   return {
     refsNum: deepCopyStorage(storage.refsNum),
-    dataSize: deepCopyStorage(storage.dataSize)
+    dataSize: deepCopyStorage(storage.dataSize),
   };
 }
 
