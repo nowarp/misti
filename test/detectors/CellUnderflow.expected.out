@@ -1,0 +1,19 @@
+[CRITICAL] CellUnderflow: Reference count might go below 0
+test/detectors/CellUnderflow.tact:2:9:
+  1 | fun refs_num_bad(c: Cell) {
+> 2 |     let s1 = beginCell().storeRef(c).endCell().asSlice();
+              ^
+  3 |     let ref1 = s1.loadRef(); // OK
+The possible number of references stored (1) is less than loaded (4)
+Help: Remove extra .loadRef operations or store more refs first
+See: https://nowarp.io/tools/misti/docs/detectors/CellUnderflow
+
+[CRITICAL] CellUnderflow: Reference count might go below 0
+test/detectors/CellUnderflow.tact:4:9:
+  3 |     let ref1 = s1.loadRef(); // OK
+> 4 |     let ref2 = s1.loadRef(); // Bad: Cell Underflow
+              ^
+  5 | }
+The possible number of references stored (1) is less than loaded (2)
+Help: Remove extra .loadRef operations or store more refs first
+See: https://nowarp.io/tools/misti/docs/detectors/CellUnderflow
