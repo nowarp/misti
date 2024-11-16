@@ -210,6 +210,9 @@ class CellUnderflowLattice implements JoinSemilattice<CellUnderflowState> {
 }
 
 class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
+  // Track processed calls across all iterations
+  private processedCalls = new Set<AstNode["id"]>();
+
   public transfer(
     inState: CellUnderflowState,
     _node: BasicBlock,
@@ -476,6 +479,12 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     variable: VariableRhs,
     call: AstMethodCall,
   ): void {
+    // Only update storage if we haven't processed this call in any iteration
+    if (this.processedCalls.has(call.id)) {
+      return;
+    }
+    this.processedCalls.add(call.id);
+
     const storedRefs = this.getStoredRefs(variable, call);
     if (storedRefs !== undefined) {
       variable.value.storage.refsNum.stored =
