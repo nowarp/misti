@@ -497,13 +497,13 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
         variable.value.storage.refsNum.loaded.plus(loadedRefs);
       return;
     }
-    const storeSize = this.getStoreSize(out, call);
+    const storeSize = this.getStoreSize(out, variable, call);
     if (storeSize !== undefined) {
       variable.value.storage.dataSize.stored =
         variable.value.storage.dataSize.stored.plus(storeSize);
       return;
     }
-    const loadSize = this.getLoadSize(out, call);
+    const loadSize = this.getLoadSize(out, variable, call);
     if (loadSize !== undefined) {
       variable.value.storage.dataSize.loaded =
         variable.value.storage.dataSize.loaded.plus(loadSize);
@@ -563,17 +563,20 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
    */
   private getStoreSize(
     out: CellUnderflowState,
+    variable: VariableRhs,
     call: AstMethodCall,
     visited: Set<VariableName> = new Set(),
   ): Interval | undefined {
-    // TODO: check kind of variable
+    if (variable.value.kind !== VariableKind.Builder) {
+      return undefined;
+    }
     // Try to extract constant store size
     const size = getConstantStoreSize(call);
     if (size !== undefined) {
       return Interval.fromNum(size);
     }
     // TODO: use local variables from `out`
-    // TODO return Interval.EMPTY if `store` call but the size is undecidable
+    // TODO set undecidable if `store` call but the size is undecidable
     return undefined;
   }
 
@@ -585,18 +588,21 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
    */
   private getLoadSize(
     out: CellUnderflowState,
+    variable: VariableRhs,
     call: AstMethodCall,
     visited: Set<VariableName> = new Set(),
   ): Interval | undefined {
-    // TODO: check kind of variable
-    // Try to extract constant store size
+    if (variable.value.kind !== VariableKind.Slice) {
+      return undefined;
+    }
+    // Try to extract constant load size
     const size = getConstantLoadSize(call);
     if (size !== undefined) {
       return Interval.fromNum(size);
     }
     // TODO Support preload operations
     // TODO: use local variables from `out`
-    // TODO return Interval.EMPTY if `load` call but the size is undecidable
+    // TODO set undecidable if `load` call but the size is undecidable
     return undefined;
   }
 
