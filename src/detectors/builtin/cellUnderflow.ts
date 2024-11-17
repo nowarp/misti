@@ -664,7 +664,7 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       // Check if these calls were previously processed
       let hasUnvisited = false;
       callsChain.calls.forEach((c) => {
-        if (visited.has(c.id)) {
+        if (!visited.has(c.id)) {
           hasUnvisited = true;
         }
         visited.add(c.id);
