@@ -390,10 +390,10 @@ export function getMethodCallsChain(
     calls.push(methodCall);
     currentExpr = methodCall.self;
   }
-  if (currentExpr.kind === "static_call" || calls.length > 0) {
-    return { self: currentExpr, calls: calls.reverse() };
+  if (calls.length === 0) {
+    return undefined;
   }
-  return undefined;
+  return { self: currentExpr, calls: calls.reverse() };
 }
 
 /**
