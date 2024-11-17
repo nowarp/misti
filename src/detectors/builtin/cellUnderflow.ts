@@ -811,11 +811,32 @@ export class CellUnderflow extends DataflowDetector {
     // Check if we might load more refs than we stored
     const netRefs = refsNum.stored.minus(refsNum.loaded);
     if (!refsNum.undecidable && Num.lt(netRefs.high, Num.int(0))) {
+      const [title, extraDescription, suggestion] = [
+        "Reference count might go below 0",
+        `The possible number of references stored (${refsNum.stored}) ` +
+          `is less than loaded (${refsNum.loaded})`,
+        "Remove extra .loadRef operations or store more refs first",
+      ];
       warnings.push(
-        this.makeWarning(`Reference count might go below 0`, loc, {
-          extraDescription: `The possible number of references stored (${refsNum.stored.toString()}) is less than loaded (${refsNum.loaded.toString()})`,
-          suggestion:
-            "Remove extra .loadRef operations or store more refs first",
+        this.makeWarning(title, loc, {
+          extraDescription,
+          suggestion,
+        }),
+      );
+    }
+
+    // Check for too many refs (overflow)
+    if (!refsNum.undecidable && Num.gt(refsNum.stored.low, Num.int(4))) {
+      const [title, extraDescription, suggestion] = [
+        "Too many references stored in cell",
+        `The minimum number of references stored (${refsNum.stored.low}) ` +
+          `exceeds the maximum allowed (4)`,
+        "Split your data across multiple cells - a single cell cannot store more than 4 references",
+      ];
+      warnings.push(
+        this.makeWarning(title, loc, {
+          extraDescription,
+          suggestion,
         }),
       );
     }
@@ -823,10 +844,32 @@ export class CellUnderflow extends DataflowDetector {
     // Check if we might load more data than we stored
     const netData = dataSize.stored.minus(dataSize.loaded);
     if (!dataSize.undecidable && Num.lt(netData.high, Num.int(0))) {
+      const [title, extraDescription, suggestion] = [
+        "Data size might go below 0",
+        `The possible data size stored (${dataSize.stored}) ` +
+          `is less than loaded (${dataSize.loaded})`,
+        "Remove extra .load operations or store more data first",
+      ];
       warnings.push(
-        this.makeWarning(`Data size might go below 0`, loc, {
-          extraDescription: `The possible data size stored (${dataSize.stored.toString()}) is less than loaded (${dataSize.loaded.toString()})`,
-          suggestion: "Remove extra .load operations or store more data first",
+        this.makeWarning(title, loc, {
+          extraDescription,
+          suggestion,
+        }),
+      );
+    }
+
+    // Check for data size overflow
+    if (!dataSize.undecidable && Num.gt(dataSize.stored.low, Num.int(1023))) {
+      const [title, extraDescription, suggestion] = [
+        "Data size exceeds cell capacity",
+        `The minimum data size stored (${dataSize.stored.low} bits) ` +
+          `exceeds the maximum allowed (1023 bits)`,
+        "Split your data across multiple cells - a single cell cannot store more than 1023 bits",
+      ];
+      warnings.push(
+        this.makeWarning(title, loc, {
+          extraDescription,
+          suggestion,
         }),
       );
     }
