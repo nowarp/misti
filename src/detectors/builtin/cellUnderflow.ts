@@ -233,16 +233,13 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
   /**
    * Processes the given statement, mutating `outState`.
    */
-  private processStatement(
-    outState: CellUnderflowState,
-    stmt: AstStatement,
-  ): void {
+  private processStatement(out: CellUnderflowState, stmt: AstStatement): void {
     if (stmt.kind === "statement_let") {
-      this.processLet(outState, stmt);
+      this.processLet(out, stmt);
     } else if (stmt.kind === "statement_assign") {
-      this.processAssignment(outState, stmt);
+      this.processAssignment(out, stmt);
     } else {
-      this.processIntermediateCalls(outState, stmt);
+      this.processIntermediateCalls(out, stmt);
     }
   }
 
@@ -656,7 +653,6 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     out: CellUnderflowState,
     stmt: AstStatement,
   ): void {
-    const visited: Set<AstNode["id"]> = new Set();
     forEachExpression(stmt, (expr) => {
       const callsChain = getMethodCallsChain(expr);
       if (callsChain === undefined) return;
@@ -664,10 +660,9 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       // Check if these calls were previously processed
       let hasUnvisited = false;
       callsChain.calls.forEach((c) => {
-        if (!visited.has(c.id)) {
+        if (!this.processedCalls.has(c.id)) {
           hasUnvisited = true;
         }
-        visited.add(c.id);
       });
       if (!hasUnvisited) return;
 
