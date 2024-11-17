@@ -1,29 +1,49 @@
 [CRITICAL] CellUnderflow: Reference count might go below 0
 test/detectors/CellUnderflow.tact:2:9:
   1 | fun refs_num_bad(c: Cell) {
-> 2 |     let s1 = beginCell().storeRef(c).endCell().asSlice();
+> 2 |     let s1 = beginCell()
               ^
-  3 |     let ref1 = s1.loadRef(); // OK
+  3 |                .storeRef(c)
 The possible number of references stored (1) is less than loaded (2)
 Help: Remove extra .loadRef operations or store more refs first
 See: https://nowarp.io/tools/misti/docs/detectors/CellUnderflow
 
 [CRITICAL] CellUnderflow: Reference count might go below 0
-test/detectors/CellUnderflow.tact:4:9:
-  3 |     let ref1 = s1.loadRef(); // OK
-> 4 |     let ref2 = s1.loadRef(); // Bad: Cell Underflow
+test/detectors/CellUnderflow.tact:7:9:
+  6 |     let ref1 = s1.loadRef(); // OK
+> 7 |     let ref2 = s1.loadRef(); // Bad: Cell Underflow
               ^
-  5 | 
+  8 | 
 The possible number of references stored (1) is less than loaded (2)
 Help: Remove extra .loadRef operations or store more refs first
 See: https://nowarp.io/tools/misti/docs/detectors/CellUnderflow
 
 [CRITICAL] CellUnderflow: Reference count might go below 0
-test/detectors/CellUnderflow.tact:7:5:
-  6 |     // Bad: Cell Underflow
-> 7 |     beginCell()
-          ^
-  8 |         .endCell()
+test/detectors/CellUnderflow.tact:9:5:
+   8 | 
+>  9 |     beginCell()
+           ^
+  10 |         .endCell()
+The possible number of references stored (0) is less than loaded (1)
+Help: Remove extra .loadRef operations or store more refs first
+See: https://nowarp.io/tools/misti/docs/detectors/CellUnderflow
+
+[CRITICAL] CellUnderflow: Reference count might go below 0
+test/detectors/CellUnderflow.tact:15:5:
+  14 |     // Cell Overflow when storing a known local builder
+> 15 |     let b1 = beginCell()
+           ^
+  16 |                .storeRef(c)
+The possible number of references stored (0) is less than loaded (1)
+Help: Remove extra .loadRef operations or store more refs first
+See: https://nowarp.io/tools/misti/docs/detectors/CellUnderflow
+
+[CRITICAL] CellUnderflow: Reference count might go below 0
+test/detectors/CellUnderflow.tact:20:5:
+  19 |                .storeRef(c); // OK: Builder storing 4 references
+> 20 |     let c1 = beginCell()
+           ^
+  21 |                .storeBuilder(b1)
 The possible number of references stored (0) is less than loaded (1)
 Help: Remove extra .loadRef operations or store more refs first
 See: https://nowarp.io/tools/misti/docs/detectors/CellUnderflow

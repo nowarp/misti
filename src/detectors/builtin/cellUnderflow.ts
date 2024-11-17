@@ -56,6 +56,14 @@ type StorageValue = {
   loaded: Interval;
 };
 
+const undecidableStorageValue = (): StorageValue => {
+  return {
+    undecidable: true,
+    stored: Interval.EMPTY,
+    loaded: Interval.EMPTY,
+  };
+};
+
 /**
  * Tracks data stored by this variable.
  * It includes only statically decidable information. Storage operations with
@@ -70,6 +78,13 @@ type VariableStorage = {
    * Possible number of data bits stored or loaded for this variable.
    */
   dataSize: StorageValue;
+};
+
+const undecidableVariableStorage = (): VariableStorage => {
+  return {
+    refsNum: undecidableStorageValue(),
+    dataSize: undecidableStorageValue(),
+  };
 };
 
 /**
@@ -506,6 +521,11 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
         variable.value.storage.dataSize.loaded.plus(loadSize);
       return;
     }
+    const localVariablesSize = this.getLocalVariablesSize(out, variable, call);
+    if (localVariablesSize !== undefined) {
+      variable.value.storage = localVariablesSize;
+      return;
+    }
   }
 
   /**
@@ -567,12 +587,13 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     if (variable.value.kind !== VariableKind.Builder) {
       return undefined;
     }
+
     // Try to extract constant store size
     const size = getConstantStoreSize(call);
     if (size !== undefined) {
       return Interval.fromNum(size);
     }
-    // TODO: use local variables from `out`
+
     // TODO set undecidable if `store` call but the size is undecidable
     return undefined;
   }
@@ -600,6 +621,59 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     // TODO Support preload operations
     // TODO: use local variables from `out`
     // TODO set undecidable if `load` call but the size is undecidable
+    return undefined;
+  }
+
+ /**
+   * Updates storage tracking when builders/slices are stored into other builders.
+   *
+   * @param out Current dataflow state containing tracked variables
+   * @param variable Variable being modified (the builder storing data)
+   * @param call The storeBuilder/storeSlice method call
+   * @returns Updated storage state after combining variables, or undefined if not a store operation.
+   *          Returns undecidable storage if the stored variable can't be tracked.
+   */
+  private getLocalVariablesSize(
+    out: CellUnderflowState,
+    variable: VariableRhs,
+    call: AstMethodCall,
+  ): VariableStorage | undefined {
+    if (["storeBuilder", "storeSlice"].includes(idText(call.method))) {
+      // Try to find a stored builder in the dataflow state.
+      const arg = call.args[0];
+      if (arg.kind === "id") {
+        const builderName = idText(arg) as VariableName;
+        const builder = out.builders.get(builderName);
+        if (builder) {
+          const { storage: varStorage } = variable.value;
+          const { storage: builderStorage } = builder;
+          return {
+            dataSize: {
+              undecidable:
+                varStorage.dataSize.undecidable &&
+                builderStorage.dataSize.undecidable,
+              stored: varStorage.dataSize.stored.plus(
+                builderStorage.dataSize.stored,
+              ),
+              loaded: varStorage.dataSize.loaded,
+            },
+            refsNum: {
+              undecidable:
+                varStorage.refsNum.undecidable &&
+                builderStorage.refsNum.undecidable,
+              stored: varStorage.refsNum.stored.plus(
+                builderStorage.refsNum.stored,
+              ),
+              loaded: varStorage.refsNum.loaded,
+            },
+          };
+        }
+      }
+      // Unknown Builder/Slice => size is statically undecidable
+      return undecidableVariableStorage();
+    }
+
+    // The call doesn't involve any operations with local variables.
     return undefined;
   }
 
