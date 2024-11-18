@@ -13,7 +13,7 @@ import {
   AstStaticCall,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
-type CGNodeId = number & { readonly brand: unique symbol };
+export type CGNodeId = number & { readonly brand: unique symbol };
 type CGEdgeId = number & { readonly brand: unique symbol };
 
 /**
