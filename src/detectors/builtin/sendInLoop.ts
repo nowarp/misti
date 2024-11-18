@@ -185,7 +185,7 @@ export class SendInLoop extends ASTDetector {
       stmt.kind === "statement_foreach"
     );
   }
-  
+
   private getFunctionName(
     func: AstFunctionDef | AstReceiver | AstContractInit,
   ): string | undefined {
