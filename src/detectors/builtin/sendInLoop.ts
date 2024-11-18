@@ -1,12 +1,11 @@
 import { CompilationUnit } from "../../internals/ir";
-import { CallGraph } from "../../internals/ir/callGraph";
-import { CGNodeId } from "../../internals/ir/callGraph"; // Import CGNodeId type
+import { CallGraph, CGNodeId } from "../../internals/ir/callGraph";
 import {
   forEachStatement,
   foldExpressions,
   isSelf,
-  forEachExpression,
 } from "../../internals/tact";
+import { unreachable } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import {
@@ -16,12 +15,12 @@ import {
   AstFunctionDef,
   AstReceiver,
   AstContractInit,
-  AstStaticCall,
-  AstMethodCall,
+  AstNode,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
- * An optional detector that identifies send functions being called inside loops.
+ * An optional detector that identifies send functions being called inside loops,
+ * including indirect calls via other functions.
  *
  * ## Why is it bad?
  * Calling send functions inside loops can lead to unintended consequences, such as
@@ -51,53 +50,63 @@ export class SendInLoop extends ASTDetector {
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const processedLoopIds = new Set<number>();
     const allWarnings: MistiTactWarning[] = [];
-    const callGraph = new CallGraph(this.ctx);
-    callGraph.build(cu.ast);
-    const nodeNameToIdMap = new Map<string, CGNodeId>();
+    const astStore = cu.ast;
+    const ctx = this.ctx;
+    const callGraph = new CallGraph(ctx).build(astStore);
+    const astIdToCGNodeId = new Map<number, CGNodeId>();
     for (const [nodeId, node] of callGraph.getNodes()) {
-      nodeNameToIdMap.set(node.name, nodeId);
+      if (node.astId !== undefined) {
+        astIdToCGNodeId.set(node.astId, nodeId);
+      }
     }
 
-    // Identify all functions that directly call send functions
-    const functionsThatCallSend = new Set<CGNodeId>();
-    for (const node of cu.ast.getProgramEntries()) {
-      if (
-        node.kind === "function_def" ||
-        node.kind === "receiver" ||
-        node.kind === "contract_init"
-      ) {
-        const func = node as AstFunctionDef | AstReceiver | AstContractInit;
-        let callsSend = false;
-        forEachExpression(func, (expr) => {
+    // Collect functions that directly call send functions
+    const functionsCallingSend = new Set<CGNodeId>();
+
+    // Identify all functions that contain a send call
+    for (const func of astStore.getFunctions()) {
+      let containsSend = false;
+      foldExpressions(
+        func,
+        (acc, expr) => {
           if (this.isSendCall(expr)) {
-            callsSend = true;
+            containsSend = true;
           }
-        });
-        if (callsSend) {
-          const functionName = this.getFunctionName(func);
-          if (functionName) {
-            const nodeId = nodeNameToIdMap.get(functionName);
-            if (nodeId !== undefined) {
-              functionsThatCallSend.add(nodeId);
-            }
+          return acc;
+        },
+        null,
+      );
+
+      if (containsSend) {
+        const funcName = this.getFunctionName(func);
+        if (funcName) {
+          const nodeId = callGraph.getNodeIdByName(funcName);
+          if (nodeId !== undefined) {
+            functionsCallingSend.add(nodeId);
           }
         }
       }
     }
 
-    // Analyze the AST to find loops and check for function calls inside loops
-    for (const node of cu.ast.getProgramEntries()) {
+    // Identify all functions that can lead to a send call
+    const functionsLeadingToSend = this.getFunctionsLeadingToSend(
+      callGraph,
+      functionsCallingSend,
+    );
+
+    // Analyze loops and check if any function called within leads to a send
+    Array.from(cu.ast.getProgramEntries()).forEach((node) => {
       forEachStatement(node, (stmt) => {
         const warnings = this.analyzeStatement(
           stmt,
           processedLoopIds,
-          functionsThatCallSend,
-          nodeNameToIdMap,
           callGraph,
+          astIdToCGNodeId,
+          functionsLeadingToSend,
         );
         allWarnings.push(...warnings);
       });
-    }
+    });
 
     return allWarnings;
   }
@@ -105,19 +114,22 @@ export class SendInLoop extends ASTDetector {
   private analyzeStatement(
     stmt: AstStatement,
     processedLoopIds: Set<number>,
-    functionsThatCallSend: Set<CGNodeId>,
-    nodeNameToIdMap: Map<string, CGNodeId>,
     callGraph: CallGraph,
+    astIdToCGNodeId: Map<number, CGNodeId>,
+    functionsLeadingToSend: Set<CGNodeId>,
   ): MistiTactWarning[] {
     if (processedLoopIds.has(stmt.id)) {
       return [];
     }
     if (this.isLoop(stmt)) {
       processedLoopIds.add(stmt.id);
+
       const warnings: MistiTactWarning[] = [];
+
+      // Check direct send calls within the loop
       foldExpressions(
         stmt,
-        (acc, expr) => {
+        (acc: MistiTactWarning[], expr: AstExpression) => {
           if (this.isSendCall(expr)) {
             acc.push(
               this.makeWarning("Send function called inside a loop", expr.loc, {
@@ -125,44 +137,70 @@ export class SendInLoop extends ASTDetector {
                   "Consider refactoring to avoid calling send functions inside loops",
               }),
             );
-          } else if (
-            expr.kind === "static_call" ||
-            expr.kind === "method_call"
-          ) {
-            // It's a function call
-            const functionName =
-              expr.kind === "static_call"
-                ? idText((expr as AstStaticCall).function)
-                : idText((expr as AstMethodCall).method);
-            // Node ID from the mapping
-            const nodeId = nodeNameToIdMap.get(functionName);
-            if (nodeId !== undefined) {
-              // Check if this function can reach any function that calls send
-              for (const sendFuncId of functionsThatCallSend) {
-                if (callGraph.areConnected(nodeId, sendFuncId)) {
-                  acc.push(
-                    this.makeWarning(
-                      `Function "${functionName}" called inside a loop may eventually call a send function`,
-                      expr.loc,
-                      {
-                        suggestion:
-                          "Consider refactoring to avoid calling send functions inside loops",
-                      },
-                    ),
-                  );
-                  break;
-                }
-              }
-            }
           }
           return acc;
         },
         warnings,
       );
+
+      // Check function calls within the loop that lead to send
+      this.forEachExpression(stmt, (expr: AstExpression) => {
+        if (expr.kind === "static_call" || expr.kind === "method_call") {
+          const calleeName = this.getCalleeName(expr);
+          if (calleeName) {
+            const calleeNodeId = callGraph.getNodeIdByName(calleeName);
+            if (
+              calleeNodeId !== undefined &&
+              functionsLeadingToSend.has(calleeNodeId)
+            ) {
+              warnings.push(
+                this.makeWarning(
+                  `Function "${calleeName}" called inside a loop leads to a send function`,
+                  expr.loc,
+                  {
+                    suggestion:
+                      "Consider refactoring to avoid calling send functions inside loops",
+                  },
+                ),
+              );
+            }
+          }
+        }
+      });
+
       return warnings;
     }
     // If the statement is not a loop, don't flag anything
     return [];
+  }
+
+  private getFunctionsLeadingToSend(
+    callGraph: CallGraph,
+    functionsCallingSend: Set<CGNodeId>,
+  ): Set<CGNodeId> {
+    const functionsLeadingToSend = new Set<CGNodeId>(functionsCallingSend);
+
+    // Use a queue for BFS
+    const queue: CGNodeId[] = Array.from(functionsCallingSend);
+
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      const currentNode = callGraph.getNode(current);
+      if (currentNode) {
+        for (const edgeId of currentNode.inEdges) {
+          const edge = callGraph.getEdge(edgeId);
+          if (edge) {
+            const callerId = edge.src;
+            if (!functionsLeadingToSend.has(callerId)) {
+              functionsLeadingToSend.add(callerId);
+              queue.push(callerId);
+            }
+          }
+        }
+      }
+    }
+
+    return functionsLeadingToSend;
   }
 
   private isSendCall(expr: AstExpression): boolean {
@@ -197,7 +235,31 @@ export class SendInLoop extends ASTDetector {
       case "receiver":
         return `receiver_${func.id}`;
       default:
-        return undefined;
+        unreachable(func);
     }
+  }
+
+  private getCalleeName(expr: AstExpression): string | undefined {
+    if (expr.kind === "static_call") {
+      return idText(expr.function);
+    } else if (expr.kind === "method_call") {
+      return idText(expr.method);
+    }
+    return undefined;
+  }
+
+  // Helper method to traverse expressions
+  private forEachExpression(
+    node: AstNode,
+    callback: (expr: AstExpression) => void,
+  ): void {
+    foldExpressions(
+      node,
+      (acc, expr) => {
+        callback(expr);
+        return acc;
+      },
+      null,
+    );
   }
 }

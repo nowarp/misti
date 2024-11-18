@@ -1,62 +1,71 @@
 [MEDIUM] SendInLoop: Send function called inside a loop
-test/detectors/SendInLoop.tact:6:13:
-  5 |         while (i < 10) {
-> 6 |             send(SendParameters{
+test/detectors/SendInLoop.tact:5:13:
+  4 |         while (i < 10) {
+> 5 |             send(SendParameters{
                   ^
-  7 |                 to: sender(),
+  6 |                 to: sender(),
 Help: Consider refactoring to avoid calling send functions inside loops
 See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
 
 [MEDIUM] SendInLoop: Send function called inside a loop
-test/detectors/SendInLoop.tact:16:13:
-  15 |         repeat (10) {
-> 16 |             send(SendParameters{
+test/detectors/SendInLoop.tact:15:13:
+  14 |         repeat (10) {
+> 15 |             send(SendParameters{
                    ^
-  17 |                 to: sender(),
+  16 |                 to: sender(),
 Help: Consider refactoring to avoid calling send functions inside loops
 See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
 
 [MEDIUM] SendInLoop: Send function called inside a loop
-test/detectors/SendInLoop.tact:26:13:
-  25 |         do {
-> 26 |             send(SendParameters{
+test/detectors/SendInLoop.tact:25:13:
+  24 |         do {
+> 25 |             send(SendParameters{
                    ^
-  27 |                 to: sender(),
+  26 |                 to: sender(),
 Help: Consider refactoring to avoid calling send functions inside loops
 See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
 
 [MEDIUM] SendInLoop: Send function called inside a loop
-test/detectors/SendInLoop.tact:37:13:
-  36 |         foreach (k, v in m) {
-> 37 |             send(SendParameters{
+test/detectors/SendInLoop.tact:36:13:
+  35 |         foreach (k, v in m) {
+> 36 |             send(SendParameters{
                    ^
-  38 |                 to: sender(),
+  37 |                 to: sender(),
 Help: Consider refactoring to avoid calling send functions inside loops
 See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
 
 [MEDIUM] SendInLoop: Send function called inside a loop
-test/detectors/SendInLoop.tact:48:17:
-  47 |             repeat (10) {
-> 48 |                 send(SendParameters{
+test/detectors/SendInLoop.tact:47:17:
+  46 |             repeat (10) {
+> 47 |                 send(SendParameters{
                        ^
-  49 |                     to: sender(),
+  48 |                     to: sender(),
 Help: Consider refactoring to avoid calling send functions inside loops
 See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
 
-[MEDIUM] SendInLoop: Send function called inside a loop
-test/detectors/SendInLoop.tact:80:19:
-  79 |             i += 1;
-> 80 |          let a =  send(SendParameters{
-                         ^
-  81 |                 to: self.owner,
-Help: Consider refactoring to avoid calling send functions inside loops
-See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
-
-[MEDIUM] SendInLoop: Send function called inside a loop
-test/detectors/SendInLoop.tact:93:13:
-  92 |         while (i < 5) {
-> 93 |             self.reply(Msg{ a: i }.toCell());
+[MEDIUM] SendInLoop: Function "indirectSend" called inside a loop leads to a send function
+test/detectors/SendInLoop.tact:91:13:
+  90 |             i += 1;
+> 91 |             self.indirectSend(i);
                    ^
-  94 |             i = i + 1;
+  92 |         }
+Help: Consider refactoring to avoid calling send functions inside loops
+See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
+
+[MEDIUM] SendInLoop: Function "intermediateCall" called inside a loop leads to a send function
+test/detectors/SendInLoop.tact:120:13:
+  119 |         while (i < limit) {
+> 120 |             self.intermediateCall(i);
+                    ^
+  121 |             i += 1;
+Help: Consider refactoring to avoid calling send functions inside loops
+See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop
+
+[MEDIUM] SendInLoop: Function "deepNestSend" called inside a loop leads to a send function
+test/detectors/SendInLoop.tact:140:17:
+  139 |             if (value > 0) {
+> 140 |                 self.deepNestSend(value);
+                        ^
+  141 |             }
 Help: Consider refactoring to avoid calling send functions inside loops
 See: https://nowarp.io/tools/misti/docs/detectors/SendInLoop

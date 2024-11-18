@@ -81,6 +81,33 @@ export class CallGraph {
   }
 
   /**
+   * Retrieves the node ID associated with a given function name.
+   * @param name The function name.
+   * @returns The corresponding node ID, or undefined if not found.
+   */
+  public getNodeIdByName(name: string): CGNodeId | undefined {
+    return this.nameToNodeId.get(name);
+  }
+
+  /**
+   * Retrieves a node from the graph by its ID.
+   * @param nodeId The ID of the node.
+   * @returns The `CGNode` instance, or undefined if not found.
+   */
+  public getNode(nodeId: CGNodeId): CGNode | undefined {
+    return this.nodeMap.get(nodeId);
+  }
+
+  /**
+   * Retrieves an edge from the graph by its ID.
+   * @param edgeId The ID of the edge.
+   * @returns The `CGEdge` instance, or undefined if not found.
+   */
+  public getEdge(edgeId: CGEdgeId): CGEdge | undefined {
+    return this.edgesMap.get(edgeId);
+  }
+
+  /**
    * Builds the call graph based on functions in the provided AST store.
    * @param astStore - The AST store containing functions to be added to the graph.
    * @returns The constructed `CallGraph`.
@@ -100,42 +127,6 @@ export class CallGraph {
     }
     this.analyzeFunctionCalls(astStore);
     return this;
-  }
-
-  /**
-   * Determines if there exists a path in the call graph from the source node to the destination node.
-   * This method performs a breadth-first search to find if the destination node is reachable from the source node.
-   *
-   * @param src The ID of the source node to start the search from
-   * @param dst The ID of the destination node to search for
-   * @returns true if there exists a path from src to dst in the call graph, false otherwise
-   *          Returns false if either src or dst node IDs are not found in the graph
-   */
-  public areConnected(src: CGNodeId, dst: CGNodeId): boolean {
-    const srcNode = this.nodeMap.get(src);
-    const dstNode = this.nodeMap.get(dst);
-    if (!srcNode || !dstNode) {
-      return false;
-    }
-    const queue: CGNodeId[] = [src];
-    const visited = new Set<CGNodeId>([src]);
-    while (queue.length > 0) {
-      const current = queue.shift()!;
-      if (current === dst) {
-        return true;
-      }
-      const currentNode = this.nodeMap.get(current);
-      if (currentNode) {
-        for (const edgeId of currentNode.outEdges) {
-          const edge = this.edgesMap.get(edgeId);
-          if (edge && !visited.has(edge.dst)) {
-            visited.add(edge.dst);
-            queue.push(edge.dst);
-          }
-        }
-      }
-    }
-    return false;
   }
 
   /**
