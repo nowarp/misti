@@ -1,0 +1,139 @@
+[CRITICAL] CellBounds: Reference count might go below 0
+test/detectors/CellBounds.tact:2:9:
+  1 | fun refs_underflow(c: Cell) {
+> 2 |     let s1 = beginCell()
+              ^
+  3 |                .storeRef(c)
+The possible number of references stored (1) is less than loaded (2)
+Help: Remove extra .loadRef operations or store more refs first
+See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
+
+[CRITICAL] CellBounds: Reference count might go below 0
+test/detectors/CellBounds.tact:7:9:
+  6 |     let ref1 = s1.loadRef(); // OK
+> 7 |     let ref2 = s1.loadRef(); // Bad: Cell Underflow
+              ^
+  8 | 
+The possible number of references stored (1) is less than loaded (2)
+Help: Remove extra .loadRef operations or store more refs first
+See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
+
+[CRITICAL] CellBounds: Too many references stored in cell
+test/detectors/CellBounds.tact:22:9:
+  21 |                .storeRef(c); // OK: Builder storing 4 references
+> 22 |     let c1 = beginCell() // Bad: We got 5 references
+               ^
+  23 |                .storeBuilder(b1)
+The minimum number of references stored (5) exceeds the maximum allowed (4)
+Help: Split your data across multiple cells - a single cell cannot store more than 4 references
+See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
+
+[CRITICAL] CellBounds: Too many references stored in cell
+test/detectors/CellBounds.tact:27:9:
+  26 | 
+> 27 |     let c2 = // Bad: 4+ refs
+               ^
+  28 |     beginCell()
+The minimum number of references stored (5) exceeds the maximum allowed (4)
+Help: Split your data across multiple cells - a single cell cannot store more than 4 references
+See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
+
+[CRITICAL] CellBounds: Too many references stored in cell
+test/detectors/CellBounds.tact:41:4:
+  40 |    b2 = b2.storeRef(c);
+> 41 |    b2 = b2.storeRef(c); // Bad: 4+ refs
+          ^
+  42 |    let c3 = b2.endCell(); // Bad: 4+ refs
+The minimum number of references stored (5) exceeds the maximum allowed (4)
+Help: Split your data across multiple cells - a single cell cannot store more than 4 references
+See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
+
+[CRITICAL] CellBounds: Too many references stored in cell
+test/detectors/CellBounds.tact:42:8:
+  41 |    b2 = b2.storeRef(c); // Bad: 4+ refs
+> 42 |    let c3 = b2.endCell(); // Bad: 4+ refs
+              ^
+  43 | 
+The minimum number of references stored (5) exceeds the maximum allowed (4)
+Help: Split your data across multiple cells - a single cell cannot store more than 4 references
+See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
+
+[CRITICAL] CellBounds: Too many references stored in cell
+test/detectors/CellBounds.tact:44:8:
+  43 | 
+> 44 |    let b3 = b2;
+              ^
+  45 |    let c4 = b3.endCell(); // Bad: 4+ refs
+The minimum number of references stored (5) exceeds the maximum allowed (4)
+Help: Split your data across multiple cells - a single cell cannot store more than 4 references
+See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
+
+[CRITICAL] CellBounds: Too many references stored in cell
+test/detectors/CellBounds.tact:45:8:
+  44 |    let b3 = b2;
+> 45 |    let c4 = b3.endCell(); // Bad: 4+ refs
+              ^
+  46 | }
+The minimum number of references stored (5) exceeds the maximum allowed (4)
+Help: Split your data across multiple cells - a single cell cannot store more than 4 references
+See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
+
+[CRITICAL] CellBounds: Data size exceeds cell capacity
+test/detectors/CellBounds.tact:53:5:
+  52 |     b1 = b1.storeInt(42, 256+1);
+> 53 |     b1 = b1.storeInt(42, 257); // Bad: 1023+ bits
+           ^
+  54 |     let c1 = b1.endCell(); // Bad: 1023+ bits
+The minimum data size stored (1028 bits) exceeds the maximum allowed (1023 bits)
+Help: Split your data across multiple cells - a single cell cannot store more than 1023 bits
+See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
+
+[CRITICAL] CellBounds: Data size exceeds cell capacity
+test/detectors/CellBounds.tact:54:9:
+  53 |     b1 = b1.storeInt(42, 257); // Bad: 1023+ bits
+> 54 |     let c1 = b1.endCell(); // Bad: 1023+ bits
+               ^
+  55 | 
+The minimum data size stored (1028 bits) exceeds the maximum allowed (1023 bits)
+Help: Split your data across multiple cells - a single cell cannot store more than 1023 bits
+See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
+
+[CRITICAL] CellBounds: Data size exceeds cell capacity
+test/detectors/CellBounds.tact:61:5:
+  60 |            .storeInt(1, 210); // Total size: 981
+> 61 |     b2 = b2.storeCoins(40000000000); // Bad: 44 + 981 = 1025 => overflow
+           ^
+  62 |     c1 = b2.endCell(); // Bad
+The minimum data size stored (1025 bits) exceeds the maximum allowed (1023 bits)
+Help: Split your data across multiple cells - a single cell cannot store more than 1023 bits
+See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
+
+[CRITICAL] CellBounds: Data size exceeds cell capacity
+test/detectors/CellBounds.tact:62:5:
+  61 |     b2 = b2.storeCoins(40000000000); // Bad: 44 + 981 = 1025 => overflow
+> 62 |     c1 = b2.endCell(); // Bad
+           ^
+  63 | 
+The minimum data size stored (1025 bits) exceeds the maximum allowed (1023 bits)
+Help: Split your data across multiple cells - a single cell cannot store more than 1023 bits
+See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
+
+[CRITICAL] CellBounds: Data size exceeds cell capacity
+test/detectors/CellBounds.tact:70:5:
+  69 |     let b3 = beginCell();
+> 70 |     b3 = b3.storeBuilder(b_1000_bits) // Bad: 1025 bits
+           ^
+  71 |            .storeInt(1, 25);
+The minimum data size stored (1025 bits) exceeds the maximum allowed (1023 bits)
+Help: Split your data across multiple cells - a single cell cannot store more than 1023 bits
+See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
+
+[CRITICAL] CellBounds: Data size exceeds cell capacity
+test/detectors/CellBounds.tact:72:5:
+  71 |            .storeInt(1, 25);
+> 72 |     c1 = b3.endCell(); // Bad: 1025 bits
+           ^
+  73 | }
+The minimum data size stored (1025 bits) exceeds the maximum allowed (1023 bits)
+Help: Split your data across multiple cells - a single cell cannot store more than 1023 bits
+See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
