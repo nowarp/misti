@@ -233,16 +233,32 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     _node: BasicBlock,
     stmt: AstStatement,
   ): CellUnderflowState {
-    const outState = {
-      builders: new Map(inState.builders),
-      cells: new Map(inState.cells),
-      slices: new Map(inState.slices),
-      messages: new Map(inState.messages),
-      structs: new Map(inState.structs),
-      intermediateVariables: [...inState.intermediateVariables],
+    const copyVarMap = <K>(map: Map<K, Variable>): Map<K, Variable> =>
+      new Map(
+        Array.from(map).map(([k, v]) => [
+          k,
+          { ...v, storage: deepCopyVariableStorage(v.storage) },
+        ]),
+      );
+    const copyVarArray = <T extends { storage: VariableStorage }>(
+      arr: T[],
+    ): T[] =>
+      arr.map(
+        (v) => ({ ...v, storage: deepCopyVariableStorage(v.storage) }) as T,
+      );
+
+    // Create deep copy of state
+    const out = {
+      builders: copyVarMap(inState.builders),
+      cells: copyVarMap(inState.cells),
+      slices: copyVarMap(inState.slices),
+      messages: copyVarMap(inState.messages),
+      structs: copyVarMap(inState.structs),
+      intermediateVariables: copyVarArray(inState.intermediateVariables),
     };
-    this.processStatement(outState, stmt);
-    return outState;
+
+    this.processStatement(out, stmt);
+    return out;
   }
 
   /**
