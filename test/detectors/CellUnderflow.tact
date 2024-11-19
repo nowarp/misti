@@ -7,9 +7,9 @@ fun refs_underflow(c: Cell) {
     let ref2 = s1.loadRef(); // Bad: Cell Underflow
 
     beginCell() // Bad: Cell Underflow
-        .endCell()
-        .asSlice()
-    .loadRef();
+      .endCell()
+      .asSlice()
+      .loadRef();
 }
 
 fun refs_overflow(c: Cell) {
@@ -33,11 +33,34 @@ fun refs_overflow(c: Cell) {
         .storeRef(c)
         .endCell();
 
-    let b2 = beginCell();
-    b2 = b2.storeRef(c);
-    b2 = b2.storeRef(c);
-    b2 = b2.storeRef(c);
-    b2 = b2.storeRef(c);
-    b2 = b2.storeRef(c); // Bad: 4+ refs
-    let c3 = b2.endCell(); // Bad: 4+ refs
+   let b2 = beginCell();
+   b2 = b2.storeRef(c);
+   b2 = b2.storeRef(c);
+   b2 = b2.storeRef(c);
+   b2 = b2.storeRef(c);
+   b2 = b2.storeRef(c); // Bad: 4+ refs
+   let c3 = b2.endCell(); // Bad: 4+ refs
+
+   let b3 = b2;
+   let c4 = b3.endCell(); // Bad: 4+ refs
+}
+
+fun refs_num_ok(c: Cell, copt: Cell?) {
+    let c1 = // OK: Cell could be None (no taint analysis yet)
+    beginCell()
+        .storeRef(c)
+        .storeRef(c)
+        .storeRef(c)
+        .storeMaybeRef(copt)
+        .storeRef(c)
+        .endCell();
+
+    // OK: no assignments to the result of storeRef calls
+    let b1 = beginCell();
+    b1.storeRef(c);
+    b1.storeRef(c);
+    b1.storeRef(c);
+    b1.storeRef(c);
+    b1.storeRef(c);
+    c1 = b1.endCell();
 }

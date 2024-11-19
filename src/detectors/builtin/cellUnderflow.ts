@@ -31,7 +31,6 @@ import {
   AstStatementAssign,
   AstNode,
 } from "@tact-lang/compiler/dist/grammar/ast";
-import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
 type VariableName = string & { readonly __brand: unique symbol };
 enum VariableKind {
@@ -99,12 +98,12 @@ type Variable = {
 };
 
 /**
- * The point of definition hasn't been processed or we have an intermedite variable.
+ * The point of definition hasn't been processed or we have an intermediate variable.
  */
 type UnknownVariable = Omit<Variable, "name" | "loc">;
 
 /**
- * Variable expression appearing in the rhs of the variable defintion or assignment.
+ * Variable expression appearing in the rhs of the variable definition or assignment.
  */
 type VariableRhs =
   /**
@@ -321,15 +320,18 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     calls: AstMethodCall[],
     assignmentTarget: AstId,
   ): void {
-    const variables = this.processCalls(out, self, calls);
+    const variable = this.processSelf(out, self);
+    if (variable) {
+      const result = this.interpretCalls(out, variable, calls);
 
-    // Assign the final variable to the LHS of the assignment/definition.
-    if (variables.length > 0) {
-      this.createVariable(
-        out,
-        assignmentTarget,
-        variables[variables.length - 1],
+      // Apply the accumulated storage updates to the variable
+      result.variable.value.storage = this.combineStorageUpdates(
+        result.variable.value.storage,
+        result.storageUpdates,
       );
+
+      // Assign the final variable to the LHS of the assignment/definition.
+      this.createVariable(out, assignmentTarget, result.variable);
     }
   }
 
@@ -338,20 +340,112 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
    * intermediate objects in the current dataflow state.
    *
    * @param out The output state
-   * @param self The receiver of the processed method calls
+   * @param self The variable being called on (could be known or unknown)
    * @param calls The list of method calls
    */
-  private processCalls(
+  private interpretCalls(
     out: CellUnderflowState,
-    self: AstExpression,
+    variable: VariableRhs,
     calls: AstMethodCall[],
-  ): VariableRhs[] {
-    const variable = this.processSelf(out, self);
-    if (variable) {
-      const interpreted = this.interpretCalls(out, variable, calls);
-      return interpreted.length === 0 ? [variable] : interpreted;
+  ): {
+    variable: VariableRhs;
+    storageUpdates: VariableStorage;
+    intermediates: VariableRhs[];
+  } {
+    let intermediates: VariableRhs[] = [];
+    if (calls.length === 0) {
+      return {
+        variable,
+        storageUpdates: createEmptyVariableStorage(),
+        intermediates,
+      };
     }
-    return [];
+
+    const call = calls[0];
+    const methodName = idText(call.method);
+
+    // Get the storage updates from updateStorage without mutating the variable
+    const storageUpdate = this.updateStorage(out, variable, call);
+
+    // Transform type if needed
+    let newKind = variable.value.kind;
+    const typeTransforms: Record<
+      string,
+      { from: VariableKind[]; to: VariableKind | null }
+    > = {
+      endCell: { from: [VariableKind.Builder], to: VariableKind.Cell },
+      asCell: { from: [VariableKind.Builder], to: VariableKind.Cell },
+      asSlice: { from: [VariableKind.Cell], to: VariableKind.Slice },
+      beginParse: { from: [VariableKind.Cell], to: VariableKind.Slice },
+      toCell: {
+        from: [VariableKind.Message, VariableKind.Struct],
+        to: VariableKind.Cell,
+      },
+      toSlice: {
+        from: [VariableKind.Message, VariableKind.Struct],
+        to: VariableKind.Slice,
+      },
+      fromCell: { from: [VariableKind.Message, VariableKind.Struct], to: null },
+      fromSlice: {
+        from: [VariableKind.Message, VariableKind.Struct],
+        to: null,
+      },
+    };
+
+    const transform = typeTransforms[methodName];
+    if (transform && transform.from.includes(variable.value.kind)) {
+      newKind = transform.to ?? variable.value.kind;
+    }
+
+    // Create new variable if type changed
+    if (newKind !== variable.value.kind) {
+      const newVariable: VariableRhs = {
+        kind: "unknown",
+        value: {
+          kind: newKind,
+          storage: variable.value.storage, // Storage will be updated later
+        } as UnknownVariable,
+      };
+
+      // Collect the intermediate variable
+      intermediates.push(newVariable);
+
+      // Recursively process the remaining calls
+      const result = this.interpretCalls(out, newVariable, calls.slice(1));
+
+      // Combine storage updates
+      const combinedStorageUpdates = this.combineStorageUpdates(
+        storageUpdate,
+        result.storageUpdates,
+      );
+
+      // Combine intermediates
+      intermediates = intermediates.concat(result.intermediates);
+
+      return {
+        variable: result.variable,
+        storageUpdates: combinedStorageUpdates,
+        intermediates,
+      };
+    }
+
+    // If type didn't change, proceed with the same variable
+    const result = this.interpretCalls(out, variable, calls.slice(1));
+
+    // Combine storage updates
+    const combinedStorageUpdates = this.combineStorageUpdates(
+      storageUpdate,
+      result.storageUpdates,
+    );
+
+    // Combine intermediates
+    intermediates = intermediates.concat(result.intermediates);
+
+    return {
+      variable: result.variable,
+      storageUpdates: combinedStorageUpdates,
+      intermediates,
+    };
   }
 
   /**
@@ -412,86 +506,9 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
         },
       };
     }
+
     // TODO Handle initialization of messages and structures
     return value ? { kind: "unknown", value } : null;
-  }
-
-  /**
-   * Interprets a sequence of method calls on a variable to track state changes.
-   * It handles all the type conversions between Builders, Cells, Slices, etc.
-   *
-   * @param out The output state to update with any new tracked variables
-   * @param variable The variable being called on (could be known or unknown)
-   * @param calls Array of method calls to interpret
-   */
-  private interpretCalls(
-    out: CellUnderflowState,
-    variable: VariableRhs,
-    calls: AstMethodCall[],
-  ): VariableRhs[] {
-    if (calls.length === 0) return [];
-    const call = calls[0];
-    const methodName = idText(call.method);
-
-    // Update storage size for the current variable
-    this.updateStorage(out, variable, call);
-
-    // Transform type if needed
-    let newKind = variable.value.kind;
-    const typeTransforms: Record<
-      string,
-      { from: VariableKind[]; to: VariableKind | null }
-    > = {
-      endCell: { from: [VariableKind.Builder], to: VariableKind.Cell },
-      asCell: { from: [VariableKind.Builder], to: VariableKind.Cell },
-      asSlice: { from: [VariableKind.Cell], to: VariableKind.Slice },
-      beginParse: { from: [VariableKind.Cell], to: VariableKind.Slice },
-      toCell: {
-        from: [VariableKind.Message, VariableKind.Struct],
-        to: VariableKind.Cell,
-      },
-      toSlice: {
-        from: [VariableKind.Message, VariableKind.Struct],
-        to: VariableKind.Slice,
-      },
-      fromCell: { from: [VariableKind.Message, VariableKind.Struct], to: null },
-      fromSlice: {
-        from: [VariableKind.Message, VariableKind.Struct],
-        to: null,
-      },
-    };
-
-    const transform = typeTransforms[methodName];
-    if (transform && transform.from.includes(variable.value.kind)) {
-      newKind = transform.to ?? variable.value.kind;
-    }
-
-    // Track all variables in the chain
-    const variables: VariableRhs[] = [variable];
-
-    // Create new variable if type changed
-    if (newKind !== variable.value.kind) {
-      const newVariable: VariableRhs = {
-        kind: "unknown",
-        value: {
-          kind: newKind,
-          storage: deepCopyVariableStorage(variable.value.storage),
-        } as UnknownVariable,
-      };
-      variables.push(newVariable);
-
-      // Process next call with the new variable
-      return [
-        ...variables,
-        ...this.interpretCalls(out, newVariable, calls.slice(1)),
-      ];
-    }
-
-    // Process next call with the same variable
-    return [
-      ...variables,
-      ...this.interpretCalls(out, variable, calls.slice(1)),
-    ];
   }
 
   /**
@@ -501,43 +518,50 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     out: CellUnderflowState,
     variable: VariableRhs,
     call: AstMethodCall,
-  ): void {
+  ): VariableStorage {
+    const storageUpdate = createEmptyVariableStorage();
+
     const storedRefs = this.getStoredRefs(variable, call);
     if (storedRefs !== undefined) {
-      variable.value.storage.refsNum.stored =
-        variable.value.storage.refsNum.stored.plus(storedRefs);
-      return;
+      storageUpdate.refsNum.stored = storedRefs;
     }
+
     const loadedRefs = this.getLoadedRefs(variable, call);
     if (loadedRefs !== undefined) {
-      variable.value.storage.refsNum.loaded =
-        variable.value.storage.refsNum.loaded.plus(loadedRefs);
-      return;
+      storageUpdate.refsNum.loaded = loadedRefs;
     }
+
     const storeSize = this.getStoreSize(variable, call);
     if (storeSize !== undefined) {
-      variable.value.storage.dataSize.stored =
-        variable.value.storage.dataSize.stored.plus(storeSize);
-      return;
+      storageUpdate.dataSize.stored = storeSize;
     }
+
     const loadSize = this.getLoadSize(variable, call);
     if (loadSize !== undefined) {
-      variable.value.storage.dataSize.loaded =
-        variable.value.storage.dataSize.loaded.plus(loadSize);
-      return;
+      storageUpdate.dataSize.loaded = loadSize;
     }
+
     const localVariablesSize = this.getLocalVariablesSize(out, variable, call);
     if (localVariablesSize !== undefined) {
-      variable.value.storage = localVariablesSize;
-      return;
+      // Combine with existing storage updates
+      storageUpdate.dataSize = this.combineStorageValues(
+        storageUpdate.dataSize,
+        localVariablesSize.dataSize,
+      );
+      storageUpdate.refsNum = this.combineStorageValues(
+        storageUpdate.refsNum,
+        localVariablesSize.refsNum,
+      );
     }
-    // TODO set undecidable for `load`/`store` calls with unknown size/refnums
+
+    // Return the storage updates without mutating the variable
+    return storageUpdate;
   }
 
   /**
    * Returns the number of references possible stored by the method call.
    *
-   * @returns The interval of possible number of references of undefined if it
+   * @returns The interval of possible number of references or undefined if it
    *          doesn't store references.
    */
   private getStoredRefs(
@@ -562,7 +586,7 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
   /**
    * Returns the number of references possible loaded by the method call.
    *
-   * @returns The interval of possible number of references of undefined if it
+   * @returns The interval of possible number of references or undefined if it
    *          doesn't load references.
    */
   private getLoadedRefs(
@@ -580,7 +604,6 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
 
   /**
    * Returns the storage cost in bits for store operations.
-   * https://github.com/tact-lang/tact/blob/2315d035f5f9a22cad42657561c1a0eaef997b05/stdlib/std/cells.tact
    *
    * @returns The interval of possible stored value or undefined if there are no store calls.
    */
@@ -603,7 +626,6 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
 
   /**
    * Returns the storage cost in bits for load operations.
-   * https://github.com/tact-lang/tact/blob/2315d035f5f9a22cad42657561c1a0eaef997b05/stdlib/std/cells.tact
    *
    * @returns The interval of possible loaded value or undefined if there are no load calls.
    */
@@ -644,28 +666,20 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
         const builderName = idText(arg) as VariableName;
         const builder = out.builders.get(builderName);
         if (builder) {
-          const { storage: varStorage } = variable.value;
-          const { storage: builderStorage } = builder;
-          return {
-            dataSize: {
-              undecidable:
-                varStorage.dataSize.undecidable &&
-                builderStorage.dataSize.undecidable,
-              stored: varStorage.dataSize.stored.plus(
-                builderStorage.dataSize.stored,
-              ),
-              loaded: varStorage.dataSize.loaded,
-            },
-            refsNum: {
-              undecidable:
-                varStorage.refsNum.undecidable &&
-                builderStorage.refsNum.undecidable,
-              stored: varStorage.refsNum.stored.plus(
-                builderStorage.refsNum.stored,
-              ),
-              loaded: varStorage.refsNum.loaded,
-            },
-          };
+          const varStorage = createEmptyVariableStorage();
+          varStorage.dataSize = deepCopyStorage(
+            variable.value.storage.dataSize,
+          );
+          varStorage.refsNum = deepCopyStorage(variable.value.storage.refsNum);
+
+          varStorage.dataSize.stored = varStorage.dataSize.stored.plus(
+            builder.storage.dataSize.stored,
+          );
+          varStorage.refsNum.stored = varStorage.refsNum.stored.plus(
+            builder.storage.refsNum.stored,
+          );
+
+          return varStorage;
         }
       }
       // Unknown Builder/Slice => size is statically undecidable
@@ -677,12 +691,11 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
   }
 
   /**
-   * Defines or reassignes a new variable in the output state.
+   * Defines or reassigns a new variable in the output state.
    *
    * @param out The output state
    * @param lhs Variable at the lhs of the assignment that will be stored in the output state
    * @param variable The rhs of the assignment/definition that will be assigned to the lhs
-   * @param kind The kind of the assignee
    */
   private createVariable(
     out: CellUnderflowState,
@@ -741,12 +754,50 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       if (!hasUnvisited) return;
 
       const { self, calls } = callsChain;
-      this.processCalls(out, self, calls).forEach((variable) => {
-        if (variable.kind === "unknown") {
-          out.intermediateVariables.push(variable.value);
+      const variable = this.processSelf(out, self);
+      if (!variable) return;
+
+      const result = this.interpretCalls(out, variable, calls);
+
+      // Do NOT apply the accumulated storage updates to the variable here
+      // Since the method calls are not assigned, we should not update the variable's storage
+
+      // Collect intermediate variables
+      result.intermediates.forEach((intermediateVar) => {
+        if (intermediateVar.kind === "unknown") {
+          out.intermediateVariables.push(intermediateVar.value);
         }
       });
+
+      // Also add the final variable if it's unknown
+      if (result.variable.kind === "unknown") {
+        out.intermediateVariables.push(result.variable.value);
+      }
     });
+  }
+
+  /**
+   * Combines two StorageValue instances.
+   */
+  private combineStorageValues(a: StorageValue, b: StorageValue): StorageValue {
+    return {
+      undecidable: a.undecidable || b.undecidable,
+      stored: a.stored.plus(b.stored),
+      loaded: a.loaded.plus(b.loaded),
+    };
+  }
+
+  /**
+   * Combines two VariableStorage instances.
+   */
+  private combineStorageUpdates(
+    a: VariableStorage,
+    b: VariableStorage,
+  ): VariableStorage {
+    return {
+      refsNum: this.combineStorageValues(a.refsNum, b.refsNum),
+      dataSize: this.combineStorageValues(a.dataSize, b.dataSize),
+    };
   }
 }
 
@@ -773,31 +824,6 @@ function deepCopyVariableStorage(storage: VariableStorage): VariableStorage {
 
 /**
  * A detector that identifies cell underflow problems.
- *
- * ## Why is it bad?
- * Cell underflow is an issue specific to the TON blockchain. TON stores data in
- * cells, which are low-level data structures used for serialization and deserialization.
- *
- * The underflow issue occurs when the user attempts to get more data from a
- * structure than it supports. cells. When it happens, the contract throws an
- * error with the exit code `9` during the compute phase.
- *
- * ## Example
- * ```tact
- * let s: Slice = beginCell().storeInt(1, 4).asSlice();
- * let data: Int = s.loadInt(5); // Bad: Cell Underflow
- * ```
- *
- * Use instead:
- * ```tact
- * let s: Slice = beginCell().storeInt(1, 4).asSlice();
- * let data: Int = s.loadInt(4); // OK
- * ```
- *
- * ## Resources
- * 1. [Cell & Bag of Cells (BoC) | TON Docs](https://docs.ton.org/develop/data-formats/cell-boc)
- * 2. [TVM Exit codes | TON Docs](https://docs.ton.org/learn/tvm-instructions/tvm-exit-codes)
- * 3. [Cells, Builders and Slices | Tact Docs](https://docs.tact-lang.org/ref/core-cells/)
  */
 export class CellUnderflow extends DataflowDetector {
   severity = Severity.CRITICAL;
@@ -980,5 +1006,12 @@ function createEmptyStorageValue(): StorageValue {
     undecidable: false,
     stored: Interval.fromNum(0),
     loaded: Interval.fromNum(0),
+  };
+}
+
+function createEmptyVariableStorage(): VariableStorage {
+  return {
+    refsNum: createEmptyStorageValue(),
+    dataSize: createEmptyStorageValue(),
   };
 }
