@@ -45,6 +45,34 @@ fun refs_overflow(c: Cell) {
    let c4 = b3.endCell(); // Bad: 4+ refs
 }
 
+fun data_overflow() {
+    let b1 = beginCell();
+    b1 = b1.storeInt(42, 257);
+    b1 = b1.storeInt(42, 259-2);
+    b1 = b1.storeInt(42, 256+1);
+    b1 = b1.storeInt(42, 257); // Bad: 1023+ bits
+    let c1 = b1.endCell(); // Bad: 1023+ bits
+
+    let b2 = beginCell();
+    b2 = b2.storeInt(1, 257)
+           .storeInt(1, 257)
+           .storeInt(1, 257)
+           .storeInt(1, 210); // Total size: 981
+    b2 = b2.storeCoins(40000000000); // Bad: 44 + 981 = 1025 => overflow
+    c1 = b2.endCell(); // Bad
+
+    let b_1000_bits = beginCell()
+           .storeInt(1, 257)
+           .storeInt(1, 257)
+           .storeInt(1, 257)
+           .storeInt(1, 229);
+    let b3 = beginCell();
+    b3 = b3.storeBuilder(b_1000_bits) // Bad: 1025 bits
+           .storeInt(1, 25);
+    c1 = b3.endCell(); // Bad: 1025 bits
+}
+
+
 fun refs_num_ok(c: Cell, copt: Cell?) {
     let c1 = // OK: Cell could be None (no taint analysis yet)
     beginCell()
