@@ -318,13 +318,6 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
   ): void {
     const variables = this.processCalls(out, self, calls);
 
-    // Track all intermediate variables except the last one
-    variables.slice(0, -1).forEach((variable) => {
-      if (variable.kind === "unknown") {
-        out.intermediateVariables.push(variable.value);
-      }
-    });
-
     // Assign the final variable to the LHS of the assignment/definition.
     if (variables.length > 0) {
       this.createVariable(
