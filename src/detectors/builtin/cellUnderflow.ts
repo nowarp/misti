@@ -237,12 +237,6 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
           { ...v, storage: deepCopyVariableStorage(v.storage) },
         ]),
       );
-    const copyVarArray = <T extends { storage: VariableStorage }>(
-      arr: T[],
-    ): T[] =>
-      arr.map(
-        (v) => ({ ...v, storage: deepCopyVariableStorage(v.storage) }) as T,
-      );
 
     // Create deep copy of state
     const out = {
@@ -251,7 +245,9 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       slices: copyVarMap(inState.slices),
       messages: copyVarMap(inState.messages),
       structs: copyVarMap(inState.structs),
-      intermediateVariables: copyVarArray(inState.intermediateVariables),
+      // We don't copy intermediate variables since these are limited to a
+      // single statement.
+      intermediateVariables: [],
     };
 
     this.processStatement(out, stmt);
