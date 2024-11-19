@@ -31,6 +31,7 @@ import {
   AstStatementAssign,
   AstNode,
 } from "@tact-lang/compiler/dist/grammar/ast";
+import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
 type VariableName = string & { readonly __brand: unique symbol };
 enum VariableKind {
@@ -273,7 +274,15 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
    */
   private processLet(out: CellUnderflowState, stmt: AstStatementLet): void {
     const callsChain = getMethodCallsChain(stmt.expression);
-    if (callsChain === undefined) return;
+    if (callsChain === undefined) {
+      // Try to create variable from the single expression.
+      // It might be a function call, e.g. beginCell(), emptySlice()
+      const variable = this.processSelf(out, stmt.expression);
+      if (variable) {
+        this.createVariable(out, stmt.name, variable);
+      }
+      return;
+    }
     const { self, calls } = callsChain;
     this.processVariablesFromCalls(out, self, calls, stmt.name);
   }
@@ -614,7 +623,7 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     return undefined;
   }
 
- /**
+  /**
    * Updates storage tracking when builders/slices are stored into other builders.
    *
    * @param out Current dataflow state containing tracked variables

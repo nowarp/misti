@@ -1,6 +1,6 @@
 [CRITICAL] CellUnderflow: Reference count might go below 0
 test/detectors/CellUnderflow.tact:2:9:
-  1 | fun refs_num_bad(c: Cell) {
+  1 | fun refs_underflow(c: Cell) {
 > 2 |     let s1 = beginCell()
               ^
   3 |                .storeRef(c)
@@ -21,29 +21,49 @@ See: https://nowarp.io/tools/misti/docs/detectors/CellUnderflow
 [CRITICAL] CellUnderflow: Reference count might go below 0
 test/detectors/CellUnderflow.tact:9:5:
    8 | 
->  9 |     beginCell()
+>  9 |     beginCell() // Bad: Cell Underflow
            ^
   10 |         .endCell()
 The possible number of references stored (0) is less than loaded (1)
 Help: Remove extra .loadRef operations or store more refs first
 See: https://nowarp.io/tools/misti/docs/detectors/CellUnderflow
 
-[CRITICAL] CellUnderflow: Reference count might go below 0
-test/detectors/CellUnderflow.tact:15:5:
-  14 |     // Cell Overflow when storing a known local builder
-> 15 |     let b1 = beginCell()
-           ^
-  16 |                .storeRef(c)
-The possible number of references stored (0) is less than loaded (1)
-Help: Remove extra .loadRef operations or store more refs first
+[CRITICAL] CellUnderflow: Too many references stored in cell
+test/detectors/CellUnderflow.tact:22:9:
+  21 |                .storeRef(c); // OK: Builder storing 4 references
+> 22 |     let c1 = beginCell() // Bad: We got 5 references
+               ^
+  23 |                .storeBuilder(b1)
+The minimum number of references stored (5) exceeds the maximum allowed (4)
+Help: Split your data across multiple cells - a single cell cannot store more than 4 references
 See: https://nowarp.io/tools/misti/docs/detectors/CellUnderflow
 
-[CRITICAL] CellUnderflow: Reference count might go below 0
-test/detectors/CellUnderflow.tact:20:5:
-  19 |                .storeRef(c); // OK: Builder storing 4 references
-> 20 |     let c1 = beginCell()
+[CRITICAL] CellUnderflow: Too many references stored in cell
+test/detectors/CellUnderflow.tact:27:9:
+  26 | 
+> 27 |     let c2 = // Bad: 4+ refs
+               ^
+  28 |     beginCell()
+The minimum number of references stored (5) exceeds the maximum allowed (4)
+Help: Split your data across multiple cells - a single cell cannot store more than 4 references
+See: https://nowarp.io/tools/misti/docs/detectors/CellUnderflow
+
+[CRITICAL] CellUnderflow: Too many references stored in cell
+test/detectors/CellUnderflow.tact:41:5:
+  40 |     b2 = b2.storeRef(c);
+> 41 |     b2 = b2.storeRef(c); // Bad: 4+ refs
            ^
-  21 |                .storeBuilder(b1)
-The possible number of references stored (0) is less than loaded (1)
-Help: Remove extra .loadRef operations or store more refs first
+  42 |     let c3 = b2.endCell(); // Bad: 4+ refs
+The minimum number of references stored (5) exceeds the maximum allowed (4)
+Help: Split your data across multiple cells - a single cell cannot store more than 4 references
+See: https://nowarp.io/tools/misti/docs/detectors/CellUnderflow
+
+[CRITICAL] CellUnderflow: Too many references stored in cell
+test/detectors/CellUnderflow.tact:42:9:
+  41 |     b2 = b2.storeRef(c); // Bad: 4+ refs
+> 42 |     let c3 = b2.endCell(); // Bad: 4+ refs
+               ^
+  43 | }
+The minimum number of references stored (5) exceeds the maximum allowed (4)
+Help: Split your data across multiple cells - a single cell cannot store more than 4 references
 See: https://nowarp.io/tools/misti/docs/detectors/CellUnderflow
