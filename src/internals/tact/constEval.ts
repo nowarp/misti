@@ -9,6 +9,20 @@ import {
 import { Address, Cell, Slice } from "@ton/core";
 
 /**
+ * A type that can be used to check the type of a constant expression.
+ */
+export type ExpectedType =
+  | "bigint"
+  | "boolean"
+  | "string"
+  | "null"
+  | "Address"
+  | "Cell"
+  | "Slice"
+  | "CommentValue"
+  | "StructValue";
+
+/**
  * Evaluates a constant expression and returns its value.
  *
  * @param expr The AST expression to evaluate.
@@ -32,7 +46,7 @@ export function evalExpr(expr: AstExpression): Value | undefined {
  */
 export function evalToType(
   expr: AstExpression,
-  expectedType: string,
+  expectedType: ExpectedType,
 ): Value | undefined {
   const value = evalExpr(expr);
   return value !== undefined && checkType(value, expectedType)
@@ -52,7 +66,7 @@ export function evalToType(
  */
 export function evalsToValue(
   expr: AstExpression,
-  expectedType: string,
+  expectedType: ExpectedType,
   expectedValue: Value,
 ): boolean {
   const value = evalToType(expr, expectedType);

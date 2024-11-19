@@ -11,6 +11,12 @@
 
      receive("test") {
          // Bad
+         nativeThrowUnless(128, sender() == self.owner);
+
+         // Bad
+         nativeThrowUnless(255, sender() == self.owner);
+
+         // Bad
          let code1: Int = 128;
          nativeThrowUnless(code1, sender() == self.owner);
 

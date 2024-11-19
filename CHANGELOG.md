@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Missing Module `version-info` When Installing Misti from GitHub: Issue [#216](https://github.com/nowarp/misti/issues/216/)
+- `ExitCodeUsage` Handle direct cases: Issue [#218](https://github.com/nowarp/misti/issues/218/)
 
 ## [0.5.0] - 2024-10-31
 
