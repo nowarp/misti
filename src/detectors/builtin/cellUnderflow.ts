@@ -214,11 +214,11 @@ class CellUnderflowLattice implements JoinSemilattice<CellUnderflowState> {
 
   leq(a: CellUnderflowState, b: CellUnderflowState): boolean {
     return (
-      isMapSubsetOf(a.builders, b.builders),
-      isMapSubsetOf(a.cells, b.cells),
-      isMapSubsetOf(a.slices, b.slices),
-      isMapSubsetOf(a.messages, b.messages),
-      isMapSubsetOf(a.structs, b.structs),
+      isMapSubsetOf(a.builders, b.builders) &&
+      isMapSubsetOf(a.cells, b.cells) &&
+      isMapSubsetOf(a.slices, b.slices) &&
+      isMapSubsetOf(a.messages, b.messages) &&
+      isMapSubsetOf(a.structs, b.structs) &&
       isListSubsetOf(a.intermediateVariables, b.intermediateVariables)
     );
   }
