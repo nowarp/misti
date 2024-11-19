@@ -505,13 +505,13 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
         variable.value.storage.refsNum.loaded.plus(loadedRefs);
       return;
     }
-    const storeSize = this.getStoreSize(out, variable, call);
+    const storeSize = this.getStoreSize(variable, call);
     if (storeSize !== undefined) {
       variable.value.storage.dataSize.stored =
         variable.value.storage.dataSize.stored.plus(storeSize);
       return;
     }
-    const loadSize = this.getLoadSize(out, variable, call);
+    const loadSize = this.getLoadSize(variable, call);
     if (loadSize !== undefined) {
       variable.value.storage.dataSize.loaded =
         variable.value.storage.dataSize.loaded.plus(loadSize);
@@ -522,6 +522,7 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       variable.value.storage = localVariablesSize;
       return;
     }
+    // TODO set undecidable for `load`/`store` calls with unknown size/refnums
   }
 
   /**
@@ -575,10 +576,8 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
    * @returns The interval of possible stored value or undefined if there are no store calls.
    */
   private getStoreSize(
-    out: CellUnderflowState,
     variable: VariableRhs,
     call: AstMethodCall,
-    visited: Set<VariableName> = new Set(),
   ): Interval | undefined {
     if (variable.value.kind !== VariableKind.Builder) {
       return undefined;
@@ -590,7 +589,6 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       return Interval.fromNum(size);
     }
 
-    // TODO set undecidable if `store` call but the size is undecidable
     return undefined;
   }
 
@@ -601,10 +599,8 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
    * @returns The interval of possible loaded value or undefined if there are no load calls.
    */
   private getLoadSize(
-    out: CellUnderflowState,
     variable: VariableRhs,
     call: AstMethodCall,
-    visited: Set<VariableName> = new Set(),
   ): Interval | undefined {
     if (variable.value.kind !== VariableKind.Slice) {
       return undefined;
@@ -615,8 +611,6 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       return Interval.fromNum(size);
     }
     // TODO Support preload operations
-    // TODO: use local variables from `out`
-    // TODO set undecidable if `load` call but the size is undecidable
     return undefined;
   }
 
