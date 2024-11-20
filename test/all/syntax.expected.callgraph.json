@@ -18,79 +18,32 @@
     },
     {
       "idx": 3,
-      "name": "reply",
+      "name": "TestContract::getter",
       "inEdges": [],
-      "outEdges": [
-        3,
-        4
-      ]
+      "outEdges": []
     },
     {
       "idx": 4,
-      "name": "notify",
+      "name": "TestContractF::test",
       "inEdges": [],
-      "outEdges": [
-        5,
-        6
-      ]
+      "outEdges": []
     },
     {
       "idx": 5,
-      "name": "forward",
-      "inEdges": [
-        3,
-        5
-      ],
+      "name": "TestContractT::test",
+      "inEdges": [],
       "outEdges": [
-        7,
-        8,
-        9,
-        10,
-        11
+        3
       ]
     },
     {
       "idx": 6,
-      "name": "getter",
+      "name": "TestContractT::receiver_1722",
       "inEdges": [],
       "outEdges": []
     },
     {
       "idx": 7,
-      "name": "getter",
-      "inEdges": [],
-      "outEdges": []
-    },
-    {
-      "idx": 8,
-      "name": "test",
-      "inEdges": [],
-      "outEdges": []
-    },
-    {
-      "idx": 9,
-      "name": "getA",
-      "inEdges": [
-        12
-      ],
-      "outEdges": []
-    },
-    {
-      "idx": 10,
-      "name": "test",
-      "inEdges": [],
-      "outEdges": [
-        12
-      ]
-    },
-    {
-      "idx": 11,
-      "name": "receiver_1722",
-      "inEdges": [],
-      "outEdges": []
-    },
-    {
-      "idx": 12,
       "name": "dump",
       "inEdges": [
         1
@@ -98,7 +51,7 @@
       "outEdges": []
     },
     {
-      "idx": 13,
+      "idx": 8,
       "name": "emptyMap",
       "inEdges": [
         2
@@ -106,44 +59,10 @@
       "outEdges": []
     },
     {
-      "idx": 14,
-      "name": "sender",
+      "idx": 9,
+      "name": "TestContractT::getA",
       "inEdges": [
-        4,
-        6
-      ],
-      "outEdges": []
-    },
-    {
-      "idx": 15,
-      "name": "context",
-      "inEdges": [
-        7
-      ],
-      "outEdges": []
-    },
-    {
-      "idx": 16,
-      "name": "myBalance",
-      "inEdges": [
-        8
-      ],
-      "outEdges": []
-    },
-    {
-      "idx": 17,
-      "name": "nativeReserve",
-      "inEdges": [
-        9
-      ],
-      "outEdges": []
-    },
-    {
-      "idx": 18,
-      "name": "send",
-      "inEdges": [
-        10,
-        11
+        3
       ],
       "outEdges": []
     }
@@ -152,61 +71,16 @@
     {
       "idx": 1,
       "src": 1,
-      "dst": 12
+      "dst": 7
     },
     {
       "idx": 2,
       "src": 2,
-      "dst": 13
+      "dst": 8
     },
     {
       "idx": 3,
-      "src": 3,
-      "dst": 5
-    },
-    {
-      "idx": 4,
-      "src": 3,
-      "dst": 14
-    },
-    {
-      "idx": 5,
-      "src": 4,
-      "dst": 5
-    },
-    {
-      "idx": 6,
-      "src": 4,
-      "dst": 14
-    },
-    {
-      "idx": 7,
       "src": 5,
-      "dst": 15
-    },
-    {
-      "idx": 8,
-      "src": 5,
-      "dst": 16
-    },
-    {
-      "idx": 9,
-      "src": 5,
-      "dst": 17
-    },
-    {
-      "idx": 10,
-      "src": 5,
-      "dst": 18
-    },
-    {
-      "idx": 11,
-      "src": 5,
-      "dst": 18
-    },
-    {
-      "idx": 12,
-      "src": 10,
       "dst": 9
     }
   ]

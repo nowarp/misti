@@ -11,17 +11,25 @@ import {
   AstExpression,
   AstMethodCall,
   AstStaticCall,
+  AstContract,
+  AstId,
+  AstContractDeclaration,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
 export type CGNodeId = number & { readonly brand: unique symbol };
-type CGEdgeId = number & { readonly brand: unique symbol };
+export type CGEdgeId = number & { readonly brand: unique symbol };
 
 /**
  * Represents an edge in the call graph, indicating a call from one function to another.
+ * Each edge has a unique index (`idx`) generated using `IdxGenerator`.
  */
 class CGEdge {
   public idx: CGEdgeId;
 
+  /**
+   * @param src The source node ID representing the calling function
+   * @param dst The destination node ID representing the called function
+   */
   constructor(
     public src: CGNodeId,
     public dst: CGNodeId,
@@ -32,6 +40,7 @@ class CGEdge {
 
 /**
  * Represents a node in the call graph, corresponding to a function or method.
+ * Nodes maintain references to incoming and outgoing edges.
  */
 class CGNode {
   public idx: CGNodeId;
@@ -39,8 +48,9 @@ class CGNode {
   public outEdges: Set<CGEdgeId> = new Set();
 
   /**
-   * @param astId AST id of the relevant function definition. It might be `undefined` if this node doesn’t have a corresponding AST entry,
-   * which indicates an issue in Misti.
+   * @param astId The AST ID of the function or method this node represents (can be `undefined` for synthetic nodes)
+   * @param name The name of the function or method
+   * @param logger A logger instance for logging messages
    */
   constructor(
     public astId: number | undefined,
@@ -55,8 +65,11 @@ class CGNode {
 }
 
 /**
- * The `CallGraph` class represents a directed graph where nodes correspond to functions
- * or methods in a program, and edges indicate calls between them.
+ * Represents the call graph, a directed graph where nodes represent functions or methods,
+ * and edges indicate calls between them.
+ *
+ * The `CallGraph` class provides methods to build the graph from a Tact AST, retrieve nodes/edges,
+ * analyze connectivity, and add function calls dynamically.
  */
 export class CallGraph {
   private nodeMap: Map<CGNodeId, CGNode> = new Map();
@@ -65,47 +78,63 @@ export class CallGraph {
   private edgesMap: Map<CGEdgeId, CGEdge> = new Map();
   private logger: Logger;
 
+  /**
+   * @param ctx The MistiContext providing a logger and other utilities
+   */
   constructor(private ctx: MistiContext) {
     this.logger = ctx.logger;
   }
 
+  /**
+   * Retrieves all nodes in the call graph.
+   * @returns A map of all nodes by their unique IDs.
+   */
   public getNodes(): Map<CGNodeId, CGNode> {
     return this.nodeMap;
   }
 
+  /**
+   * Retrieves all edges in the call graph.
+   * @returns A map of all edges by their unique IDs.
+   */
   public getEdges(): Map<CGEdgeId, CGEdge> {
     return this.edgesMap;
   }
 
   /**
-   * Retrieves the node ID associated with a given function name.
-   * @param name The function name.
-   * @returns The corresponding node ID, or undefined if not found.
+   * Retrieves a node's ID by its name.
+   * @param name The name of the function or method.
+   * @returns The corresponding node ID, or `undefined` if not found.
    */
   public getNodeIdByName(name: string): CGNodeId | undefined {
     return this.nameToNodeId.get(name);
   }
 
   /**
-   * Retrieves the node ID associated with a given AST node ID.
-   * @param astId The AST node ID.
-   * @returns The corresponding node ID, or undefined if not found.
+   * Retrieves a node's ID by its AST ID.
+   * @param astId The AST ID of the function.
+   * @returns The corresponding node ID, or `undefined` if not found.
    */
   public getNodeIdByAstId(astId: number): CGNodeId | undefined {
     return this.astIdToNodeId.get(astId);
   }
 
   /**
-   * Retrieves a node from the graph by its ID.
-   * @param nodeId The ID of the node.
-   * @returns The `CGNode` instance, or undefined if not found.
+   * Retrieves a node by its ID.
+   * @param nodeId The unique ID of the node.
+   * @returns The corresponding node, or `undefined` if not found.
    */
   public getNode(nodeId: CGNodeId): CGNode | undefined {
     return this.nodeMap.get(nodeId);
   }
 
   /**
-   * Determines if there exists a path in the call graph from the source node to the destination node.
+   * Determines if there exists a path from the source node to the destination node.
+   * This is achieved via a breadth-first search.
+   *
+   * @param src The ID of the source node.
+   * @param dst The ID of the destination node.
+   * @returns `true` if a path exists; `false` otherwise.
    */
   public areConnected(src: CGNodeId, dst: CGNodeId): boolean {
     const srcNode = this.nodeMap.get(src);
@@ -135,22 +164,21 @@ export class CallGraph {
   }
 
   /**
-   * Builds the call graph based on functions in the provided AST store.
+   * Builds the call graph using data from the AST store.
+   * @param astStore The AST store containing program entries.
+   * @returns The constructed `CallGraph`.
    */
   public build(astStore: TactASTStore): CallGraph {
-    for (const func of astStore.getFunctions()) {
-      const funcName = this.generateFunctionName(func);
-      if (funcName) {
-        const node = new CGNode(func.id, funcName, this.logger);
-        this.nodeMap.set(node.idx, node);
-        this.nameToNodeId.set(funcName, node.idx);
-        if (func.id !== undefined) {
-          this.astIdToNodeId.set(func.id, node.idx);
+    for (const entry of astStore.getProgramEntries()) {
+      if (entry.kind === "contract") {
+        const contract = entry as AstContract;
+        const contractName = contract.name.text;
+        for (const declaration of contract.declarations) {
+          this.addContractDeclarationToGraph(declaration, contractName);
         }
-      } else {
-        this.logger.error(
-          `Function with id ${func.id} has no name and will be skipped.`,
-        );
+      } else if (entry.kind === "function_def") {
+        const func = entry as AstFunctionDef;
+        this.addFunctionToGraph(func);
       }
     }
     this.analyzeFunctionCalls(astStore);
@@ -158,71 +186,173 @@ export class CallGraph {
   }
 
   /**
-   * Generates a unique function name based on its type.
-   * This method is used internally during the build process.
+   * Adds a contract declaration (function, receiver, or initializer) to the graph.
+   * @param declaration The declaration to add.
+   * @param contractName The name of the contract the declaration belongs to.
    */
-  private generateFunctionName(
+  private addContractDeclarationToGraph(
+    declaration: AstContractDeclaration,
+    contractName: string,
+  ) {
+    if (declaration.kind === "function_def") {
+      this.addFunctionToGraph(declaration as AstFunctionDef, contractName);
+    } else if (declaration.kind === "contract_init") {
+      this.addFunctionToGraph(declaration as AstContractInit, contractName);
+    } else if (declaration.kind === "receiver") {
+      this.addFunctionToGraph(declaration as AstReceiver, contractName);
+    }
+  }
+
+  /**
+   * Adds a function node to the graph.
+   * @param func The function definition, receiver, or initializer.
+   * @param contractName The optional contract name for namespacing.
+   */
+  private addFunctionToGraph(
     func: AstFunctionDef | AstReceiver | AstContractInit,
+    contractName?: string,
+  ) {
+    const funcName = this.getFunctionName(func, contractName);
+    if (funcName) {
+      const node = new CGNode(func.id, funcName, this.logger);
+      this.nodeMap.set(node.idx, node);
+      this.nameToNodeId.set(funcName, node.idx);
+      if (func.id !== undefined) {
+        this.astIdToNodeId.set(func.id, node.idx);
+      }
+    } else {
+      this.logger.error(
+        `Function with id ${func.id} has no name and will be skipped.`,
+      );
+    }
+  }
+
+  /**
+   * Extracts the function name based on its type and optional contract name.
+   * @param func The function definition, receiver, or initializer.
+   * @param contractName The optional contract name.
+   * @returns The function name, or `undefined` if it cannot be determined.
+   */
+  private getFunctionName(
+    func: AstFunctionDef | AstReceiver | AstContractInit,
+    contractName?: string,
   ): string | undefined {
     switch (func.kind) {
       case "function_def":
-        return func.name?.text;
+        return contractName
+          ? `${contractName}::${func.name?.text}`
+          : func.name?.text;
       case "contract_init":
-        return `contract_init_${func.id}`;
+        return contractName
+          ? `${contractName}::contract_init_${func.id}`
+          : `contract_init_${func.id}`;
       case "receiver":
-        return `receiver_${func.id}`;
+        return contractName
+          ? `${contractName}::receiver_${func.id}`
+          : `receiver_${func.id}`;
       default:
         unreachable(func);
     }
   }
 
   /**
-   * Analyzes function calls in the AST store and adds corresponding edges in the call graph.
+   * Analyzes the AST for function calls and adds edges between caller and callee nodes.
+   * @param astStore The AST store to analyze.
    */
   private analyzeFunctionCalls(astStore: TactASTStore) {
-    for (const func of astStore.getFunctions()) {
-      const funcNodeId = this.astIdToNodeId.get(func.id);
-      if (funcNodeId !== undefined) {
-        forEachExpression(func, (expr) =>
-          this.processExpression(expr, funcNodeId),
-        );
-      } else {
-        this.logger.warn(`Caller function with AST ID ${func.id} not found.`);
+    for (const entry of astStore.getProgramEntries()) {
+      if (entry.kind === "contract") {
+        const contract = entry as AstContract;
+        const contractName = contract.name.text;
+        for (const declaration of contract.declarations) {
+          if (
+            declaration.kind === "function_def" ||
+            declaration.kind === "contract_init" ||
+            declaration.kind === "receiver"
+          ) {
+            const func = declaration as
+              | AstFunctionDef
+              | AstContractInit
+              | AstReceiver;
+            const funcNodeId = this.astIdToNodeId.get(func.id);
+            if (funcNodeId !== undefined) {
+              forEachExpression(func, (expr) =>
+                this.processExpression(expr, funcNodeId, contractName),
+              );
+            }
+          }
+        }
+      } else if (entry.kind === "function_def") {
+        const func = entry as AstFunctionDef;
+        const funcNodeId = this.astIdToNodeId.get(func.id);
+        if (funcNodeId !== undefined) {
+          forEachExpression(func, (expr) =>
+            this.processExpression(expr, funcNodeId),
+          );
+        }
       }
     }
   }
 
   /**
-   * Processes an expression, identifying static and method calls to add edges.
+   * Processes a single expression, identifying function or method calls to create edges.
+   * @param expr The expression to process.
+   * @param callerId The node ID of the calling function.
+   * @param currentContractName The name of the contract, if applicable.
    */
-  private processExpression(expr: AstExpression, callerId: CGNodeId) {
-    if (expr.kind === "static_call") {
-      const staticCall = expr as AstStaticCall;
-      const functionName = staticCall.function?.text;
+  private processExpression(
+    expr: AstExpression,
+    callerId: CGNodeId,
+    currentContractName?: string,
+  ) {
+    if (expr.kind === "static_call" || expr.kind === "method_call") {
+      const functionName = this.getFunctionCallName(
+        expr as AstStaticCall | AstMethodCall,
+        currentContractName,
+      );
       if (functionName) {
         const calleeId = this.findOrAddFunction(functionName);
         this.addEdge(callerId, calleeId);
       } else {
         this.logger.warn(
-          `Static call expression missing function name at caller ${callerId}`,
-        );
-      }
-    } else if (expr.kind === "method_call") {
-      const methodCall = expr as AstMethodCall;
-      const methodName = methodCall.method?.text;
-      if (methodName) {
-        const calleeId = this.findOrAddFunction(methodName);
-        this.addEdge(callerId, calleeId);
-      } else {
-        this.logger.warn(
-          `Method call expression missing method name at caller ${callerId}`,
+          `Call expression missing function name at caller ${callerId}`,
         );
       }
     }
   }
 
   /**
-   * Finds or adds a function to the call graph by name.
+   * Derives the function call name from a static or method call expression.
+   * @param expr The call expression.
+   * @param currentContractName The name of the current contract, if available.
+   * @returns The fully qualified function name, or `undefined` if it cannot be determined.
+   */
+  public getFunctionCallName(
+    expr: AstStaticCall | AstMethodCall,
+    currentContractName?: string,
+  ): string | undefined {
+    if (expr.kind === "static_call") {
+      return expr.function?.text; // Static calls directly reference free functions
+    } else if (expr.kind === "method_call") {
+      const methodName = expr.method?.text;
+      if (methodName) {
+        let contractName = currentContractName;
+        if (expr.self.kind === "id") {
+          const idExpr = expr.self as AstId;
+          if (idExpr.text !== "self") {
+            contractName = idExpr.text; // Refers to another contract
+          }
+        }
+        return contractName ? `${contractName}::${methodName}` : methodName;
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Finds or creates a function node in the graph by its name.
+   * @param name The name of the function.
+   * @returns The node ID of the existing or newly created function.
    */
   private findOrAddFunction(name: string): CGNodeId {
     const nodeId = this.nameToNodeId.get(name);
@@ -236,7 +366,9 @@ export class CallGraph {
   }
 
   /**
-   * Adds an edge between two nodes in the call graph.
+   * Adds a directed edge between two nodes in the call graph.
+   * @param src The source node ID.
+   * @param dst The destination node ID.
    */
   private addEdge(src: CGNodeId, dst: CGNodeId) {
     const srcNode = this.nodeMap.get(src);

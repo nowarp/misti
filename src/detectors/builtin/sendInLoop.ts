@@ -11,6 +11,9 @@ import {
   AstStatement,
   AstExpression,
   idText,
+  AstStaticCall,
+  AstMethodCall,
+  AstContract,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
@@ -48,7 +51,6 @@ export class SendInLoop extends ASTDetector {
     const astStore = cu.ast;
     const ctx = this.ctx;
     const callGraph = new CallGraph(ctx).build(astStore);
-
     const functionsCallingSend = new Set<CGNodeId>();
 
     // Identify all functions that contain a send call
@@ -64,26 +66,40 @@ export class SendInLoop extends ASTDetector {
         },
         null,
       );
-
       if (containsSend) {
-        // Get the node id from the ast id
         const funcNodeId = callGraph.getNodeIdByAstId(func.id);
         if (funcNodeId !== undefined) {
           functionsCallingSend.add(funcNodeId);
         }
       }
     }
+
     // Analyze loops and check if any function called within leads to a send
-    for (const node of cu.ast.getProgramEntries()) {
-      forEachStatement(node, (stmt) => {
-        const warnings = this.analyzeStatement(
-          stmt,
-          processedLoopIds,
-          callGraph,
-          functionsCallingSend,
-        );
-        allWarnings.push(...warnings);
-      });
+    for (const entry of cu.ast.getProgramEntries()) {
+      if (entry.kind === "contract") {
+        const contract = entry as AstContract;
+        const contractName = contract.name.text;
+        forEachStatement(entry, (stmt) => {
+          const warnings = this.analyzeStatement(
+            stmt,
+            processedLoopIds,
+            callGraph,
+            functionsCallingSend,
+            contractName,
+          );
+          allWarnings.push(...warnings);
+        });
+      } else {
+        forEachStatement(entry, (stmt) => {
+          const warnings = this.analyzeStatement(
+            stmt,
+            processedLoopIds,
+            callGraph,
+            functionsCallingSend,
+          );
+          allWarnings.push(...warnings);
+        });
+      }
     }
     return allWarnings;
   }
@@ -93,6 +109,7 @@ export class SendInLoop extends ASTDetector {
     processedLoopIds: Set<number>,
     callGraph: CallGraph,
     functionsCallingSend: Set<CGNodeId>,
+    currentContractName?: string,
   ): MistiTactWarning[] {
     if (processedLoopIds.has(stmt.id)) {
       return [];
@@ -119,12 +136,15 @@ export class SendInLoop extends ASTDetector {
         warnings,
       );
 
-      // Check function calls within the loop that lead to send
+      // Check function calls within the loop that lead to a send
       foldExpressions(
         stmt,
         (acc: MistiTactWarning[], expr: AstExpression) => {
           if (expr.kind === "static_call" || expr.kind === "method_call") {
-            const calleeName = this.getCalleeName(expr);
+            const calleeName = callGraph.getFunctionCallName(
+              expr as AstStaticCall | AstMethodCall,
+              currentContractName,
+            );
             if (calleeName) {
               const calleeNodeId = callGraph.getNodeIdByName(calleeName);
               if (calleeNodeId !== undefined) {
@@ -180,14 +200,5 @@ export class SendInLoop extends ASTDetector {
       stmt.kind === "statement_until" ||
       stmt.kind === "statement_foreach"
     );
-  }
-
-  private getCalleeName(expr: AstExpression): string | undefined {
-    if (expr.kind === "static_call") {
-      return idText(expr.function);
-    } else if (expr.kind === "method_call") {
-      return idText(expr.method);
-    }
-    return undefined;
   }
 }
