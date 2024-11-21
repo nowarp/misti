@@ -55,14 +55,6 @@ type StorageValue = {
   loaded: Interval;
 };
 
-const undecidableStorageValue = (): StorageValue => {
-  return {
-    undecidable: true,
-    stored: Interval.EMPTY,
-    loaded: Interval.EMPTY,
-  };
-};
-
 /**
  * Tracks data stored by this variable.
  * It includes only statically decidable information. Storage operations with
@@ -77,13 +69,6 @@ type VariableStorage = {
    * Possible number of data bits stored or loaded for this variable.
    */
   dataSize: StorageValue;
-};
-
-const undecidableVariableStorage = (): VariableStorage => {
-  return {
-    refsNum: undecidableStorageValue(),
-    dataSize: undecidableStorageValue(),
-  };
 };
 
 /**
@@ -143,6 +128,15 @@ interface CellUnderflowState {
    */
   intermediateVariables: UnknownVariable[];
 }
+
+/**
+ * Result of analyzing method call chains on variables.
+ */
+type CallAnalysisResult = {
+  variable: VariableRhs;
+  storageUpdates: VariableStorage;
+  intermediates: VariableRhs[];
+};
 
 /**
  * Returns kind of a variable found in the dataflow state.
@@ -313,7 +307,7 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
   ): void {
     const variable = this.retrieveVariable(out, self);
     if (variable) {
-      const result = this.interpretCalls(out, variable, calls);
+      const result = this.analyzeCalls(out, variable, calls);
 
       // Apply the accumulated storage updates to the variable
       result.variable.value.storage = this.combineStorageUpdates(
@@ -327,39 +321,53 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
   }
 
   /**
-   * A simple interpretation over the list of method calls that tracks
-   * intermediate objects in the current dataflow state.
+   * Analyzes effects on storage after calling the given methods.
    *
    * @param out The output state
-   * @param self The variable being called on (could be known or unknown)
+   * @param variable The variable being called on (could be known or unknown)
    * @param calls The list of method calls
    */
-  private interpretCalls(
+  private analyzeCalls(
     out: CellUnderflowState,
     variable: VariableRhs,
     calls: AstMethodCall[],
-  ): {
-    variable: VariableRhs;
-    storageUpdates: VariableStorage;
-    intermediates: VariableRhs[];
-  } {
-    let intermediates: VariableRhs[] = [];
+  ): CallAnalysisResult {
     if (calls.length === 0) {
       return {
         variable,
         storageUpdates: createEmptyVariableStorage(),
-        intermediates,
+        intermediates: [],
       };
     }
 
     const call = calls[0];
     const methodName = idText(call.method);
 
-    // Get the storage updates from updateStorage without mutating the variable
+    // Calculate storage updates without mutating the variable
     const storageUpdate = this.calculateStorage(out, variable, call);
 
     // Transform type if needed
-    let newKind = variable.value.kind;
+    const newKind = this.determineNewVariableKind(
+      variable.value.kind,
+      methodName,
+    );
+
+    return newKind !== variable.value.kind
+      ? this.handleTypeChange(out, variable, calls, storageUpdate, newKind)
+      : this.handleSameType(out, variable, calls, storageUpdate);
+  }
+
+  /**
+   * Determines the new variable kind based on method transformations.
+   *
+   * @param currentKind Current kind of the variable
+   * @param methodName Name of the method being called
+   * @returns The new kind after transformation, or the same kind if no transformation applies
+   */
+  private determineNewVariableKind(
+    currentKind: VariableKind,
+    methodName: string,
+  ): VariableKind {
     const typeTransforms: Record<
       string,
       { from: VariableKind[]; to: VariableKind }
@@ -368,74 +376,75 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       asCell: { from: [VariableKind.Builder], to: VariableKind.Cell },
       asSlice: { from: [VariableKind.Cell], to: VariableKind.Slice },
       beginParse: { from: [VariableKind.Cell], to: VariableKind.Slice },
-      toCell: {
-        from: [VariableKind.StructMessage],
-        to: VariableKind.Cell,
-      },
-      toSlice: {
-        from: [VariableKind.StructMessage],
-        to: VariableKind.Slice,
-      },
+      toCell: { from: [VariableKind.StructMessage], to: VariableKind.Cell },
+      toSlice: { from: [VariableKind.StructMessage], to: VariableKind.Slice },
       fromCell: { from: [VariableKind.Cell], to: VariableKind.StructMessage },
-      fromSlice: {
-        from: [VariableKind.Slice],
-        to: VariableKind.StructMessage,
-      },
+      fromSlice: { from: [VariableKind.Slice], to: VariableKind.StructMessage },
     };
-
     const transform = typeTransforms[methodName];
-    if (transform && transform.from.includes(variable.value.kind)) {
-      newKind = transform.to ?? variable.value.kind;
-    }
+    return transform && transform.from.includes(currentKind)
+      ? transform.to
+      : currentKind;
+  }
 
-    // Create new variable if type changed
-    if (newKind !== variable.value.kind) {
-      const newVariable: VariableRhs = {
-        kind: "unknown",
-        value: {
-          kind: newKind,
-          storage: variable.value.storage, // Storage will be updated later
-        } as UnknownVariable,
-      };
-
-      // Collect the intermediate variable
-      intermediates.push(newVariable);
-
-      // Recursively process the remaining calls
-      const result = this.interpretCalls(out, newVariable, calls.slice(1));
-
-      // Combine storage updates
-      const combinedStorageUpdates = this.combineStorageUpdates(
-        storageUpdate,
-        result.storageUpdates,
-      );
-
-      // Combine intermediates
-      intermediates = intermediates.concat(result.intermediates);
-
-      return {
-        variable: result.variable,
-        storageUpdates: combinedStorageUpdates,
-        intermediates,
-      };
-    }
-
-    // If type didn't change, proceed with the same variable
-    const result = this.interpretCalls(out, variable, calls.slice(1));
-
-    // Combine storage updates
-    const combinedStorageUpdates = this.combineStorageUpdates(
-      storageUpdate,
-      result.storageUpdates,
-    );
-
-    // Combine intermediates
-    intermediates = intermediates.concat(result.intermediates);
-
+  /**
+   * Handles the case when a variable's type changes after a method call.
+   * Creates a new variable of the new type and processes remaining calls.
+   *
+   * @param out Current dataflow state
+   * @param variable Original variable being transformed
+   * @param calls List of method calls to process
+   * @param storageUpdate Current storage updates
+   * @param newKind New type for the variable
+   */
+  private handleTypeChange(
+    out: CellUnderflowState,
+    variable: VariableRhs,
+    calls: AstMethodCall[],
+    storageUpdate: VariableStorage,
+    newKind: VariableKind,
+  ): CallAnalysisResult {
+    const newVariable: VariableRhs = {
+      kind: "unknown",
+      value: {
+        kind: newKind,
+        storage: variable.value.storage, // Storage will be updated later
+      } as UnknownVariable,
+    };
+    const result = this.analyzeCalls(out, newVariable, calls.slice(1));
     return {
       variable: result.variable,
-      storageUpdates: combinedStorageUpdates,
-      intermediates,
+      storageUpdates: this.combineStorageUpdates(
+        storageUpdate,
+        result.storageUpdates,
+      ),
+      intermediates: [newVariable, ...result.intermediates],
+    };
+  }
+
+  /**
+   * Handles the case when a variable's type remains the same after a method call.
+   * Continues processing remaining calls with the same variable.
+   *
+   * @param out Current dataflow state
+   * @param variable Variable being processed
+   * @param calls List of method calls to process
+   * @param storageUpdate Current storage updates
+   */
+  private handleSameType(
+    out: CellUnderflowState,
+    variable: VariableRhs,
+    calls: AstMethodCall[],
+    storageUpdate: VariableStorage,
+  ): CallAnalysisResult {
+    const result = this.analyzeCalls(out, variable, calls.slice(1));
+    return {
+      variable: result.variable,
+      storageUpdates: this.combineStorageUpdates(
+        storageUpdate,
+        result.storageUpdates,
+      ),
+      intermediates: result.intermediates,
     };
   }
 
@@ -690,7 +699,7 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
         }
       }
       // Unknown Builder/Slice => size is statically undecidable
-      return undecidableVariableStorage();
+      return createUndecidableVariableStorage();
     }
 
     // The call doesn't involve any operations with local variables.
@@ -760,7 +769,7 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       const variable = this.retrieveVariable(out, self);
       if (!variable) return;
 
-      const result = this.interpretCalls(out, variable, calls);
+      const result = this.analyzeCalls(out, variable, calls);
 
       // Collect intermediate variables
       result.intermediates.forEach((intermediateVar) => {
@@ -1064,3 +1073,10 @@ function createEmptyVariableStorage(): VariableStorage {
     dataSize: createEmptyStorageValue(),
   };
 }
+
+const createUndecidableVariableStorage = (): VariableStorage => {
+  return {
+    refsNum: createUndecidableStorageValue(),
+    dataSize: createUndecidableStorageValue(),
+  };
+};
