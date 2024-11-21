@@ -1,3 +1,8 @@
+struct S {
+    a: Int;
+    b: Int;
+}
+
 fun refs_underflow(c: Cell) {
     let s1 = beginCell()
                .storeRef(c)
@@ -10,6 +15,11 @@ fun refs_underflow(c: Cell) {
       .endCell()
       .asSlice()
       .loadRef();
+
+    // Test structures/messages
+    let st1 = S {a: 1 , b: 2};
+    let c1 = st1.toCell().asSlice().loadRef(); // Bad: Cell Underflow
+    st1.toCell().asSlice().loadRef(); // Bad: Cell Underflow
 }
 
 fun refs_overflow(c: Cell) {

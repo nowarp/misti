@@ -37,8 +37,7 @@ enum VariableKind {
   Builder = "builder",
   Cell = "cell",
   Slice = "slice",
-  Message = "message",
-  Struct = "struct",
+  StructMessage = "struct_message",
 }
 
 type StorageValue = {
@@ -135,10 +134,8 @@ interface CellUnderflowState {
   cells: Map<VariableName, Variable>;
   /** Local Slice variables. */
   slices: Map<VariableName, Variable>;
-  /** Local Message variables. */
-  messages: Map<VariableName, Variable>;
-  /** Local Struct variables. */
-  structs: Map<VariableName, Variable>;
+  /** Local Struct and Message variables. */
+  structMessages: Map<VariableName, Variable>;
   /**
    * Intermediate variables of any kind.
    * We don't map them as previous variables because we never need them to be
@@ -157,8 +154,7 @@ function hasVariable(
   if (state.builders.has(name)) return VariableKind.Builder;
   if (state.cells.has(name)) return VariableKind.Cell;
   if (state.slices.has(name)) return VariableKind.Slice;
-  if (state.messages.has(name)) return VariableKind.Message;
-  if (state.structs.has(name)) return VariableKind.Struct;
+  if (state.structMessages.has(name)) return VariableKind.StructMessage;
   return null;
 }
 
@@ -177,10 +173,8 @@ function getVariableFromState(
       return state.cells.get(name);
     case VariableKind.Slice:
       return state.slices.get(name);
-    case VariableKind.Message:
-      return state.messages.get(name);
-    case VariableKind.Struct:
-      return state.structs.get(name);
+    case VariableKind.StructMessage:
+      return state.structMessages.get(name);
     default:
       unreachable(kind);
   }
@@ -192,8 +186,7 @@ class CellUnderflowLattice implements JoinSemilattice<CellUnderflowState> {
       builders: new Map(),
       cells: new Map(),
       slices: new Map(),
-      messages: new Map(),
-      structs: new Map(),
+      structMessages: new Map(),
       intermediateVariables: [],
     };
   }
@@ -203,8 +196,7 @@ class CellUnderflowLattice implements JoinSemilattice<CellUnderflowState> {
       builders: mergeMaps(a.builders, b.builders),
       cells: mergeMaps(a.cells, b.cells),
       slices: mergeMaps(a.slices, b.slices),
-      messages: mergeMaps(a.messages, b.messages),
-      structs: mergeMaps(a.structs, b.structs),
+      structMessages: mergeMaps(a.structMessages, b.structMessages),
       intermediateVariables: mergeLists(
         a.intermediateVariables,
         b.intermediateVariables,
@@ -217,8 +209,7 @@ class CellUnderflowLattice implements JoinSemilattice<CellUnderflowState> {
       isMapSubsetOf(a.builders, b.builders) &&
       isMapSubsetOf(a.cells, b.cells) &&
       isMapSubsetOf(a.slices, b.slices) &&
-      isMapSubsetOf(a.messages, b.messages) &&
-      isMapSubsetOf(a.structs, b.structs) &&
+      isMapSubsetOf(a.structMessages, b.structMessages) &&
       isListSubsetOf(a.intermediateVariables, b.intermediateVariables)
     );
   }
@@ -243,12 +234,11 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       builders: copyVarMap(inState.builders),
       cells: copyVarMap(inState.cells),
       slices: copyVarMap(inState.slices),
-      messages: copyVarMap(inState.messages),
-      structs: copyVarMap(inState.structs),
+      structMessages: copyVarMap(inState.structMessages),
       // We don't copy intermediate variables since these are limited to a
       // single statement.
       intermediateVariables: [],
-    };
+    } as CellUnderflowState;
 
     this.processStatement(out, stmt);
     return out;
@@ -274,9 +264,10 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
   private processLet(out: CellUnderflowState, stmt: AstStatementLet): void {
     const callsChain = getMethodCallsChain(stmt.expression);
     if (callsChain === undefined) {
-      // Try to create variable from the single expression.
-      // It might be a function call, e.g. beginCell(), emptySlice()
-      const variable = this.processSelf(out, stmt.expression);
+      // Try to create variable from the let expression.
+      // It might be a function call, e.g. beginCell(), emptySlice(), or
+      // initialization of new structures/messages.
+      const variable = this.retrieveVariable(out, stmt.expression);
       if (variable) {
         this.createVariable(out, stmt.name, variable);
       }
@@ -320,7 +311,7 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     calls: AstMethodCall[],
     assignmentTarget: AstId,
   ): void {
-    const variable = this.processSelf(out, self);
+    const variable = this.retrieveVariable(out, self);
     if (variable) {
       const result = this.interpretCalls(out, variable, calls);
 
@@ -365,30 +356,30 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     const methodName = idText(call.method);
 
     // Get the storage updates from updateStorage without mutating the variable
-    const storageUpdate = this.updateStorage(out, variable, call);
+    const storageUpdate = this.calculateStorage(out, variable, call);
 
     // Transform type if needed
     let newKind = variable.value.kind;
     const typeTransforms: Record<
       string,
-      { from: VariableKind[]; to: VariableKind | null }
+      { from: VariableKind[]; to: VariableKind }
     > = {
       endCell: { from: [VariableKind.Builder], to: VariableKind.Cell },
       asCell: { from: [VariableKind.Builder], to: VariableKind.Cell },
       asSlice: { from: [VariableKind.Cell], to: VariableKind.Slice },
       beginParse: { from: [VariableKind.Cell], to: VariableKind.Slice },
       toCell: {
-        from: [VariableKind.Message, VariableKind.Struct],
+        from: [VariableKind.StructMessage],
         to: VariableKind.Cell,
       },
       toSlice: {
-        from: [VariableKind.Message, VariableKind.Struct],
+        from: [VariableKind.StructMessage],
         to: VariableKind.Slice,
       },
-      fromCell: { from: [VariableKind.Message, VariableKind.Struct], to: null },
+      fromCell: { from: [VariableKind.Cell], to: VariableKind.StructMessage },
       fromSlice: {
-        from: [VariableKind.Message, VariableKind.Struct],
-        to: null,
+        from: [VariableKind.Slice],
+        to: VariableKind.StructMessage,
       },
     };
 
@@ -449,21 +440,20 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
   }
 
   /**
-   * Processes the receiver of method calls to determine if it creates a new
-   * variable in the dataflow.
+   * Retrieves known or fresh variables introduced in the given expression.
    *
    * @param out The output state containing all the tracked variables
-   * @param self The receiver expression to analyze
-   * @returns A new variable if the receiver creates/uses one, or null if it's
-   *          not interesting for the analysis
+   * @param expr The expression to analyze
+   * @returns A new variable if `expr` creates/uses one, or null if it's not
+   *          interesting for the analysis
    */
-  private processSelf(
+  private retrieveVariable(
     out: CellUnderflowState,
-    self: AstExpression,
+    expr: AstExpression,
   ): VariableRhs | null {
     // Check for local variables
-    if (self.kind === "id") {
-      const varName = idText(self) as VariableName;
+    if (expr.kind === "id") {
+      const varName = idText(expr) as VariableName;
       const kind = hasVariable(out, varName);
       if (kind) {
         const value = getVariableFromState(out, varName, kind);
@@ -479,7 +469,7 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
 
     // Try to create new variables
     let value: UnknownVariable | null = null;
-    if (isStdlibCall("emptyCell", self)) {
+    if (isStdlibCall("emptyCell", expr)) {
       value = {
         kind: VariableKind.Cell,
         storage: {
@@ -488,7 +478,7 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
         },
       } as UnknownVariable;
     }
-    if (isStdlibCall("emptySlice", self)) {
+    if (isStdlibCall("emptySlice", expr)) {
       value = {
         kind: VariableKind.Slice,
         storage: {
@@ -497,7 +487,7 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
         },
       };
     }
-    if (isStdlibCall("beginCell", self)) {
+    if (isStdlibCall("beginCell", expr)) {
       value = {
         kind: VariableKind.Builder,
         storage: {
@@ -507,14 +497,31 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       };
     }
 
-    // TODO Handle initialization of messages and structures
+    // Handle initialization of messages and structures
+    if (expr.kind === "struct_instance") {
+      value = {
+        kind: VariableKind.StructMessage,
+        storage: {
+          refsNum: createEmptyStorageValue(),
+          // TODO: Statically check the possible data size based on the
+          //       definition of the structure/message.
+          dataSize: createUndecidableStorageValue(),
+        },
+      };
+    }
+
     return value ? { kind: "unknown", value } : null;
   }
 
   /**
-   * Interprets the current method call updating the `variable.storage` if needed.
+   * Analyzes a method call and calculates storage updates without modifying
+   * the original variable.
+   *
+   * @param out Current dataflow state containing tracked variables
+   * @param variable The variable being called on (could be known or unknown)
+   * @param call The method call being analyzed
    */
-  private updateStorage(
+  private calculateStorage(
     out: CellUnderflowState,
     variable: VariableRhs,
     call: AstMethodCall,
@@ -721,11 +728,8 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       case VariableKind.Slice:
         out.slices.set(name, newVar);
         break;
-      case VariableKind.Message:
-        out.messages.set(name, newVar);
-        break;
-      case VariableKind.Struct:
-        out.structs.set(name, newVar);
+      case VariableKind.StructMessage:
+        out.structMessages.set(name, newVar);
         break;
       default:
         unreachable(variable.value.kind);
@@ -744,23 +748,19 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       const callsChain = getMethodCallsChain(expr);
       if (callsChain === undefined) return;
 
-      // Check if these calls were previously processed
-      let hasUnvisited = false;
+      // Processed only the longest chain of method calls
+      let hasVisited = false;
       callsChain.calls.forEach((c) => {
-        if (!processedCalls.has(c.id)) {
-          hasUnvisited = true;
-        }
+        if (processedCalls.has(c.id)) hasVisited = true;
+        processedCalls.add(c.id);
       });
-      if (!hasUnvisited) return;
+      if (hasVisited) return;
 
       const { self, calls } = callsChain;
-      const variable = this.processSelf(out, self);
+      const variable = this.retrieveVariable(out, self);
       if (!variable) return;
 
       const result = this.interpretCalls(out, variable, calls);
-
-      // Do NOT apply the accumulated storage updates to the variable here
-      // Since the method calls are not assigned, we should not update the variable's storage
 
       // Collect intermediate variables
       result.intermediates.forEach((intermediateVar) => {
@@ -918,10 +918,7 @@ export class CellBounds extends DataflowDetector {
             ...Array.from(state.slices.values()).flatMap((v) =>
               this.checkKnownVariable(v),
             ),
-            ...Array.from(state.messages.values()).flatMap((v) =>
-              this.checkKnownVariable(v),
-            ),
-            ...Array.from(state.structs.values()).flatMap((v) =>
+            ...Array.from(state.structMessages.values()).flatMap((v) =>
               this.checkKnownVariable(v),
             ),
           ];
@@ -1050,6 +1047,14 @@ function createEmptyStorageValue(): StorageValue {
     undecidable: false,
     stored: Interval.fromNum(0),
     loaded: Interval.fromNum(0),
+  };
+}
+
+function createUndecidableStorageValue(): StorageValue {
+  return {
+    undecidable: true,
+    stored: Interval.EMPTY,
+    loaded: Interval.EMPTY,
   };
 }
 
