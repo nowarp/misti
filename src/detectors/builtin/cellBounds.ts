@@ -412,6 +412,10 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       } as UnknownVariable,
     };
     const result = this.analyzeCalls(out, newVariable, calls.slice(1));
+    newVariable.value.storage = this.combineStorageUpdates(
+        storageUpdate,
+        result.storageUpdates,
+      );
     return {
       variable: result.variable,
       storageUpdates: this.combineStorageUpdates(
