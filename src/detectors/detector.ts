@@ -350,13 +350,6 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: false,
   },
-  CellOverflow: {
-    loader: (ctx: MistiContext) =>
-      import("./builtin/cellOverflow").then(
-        (module) => new module.CellOverflow(ctx),
-      ),
-    enabledByDefault: true,
-  },
   UnboundMap: {
     loader: (ctx: MistiContext) =>
       import("./builtin/unboundMap").then(
@@ -396,6 +389,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
     loader: (ctx: MistiContext) =>
       import("./builtin/exitCodeUsage").then(
         (module) => new module.ExitCodeUsage(ctx),
+      ),
+    enabledByDefault: true,
+  },
+  CellBounds: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/cellBounds").then(
+        (module) => new module.CellBounds(ctx),
       ),
     enabledByDefault: true,
   },
