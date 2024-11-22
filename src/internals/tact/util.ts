@@ -364,3 +364,20 @@ export function srcInfoToString(loc: SrcInfo): string {
     : "";
   return `${shownPath}${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
 }
+
+/**
+ * Determines if the given expression is a 'send' call.
+ * @param expr The expression to check.
+ * @returns True if the expression is a 'send' call; otherwise, false.
+ */
+export function isSendCall(expr: AstExpression): boolean {
+  const staticSendFunctions = ["send", "nativeSendMessage"];
+  const selfMethodSendFunctions = ["reply", "forward", "notify", "emit"];
+  return (
+    (expr.kind === "static_call" &&
+      staticSendFunctions.includes(expr.function?.text || "")) ||
+    (expr.kind === "method_call" &&
+      isSelf(expr.self) &&
+      selfMethodSendFunctions.includes(expr.method?.text || ""))
+  );
+}

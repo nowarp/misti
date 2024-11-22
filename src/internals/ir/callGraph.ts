@@ -4,6 +4,7 @@ import { IdxGenerator } from "./indices";
 import { MistiContext } from "../../";
 import { Logger } from "../../internals/logger";
 import { forEachExpression } from "../tact/iterators";
+import { isSendCall } from "../tact/util";
 import {
   AstFunctionDef,
   AstReceiver,
@@ -14,6 +15,7 @@ import {
   AstContract,
   AstId,
   AstContractDeclaration,
+  AstNode,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
 export type CGNodeId = number & { readonly brand: unique symbol };
@@ -21,8 +23,11 @@ export type CGEdgeId = number & { readonly brand: unique symbol };
 
 /**
  * Flag constants for CGNode.
+ *
+ * `FLAG_CALLS_SEND` (0b0001): Indicates that the function represented by this node
+ * contains a direct or indirect call to a "send" function.
  */
-const FLAG_CALLS_SEND = 0b0001; 
+const FLAG_CALLS_SEND = 0b0001;
 
 /**
  * Represents an edge in the call graph, indicating a call from one function to another.
@@ -89,7 +94,7 @@ class CGNode {
  */
 export class CallGraph {
   private nodeMap: Map<CGNodeId, CGNode> = new Map();
-  private astIdToNodeId: Map<number, CGNodeId> = new Map();
+  private astIdToNodeId: Map<AstNode["id"], CGNodeId> = new Map();
   private nameToNodeId: Map<string, CGNodeId> = new Map();
   private edgesMap: Map<CGEdgeId, CGEdge> = new Map();
   private logger: Logger;
@@ -296,7 +301,7 @@ export class CallGraph {
               let callsSend = false;
               forEachExpression(func, (expr) => {
                 this.processExpression(expr, funcNodeId, contractName);
-                if (this.isSendCall(expr)) {
+                if (isSendCall(expr)) {
                   callsSend = true;
                 }
               });
@@ -317,7 +322,7 @@ export class CallGraph {
           let callsSend = false;
           forEachExpression(func, (expr) => {
             this.processExpression(expr, funcNodeId);
-            if (this.isSendCall(expr)) {
+            if (isSendCall(expr)) {
               callsSend = true;
             }
           });
@@ -330,23 +335,6 @@ export class CallGraph {
         }
       }
     }
-  }
-
-  /**
-   * Determines if the given expression is a 'send' call.
-   * @param expr The expression to check.
-   * @returns True if the expression is a 'send' call; otherwise, false.
-   */
-  private isSendCall(expr: AstExpression): boolean {
-    const staticSendFunctions = ["send", "nativeSendMessage"];
-    const selfMethodSendFunctions = ["reply", "forward", "notify", "emit"];
-    return (
-      (expr.kind === "static_call" &&
-        staticSendFunctions.includes(expr.function?.text || "")) ||
-      (expr.kind === "method_call" &&
-        isSelf(expr.self) &&
-        selfMethodSendFunctions.includes(expr.method?.text || ""))
-    );
   }
 
   /**
@@ -446,6 +434,6 @@ export class CallGraph {
  * @param expr The expression to check.
  * @returns True if the expression is 'self'; otherwise, false.
  */
-function isSelf(expr: AstExpression): boolean {
+export function isSelf(expr: AstExpression): boolean {
   return expr.kind === "id" && (expr as AstId).text === "self";
 }

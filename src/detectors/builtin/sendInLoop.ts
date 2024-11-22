@@ -1,6 +1,7 @@
 import { CompilationUnit } from "../../internals/ir";
 import { CallGraph } from "../../internals/ir/callGraph";
 import { forEachStatement, foldExpressions } from "../../internals/tact";
+import { isSendCall } from "../../internals/tact/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import {
@@ -93,7 +94,7 @@ export class SendInLoop extends ASTDetector {
       foldExpressions(
         stmt,
         (acc: MistiTactWarning[], expr: AstExpression) => {
-          if (this.isSendCall(expr)) {
+          if (isSendCall(expr)) {
             acc.push(
               this.makeWarning("Send function called inside a loop", expr.loc, {
                 suggestion:
@@ -119,10 +120,7 @@ export class SendInLoop extends ASTDetector {
               const calleeNodeId = callGraph.getNodeIdByName(calleeName);
               if (calleeNodeId !== undefined) {
                 const calleeNode = callGraph.getNode(calleeNodeId);
-                if (
-                  calleeNode &&
-                  calleeNode.hasFlag(0b0001)
-                ) {
+                if (calleeNode && calleeNode.hasFlag(0b0001)) {
                   acc.push(
                     this.makeWarning(
                       `Function "${calleeNode.name}" called inside a loop leads to a send function`,
