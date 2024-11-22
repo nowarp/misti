@@ -1,16 +1,11 @@
 import { CompilationUnit } from "../../internals/ir";
-import { CallGraph, CGNodeId } from "../../internals/ir/callGraph";
-import {
-  forEachStatement,
-  foldExpressions,
-  isSelf,
-} from "../../internals/tact";
+import { CallGraph } from "../../internals/ir/callGraph";
+import { forEachStatement, foldExpressions } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import {
   AstStatement,
   AstExpression,
-  idText,
   AstStaticCall,
   AstMethodCall,
   AstContract,
@@ -51,28 +46,6 @@ export class SendInLoop extends ASTDetector {
     const astStore = cu.ast;
     const ctx = this.ctx;
     const callGraph = new CallGraph(ctx).build(astStore);
-    const functionsCallingSend = new Set<CGNodeId>();
-
-    // Identify all functions that contain a send call
-    for (const func of astStore.getFunctions()) {
-      let containsSend = false;
-      foldExpressions(
-        func,
-        (acc, expr) => {
-          if (this.isSendCall(expr)) {
-            containsSend = true;
-          }
-          return acc;
-        },
-        null,
-      );
-      if (containsSend) {
-        const funcNodeId = callGraph.getNodeIdByAstId(func.id);
-        if (funcNodeId !== undefined) {
-          functionsCallingSend.add(funcNodeId);
-        }
-      }
-    }
 
     // Analyze loops and check if any function called within leads to a send
     for (const entry of cu.ast.getProgramEntries()) {
@@ -84,7 +57,6 @@ export class SendInLoop extends ASTDetector {
             stmt,
             processedLoopIds,
             callGraph,
-            functionsCallingSend,
             contractName,
           );
           allWarnings.push(...warnings);
@@ -95,7 +67,6 @@ export class SendInLoop extends ASTDetector {
             stmt,
             processedLoopIds,
             callGraph,
-            functionsCallingSend,
           );
           allWarnings.push(...warnings);
         });
@@ -108,7 +79,6 @@ export class SendInLoop extends ASTDetector {
     stmt: AstStatement,
     processedLoopIds: Set<number>,
     callGraph: CallGraph,
-    functionsCallingSend: Set<CGNodeId>,
     currentContractName?: string,
   ): MistiTactWarning[] {
     if (processedLoopIds.has(stmt.id)) {
@@ -148,25 +118,21 @@ export class SendInLoop extends ASTDetector {
             if (calleeName) {
               const calleeNodeId = callGraph.getNodeIdByName(calleeName);
               if (calleeNodeId !== undefined) {
-                // Check if the callee is connected to any function that calls send
-                for (const sendFuncNodeId of functionsCallingSend) {
-                  if (callGraph.areConnected(calleeNodeId, sendFuncNodeId)) {
-                    // Get the callee node to retrieve its name
-                    const calleeNode = callGraph.getNode(calleeNodeId);
-                    const calleeFunctionName = calleeNode?.name ?? calleeName;
-
-                    acc.push(
-                      this.makeWarning(
-                        `Function "${calleeFunctionName}" called inside a loop leads to a send function`,
-                        expr.loc,
-                        {
-                          suggestion:
-                            "Consider refactoring to avoid calling send functions inside loops",
-                        },
-                      ),
-                    );
-                    break;
-                  }
+                const calleeNode = callGraph.getNode(calleeNodeId);
+                if (
+                  calleeNode &&
+                  calleeNode.hasFlag(0b0001 /* FLAG_CALLS_SEND */)
+                ) {
+                  acc.push(
+                    this.makeWarning(
+                      `Function "${calleeNode.name}" called inside a loop leads to a send function`,
+                      expr.loc,
+                      {
+                        suggestion:
+                          "Consider refactoring to avoid calling send functions inside loops",
+                      },
+                    ),
+                  );
                 }
               }
             }
@@ -186,10 +152,11 @@ export class SendInLoop extends ASTDetector {
     const selfMethodSendFunctions = ["reply", "forward", "notify", "emit"];
     return (
       (expr.kind === "static_call" &&
-        staticSendFunctions.includes(idText(expr.function))) ||
+        staticSendFunctions.includes(expr.function?.text || "")) ||
       (expr.kind === "method_call" &&
-        isSelf(expr.self) &&
-        selfMethodSendFunctions.includes(idText(expr.method)))
+        expr.self.kind === "id" &&
+        (expr.self as any).text === "self" &&
+        selfMethodSendFunctions.includes(expr.method?.text || ""))
     );
   }
 

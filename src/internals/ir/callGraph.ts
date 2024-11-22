@@ -20,6 +20,13 @@ export type CGNodeId = number & { readonly brand: unique symbol };
 export type CGEdgeId = number & { readonly brand: unique symbol };
 
 /**
+ * Flag constants for CGNode.
+ */
+const FLAG_CALLS_SEND = 0b0001; // 1
+// You can define more flags as needed
+// const FLAG_ANOTHER_PROPERTY = 0b0010; // 2
+
+/**
  * Represents an edge in the call graph, indicating a call from one function to another.
  * Each edge has a unique index (`idx`) generated using `IdxGenerator`.
  */
@@ -46,6 +53,7 @@ class CGNode {
   public idx: CGNodeId;
   public inEdges: Set<CGEdgeId> = new Set();
   public outEdges: Set<CGEdgeId> = new Set();
+  public flags: number = 0;
 
   /**
    * @param astId The AST ID of the function or method this node represents (can be `undefined` for synthetic nodes)
@@ -61,6 +69,16 @@ class CGNode {
     if (astId === undefined) {
       this.logger.debug(`CGNode created without AST ID for function "${name}"`);
     }
+  }
+
+  // Method to set a flag
+  public setFlag(flag: number) {
+    this.flags |= flag;
+  }
+
+  // Method to check if a flag is set
+  public hasFlag(flag: number): boolean {
+    return (this.flags & flag) !== 0;
   }
 }
 
@@ -257,6 +275,7 @@ export class CallGraph {
 
   /**
    * Analyzes the AST for function calls and adds edges between caller and callee nodes.
+   * Additionally, sets flags on nodes based on their properties (e.g., if they call 'send').
    * @param astStore The AST store to analyze.
    */
   private analyzeFunctionCalls(astStore: TactASTStore) {
@@ -276,9 +295,20 @@ export class CallGraph {
               | AstReceiver;
             const funcNodeId = this.astIdToNodeId.get(func.id);
             if (funcNodeId !== undefined) {
-              forEachExpression(func, (expr) =>
-                this.processExpression(expr, funcNodeId, contractName),
-              );
+              let callsSend = false;
+              forEachExpression(func, (expr) => {
+                this.processExpression(expr, funcNodeId, contractName);
+                if (this.isSendCall(expr)) {
+                  callsSend = true;
+                }
+              });
+              // Set the flag if the function calls 'send'
+              if (callsSend) {
+                const funcNode = this.getNode(funcNodeId);
+                if (funcNode) {
+                  funcNode.setFlag(FLAG_CALLS_SEND);
+                }
+              }
             }
           }
         }
@@ -286,12 +316,39 @@ export class CallGraph {
         const func = entry as AstFunctionDef;
         const funcNodeId = this.astIdToNodeId.get(func.id);
         if (funcNodeId !== undefined) {
-          forEachExpression(func, (expr) =>
-            this.processExpression(expr, funcNodeId),
-          );
+          let callsSend = false;
+          forEachExpression(func, (expr) => {
+            this.processExpression(expr, funcNodeId);
+            if (this.isSendCall(expr)) {
+              callsSend = true;
+            }
+          });
+          if (callsSend) {
+            const funcNode = this.getNode(funcNodeId);
+            if (funcNode) {
+              funcNode.setFlag(FLAG_CALLS_SEND);
+            }
+          }
         }
       }
     }
+  }
+
+  /**
+   * Determines if the given expression is a 'send' call.
+   * @param expr The expression to check.
+   * @returns True if the expression is a 'send' call; otherwise, false.
+   */
+  private isSendCall(expr: AstExpression): boolean {
+    const staticSendFunctions = ["send", "nativeSendMessage"];
+    const selfMethodSendFunctions = ["reply", "forward", "notify", "emit"];
+    return (
+      (expr.kind === "static_call" &&
+        staticSendFunctions.includes(expr.function?.text || "")) ||
+      (expr.kind === "method_call" &&
+        isSelf(expr.self) &&
+        selfMethodSendFunctions.includes(expr.method?.text || ""))
+    );
   }
 
   /**
@@ -384,4 +441,13 @@ export class CallGraph {
       );
     }
   }
+}
+
+/**
+ * Helper function to check if an expression represents 'self'.
+ * @param expr The expression to check.
+ * @returns True if the expression is 'self'; otherwise, false.
+ */
+function isSelf(expr: AstExpression): boolean {
+  return expr.kind === "id" && (expr as AstId).text === "self";
 }
