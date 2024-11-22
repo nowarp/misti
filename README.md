@@ -2,7 +2,7 @@
 Misti is a static analysis tool designed for smart contracts on the [TON blockchain](https://ton.org/).
 
 #### Language Support
-- [Tact](https://tact-lang.org/): 29 detectors [are available](https://nowarp.io/tools/misti/docs/next/detectors)
+- [Tact](https://tact-lang.org/): 28 detectors [are available](https://nowarp.io/tools/misti/docs/next/detectors)
 - [FunC](https://docs.ton.org/develop/func/overview) support is [planned](https://github.com/nowarp/misti/issues/56) by the end of the year
 
 #### Features
