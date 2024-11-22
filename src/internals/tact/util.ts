@@ -1,4 +1,5 @@
 import { forEachExpression } from "./iterators";
+import { evalToType } from "../../internals/tact/";
 import { unreachable } from "../util";
 import { AstComparator } from "@tact-lang/compiler/dist/";
 import {
@@ -363,6 +364,179 @@ export function srcInfoToString(loc: SrcInfo): string {
     ? path.relative(process.cwd(), loc.file) + ":"
     : "";
   return `${shownPath}${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
+}
+
+/**
+ * Collects a chain of method calls.
+ *
+ * The return format is the following: `expr.method1().method2()`, where `expr`
+ * might be a function call, e.g.:
+ *
+ * beginCell().loadRef(c).endCell();
+ * ^^^^^^^^^^^ ^^^^^^^^^^ ^^^^^^^^^^
+ *    self      calls[0]   calls[1]
+ *
+ * @returns An array of expressions representing the method call chain and the
+ *          first receiver that might be an expression creating a callable
+ *          object, or undefined if it's not a method call chain.
+ */
+export function getMethodCallsChain(
+  expr: AstExpression,
+): { self: AstExpression; calls: AstMethodCall[] } | undefined {
+  const calls: AstMethodCall[] = [];
+  let currentExpr: AstExpression = expr;
+  while (currentExpr.kind === "method_call") {
+    const methodCall = currentExpr as AstMethodCall;
+    calls.push(methodCall);
+    currentExpr = methodCall.self;
+  }
+  if (calls.length === 0) {
+    return undefined;
+  }
+  return { self: currentExpr, calls: calls.reverse() };
+}
+
+/**
+ * Returns true if the given expression represents a call of the function `name`
+ * with `argsNum` arguments.
+ */
+export function isFunctionCall(
+  expr: AstExpression,
+  name: string,
+  argsNum: number,
+): boolean {
+  return (
+    expr.kind === "static_call" &&
+    idText(expr.function) === name &&
+    expr.args.length === argsNum
+  );
+}
+
+/**
+ * Returns true if the given expression represents a call of the method `name`
+ * with `argsNum` arguments.
+ */
+export function isMethodCall(
+  expr: AstExpression,
+  name: string,
+  argsNum: number,
+): boolean {
+  return (
+    expr.kind === "method_call" &&
+    idText(expr.method) === name &&
+    expr.args.length === argsNum
+  );
+}
+
+/**
+ * Returns true if the given expression is a call of the supported stdlib
+ * function or method.
+ */
+export function isStdlibCall(name: string, expr: AstExpression): boolean {
+  const stdlibFunctions: Record<string, number> = {
+    beginCell: 0,
+    endCell: 0,
+    emptyCell: 0,
+    emptySlice: 0,
+  };
+  const stdlibMethods: Record<string, number> = {
+    storeMaybeRef: 1,
+    storeRef: 1,
+    loadRef: 0,
+  };
+
+  const expectedFunctionArgs = stdlibFunctions[name];
+  if (expectedFunctionArgs !== undefined) {
+    return isFunctionCall(expr, name, expectedFunctionArgs);
+  }
+
+  const expectedMethodArgs = stdlibMethods[name];
+  if (expectedMethodArgs !== undefined) {
+    return isMethodCall(expr, name, expectedMethodArgs);
+  }
+
+  return false;
+}
+
+/**
+ * Size of the Address variable stored in Cell.
+ */
+export const ADDRESS_SIZE = 267n;
+
+/**
+ * Returns the size of the storage added by the given `.store` method call.
+ */
+export function getConstantStoreSize(call: AstMethodCall): bigint | undefined {
+  switch (idText(call.method)) {
+    case "storeBool":
+    case "storeBit":
+      return 1n;
+    case "storeCoins": {
+      if (call.args.length !== 1) return undefined;
+      // The serialization size varies from 4 to 124 bits:
+      // https://docs.tact-lang.org/book/integers/#serialization-coins
+      const value = evalToType(call.args[0], "bigint");
+      if (value !== undefined) {
+        const numValue = Number(value);
+        if (!isNaN(numValue) && isFinite(numValue)) {
+          // We use the following logic from ton-core in order to compute the size:
+          // https://github.com/ton-org/ton-core/blob/00fa47e03c2a78c6dd9d09e517839685960bc2fd/src/boc/BitBuilder.ts#L212
+          const sizeBytes = Math.ceil(numValue.toString(2).length / 8);
+          const sizeBits = sizeBytes * 8;
+          // 44-bit unsigned big-endian integer storing the byte length of the
+          // value provided
+          const sizeLength = 4;
+          return BigInt(sizeBits + sizeLength);
+        }
+      }
+      // TODO: Return an interval of possible values
+      return undefined;
+    }
+    case "storeAddress":
+      return ADDRESS_SIZE;
+    case "storeInt":
+    case "storeUint": {
+      if (call.args.length !== 2) return undefined;
+      const value = evalToType(call.args[1], "bigint");
+      return value === undefined ? undefined : (value as bigint);
+    }
+    case "storeBuilder":
+    case "storeSlice":
+      return undefined;
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Returns the size of the storage substrated by the given `.load` method call.
+ */
+export function getConstantLoadSize(call: AstMethodCall): bigint | undefined {
+  switch (idText(call.method)) {
+    case "loadBool":
+    case "loadBit":
+      return 1n;
+    case "loadCoins": {
+      // The size is dynamically loaded from the cell, thus we cannot retrieve it statically:
+      // https://github.com/ton-org/ton-core/blob/00fa47e03c2a78c6dd9d09e517839685960bc2fd/src/boc/BitReader.ts#L290
+      // TODO: Return an interval of possible values
+      return undefined;
+    }
+    case "loadAddress":
+      return ADDRESS_SIZE;
+    case "loadInt":
+    case "loadUint": {
+      if (call.args.length !== 1) return undefined;
+      const value = evalToType(call.args[0], "bigint");
+      // TODO: Return an interval of possible values
+      return value === undefined ? undefined : (value as bigint);
+    }
+    case "loadBuilder":
+    case "loadSlice":
+      return undefined;
+    default:
+      return undefined;
+  }
 }
 
 /**

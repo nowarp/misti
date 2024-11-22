@@ -1,19 +1,39 @@
-[HIGH] ExitCodeUsage: Exit code variable "code1" has value outside allowed range
-test/detectors/ExitCodeUsage.tact:15:28:
-  14 |          let code1: Int = 128;
-> 15 |          nativeThrowUnless(code1, sender() == self.owner);
+[HIGH] ExitCodeUsage: Value is outside allowed range
+test/detectors/ExitCodeUsage.tact:14:28:
+  13 |          // Bad
+> 14 |          nativeThrowUnless(128, sender() == self.owner);
                                   ^
-  16 | 
+  15 | 
+Exit codes 0-255 are reserved. Used value: 128
+Help: Use a value between 256 and 65535
+See: https://nowarp.io/tools/misti/docs/detectors/ExitCodeUsage
+
+[HIGH] ExitCodeUsage: Value is outside allowed range
+test/detectors/ExitCodeUsage.tact:17:28:
+  16 |          // Bad
+> 17 |          nativeThrowUnless(255, sender() == self.owner);
+                                  ^
+  18 | 
+Exit codes 0-255 are reserved. Used value: 255
+Help: Use a value between 256 and 65535
+See: https://nowarp.io/tools/misti/docs/detectors/ExitCodeUsage
+
+[HIGH] ExitCodeUsage: Exit code variable "code1" has value outside allowed range
+test/detectors/ExitCodeUsage.tact:21:28:
+  20 |          let code1: Int = 128;
+> 21 |          nativeThrowUnless(code1, sender() == self.owner);
+                                  ^
+  22 | 
 Exit codes 0-255 are reserved. Variable value: 128
 Help: Use a value between 256 and 65535
 See: https://nowarp.io/tools/misti/docs/detectors/ExitCodeUsage
 
 [HIGH] ExitCodeUsage: Exit code variable "code2" has value outside allowed range
-test/detectors/ExitCodeUsage.tact:20:28:
-  19 |          code2 = code2 - 10;
-> 20 |          nativeThrowUnless(code2, sender() == self.owner);
+test/detectors/ExitCodeUsage.tact:26:28:
+  25 |          code2 = code2 - 10;
+> 26 |          nativeThrowUnless(code2, sender() == self.owner);
                                   ^
-  21 | 
+  27 | 
 Exit codes 0-255 are reserved. Variable value: 246
 Help: Use a value between 256 and 65535
 See: https://nowarp.io/tools/misti/docs/detectors/ExitCodeUsage

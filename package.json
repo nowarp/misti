@@ -21,7 +21,7 @@
     "clean": "rm -fr dist docs/*",
     "build": "tsc && cp -R src/detectors/templates dist/detectors/",
     "postinstall": "yarn gen",
-    "gen": "ts-node scripts/genVersions.ts",
+    "gen": "node scripts/genVersions.cjs",
     "test": "jest",
     "benchmark": "ts-node benchmarks/detectors.ts",
     "lint": "eslint src",

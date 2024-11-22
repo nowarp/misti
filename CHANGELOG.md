@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `CellBounds` detector: PR [#214](https://github.com/nowarp/misti/pull/214)
 - `ExitCodeUsage` detector: PR [#207](https://github.com/nowarp/misti/pull/207)
 - `EtaLikeSimplifications` detector: PR [#198](https://github.com/nowarp/misti/pull/198)
 - `ShortCircuitCondition` detector: PR [#202](https://github.com/nowarp/misti/pull/202)
@@ -15,9 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `SuspiciousMessageMode` detector now suggests using SendDefaultMode instead of 0 for mode: PR [#199](https://github.com/nowarp/misti/pull/199/)
+- `CellOverflow` detector was replaced with the `CellBounds` detector that supports both overflows and underflows: PR [#214](https://github.com/nowarp/misti/pull/214)
 
 ### Fixed
 - Missing Module `version-info` When Installing Misti from GitHub: Issue [#216](https://github.com/nowarp/misti/issues/216/)
+- `ExitCodeUsage` Handle direct cases: Issue [#218](https://github.com/nowarp/misti/issues/218/)
 
 ## [0.5.0] - 2024-10-31
 

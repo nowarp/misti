@@ -7,19 +7,33 @@ import {
 } from "../../internals/lattice";
 import { Interval, Num } from "../../internals/numbers";
 import { WideningWorklistSolver } from "../../internals/solver";
+import { evalToType } from "../../internals/tact";
 import { findInExpressions } from "../../internals/tact/iterators";
 import { Transfer } from "../../internals/transfer";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";
 import {
   AstStatement,
-  AstId,
   idText,
   AstExpression,
   AstStatementAssign,
   AstStatementLet,
   AstNumber,
 } from "@tact-lang/compiler/dist/grammar/ast";
+
+/**
+ * The minimum allowed value for user-defined exit codes.
+ * @remarks Values below 256 are reserved:
+ * - 0-127: Reserved for TVM/FunC
+ * - 128-255: Reserved for Tact
+ */
+const LOWER_BOUND = 256n;
+
+/**
+ * The maximum allowed value for user-defined exit codes.
+ * @remarks Values above 65535 are invalid in TON smart contracts
+ */
+const UPPER_BOUND = 65535n;
 
 type Variable = string & { readonly __brand: unique symbol };
 
@@ -235,27 +249,66 @@ export class ExitCodeUsage extends DataflowDetector {
     if (!stmt) {
       throw InternalException.make(`Cannot find a statement for BB #${bb.idx}`);
     }
-    // TODO: Handle direct cases e.g. throw(128)
-    const exitVariable = this.findExitVariable(stmt);
-    if (exitVariable === null) {
-      return;
+    const arg = this.getThrowFunctionArg(stmt);
+    if (!arg) return;
+    this.checkDirectExitCode(arg, warnings);
+    this.checkVariableExitCode(arg, state, warnings);
+  }
+
+  /**
+   * Checks for invalid exit codes specified directly as numbers (e.g., throw(128))
+   * @param arg The argument passed to the throw function
+   * @param warnings Array to collect any warnings found
+   */
+  private checkDirectExitCode(
+    arg: AstExpression,
+    warnings: MistiTactWarning[],
+  ): void {
+    const value = evalToType(arg, "bigint");
+    if (
+      value !== undefined &&
+      value !== null &&
+      typeof value === "bigint" &&
+      (value < LOWER_BOUND || value > UPPER_BOUND)
+    ) {
+      warnings.push(
+        this.makeWarning(`Value is outside allowed range`, arg.loc, {
+          extraDescription: `Exit codes 0-255 are reserved. Used value: ${value}`,
+          suggestion: `Use a value between ${Number(LOWER_BOUND)} and ${Number(UPPER_BOUND)}`,
+        }),
+      );
     }
-    const exitVariableName = idText(exitVariable);
-    for (const [varName, interval] of state.entries()) {
-      if (
-        exitVariableName === varName &&
-        this.isOutsideAllowedRange(interval)
-      ) {
-        warnings.push(
-          this.makeWarning(
-            `Exit code variable "${varName}" has value outside allowed range`,
-            exitVariable.loc,
-            {
-              extraDescription: `Exit codes 0-255 are reserved. Variable value: ${interval.toString()}`,
-              suggestion: "Use a value between 256 and 65535",
-            },
-          ),
-        );
+  }
+
+  /**
+   * Checks for invalid exit codes stored in variables
+   * @param arg The argument passed to the throw function
+   * @param state Current state containing variable intervals
+   * @param warnings Array to collect any warnings found
+   */
+  private checkVariableExitCode(
+    arg: AstExpression,
+    state: VariableState,
+    warnings: MistiTactWarning[],
+  ): void {
+    if (arg.kind === "id") {
+      const exitVariableName = idText(arg);
+      for (const [varName, interval] of state.entries()) {
+        if (
+          exitVariableName === varName &&
+          this.isOutsideAllowedRange(interval)
+        ) {
+          warnings.push(
+            this.makeWarning(
+              `Exit code variable "${varName}" has value outside allowed range`,
+              arg.loc,
+              {
+                extraDescription: `Exit codes 0-255 are reserved. Variable value: ${interval.toString()}`,
+                suggestion: `Use a value between ${Number(LOWER_BOUND)} and ${Number(UPPER_BOUND)}`,
+              },
+            ),
+          );
+        }
       }
     }
   }
@@ -265,17 +318,17 @@ export class ExitCodeUsage extends DataflowDetector {
     const upperBound = interval.high;
 
     // Developer-allowed range is 256 to 65535
-    const belowMin = Num.compare(upperBound, Num.int(256n)) < 0;
-    const aboveMax = Num.compare(lowerBound, Num.int(65535n)) > 0;
+    const belowMin = Num.compare(upperBound, Num.int(LOWER_BOUND)) < 0;
+    const aboveMax = Num.compare(lowerBound, Num.int(UPPER_BOUND)) > 0;
 
     return belowMin || aboveMax;
   }
 
   /**
-   * Finds a local variable used as an exit code.
+   * Returns first argument of throw functions or null if it's not a throw call
    */
-  private findExitVariable(stmt: AstStatement): AstId | null {
-    let result: AstId | null = null;
+  private getThrowFunctionArg(stmt: AstStatement): AstExpression | null {
+    let result: AstExpression | null = null;
     // The first argument of these functions is an exit code:
     // https://docs.tact-lang.org/ref/core-debug/#throw
     const throwFunctions = new Set([
@@ -288,8 +341,7 @@ export class ExitCodeUsage extends DataflowDetector {
       if (
         expr.kind === "static_call" &&
         expr.args.length > 0 &&
-        throwFunctions.has(idText(expr.function)) &&
-        expr.args[0].kind === "id"
+        throwFunctions.has(idText(expr.function))
       ) {
         result = expr.args[0];
         return true;

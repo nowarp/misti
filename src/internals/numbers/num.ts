@@ -9,7 +9,9 @@
 
 import { ExecutionException, InternalException } from "../exceptions";
 
-export type NumImpl = IntNum | PInf | MInf;
+export type NumImpl = (IntNum | PInf | MInf) & {
+  toString(): string;
+};
 
 export interface IntNum {
   kind: "IntNum";
@@ -39,25 +41,41 @@ export class Num {
    * @param value The numeric value to wrap
    * @returns An IntNum object
    */
-  static int(value: bigint | number): IntNum {
+  static int(value: bigint | number): NumImpl {
     const bigIntValue = typeof value === "number" ? BigInt(value) : value;
-    return { kind: "IntNum", value: bigIntValue };
+    return {
+      kind: "IntNum",
+      value: bigIntValue,
+      toString() {
+        return this.value.toString();
+      },
+    };
   }
 
   /**
    * Creates a positive infinity representation.
    * @returns A PInf object
    */
-  static p(): PInf {
-    return { kind: "PInf" };
+  static p(): NumImpl {
+    return {
+      kind: "PInf",
+      toString() {
+        return "+∞";
+      },
+    };
   }
 
   /**
    * Creates a negative infinity representation.
    * @returns An MInf object
    */
-  static m(): MInf {
-    return { kind: "MInf" };
+  static m(): NumImpl {
+    return {
+      kind: "MInf",
+      toString() {
+        return "-∞";
+      },
+    };
   }
 
   /**
@@ -101,6 +119,9 @@ export class Num {
       return 1n;
     }
   }
+  static eq = (a: NumImpl, b: NumImpl): boolean => this.compare(a, b) === 0n;
+  static lt = (a: NumImpl, b: NumImpl): boolean => this.compare(a, b) < 0n;
+  static gt = (a: NumImpl, b: NumImpl): boolean => this.compare(a, b) > 0n;
 
   /**
    * Returns the arithmetic negation of a number.
@@ -214,17 +235,5 @@ export class Num {
    */
   static max(...nums: NumImpl[]): NumImpl {
     return nums.reduce((a, b) => (this.compare(a, b) >= 0 ? a : b));
-  }
-
-  static toString(n: NumImpl): string {
-    if (n.kind === "IntNum") {
-      return n.value.toString();
-    } else if (n.kind === "PInf") {
-      return "+∞";
-    } else if (n.kind === "MInf") {
-      return "-∞";
-    } else {
-      return "unknown";
-    }
   }
 }

@@ -24,9 +24,21 @@ export class Interval {
   static FULL = new Interval(Num.m(), Num.p());
   static EMPTY = new Interval(Num.p(), Num.m());
 
-  static fromNum(i: bigint | number): Interval {
-    const n = Num.int(i);
+  /**
+   * Creates an interval `[a, a]`.
+   */
+  static fromNum(a: bigint | number): Interval {
+    const n = Num.int(a);
     return new Interval(n, n);
+  }
+
+  /**
+   * Creates an interval `[a, b]`.
+   */
+  static fromNums(a: bigint | number, b: bigint | number): Interval {
+    const an = Num.int(a);
+    const bn = Num.int(b);
+    return new Interval(an, bn);
   }
 
   isFull(): boolean {
@@ -127,7 +139,11 @@ export class Interval {
   toString(): string {
     if (this.isFull()) return "(-∞, +∞)";
     if (this.isEmpty()) return "∅";
-    if (Num.compare(this.low, this.high) === 0n) return Num.toString(this.low);
-    return `(${Num.toString(this.low)}, ${Num.toString(this.high)})`;
+    if (Num.compare(this.low, this.high) === 0n) return this.low.toString();
+    return `(${this.low.toString()}, ${this.high.toString()})`;
+  }
+
+  clone(): Interval {
+    return new Interval(this.low, this.high);
   }
 }
