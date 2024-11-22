@@ -121,7 +121,7 @@ export class SendInLoop extends ASTDetector {
                 const calleeNode = callGraph.getNode(calleeNodeId);
                 if (
                   calleeNode &&
-                  calleeNode.hasFlag(0b0001 /* FLAG_CALLS_SEND */)
+                  calleeNode.hasFlag(0b0001)
                 ) {
                   acc.push(
                     this.makeWarning(

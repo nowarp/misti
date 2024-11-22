@@ -22,9 +22,7 @@ export type CGEdgeId = number & { readonly brand: unique symbol };
 /**
  * Flag constants for CGNode.
  */
-const FLAG_CALLS_SEND = 0b0001; // 1
-// You can define more flags as needed
-// const FLAG_ANOTHER_PROPERTY = 0b0010; // 2
+const FLAG_CALLS_SEND = 0b0001; 
 
 /**
  * Represents an edge in the call graph, indicating a call from one function to another.
@@ -389,7 +387,7 @@ export class CallGraph {
     currentContractName?: string,
   ): string | undefined {
     if (expr.kind === "static_call") {
-      return expr.function?.text; // Static calls directly reference free functions
+      return expr.function?.text;
     } else if (expr.kind === "method_call") {
       const methodName = expr.method?.text;
       if (methodName) {
@@ -397,7 +395,7 @@ export class CallGraph {
         if (expr.self.kind === "id") {
           const idExpr = expr.self as AstId;
           if (idExpr.text !== "self") {
-            contractName = idExpr.text; // Refers to another contract
+            contractName = idExpr.text;
           }
         }
         return contractName ? `${contractName}::${methodName}` : methodName;
