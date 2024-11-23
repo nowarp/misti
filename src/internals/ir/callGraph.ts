@@ -3,7 +3,7 @@ import { TactASTStore } from "./astStore";
 import { IdxGenerator } from "./indices";
 import { MistiContext } from "../../";
 import { Logger } from "../../internals/logger";
-import { forEachExpression } from "../tact/iterators";
+import { findInExpressions, forEachExpression } from "../tact/iterators";
 import { isSendCall } from "../tact/util";
 import {
   AstFunctionDef,
@@ -298,15 +298,12 @@ export class CallGraph {
               | AstReceiver;
             const funcNodeId = this.astIdToNodeId.get(func.id);
             if (funcNodeId !== undefined) {
-              let callsSend = false;
               forEachExpression(func, (expr) => {
                 this.processExpression(expr, funcNodeId, contractName);
-                if (isSendCall(expr)) {
-                  callsSend = true;
-                }
               });
-              // Set the flag if the function calls 'send'
-              if (callsSend) {
+              const sendCallFound =
+                findInExpressions(func, isSendCall) !== null;
+              if (sendCallFound) {
                 const funcNode = this.getNode(funcNodeId);
                 if (funcNode) {
                   funcNode.setFlag(FLAG_CALLS_SEND);
@@ -319,14 +316,11 @@ export class CallGraph {
         const func = entry as AstFunctionDef;
         const funcNodeId = this.astIdToNodeId.get(func.id);
         if (funcNodeId !== undefined) {
-          let callsSend = false;
           forEachExpression(func, (expr) => {
             this.processExpression(expr, funcNodeId);
-            if (isSendCall(expr)) {
-              callsSend = true;
-            }
           });
-          if (callsSend) {
+          const sendCallFound = findInExpressions(func, isSendCall) !== null;
+          if (sendCallFound) {
             const funcNode = this.getNode(funcNodeId);
             if (funcNode) {
               funcNode.setFlag(FLAG_CALLS_SEND);
