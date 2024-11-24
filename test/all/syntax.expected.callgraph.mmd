@@ -1,31 +1,13 @@
 graph TD
     node_1["test_try"]
     node_2["test_loops"]
-    node_3["reply"]
-    node_4["notify"]
-    node_5["forward"]
-    node_6["getter"]
-    node_7["getter"]
-    node_8["test"]
-    node_9["getA"]
-    node_10["test"]
-    node_11["receiver_1722"]
-    node_12["dump"]
-    node_13["emptyMap"]
-    node_14["sender"]
-    node_15["context"]
-    node_16["myBalance"]
-    node_17["nativeReserve"]
-    node_18["send"]
-    node_1 --> node_12
-    node_2 --> node_13
-    node_3 --> node_5
-    node_3 --> node_14
-    node_4 --> node_5
-    node_4 --> node_14
-    node_5 --> node_15
-    node_5 --> node_16
-    node_5 --> node_17
-    node_5 --> node_18
-    node_5 --> node_18
-    node_10 --> node_9
+    node_3["TestContract::getter"]
+    node_4["TestContractF::test"]
+    node_5["TestContractT::test"]
+    node_6["TestContractT::receiver_1722"]
+    node_7["dump"]
+    node_8["emptyMap"]
+    node_9["TestContractT::getA"]
+    node_1 --> node_7
+    node_2 --> node_8
+    node_5 --> node_9

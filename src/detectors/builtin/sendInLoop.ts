@@ -1,19 +1,20 @@
 import { CompilationUnit } from "../../internals/ir";
-import {
-  forEachStatement,
-  foldExpressions,
-  isSelf,
-} from "../../internals/tact";
+import { CallGraph } from "../../internals/ir/callGraph";
+import { forEachStatement, foldExpressions } from "../../internals/tact";
+import { isSendCall } from "../../internals/tact/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import {
   AstStatement,
   AstExpression,
-  idText,
+  AstStaticCall,
+  AstMethodCall,
+  AstContract,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
- * An optional detector that identifies send functions being called inside loops.
+ * An optional detector that identifies send functions being called inside loops,
+ * including indirect calls via other functions.
  *
  * ## Why is it bad?
  * Calling send functions inside loops can lead to unintended consequences, such as
@@ -43,30 +44,57 @@ export class SendInLoop extends ASTDetector {
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const processedLoopIds = new Set<number>();
     const allWarnings: MistiTactWarning[] = [];
+    const astStore = cu.ast;
+    const ctx = this.ctx;
+    const callGraph = new CallGraph(ctx).build(astStore);
 
-    Array.from(cu.ast.getProgramEntries()).forEach((node) => {
-      forEachStatement(node, (stmt) => {
-        const warnings = this.analyzeStatement(stmt, processedLoopIds);
-        allWarnings.push(...warnings);
-      });
-    });
-
+    // Analyze loops and check if any function called within leads to a send
+    for (const entry of cu.ast.getProgramEntries()) {
+      if (entry.kind === "contract") {
+        const contract = entry as AstContract;
+        const contractName = contract.name.text;
+        forEachStatement(entry, (stmt) => {
+          const warnings = this.analyzeStatement(
+            stmt,
+            processedLoopIds,
+            callGraph,
+            contractName,
+          );
+          allWarnings.push(...warnings);
+        });
+      } else {
+        forEachStatement(entry, (stmt) => {
+          const warnings = this.analyzeStatement(
+            stmt,
+            processedLoopIds,
+            callGraph,
+          );
+          allWarnings.push(...warnings);
+        });
+      }
+    }
     return allWarnings;
   }
 
   private analyzeStatement(
     stmt: AstStatement,
     processedLoopIds: Set<number>,
+    callGraph: CallGraph,
+    currentContractName?: string,
   ): MistiTactWarning[] {
     if (processedLoopIds.has(stmt.id)) {
       return [];
     }
     if (this.isLoop(stmt)) {
       processedLoopIds.add(stmt.id);
-      return foldExpressions(
+
+      const warnings: MistiTactWarning[] = [];
+
+      // Check direct send calls within the loop
+      foldExpressions(
         stmt,
-        (acc, expr) => {
-          if (this.isSendCall(expr)) {
+        (acc: MistiTactWarning[], expr: AstExpression) => {
+          if (isSendCall(expr)) {
             acc.push(
               this.makeWarning("Send function called inside a loop", expr.loc, {
                 suggestion:
@@ -76,8 +104,45 @@ export class SendInLoop extends ASTDetector {
           }
           return acc;
         },
-        [] as MistiTactWarning[],
+        warnings,
       );
+
+      // Check function calls within the loop that lead to a send
+      foldExpressions(
+        stmt,
+        (acc: MistiTactWarning[], expr: AstExpression) => {
+          if (expr.kind === "static_call" || expr.kind === "method_call") {
+            const calleeName = callGraph.getFunctionCallName(
+              expr as AstStaticCall | AstMethodCall,
+              currentContractName,
+            );
+            if (calleeName) {
+              const calleeNodeId = callGraph.getNodeIdByName(calleeName);
+              if (calleeNodeId !== undefined) {
+                const calleeNode = callGraph.getNode(calleeNodeId);
+                if (calleeNode && calleeNode.hasFlag(0b0001)) {
+                  const functionName = calleeNode.name.includes("::")
+                    ? calleeNode.name.split("::").pop()
+                    : calleeNode.name;
+                  acc.push(
+                    this.makeWarning(
+                      `Method "${functionName}" called inside a loop leads to a send function`,
+                      expr.loc,
+                      {
+                        suggestion:
+                          "Consider refactoring to avoid calling send functions inside loops",
+                      },
+                    ),
+                  );
+                }
+              }
+            }
+          }
+          return acc;
+        },
+        warnings,
+      );
+      return warnings;
     }
     // If the statement is not a loop, don't flag anything
     return [];
@@ -88,10 +153,11 @@ export class SendInLoop extends ASTDetector {
     const selfMethodSendFunctions = ["reply", "forward", "notify", "emit"];
     return (
       (expr.kind === "static_call" &&
-        staticSendFunctions.includes(idText(expr.function))) ||
+        staticSendFunctions.includes(expr.function?.text || "")) ||
       (expr.kind === "method_call" &&
-        isSelf(expr.self) &&
-        selfMethodSendFunctions.includes(idText(expr.method)))
+        expr.self.kind === "id" &&
+        (expr.self as any).text === "self" &&
+        selfMethodSendFunctions.includes(expr.method?.text || ""))
     );
   }
 

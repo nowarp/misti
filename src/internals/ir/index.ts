@@ -4,3 +4,4 @@ export * from "./imports";
 export * from "./ir";
 export * from "./types";
 export * from "./builders/";
+export * from "./callGraph";
