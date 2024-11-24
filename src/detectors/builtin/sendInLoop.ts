@@ -121,9 +121,12 @@ export class SendInLoop extends ASTDetector {
               if (calleeNodeId !== undefined) {
                 const calleeNode = callGraph.getNode(calleeNodeId);
                 if (calleeNode && calleeNode.hasFlag(0b0001)) {
+                  const functionName = calleeNode.name.includes("::")
+                    ? calleeNode.name.split("::").pop()
+                    : calleeNode.name;
                   acc.push(
                     this.makeWarning(
-                      `Function "${calleeNode.name}" called inside a loop leads to a send function`,
+                      `Method "${functionName}" called inside a loop leads to a send function`,
                       expr.loc,
                       {
                         suggestion:
