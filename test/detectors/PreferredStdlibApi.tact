@@ -4,6 +4,8 @@ message Msg {
 
 contract Test {
     receive(msg: Msg) {
+        let slice1: Slice = emptyCell().asSlice();  // Bad: use emptySlice()
+        let cell1: Cell = beginCell().endCell();    // Bad: use emptyCell()
         let pkg: Slice = msg.whatever;
         let _seqno: Int = pkg.loadInt(32);
         let mode: Int = pkg.loadInt(8);
