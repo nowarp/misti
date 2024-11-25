@@ -3,7 +3,7 @@ import { TactASTStore } from "./astStore";
 import { IdxGenerator } from "./indices";
 import { MistiContext } from "../../";
 import { Logger } from "../../internals/logger";
-import { findInExpressions, forEachExpression } from "../tact/iterators";
+import { forEachExpression } from "../tact/iterators";
 import { isSendCall } from "../tact/util";
 import {
   AstFunctionDef,
@@ -16,6 +16,11 @@ import {
   AstId,
   AstContractDeclaration,
   AstNode,
+  AstFieldAccess,
+  AstStatement,
+  AstStatementAssign,
+  AstStatementAugmentedAssign,
+  AstStatementExpression,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
 export type CGNodeId = number & { readonly brand: unique symbol };
@@ -24,10 +29,13 @@ export type CGEdgeId = number & { readonly brand: unique symbol };
 /**
  * Flag constants for CGNode.
  *
- * `FLAG_CALLS_SEND` (0b0001): Indicates that the function represented by this node
- * contains a direct or indirect call to a "send" function.
+ * Each flag represents an effect or property of the function represented by the node.
  */
-const FLAG_CALLS_SEND = 0b0001;
+const FlagCallsSend = 0b0001;
+const FlagContractStateRead = 0b0010;
+const FlagContractStateWrite = 0b0100;
+const FlagBlockchainStateRead = 0b1000;
+const FlagRandomness = 0b10000;
 
 /**
  * Represents an edge in the call graph, indicating a call from one function to another.
@@ -298,17 +306,20 @@ export class CallGraph {
               | AstReceiver;
             const funcNodeId = this.astIdToNodeId.get(func.id);
             if (funcNodeId !== undefined) {
+              const funcNode = this.getNode(funcNodeId);
+              if (!funcNode) continue;
+
+              // Process statements
+              if ("statements" in func && func.statements) {
+                for (const stmt of func.statements) {
+                  this.processStatement(stmt, funcNodeId, contractName);
+                }
+              }
+
+              // Process expressions (if any)
               forEachExpression(func, (expr) => {
                 this.processExpression(expr, funcNodeId, contractName);
               });
-              const sendCallFound =
-                findInExpressions(func, isSendCall) !== null;
-              if (sendCallFound) {
-                const funcNode = this.getNode(funcNodeId);
-                if (funcNode) {
-                  funcNode.setFlag(FLAG_CALLS_SEND);
-                }
-              }
             }
           }
         }
@@ -316,23 +327,57 @@ export class CallGraph {
         const func = entry as AstFunctionDef;
         const funcNodeId = this.astIdToNodeId.get(func.id);
         if (funcNodeId !== undefined) {
+          const funcNode = this.getNode(funcNodeId);
+          if (!funcNode) continue;
+          if (func.statements) {
+            for (const stmt of func.statements) {
+              this.processStatement(stmt, funcNodeId);
+            }
+          }
           forEachExpression(func, (expr) => {
             this.processExpression(expr, funcNodeId);
           });
-          const sendCallFound = findInExpressions(func, isSendCall) !== null;
-          if (sendCallFound) {
-            const funcNode = this.getNode(funcNodeId);
-            if (funcNode) {
-              funcNode.setFlag(FLAG_CALLS_SEND);
-            }
-          }
         }
       }
     }
   }
 
   /**
+   * Processes a single statement, identifying assignments and other statements.
+   * Also detects effects and sets corresponding flags on the function node.
+   * @param stmt The statement to process.
+   * @param callerId The node ID of the calling function.
+   * @param currentContractName The name of the contract, if applicable.
+   */
+  private processStatement(
+    stmt: AstStatement,
+    callerId: CGNodeId,
+    currentContractName?: string,
+  ) {
+    const funcNode = this.getNode(callerId);
+    if (!funcNode) {
+      return;
+    }
+    if (
+      stmt.kind === "statement_assign" ||
+      stmt.kind === "statement_augmentedassign"
+    ) {
+      if (isContractStateWrite(stmt)) {
+        funcNode.setFlag(FlagContractStateWrite);
+      }
+    } else if (stmt.kind === "statement_expression") {
+      const stmtExpr = stmt as AstStatementExpression;
+      this.processExpression(
+        stmtExpr.expression,
+        callerId,
+        currentContractName,
+      );
+    }
+  }
+
+  /**
    * Processes a single expression, identifying function or method calls to create edges.
+   * Also detects effects and sets corresponding flags on the function node.
    * @param expr The expression to process.
    * @param callerId The node ID of the calling function.
    * @param currentContractName The name of the contract, if applicable.
@@ -355,6 +400,24 @@ export class CallGraph {
           `Call expression missing function name at caller ${callerId}`,
         );
       }
+    }
+    // Detect and set effects
+    const funcNode = this.getNode(callerId);
+    if (!funcNode) {
+      return;
+    }
+
+    if (isContractStateRead(expr)) {
+      funcNode.setFlag(FlagContractStateRead);
+    }
+    if (isBlockchainStateRead(expr)) {
+      funcNode.setFlag(FlagBlockchainStateRead);
+    }
+    if (isRandomnessCall(expr)) {
+      funcNode.setFlag(FlagRandomness);
+    }
+    if (isSendCall(expr)) {
+      funcNode.setFlag(FlagCallsSend);
     }
   }
 
@@ -430,4 +493,79 @@ export class CallGraph {
  */
 export function isSelf(expr: AstExpression): boolean {
   return expr.kind === "id" && (expr as AstId).text === "self";
+}
+
+/**
+ * Helper function to determine if an expression is a contract state read.
+ * @param expr The expression to check.
+ * @returns True if the expression reads from a state variable; otherwise, false.
+ */
+function isContractStateRead(expr: AstExpression): boolean {
+  if (expr.kind === "field_access") {
+    const fieldAccess = expr as AstFieldAccess;
+    if (fieldAccess.aggregate.kind === "id") {
+      const idExpr = fieldAccess.aggregate as AstId;
+      if (idExpr.text === "self") {
+        return true; // Accessing a state variable via 'self'
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Helper function to determine if a statement is a contract state write.
+ * @param stmt The statement to check.
+ * @returns True if the statement writes to a state variable; otherwise, false.
+ */
+function isContractStateWrite(
+  stmt: AstStatementAssign | AstStatementAugmentedAssign,
+): boolean {
+  const pathExpr = stmt.path;
+  if (pathExpr.kind === "field_access") {
+    const fieldAccess = pathExpr as AstFieldAccess;
+    if (fieldAccess.aggregate.kind === "id") {
+      const idExpr = fieldAccess.aggregate as AstId;
+      if (idExpr.text === "self") {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Helper function to determine if an expression is a blockchain state read.
+ * @param expr The expression to check.
+ * @returns True if the expression reads blockchain state; otherwise, false.
+ */
+function isBlockchainStateRead(expr: AstExpression): boolean {
+  if (expr.kind === "static_call") {
+    const staticCall = expr as AstStaticCall;
+    const functionName = staticCall.function?.text;
+    return functionName === "now" || functionName === "timestamp";
+  } else if (expr.kind === "method_call") {
+    const methodCall = expr as AstMethodCall;
+    const methodName = methodCall.method?.text;
+    return methodName === "now" || methodName === "timestamp";
+  }
+  return false;
+}
+
+/**
+ * Helper function to determine if an expression is a randomness call.
+ * @param expr The expression to check.
+ * @returns True if the expression introduces randomness; otherwise, false.
+ */
+function isRandomnessCall(expr: AstExpression): boolean {
+  if (expr.kind === "static_call") {
+    const staticCall = expr as AstStaticCall;
+    const functionName = staticCall.function?.text;
+    return functionName === "random";
+  } else if (expr.kind === "method_call") {
+    const methodCall = expr as AstMethodCall;
+    const methodName = methodCall.method?.text;
+    return methodName === "random";
+  }
+  return false;
 }

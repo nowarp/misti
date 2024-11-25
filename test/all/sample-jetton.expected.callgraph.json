@@ -14,7 +14,10 @@
         1,
         2,
         3,
-        4
+        4,
+        5,
+        6,
+        7
       ]
     },
     {
@@ -22,9 +25,11 @@
       "name": "SampleJetton::receiver_1882",
       "inEdges": [],
       "outEdges": [
-        5,
-        6,
-        7
+        8,
+        9,
+        10,
+        11,
+        12
       ]
     },
     {
@@ -32,8 +37,9 @@
       "name": "SampleJetton::receiver_1905",
       "inEdges": [],
       "outEdges": [
-        8,
-        9
+        13,
+        14,
+        15
       ]
     },
     {
@@ -47,24 +53,11 @@
       "name": "JettonDefaultWallet::receiver_2517",
       "inEdges": [],
       "outEdges": [
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
         16,
         17,
         18,
         19,
-        20
-      ]
-    },
-    {
-      "idx": 7,
-      "name": "JettonDefaultWallet::receiver_2687",
-      "inEdges": [],
-      "outEdges": [
+        20,
         21,
         22,
         23,
@@ -78,14 +71,32 @@
       ]
     },
     {
+      "idx": 7,
+      "name": "JettonDefaultWallet::receiver_2687",
+      "inEdges": [],
+      "outEdges": [
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41
+      ]
+    },
+    {
       "idx": 8,
       "name": "JettonDefaultWallet::msgValue",
       "inEdges": [
-        27
+        38
       ],
       "outEdges": [
-        31,
-        32
+        42,
+        43
       ]
     },
     {
@@ -93,13 +104,17 @@
       "name": "JettonDefaultWallet::receiver_2832",
       "inEdges": [],
       "outEdges": [
-        33,
-        34,
-        35,
-        36,
-        37,
-        38,
-        39
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54
       ]
     },
     {
@@ -107,10 +122,11 @@
       "name": "JettonDefaultWallet::receiver_2876",
       "inEdges": [],
       "outEdges": [
-        40,
-        41,
-        42,
-        43
+        55,
+        56,
+        57,
+        58,
+        59
       ]
     },
     {
@@ -121,91 +137,107 @@
     },
     {
       "idx": 12,
-      "name": "context",
+      "name": "require",
       "inEdges": [
         1,
+        2,
         5,
+        6,
         8,
-        10,
+        11,
+        13,
+        15,
+        16,
+        17,
+        18,
         21,
-        33
+        24,
+        27,
+        31,
+        33,
+        35,
+        44,
+        45,
+        46,
+        49,
+        50,
+        52,
+        55,
+        59
       ],
       "outEdges": []
     },
     {
       "idx": 13,
-      "name": "require",
+      "name": "SampleJetton::mint",
       "inEdges": [
-        2,
         3,
-        6,
+        7,
         9,
-        11,
-        14,
-        17,
-        22,
-        24,
-        34,
-        35,
-        37,
-        43
+        12
       ],
       "outEdges": []
     },
     {
       "idx": 14,
-      "name": "SampleJetton::mint",
+      "name": "context",
       "inEdges": [
         4,
-        7
+        10,
+        14,
+        20,
+        32,
+        48
       ],
       "outEdges": []
     },
     {
       "idx": 15,
-      "name": "ctx::readForwardFee",
+      "name": "send",
       "inEdges": [
-        12,
-        13,
-        28,
-        36
+        19,
+        29,
+        36,
+        40,
+        47,
+        53
       ],
       "outEdges": []
     },
     {
       "idx": 16,
-      "name": "min",
+      "name": "ctx::readForwardFee",
       "inEdges": [
-        15,
-        32
+        22,
+        23,
+        39,
+        51
       ],
       "outEdges": []
     },
     {
       "idx": 17,
-      "name": "ton",
+      "name": "min",
       "inEdges": [
-        16
+        25,
+        43
       ],
       "outEdges": []
     },
     {
       "idx": 18,
-      "name": "contractAddress",
+      "name": "ton",
       "inEdges": [
-        18,
-        23
+        26
       ],
       "outEdges": []
     },
     {
       "idx": 19,
-      "name": "send",
+      "name": "contractAddress",
       "inEdges": [
-        19,
-        25,
-        29,
-        38
+        28,
+        34
       ],
       "outEdges": []
     },
@@ -213,10 +245,10 @@
       "idx": 20,
       "name": "JettonDefaultWallet::toCell",
       "inEdges": [
-        20,
-        26,
         30,
-        39
+        37,
+        41,
+        54
       ],
       "outEdges": []
     },
@@ -224,7 +256,7 @@
       "idx": 21,
       "name": "myBalance",
       "inEdges": [
-        31
+        42
       ],
       "outEdges": []
     },
@@ -232,8 +264,8 @@
       "idx": 22,
       "name": "msg::loadUint",
       "inEdges": [
-        40,
-        41
+        56,
+        57
       ],
       "outEdges": []
     },
@@ -241,7 +273,7 @@
       "idx": 23,
       "name": "msg::loadCoins",
       "inEdges": [
-        42
+        58
       ],
       "outEdges": []
     }
@@ -255,7 +287,7 @@
     {
       "idx": 2,
       "src": 2,
-      "dst": 13
+      "dst": 12
     },
     {
       "idx": 3,
@@ -269,198 +301,278 @@
     },
     {
       "idx": 5,
-      "src": 3,
+      "src": 2,
       "dst": 12
     },
     {
       "idx": 6,
-      "src": 3,
-      "dst": 13
+      "src": 2,
+      "dst": 12
     },
     {
       "idx": 7,
-      "src": 3,
-      "dst": 14
+      "src": 2,
+      "dst": 13
     },
     {
       "idx": 8,
-      "src": 4,
+      "src": 3,
       "dst": 12
     },
     {
       "idx": 9,
-      "src": 4,
+      "src": 3,
       "dst": 13
     },
     {
       "idx": 10,
-      "src": 6,
-      "dst": 12
+      "src": 3,
+      "dst": 14
     },
     {
       "idx": 11,
-      "src": 6,
-      "dst": 13
+      "src": 3,
+      "dst": 12
     },
     {
       "idx": 12,
-      "src": 6,
-      "dst": 15
-    },
-    {
-      "idx": 13,
-      "src": 6,
-      "dst": 15
-    },
-    {
-      "idx": 14,
-      "src": 6,
+      "src": 3,
       "dst": 13
     },
     {
+      "idx": 13,
+      "src": 4,
+      "dst": 12
+    },
+    {
+      "idx": 14,
+      "src": 4,
+      "dst": 14
+    },
+    {
       "idx": 15,
-      "src": 6,
-      "dst": 16
+      "src": 4,
+      "dst": 12
     },
     {
       "idx": 16,
       "src": 6,
-      "dst": 17
+      "dst": 12
     },
     {
       "idx": 17,
       "src": 6,
-      "dst": 13
+      "dst": 12
     },
     {
       "idx": 18,
       "src": 6,
-      "dst": 18
+      "dst": 12
     },
     {
       "idx": 19,
       "src": 6,
-      "dst": 19
+      "dst": 15
     },
     {
       "idx": 20,
       "src": 6,
-      "dst": 20
+      "dst": 14
     },
     {
       "idx": 21,
-      "src": 7,
+      "src": 6,
       "dst": 12
     },
     {
       "idx": 22,
-      "src": 7,
-      "dst": 13
+      "src": 6,
+      "dst": 16
     },
     {
       "idx": 23,
-      "src": 7,
-      "dst": 18
+      "src": 6,
+      "dst": 16
     },
     {
       "idx": 24,
-      "src": 7,
-      "dst": 13
+      "src": 6,
+      "dst": 12
     },
     {
       "idx": 25,
-      "src": 7,
-      "dst": 19
+      "src": 6,
+      "dst": 17
     },
     {
       "idx": 26,
-      "src": 7,
-      "dst": 20
+      "src": 6,
+      "dst": 18
     },
     {
       "idx": 27,
-      "src": 7,
-      "dst": 8
+      "src": 6,
+      "dst": 12
     },
     {
       "idx": 28,
-      "src": 7,
-      "dst": 15
-    },
-    {
-      "idx": 29,
-      "src": 7,
+      "src": 6,
       "dst": 19
     },
     {
+      "idx": 29,
+      "src": 6,
+      "dst": 15
+    },
+    {
       "idx": 30,
-      "src": 7,
+      "src": 6,
       "dst": 20
     },
     {
       "idx": 31,
-      "src": 8,
-      "dst": 21
+      "src": 7,
+      "dst": 12
     },
     {
       "idx": 32,
-      "src": 8,
-      "dst": 16
+      "src": 7,
+      "dst": 14
     },
     {
       "idx": 33,
-      "src": 9,
+      "src": 7,
       "dst": 12
     },
     {
       "idx": 34,
-      "src": 9,
-      "dst": 13
+      "src": 7,
+      "dst": 19
     },
     {
       "idx": 35,
-      "src": 9,
-      "dst": 13
+      "src": 7,
+      "dst": 12
     },
     {
       "idx": 36,
-      "src": 9,
+      "src": 7,
       "dst": 15
     },
     {
       "idx": 37,
-      "src": 9,
-      "dst": 13
+      "src": 7,
+      "dst": 20
     },
     {
       "idx": 38,
-      "src": 9,
-      "dst": 19
+      "src": 7,
+      "dst": 8
     },
     {
       "idx": 39,
+      "src": 7,
+      "dst": 16
+    },
+    {
+      "idx": 40,
+      "src": 7,
+      "dst": 15
+    },
+    {
+      "idx": 41,
+      "src": 7,
+      "dst": 20
+    },
+    {
+      "idx": 42,
+      "src": 8,
+      "dst": 21
+    },
+    {
+      "idx": 43,
+      "src": 8,
+      "dst": 17
+    },
+    {
+      "idx": 44,
+      "src": 9,
+      "dst": 12
+    },
+    {
+      "idx": 45,
+      "src": 9,
+      "dst": 12
+    },
+    {
+      "idx": 46,
+      "src": 9,
+      "dst": 12
+    },
+    {
+      "idx": 47,
+      "src": 9,
+      "dst": 15
+    },
+    {
+      "idx": 48,
+      "src": 9,
+      "dst": 14
+    },
+    {
+      "idx": 49,
+      "src": 9,
+      "dst": 12
+    },
+    {
+      "idx": 50,
+      "src": 9,
+      "dst": 12
+    },
+    {
+      "idx": 51,
+      "src": 9,
+      "dst": 16
+    },
+    {
+      "idx": 52,
+      "src": 9,
+      "dst": 12
+    },
+    {
+      "idx": 53,
+      "src": 9,
+      "dst": 15
+    },
+    {
+      "idx": 54,
       "src": 9,
       "dst": 20
     },
     {
-      "idx": 40,
+      "idx": 55,
+      "src": 10,
+      "dst": 12
+    },
+    {
+      "idx": 56,
       "src": 10,
       "dst": 22
     },
     {
-      "idx": 41,
+      "idx": 57,
       "src": 10,
       "dst": 22
     },
     {
-      "idx": 42,
+      "idx": 58,
       "src": 10,
       "dst": 23
     },
     {
-      "idx": 43,
+      "idx": 59,
       "src": 10,
-      "dst": 13
+      "dst": 12
     }
   ]
 }
