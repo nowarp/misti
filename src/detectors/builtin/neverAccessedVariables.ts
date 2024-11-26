@@ -241,11 +241,7 @@ export class NeverAccessedVariables extends DataflowDetector {
         ctx.logger.error(`Cannot access trait ${traitName}`);
         return;
       }
-      if (visited.has(trait.id)) {
-        // Impossible case. Added to handle further regressions.
-        ctx.logger.error(`Trait #${trait.id} has inheritance cycle`);
-        return;
-      }
+      if (visited.has(trait.id)) return;
       visited.add(trait.id);
       callback(trait);
       this.forEachTrait(ctx, cu, trait.traits, callback, visited);
