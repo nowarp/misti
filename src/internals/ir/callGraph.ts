@@ -27,19 +27,20 @@ export type CGNodeId = number & { readonly brand: unique symbol };
 export type CGEdgeId = number & { readonly brand: unique symbol };
 
 /**
- * Flag constants for CGNode.
+ * Effect flags for CGNode.
  *
  * Each flag represents an effect or property of the function represented by the node.
  */
-const FlagCallsSend = 0b0001;
-const FlagContractStateRead = 0b0010;
-const FlagContractStateWrite = 0b0100;
-const FlagBlockchainStateRead = 0b1000;
-const FlagRandomness = 0b10000;
+export enum EffectFlags {
+  CALLS_SEND = 1 << 0,
+  CONTRACT_STATE_READ = 1 << 1,
+  CONTRACT_STATE_WRITE = 1 << 2,
+  ACCESSES_DATETIME = 1 << 3,
+  RANDOMNESS = 1 << 4,
+}
 
 /**
  * Represents an edge in the call graph, indicating a call from one function to another.
- * Each edge has a unique index (`idx`) generated using `IdxGenerator`.
  */
 class CGEdge {
   public idx: CGEdgeId;
@@ -58,13 +59,12 @@ class CGEdge {
 
 /**
  * Represents a node in the call graph, corresponding to a function or method.
- * Nodes maintain references to incoming and outgoing edges.
  */
 class CGNode {
   public idx: CGNodeId;
   public inEdges: Set<CGEdgeId> = new Set();
   public outEdges: Set<CGEdgeId> = new Set();
-  public flags: number = 0;
+  public effects: number = 0;
 
   /**
    * @param astId The AST ID of the function or method this node represents (can be `undefined` for synthetic nodes)
@@ -82,23 +82,18 @@ class CGNode {
     }
   }
 
-  // Method to set a flag
-  public setFlag(flag: number) {
-    this.flags |= flag;
+  public addEffect(effect: EffectFlags) {
+    this.effects |= effect;
   }
 
-  // Method to check if a flag is set
-  public hasFlag(flag: number): boolean {
-    return (this.flags & flag) !== 0;
+  public hasEffect(effect: EffectFlags): boolean {
+    return (this.effects & effect) !== 0;
   }
 }
 
 /**
  * Represents the call graph, a directed graph where nodes represent functions or methods,
  * and edges indicate calls between them.
- *
- * The `CallGraph` class provides methods to build the graph from a Tact AST, retrieve nodes/edges,
- * analyze connectivity, and add function calls dynamically.
  */
 export class CallGraph {
   private nodeMap: Map<CGNodeId, CGNode> = new Map();
@@ -309,14 +304,12 @@ export class CallGraph {
               const funcNode = this.getNode(funcNodeId);
               if (!funcNode) continue;
 
-              // Process statements
               if ("statements" in func && func.statements) {
                 for (const stmt of func.statements) {
                   this.processStatement(stmt, funcNodeId, contractName);
                 }
               }
 
-              // Process expressions (if any)
               forEachExpression(func, (expr) => {
                 this.processExpression(expr, funcNodeId, contractName);
               });
@@ -363,7 +356,7 @@ export class CallGraph {
       stmt.kind === "statement_augmentedassign"
     ) {
       if (isContractStateWrite(stmt)) {
-        funcNode.setFlag(FlagContractStateWrite);
+        funcNode.addEffect(EffectFlags.CONTRACT_STATE_WRITE);
       }
     } else if (stmt.kind === "statement_expression") {
       const stmtExpr = stmt as AstStatementExpression;
@@ -375,13 +368,6 @@ export class CallGraph {
     }
   }
 
-  /**
-   * Processes a single expression, identifying function or method calls to create edges.
-   * Also detects effects and sets corresponding flags on the function node.
-   * @param expr The expression to process.
-   * @param callerId The node ID of the calling function.
-   * @param currentContractName The name of the contract, if applicable.
-   */
   private processExpression(
     expr: AstExpression,
     callerId: CGNodeId,
@@ -401,23 +387,22 @@ export class CallGraph {
         );
       }
     }
-    // Detect and set effects
+
     const funcNode = this.getNode(callerId);
     if (!funcNode) {
       return;
     }
-
     if (isContractStateRead(expr)) {
-      funcNode.setFlag(FlagContractStateRead);
+      funcNode.addEffect(EffectFlags.CONTRACT_STATE_READ);
     }
-    if (isBlockchainStateRead(expr)) {
-      funcNode.setFlag(FlagBlockchainStateRead);
+    if (accessesDatetime(expr)) {
+      funcNode.addEffect(EffectFlags.ACCESSES_DATETIME);
     }
     if (isRandomnessCall(expr)) {
-      funcNode.setFlag(FlagRandomness);
+      funcNode.addEffect(EffectFlags.RANDOMNESS);
     }
     if (isSendCall(expr)) {
-      funcNode.setFlag(FlagCallsSend);
+      funcNode.addEffect(EffectFlags.CALLS_SEND);
     }
   }
 
@@ -506,7 +491,7 @@ function isContractStateRead(expr: AstExpression): boolean {
     if (fieldAccess.aggregate.kind === "id") {
       const idExpr = fieldAccess.aggregate as AstId;
       if (idExpr.text === "self") {
-        return true; // Accessing a state variable via 'self'
+        return true;
       }
     }
   }
@@ -531,23 +516,21 @@ function isContractStateWrite(
       }
     }
   }
+  // Note: This function does not currently detect state writes via method calls on state variables (e.g., Map.set()).
+  // Handling such cases may require more advanced analysis involving the symbol table or data flow analysis.
   return false;
 }
 
 /**
  * Helper function to determine if an expression is a blockchain state read.
  * @param expr The expression to check.
- * @returns True if the expression reads blockchain state; otherwise, false.
+ * @returns True if the statement writes to a state variable; otherwise, false.
  */
-function isBlockchainStateRead(expr: AstExpression): boolean {
+function accessesDatetime(expr: AstExpression): boolean {
   if (expr.kind === "static_call") {
     const staticCall = expr as AstStaticCall;
     const functionName = staticCall.function?.text;
     return functionName === "now" || functionName === "timestamp";
-  } else if (expr.kind === "method_call") {
-    const methodCall = expr as AstMethodCall;
-    const methodName = methodCall.method?.text;
-    return methodName === "now" || methodName === "timestamp";
   }
   return false;
 }
@@ -561,11 +544,8 @@ function isRandomnessCall(expr: AstExpression): boolean {
   if (expr.kind === "static_call") {
     const staticCall = expr as AstStaticCall;
     const functionName = staticCall.function?.text;
-    return functionName === "random";
-  } else if (expr.kind === "method_call") {
-    const methodCall = expr as AstMethodCall;
-    const methodName = methodCall.method?.text;
-    return methodName === "random";
+    const prgUseNames = new Set(["nativeRandom", "nativeRandomInterval"]);
+    return prgUseNames.has(functionName || "");
   }
   return false;
 }
