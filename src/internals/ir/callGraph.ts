@@ -36,7 +36,8 @@ export enum EffectFlags {
   CONTRACT_STATE_READ = 1 << 1,
   CONTRACT_STATE_WRITE = 1 << 2,
   ACCESSES_DATETIME = 1 << 3,
-  RANDOMNESS = 1 << 4,
+  RANDOMNESS_USE = 1 << 4,
+  RANDOMNESS_SEED_INITIALIZATION = 1 << 5,
 }
 
 /**
@@ -368,6 +369,12 @@ export class CallGraph {
     }
   }
 
+  /**
+   * Processes an expression, adding edges and setting effect flags as necessary.
+   * @param expr The expression to process.
+   * @param callerId The node ID of the calling function.
+   * @param currentContractName The name of the contract, if applicable.
+   */
   private processExpression(
     expr: AstExpression,
     callerId: CGNodeId,
@@ -398,8 +405,11 @@ export class CallGraph {
     if (accessesDatetime(expr)) {
       funcNode.addEffect(EffectFlags.ACCESSES_DATETIME);
     }
-    if (isRandomnessCall(expr)) {
-      funcNode.addEffect(EffectFlags.RANDOMNESS);
+    if (isRandomnessUseCall(expr)) {
+      funcNode.addEffect(EffectFlags.RANDOMNESS_USE);
+    }
+    if (isRandomnessSeedInitializationCall(expr)) {
+      funcNode.addEffect(EffectFlags.RANDOMNESS_SEED_INITIALIZATION);
     }
     if (isSendCall(expr)) {
       funcNode.addEffect(EffectFlags.CALLS_SEND);
@@ -522,9 +532,9 @@ function isContractStateWrite(
 }
 
 /**
- * Helper function to determine if an expression is a blockchain state read.
+ * Helper function to determine if an expression accesses the blockchain datetime.
  * @param expr The expression to check.
- * @returns True if the statement writes to a state variable; otherwise, false.
+ * @returns True if the expression accesses datetime; otherwise, false.
  */
 function accessesDatetime(expr: AstExpression): boolean {
   if (expr.kind === "static_call") {
@@ -536,16 +546,31 @@ function accessesDatetime(expr: AstExpression): boolean {
 }
 
 /**
- * Helper function to determine if an expression is a randomness call.
+ * Helper function to determine if an expression is a randomness use call.
  * @param expr The expression to check.
- * @returns True if the expression introduces randomness; otherwise, false.
+ * @returns True if the expression uses randomness; otherwise, false.
  */
-function isRandomnessCall(expr: AstExpression): boolean {
+function isRandomnessUseCall(expr: AstExpression): boolean {
   if (expr.kind === "static_call") {
     const staticCall = expr as AstStaticCall;
     const functionName = staticCall.function?.text;
     const prgUseNames = new Set(["nativeRandom", "nativeRandomInterval"]);
     return prgUseNames.has(functionName || "");
+  }
+  return false;
+}
+
+/**
+ * Helper function to determine if an expression is a randomness seed initialization call.
+ * @param expr The expression to check.
+ * @returns True if the expression initializes the randomness seed; otherwise, false.
+ */
+function isRandomnessSeedInitializationCall(expr: AstExpression): boolean {
+  if (expr.kind === "static_call") {
+    const staticCall = expr as AstStaticCall;
+    const functionName = staticCall.function?.text;
+    const prgSeedNames = new Set(["setPrgSeed"]);
+    return prgSeedNames.has(functionName || "");
   }
   return false;
 }
