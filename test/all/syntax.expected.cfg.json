@@ -313,6 +313,334 @@
           }
         ]
       }
+    },
+    {
+      "name": "testTryCatch",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 87,
+            "stmtID": 1955,
+            "srcEdges": [],
+            "dstEdges": [
+              78,
+              79
+            ]
+          },
+          {
+            "id": 88,
+            "stmtID": 1949,
+            "srcEdges": [
+              78
+            ],
+            "dstEdges": []
+          },
+          {
+            "id": 89,
+            "stmtID": 1954,
+            "srcEdges": [
+              79
+            ],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 78,
+            "src": 87,
+            "dst": 88
+          },
+          {
+            "id": 79,
+            "src": 87,
+            "dst": 89
+          }
+        ]
+      }
+    },
+    {
+      "name": "testLoops",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 90,
+            "stmtID": 1961,
+            "srcEdges": [],
+            "dstEdges": [
+              80
+            ]
+          },
+          {
+            "id": 91,
+            "stmtID": 1965,
+            "srcEdges": [
+              80
+            ],
+            "dstEdges": [
+              81
+            ]
+          },
+          {
+            "id": 92,
+            "stmtID": 1979,
+            "srcEdges": [
+              81,
+              84
+            ],
+            "dstEdges": [
+              82,
+              85
+            ]
+          },
+          {
+            "id": 93,
+            "stmtID": 1973,
+            "srcEdges": [
+              82
+            ],
+            "dstEdges": [
+              83
+            ]
+          },
+          {
+            "id": 94,
+            "stmtID": 1978,
+            "srcEdges": [
+              83
+            ],
+            "dstEdges": [
+              84
+            ]
+          },
+          {
+            "id": 95,
+            "stmtID": 1993,
+            "srcEdges": [
+              85,
+              88
+            ],
+            "dstEdges": [
+              86,
+              89
+            ]
+          },
+          {
+            "id": 96,
+            "stmtID": 1987,
+            "srcEdges": [
+              86
+            ],
+            "dstEdges": [
+              87
+            ]
+          },
+          {
+            "id": 97,
+            "stmtID": 1992,
+            "srcEdges": [
+              87
+            ],
+            "dstEdges": [
+              88
+            ]
+          },
+          {
+            "id": 98,
+            "stmtID": 2005,
+            "srcEdges": [
+              89,
+              92
+            ],
+            "dstEdges": [
+              90,
+              93
+            ]
+          },
+          {
+            "id": 99,
+            "stmtID": 1999,
+            "srcEdges": [
+              90
+            ],
+            "dstEdges": [
+              91
+            ]
+          },
+          {
+            "id": 100,
+            "stmtID": 2004,
+            "srcEdges": [
+              91
+            ],
+            "dstEdges": [
+              92
+            ]
+          },
+          {
+            "id": 101,
+            "stmtID": 2012,
+            "srcEdges": [
+              93
+            ],
+            "dstEdges": [
+              94
+            ]
+          },
+          {
+            "id": 102,
+            "stmtID": 2018,
+            "srcEdges": [
+              94
+            ],
+            "dstEdges": [
+              95
+            ]
+          },
+          {
+            "id": 103,
+            "stmtID": 2024,
+            "srcEdges": [
+              95
+            ],
+            "dstEdges": [
+              96
+            ]
+          },
+          {
+            "id": 104,
+            "stmtID": 2030,
+            "srcEdges": [
+              96
+            ],
+            "dstEdges": [
+              97
+            ]
+          },
+          {
+            "id": 105,
+            "stmtID": 2039,
+            "srcEdges": [
+              97,
+              99
+            ],
+            "dstEdges": [
+              98
+            ]
+          },
+          {
+            "id": 106,
+            "stmtID": 2038,
+            "srcEdges": [
+              98
+            ],
+            "dstEdges": [
+              99
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "id": 80,
+            "src": 90,
+            "dst": 91
+          },
+          {
+            "id": 81,
+            "src": 91,
+            "dst": 92
+          },
+          {
+            "id": 82,
+            "src": 92,
+            "dst": 93
+          },
+          {
+            "id": 83,
+            "src": 93,
+            "dst": 94
+          },
+          {
+            "id": 84,
+            "src": 94,
+            "dst": 92
+          },
+          {
+            "id": 85,
+            "src": 92,
+            "dst": 95
+          },
+          {
+            "id": 86,
+            "src": 95,
+            "dst": 96
+          },
+          {
+            "id": 87,
+            "src": 96,
+            "dst": 97
+          },
+          {
+            "id": 88,
+            "src": 97,
+            "dst": 95
+          },
+          {
+            "id": 89,
+            "src": 95,
+            "dst": 98
+          },
+          {
+            "id": 90,
+            "src": 98,
+            "dst": 99
+          },
+          {
+            "id": 91,
+            "src": 99,
+            "dst": 100
+          },
+          {
+            "id": 92,
+            "src": 100,
+            "dst": 98
+          },
+          {
+            "id": 93,
+            "src": 98,
+            "dst": 101
+          },
+          {
+            "id": 94,
+            "src": 101,
+            "dst": 102
+          },
+          {
+            "id": 95,
+            "src": 102,
+            "dst": 103
+          },
+          {
+            "id": 96,
+            "src": 103,
+            "dst": 104
+          },
+          {
+            "id": 97,
+            "src": 104,
+            "dst": 105
+          },
+          {
+            "id": 98,
+            "src": 105,
+            "dst": 106
+          },
+          {
+            "id": 99,
+            "src": 106,
+            "dst": 105
+          }
+        ]
+      }
     }
   ],
   "contracts": [
@@ -324,7 +652,7 @@
           "cfg": {
             "nodes": [
               {
-                "id": 87,
+                "id": 107,
                 "stmtID": 1662,
                 "srcEdges": [],
                 "dstEdges": []
@@ -355,7 +683,7 @@
           "cfg": {
             "nodes": [
               {
-                "id": 88,
+                "id": 108,
                 "stmtID": 1720,
                 "srcEdges": [],
                 "dstEdges": []
@@ -369,6 +697,215 @@
           "cfg": {
             "nodes": [],
             "edges": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "EffectTestContract",
+      "methods": [
+        {
+          "name": "EffectTestContract.init_1942",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 109,
+                "stmtID": 1822,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        },
+        {
+          "name": "EffectTestContract.funcWithSend",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 110,
+                "stmtID": 1828,
+                "srcEdges": [],
+                "dstEdges": [
+                  100
+                ]
+              },
+              {
+                "id": 111,
+                "stmtID": 1841,
+                "srcEdges": [
+                  100
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 100,
+                "src": 110,
+                "dst": 111
+              }
+            ]
+          }
+        },
+        {
+          "name": "EffectTestContract.funcWithStateRead",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 112,
+                "stmtID": 1849,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        },
+        {
+          "name": "EffectTestContract.funcWithStateWrite",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 113,
+                "stmtID": 1856,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        },
+        {
+          "name": "EffectTestContract.funcWithDatetimeAccess",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 114,
+                "stmtID": 1863,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        },
+        {
+          "name": "EffectTestContract.funcWithRandomnessUse",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 115,
+                "stmtID": 1872,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        },
+        {
+          "name": "EffectTestContract.funcWithRandomnessSeedInit",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 116,
+                "stmtID": 1882,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        },
+        {
+          "name": "EffectTestContract.generatePseudoRandom",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 117,
+                "stmtID": 1901,
+                "srcEdges": [],
+                "dstEdges": [
+                  101
+                ]
+              },
+              {
+                "id": 118,
+                "stmtID": 1905,
+                "srcEdges": [
+                  101
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 101,
+                "src": 117,
+                "dst": 118
+              }
+            ]
+          }
+        },
+        {
+          "name": "EffectTestContract.funcWithMultipleEffects",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 119,
+                "stmtID": 1915,
+                "srcEdges": [],
+                "dstEdges": [
+                  102
+                ]
+              },
+              {
+                "id": 120,
+                "stmtID": 1930,
+                "srcEdges": [
+                  102
+                ],
+                "dstEdges": [
+                  103
+                ]
+              },
+              {
+                "id": 121,
+                "stmtID": 1935,
+                "srcEdges": [
+                  103
+                ],
+                "dstEdges": [
+                  104
+                ]
+              },
+              {
+                "id": 122,
+                "stmtID": 1940,
+                "srcEdges": [
+                  104
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 102,
+                "src": 119,
+                "dst": 120
+              },
+              {
+                "id": 103,
+                "src": 120,
+                "dst": 121
+              },
+              {
+                "id": 104,
+                "src": 121,
+                "dst": 122
+              }
+            ]
           }
         }
       ]

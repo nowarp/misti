@@ -18,51 +18,208 @@
     },
     {
       "idx": 3,
-      "name": "TestContract::getter",
-      "inEdges": [],
-      "outEdges": []
-    },
-    {
-      "idx": 4,
-      "name": "TestContractF::test",
-      "inEdges": [],
-      "outEdges": []
-    },
-    {
-      "idx": 5,
-      "name": "TestContractT::test",
+      "name": "testTryCatch",
       "inEdges": [],
       "outEdges": [
         3
       ]
     },
     {
+      "idx": 4,
+      "name": "testLoops",
+      "inEdges": [],
+      "outEdges": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ]
+    },
+    {
+      "idx": 5,
+      "name": "TestContract::getter",
+      "inEdges": [],
+      "outEdges": []
+    },
+    {
       "idx": 6,
-      "name": "TestContractT::receiver_1722",
+      "name": "TestContractF::test",
       "inEdges": [],
       "outEdges": []
     },
     {
       "idx": 7,
-      "name": "dump",
-      "inEdges": [
-        1
-      ],
-      "outEdges": []
+      "name": "TestContractT::test",
+      "inEdges": [],
+      "outEdges": [
+        11
+      ]
     },
     {
       "idx": 8,
-      "name": "emptyMap",
-      "inEdges": [
-        2
-      ],
+      "name": "TestContractT::receiver_1722",
+      "inEdges": [],
       "outEdges": []
     },
     {
       "idx": 9,
+      "name": "EffectTestContract::contract_init_1823",
+      "inEdges": [],
+      "outEdges": [
+        12
+      ]
+    },
+    {
+      "idx": 10,
+      "name": "EffectTestContract::funcWithSend",
+      "inEdges": [],
+      "outEdges": [
+        13,
+        14
+      ]
+    },
+    {
+      "idx": 11,
+      "name": "EffectTestContract::funcWithStateRead",
+      "inEdges": [],
+      "outEdges": []
+    },
+    {
+      "idx": 12,
+      "name": "EffectTestContract::funcWithStateWrite",
+      "inEdges": [],
+      "outEdges": []
+    },
+    {
+      "idx": 13,
+      "name": "EffectTestContract::funcWithDatetimeAccess",
+      "inEdges": [],
+      "outEdges": [
+        15
+      ]
+    },
+    {
+      "idx": 14,
+      "name": "EffectTestContract::funcWithRandomnessUse",
+      "inEdges": [],
+      "outEdges": [
+        16
+      ]
+    },
+    {
+      "idx": 15,
+      "name": "EffectTestContract::funcWithRandomnessSeedInit",
+      "inEdges": [
+        19,
+        23
+      ],
+      "outEdges": []
+    },
+    {
+      "idx": 16,
+      "name": "EffectTestContract::generatePseudoRandom",
+      "inEdges": [],
+      "outEdges": [
+        17
+      ]
+    },
+    {
+      "idx": 17,
+      "name": "EffectTestContract::funcWithMultipleEffects",
+      "inEdges": [],
+      "outEdges": [
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ]
+    },
+    {
+      "idx": 18,
+      "name": "dump",
+      "inEdges": [
+        1,
+        3
+      ],
+      "outEdges": []
+    },
+    {
+      "idx": 19,
+      "name": "emptyMap",
+      "inEdges": [
+        2,
+        7
+      ],
+      "outEdges": []
+    },
+    {
+      "idx": 20,
+      "name": "m::set",
+      "inEdges": [
+        4,
+        5,
+        6,
+        8,
+        9,
+        10
+      ],
+      "outEdges": []
+    },
+    {
+      "idx": 21,
       "name": "TestContractT::getA",
       "inEdges": [
-        3
+        11
+      ],
+      "outEdges": []
+    },
+    {
+      "idx": 22,
+      "name": "sender",
+      "inEdges": [
+        12
+      ],
+      "outEdges": []
+    },
+    {
+      "idx": 23,
+      "name": "send",
+      "inEdges": [
+        13,
+        14,
+        18,
+        21
+      ],
+      "outEdges": []
+    },
+    {
+      "idx": 24,
+      "name": "now",
+      "inEdges": [
+        15,
+        22
+      ],
+      "outEdges": []
+    },
+    {
+      "idx": 25,
+      "name": "random",
+      "inEdges": [
+        16,
+        20
+      ],
+      "outEdges": []
+    },
+    {
+      "idx": 26,
+      "name": "pow",
+      "inEdges": [
+        17
       ],
       "outEdges": []
     }
@@ -71,17 +228,117 @@
     {
       "idx": 1,
       "src": 1,
-      "dst": 7
+      "dst": 18
     },
     {
       "idx": 2,
       "src": 2,
-      "dst": 8
+      "dst": 19
     },
     {
       "idx": 3,
-      "src": 5,
-      "dst": 9
+      "src": 3,
+      "dst": 18
+    },
+    {
+      "idx": 4,
+      "src": 4,
+      "dst": 20
+    },
+    {
+      "idx": 5,
+      "src": 4,
+      "dst": 20
+    },
+    {
+      "idx": 6,
+      "src": 4,
+      "dst": 20
+    },
+    {
+      "idx": 7,
+      "src": 4,
+      "dst": 19
+    },
+    {
+      "idx": 8,
+      "src": 4,
+      "dst": 20
+    },
+    {
+      "idx": 9,
+      "src": 4,
+      "dst": 20
+    },
+    {
+      "idx": 10,
+      "src": 4,
+      "dst": 20
+    },
+    {
+      "idx": 11,
+      "src": 7,
+      "dst": 21
+    },
+    {
+      "idx": 12,
+      "src": 9,
+      "dst": 22
+    },
+    {
+      "idx": 13,
+      "src": 10,
+      "dst": 23
+    },
+    {
+      "idx": 14,
+      "src": 10,
+      "dst": 23
+    },
+    {
+      "idx": 15,
+      "src": 13,
+      "dst": 24
+    },
+    {
+      "idx": 16,
+      "src": 14,
+      "dst": 25
+    },
+    {
+      "idx": 17,
+      "src": 16,
+      "dst": 26
+    },
+    {
+      "idx": 18,
+      "src": 17,
+      "dst": 23
+    },
+    {
+      "idx": 19,
+      "src": 17,
+      "dst": 15
+    },
+    {
+      "idx": 20,
+      "src": 17,
+      "dst": 25
+    },
+    {
+      "idx": 21,
+      "src": 17,
+      "dst": 23
+    },
+    {
+      "idx": 22,
+      "src": 17,
+      "dst": 24
+    },
+    {
+      "idx": 23,
+      "src": 17,
+      "dst": 15
     }
   ]
 }

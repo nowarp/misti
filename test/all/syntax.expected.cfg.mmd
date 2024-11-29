@@ -43,13 +43,96 @@ subgraph test_loops
     test_loops_85 --> test_loops_86
     test_loops_86 --> test_loops_86
 end
+subgraph testTryCatch
+    testTryCatch_87["try ... catch (err)"]
+    testTryCatch_88["a += 1"]:::exitNode
+    testTryCatch_89["dump(err)"]:::exitNode
+    testTryCatch_87 --> testTryCatch_88
+    testTryCatch_87 --> testTryCatch_89
+end
+subgraph testLoops
+    testLoops_90["let sum: Int = 0"]
+    testLoops_91["let i: Int = 0"]
+    testLoops_92["while (i &lt; 10)"]
+    testLoops_93["i = i + 1"]
+    testLoops_94["sum = sum + i"]
+    testLoops_95["until (i &lt;= 0)"]
+    testLoops_96["i = i - 1"]
+    testLoops_97["sum = sum + i"]
+    testLoops_98["repeat (10)"]
+    testLoops_99["i = i + 1"]
+    testLoops_100["sum = sum + i"]
+    testLoops_101["let m: map&lt;Int, Int&gt; = emptyMap()"]
+    testLoops_102["m.set(1, 10)"]
+    testLoops_103["m.set(2, 20)"]
+    testLoops_104["m.set(3, 30)"]
+    testLoops_105["foreach ((key, value) of m)"]
+    testLoops_106["sum = sum + value"]
+    testLoops_90 --> testLoops_91
+    testLoops_91 --> testLoops_92
+    testLoops_92 --> testLoops_93
+    testLoops_93 --> testLoops_94
+    testLoops_94 --> testLoops_92
+    testLoops_92 --> testLoops_95
+    testLoops_95 --> testLoops_96
+    testLoops_96 --> testLoops_97
+    testLoops_97 --> testLoops_95
+    testLoops_95 --> testLoops_98
+    testLoops_98 --> testLoops_99
+    testLoops_99 --> testLoops_100
+    testLoops_100 --> testLoops_98
+    testLoops_98 --> testLoops_101
+    testLoops_101 --> testLoops_102
+    testLoops_102 --> testLoops_103
+    testLoops_103 --> testLoops_104
+    testLoops_104 --> testLoops_105
+    testLoops_105 --> testLoops_106
+    testLoops_106 --> testLoops_105
+end
 subgraph TestContract__getter
-    TestContract__getter_87["return 0"]:::exitNode
+    TestContract__getter_107["return 0"]:::exitNode
 end
 subgraph TestContractF__test
 end
 subgraph TestContractT__test
-    TestContractT__test_88["return self.getA()"]:::exitNode
+    TestContractT__test_108["return self.getA()"]:::exitNode
 end
 subgraph TestContractT__receive_external_fallback_1722
+end
+subgraph EffectTestContract__init_1942
+    EffectTestContract__init_1942_109["self.destAddress = sender()"]:::exitNode
+end
+subgraph EffectTestContract__funcWithSend
+    EffectTestContract__funcWithSend_110["let amount: Int = 100"]
+    EffectTestContract__funcWithSend_111["send(SendParameters{to: self.destAddress, value: amount})"]:::exitNode
+    EffectTestContract__funcWithSend_110 --> EffectTestContract__funcWithSend_111
+end
+subgraph EffectTestContract__funcWithStateRead
+    EffectTestContract__funcWithStateRead_112["let value: Int = self.someVariable"]:::exitNode
+end
+subgraph EffectTestContract__funcWithStateWrite
+    EffectTestContract__funcWithStateWrite_113["self.someVariable = 42"]:::exitNode
+end
+subgraph EffectTestContract__funcWithDatetimeAccess
+    EffectTestContract__funcWithDatetimeAccess_114["let currentTime: Int = now()"]:::exitNode
+end
+subgraph EffectTestContract__funcWithRandomnessUse
+    EffectTestContract__funcWithRandomnessUse_115["let randValue: Int = random(1, 100)"]:::exitNode
+end
+subgraph EffectTestContract__funcWithRandomnessSeedInit
+    EffectTestContract__funcWithRandomnessSeedInit_116["self.randomnessSeed = seed"]:::exitNode
+end
+subgraph EffectTestContract__generatePseudoRandom
+    EffectTestContract__generatePseudoRandom_117["self.randomnessSeed = (self.randomnessSeed * 1103515245 + 12345) % pow(2, 31)"]
+    EffectTestContract__generatePseudoRandom_118["return self.randomnessSeed"]:::exitNode
+    EffectTestContract__generatePseudoRandom_117 --> EffectTestContract__generatePseudoRandom_118
+end
+subgraph EffectTestContract__funcWithMultipleEffects
+    EffectTestContract__funcWithMultipleEffects_119["self.someVariable += random(1, 100)"]
+    EffectTestContract__funcWithMultipleEffects_120["send(SendParameters{to: self.destAddress, value: self.someVariable})"]
+    EffectTestContract__funcWithMultipleEffects_121["let time: Int = now()"]
+    EffectTestContract__funcWithMultipleEffects_122["self.funcWithRandomnessSeedInit(time)"]:::exitNode
+    EffectTestContract__funcWithMultipleEffects_119 --> EffectTestContract__funcWithMultipleEffects_120
+    EffectTestContract__funcWithMultipleEffects_120 --> EffectTestContract__funcWithMultipleEffects_121
+    EffectTestContract__funcWithMultipleEffects_121 --> EffectTestContract__funcWithMultipleEffects_122
 end
