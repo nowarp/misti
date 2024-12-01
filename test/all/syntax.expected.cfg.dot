@@ -108,52 +108,33 @@ digraph "syntax" {
     subgraph "cluster_TestContractT__receive_external_fallback_1722" {
         label="TestContractT__receive_external_fallback_1722";
     }
-    subgraph "cluster_EffectTestContract__init_1942" {
-        label="EffectTestContract__init_1942";
-        "EffectTestContract__init_1942_109" [label="self.destAddress = sender()",style=filled,fillcolor="#66A7DB"];
+    subgraph "cluster_EffectTest__init_1971" {
+        label="EffectTest__init_1971";
+        "EffectTest__init_1971_109" [label="self.addr = sender()",style=filled,fillcolor="#66A7DB"];
     }
-    subgraph "cluster_EffectTestContract__funcWithSend" {
-        label="EffectTestContract__funcWithSend";
-        "EffectTestContract__funcWithSend_110" [label="let amount: Int = 100"];
-        "EffectTestContract__funcWithSend_111" [label="send(SendParameters{to: self.destAddress, value: amount})",style=filled,fillcolor="#66A7DB"];
-        "EffectTestContract__funcWithSend_110" -> "EffectTestContract__funcWithSend_111";
+    subgraph "cluster_EffectTest__funcWithSend" {
+        label="EffectTest__funcWithSend";
+        "EffectTest__funcWithSend_110" [label="let amount: Int = 100"];
+        "EffectTest__funcWithSend_111" [label="send(SendParameters{to: self.addr, value: amount})",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__funcWithSend_110" -> "EffectTest__funcWithSend_111";
     }
-    subgraph "cluster_EffectTestContract__funcWithStateRead" {
-        label="EffectTestContract__funcWithStateRead";
-        "EffectTestContract__funcWithStateRead_112" [label="let value: Int = self.someVariable",style=filled,fillcolor="#66A7DB"];
+    subgraph "cluster_EffectTest__funcWithStateRead" {
+        label="EffectTest__funcWithStateRead";
+        "EffectTest__funcWithStateRead_112" [label="let value = self.addr",style=filled,fillcolor="#66A7DB"];
     }
-    subgraph "cluster_EffectTestContract__funcWithStateWrite" {
-        label="EffectTestContract__funcWithStateWrite";
-        "EffectTestContract__funcWithStateWrite_113" [label="self.someVariable = 42",style=filled,fillcolor="#66A7DB"];
+    subgraph "cluster_EffectTest__funcWithStateWrite" {
+        label="EffectTest__funcWithStateWrite";
+        "EffectTest__funcWithStateWrite_113" [label="self.addr = newAddress(0, 0)",style=filled,fillcolor="#66A7DB"];
     }
-    subgraph "cluster_EffectTestContract__funcWithDatetimeAccess" {
-        label="EffectTestContract__funcWithDatetimeAccess";
-        "EffectTestContract__funcWithDatetimeAccess_114" [label="let currentTime: Int = now()",style=filled,fillcolor="#66A7DB"];
+    subgraph "cluster_EffectTest__funcWithMultipleEffects" {
+        label="EffectTest__funcWithMultipleEffects";
+        "EffectTest__funcWithMultipleEffects_114" [label="let currentTime: Int = now()"];
+        "EffectTest__funcWithMultipleEffects_115" [label="let randValue: Int = random(1, 100)"];
+        "EffectTest__funcWithMultipleEffects_116" [label="if (1 > 42)"];
+        "EffectTest__funcWithMultipleEffects_117" [label="nativeRandomizeLt()",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__funcWithMultipleEffects_114" -> "EffectTest__funcWithMultipleEffects_115";
+        "EffectTest__funcWithMultipleEffects_115" -> "EffectTest__funcWithMultipleEffects_116";
+        "EffectTest__funcWithMultipleEffects_116" -> "EffectTest__funcWithMultipleEffects_117";
     }
-    subgraph "cluster_EffectTestContract__funcWithRandomnessUse" {
-        label="EffectTestContract__funcWithRandomnessUse";
-        "EffectTestContract__funcWithRandomnessUse_115" [label="let randValue: Int = random(1, 100)",style=filled,fillcolor="#66A7DB"];
-    }
-    subgraph "cluster_EffectTestContract__funcWithRandomnessSeedInit" {
-        label="EffectTestContract__funcWithRandomnessSeedInit";
-        "EffectTestContract__funcWithRandomnessSeedInit_116" [label="self.randomnessSeed = seed",style=filled,fillcolor="#66A7DB"];
-    }
-    subgraph "cluster_EffectTestContract__generatePseudoRandom" {
-        label="EffectTestContract__generatePseudoRandom";
-        "EffectTestContract__generatePseudoRandom_117" [label="self.randomnessSeed = (self.randomnessSeed * 1103515245 + 12345) % pow(2, 31)"];
-        "EffectTestContract__generatePseudoRandom_118" [label="return self.randomnessSeed",style=filled,fillcolor="#66A7DB"];
-        "EffectTestContract__generatePseudoRandom_117" -> "EffectTestContract__generatePseudoRandom_118";
-    }
-    subgraph "cluster_EffectTestContract__funcWithMultipleEffects" {
-        label="EffectTestContract__funcWithMultipleEffects";
-        "EffectTestContract__funcWithMultipleEffects_119" [label="self.someVariable += random(1, 100)"];
-        "EffectTestContract__funcWithMultipleEffects_120" [label="send(SendParameters{to: self.destAddress, value: self.someVariable})"];
-        "EffectTestContract__funcWithMultipleEffects_121" [label="let time: Int = now()"];
-        "EffectTestContract__funcWithMultipleEffects_122" [label="self.funcWithRandomnessSeedInit(time)",style=filled,fillcolor="#66A7DB"];
-        "EffectTestContract__funcWithMultipleEffects_119" -> "EffectTestContract__funcWithMultipleEffects_120";
-        "EffectTestContract__funcWithMultipleEffects_120" -> "EffectTestContract__funcWithMultipleEffects_121";
-        "EffectTestContract__funcWithMultipleEffects_121" -> "EffectTestContract__funcWithMultipleEffects_122";
-    }
-"119" -> "26";
-"120" -> "35";
+"115" -> "26";
 }

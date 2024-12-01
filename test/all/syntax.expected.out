@@ -1,29 +1,47 @@
 [MEDIUM] NeverAccessedVariables: Variable value is never accessed
-test/all/syntax.tact:97:9:
-  96 |     fun funcWithStateRead() {
-> 97 |         let value: Int = self.someVariable;
-               ^
-  98 |     }
+test/all/syntax.tact:114:9:
+  113 |     fun funcWithStateRead() {
+> 114 |         let value = self.addr;
+                ^
+  115 |     }
 Help: Consider removing the variable
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
 [MEDIUM] NeverAccessedVariables: Variable currentTime is never accessed
-test/all/syntax.tact:107:9:
-  106 |     fun funcWithDatetimeAccess() {
-> 107 |         let currentTime: Int = now();
+test/all/syntax.tact:125:9:
+  124 |     fun funcWithMultipleEffects() {
+> 125 |         let currentTime: Int = now();
                 ^
-  108 |     }
+  126 |         let randValue: Int = random(1, 100);
 Help: Consider removing the variable
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
 [MEDIUM] NeverAccessedVariables: Variable randValue is never accessed
-test/all/syntax.tact:112:9:
-  111 |     fun funcWithRandomnessUse() {
-> 112 |         let randValue: Int = random(1, 100);
+test/all/syntax.tact:126:9:
+  125 |         let currentTime: Int = now();
+> 126 |         let randValue: Int = random(1, 100);
                 ^
-  113 |     }
+  127 |         if (1 > 42) {
 Help: Consider removing the variable
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
+
+[MEDIUM] FalseCondition: Condition always evaluates to false
+test/all/syntax.tact:127:13:
+  126 |         let randValue: Int = random(1, 100);
+> 127 |         if (1 > 42) {
+                    ^
+  128 |             nativeRandomizeLt();
+Help: Consider removing it if there is no logic error
+See: https://nowarp.io/tools/misti/docs/detectors/FalseCondition
+
+[LOW] ZeroAddress: Using zero address
+test/all/syntax.tact:119:35:
+  118 |     fun funcWithStateWrite() {
+> 119 |         self.addr = newAddress(0, 0);
+                                          ^
+  120 |     }
+Help: Consider changing code to avoid using it. For example, you could pass the address during the deployment.
+See: https://nowarp.io/tools/misti/docs/detectors/ZeroAddress
 
 [INFO] DumpIsUsed: Found `dump` usage
 test/all/syntax.tact:41:35:
@@ -35,11 +53,11 @@ Help: Using `dump` in production code can sometimes indicate complex code that r
 See: https://nowarp.io/tools/misti/docs/detectors/DumpIsUsed
 
 [INFO] DumpIsUsed: Found `dump` usage
-test/all/syntax.tact:141:9:
-  140 |     } catch (err) {
-> 141 |         dump(err);
-                ^
-  142 |     }
+test/all/syntax.tact:67:9:
+  66 |     } catch (err) {
+> 67 |         dump(err);
+               ^
+  68 |     }
 Help: Using `dump` in production code can sometimes indicate complex code that requires additional review
 See: https://nowarp.io/tools/misti/docs/detectors/DumpIsUsed
 
@@ -98,64 +116,64 @@ Help: Consider using augmented assignment instead: sum += i
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
 
 [INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
-test/all/syntax.tact:150:9:
-  149 |     while (i < 10) {
-> 150 |         i = i + 1;
-                ^
-  151 |         sum = sum + i;
+test/all/syntax.tact:76:9:
+  75 |     while (i < 10) {
+> 76 |         i = i + 1;
+               ^
+  77 |         sum = sum + i;
 Help: Consider using augmented assignment instead: i += 1
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
 
 [INFO] PreferAugmentedAssign: Prefer augmented assignment: sum += i
-test/all/syntax.tact:151:9:
-  150 |         i = i + 1;
-> 151 |         sum = sum + i;
-                ^
-  152 |     }
+test/all/syntax.tact:77:9:
+  76 |         i = i + 1;
+> 77 |         sum = sum + i;
+               ^
+  78 |     }
 Help: Consider using augmented assignment instead: sum += i
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
 
 [INFO] PreferAugmentedAssign: Prefer augmented assignment: i -= 1
-test/all/syntax.tact:155:9:
-  154 |     do {
-> 155 |         i = i - 1;
-                ^
-  156 |         sum = sum + i;
+test/all/syntax.tact:81:9:
+  80 |     do {
+> 81 |         i = i - 1;
+               ^
+  82 |         sum = sum + i;
 Help: Consider using augmented assignment instead: i -= 1
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
 
 [INFO] PreferAugmentedAssign: Prefer augmented assignment: sum += i
-test/all/syntax.tact:156:9:
-  155 |         i = i - 1;
-> 156 |         sum = sum + i;
-                ^
-  157 |     } until (i <= 0);
+test/all/syntax.tact:82:9:
+  81 |         i = i - 1;
+> 82 |         sum = sum + i;
+               ^
+  83 |     } until (i <= 0);
 Help: Consider using augmented assignment instead: sum += i
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
 
 [INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
-test/all/syntax.tact:160:9:
-  159 |     repeat (10) {
-> 160 |         i = i + 1;
-                ^
-  161 |         sum = sum + i;
+test/all/syntax.tact:86:9:
+  85 |     repeat (10) {
+> 86 |         i = i + 1;
+               ^
+  87 |         sum = sum + i;
 Help: Consider using augmented assignment instead: i += 1
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
 
 [INFO] PreferAugmentedAssign: Prefer augmented assignment: sum += i
-test/all/syntax.tact:161:9:
-  160 |         i = i + 1;
-> 161 |         sum = sum + i;
-                ^
-  162 |     }
+test/all/syntax.tact:87:9:
+  86 |         i = i + 1;
+> 87 |         sum = sum + i;
+               ^
+  88 |     }
 Help: Consider using augmented assignment instead: sum += i
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
 
 [INFO] PreferAugmentedAssign: Prefer augmented assignment: sum += value
-test/all/syntax.tact:170:9:
-  169 |     foreach (key, value in m) {
-> 170 |         sum = sum + value;
-                ^
-  171 |     }
+test/all/syntax.tact:96:9:
+  95 |     foreach (key, value in m) {
+> 96 |         sum = sum + value;
+               ^
+  97 |     }
 Help: Consider using augmented assignment instead: sum += value
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign

@@ -60,80 +60,6 @@ fun test_loops() {
     foreach (k, v in m) {}
 }
 
-//
-// Tact code covering all EffectFlags for testing CallGraph effects.
-//
-// Effects covered:
-// - CALLS_SEND
-// - CONTRACT_STATE_READ
-// - CONTRACT_STATE_WRITE
-// - ACCESSES_DATETIME
-// - RANDOMNESS_USE
-// - RANDOMNESS_SEED_INITIALIZATION
-//
-
-contract EffectTestContract {
-    // State variable for read/write, initialized to 0
-    someVariable: Int = 0;
-    destAddress: Address;
-    randomnessSeed: Int = 0;
-
-    // Initialize destAddress in the constructor
-    init() {
-        self.destAddress = sender();
-    }
-
-    // Function that calls 'send' (CALLS_SEND)
-    fun funcWithSend() {
-        let amount: Int = 100;
-        send(SendParameters{
-            to: self.destAddress,
-            value: amount
-        });
-    }
-
-    // Function that reads from contract state (CONTRACT_STATE_READ)
-    fun funcWithStateRead() {
-        let value: Int = self.someVariable;
-    }
-
-    // Function that writes to contract state (CONTRACT_STATE_WRITE)
-    fun funcWithStateWrite() {
-        self.someVariable = 42;
-    }
-
-    // Function that accesses datetime (ACCESSES_DATETIME)
-    fun funcWithDatetimeAccess() {
-        let currentTime: Int = now();
-    }
-
-    // Function that uses randomness (RANDOMNESS_USE)
-    fun funcWithRandomnessUse() {
-        let randValue: Int = random(1, 100);
-    }
-
-    // Function that initializes randomness seed (RANDOMNESS_SEED_INITIALIZATION)
-    fun funcWithRandomnessSeedInit(seed: Int) {
-        self.randomnessSeed = seed;
-    }
-
-    fun generatePseudoRandom(): Int {
-        self.randomnessSeed = (self.randomnessSeed * 1103515245 + 12345) % pow(2, 31);
-        return self.randomnessSeed;
-    }
-
-    // Function that combines multiple effects
-    fun funcWithMultipleEffects() {
-        self.someVariable += random(1, 100);
-        send(SendParameters{
-            to: self.destAddress,
-            value: self.someVariable
-        });
-        let time: Int = now();
-        self.funcWithRandomnessSeedInit(time);
-    }
-}
-
 fun testTryCatch(a: Int) {
     try {
         a += 1;
@@ -168,5 +94,38 @@ fun testLoops() {
 
     foreach (key, value in m) {
         sum = sum + value;
+    }
+}
+
+// Test callgraph effects
+contract EffectTest {
+    addr: Address;
+    // Effect.StateWrite
+    init() { self.addr = sender(); }
+
+    // Effect.Send + Effect.StateRead
+    fun funcWithSend() {
+        let amount: Int = 100;
+        send(SendParameters{ to: self.addr, value: amount });
+    }
+
+    // Effect.StateRead
+    fun funcWithStateRead() {
+        let value = self.addr;
+    }
+
+    // Effect.StateWrite
+    fun funcWithStateWrite() {
+        self.addr = newAddress(0, 0);
+    }
+
+    // Multiple effects:
+    // Effect.AccessDatetime + Effect.PrgUse + Effect.SeedInit
+    fun funcWithMultipleEffects() {
+        let currentTime: Int = now();
+        let randValue: Int = random(1, 100);
+        if (1 > 42) {
+            nativeRandomizeLt();
+        }
     }
 }

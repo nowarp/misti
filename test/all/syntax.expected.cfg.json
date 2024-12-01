@@ -320,7 +320,7 @@
         "nodes": [
           {
             "id": 87,
-            "stmtID": 1955,
+            "stmtID": 1817,
             "srcEdges": [],
             "dstEdges": [
               78,
@@ -329,7 +329,7 @@
           },
           {
             "id": 88,
-            "stmtID": 1949,
+            "stmtID": 1811,
             "srcEdges": [
               78
             ],
@@ -337,7 +337,7 @@
           },
           {
             "id": 89,
-            "stmtID": 1954,
+            "stmtID": 1816,
             "srcEdges": [
               79
             ],
@@ -364,7 +364,7 @@
         "nodes": [
           {
             "id": 90,
-            "stmtID": 1961,
+            "stmtID": 1823,
             "srcEdges": [],
             "dstEdges": [
               80
@@ -372,7 +372,7 @@
           },
           {
             "id": 91,
-            "stmtID": 1965,
+            "stmtID": 1827,
             "srcEdges": [
               80
             ],
@@ -382,7 +382,7 @@
           },
           {
             "id": 92,
-            "stmtID": 1979,
+            "stmtID": 1841,
             "srcEdges": [
               81,
               84
@@ -394,7 +394,7 @@
           },
           {
             "id": 93,
-            "stmtID": 1973,
+            "stmtID": 1835,
             "srcEdges": [
               82
             ],
@@ -404,7 +404,7 @@
           },
           {
             "id": 94,
-            "stmtID": 1978,
+            "stmtID": 1840,
             "srcEdges": [
               83
             ],
@@ -414,7 +414,7 @@
           },
           {
             "id": 95,
-            "stmtID": 1993,
+            "stmtID": 1855,
             "srcEdges": [
               85,
               88
@@ -426,7 +426,7 @@
           },
           {
             "id": 96,
-            "stmtID": 1987,
+            "stmtID": 1849,
             "srcEdges": [
               86
             ],
@@ -436,7 +436,7 @@
           },
           {
             "id": 97,
-            "stmtID": 1992,
+            "stmtID": 1854,
             "srcEdges": [
               87
             ],
@@ -446,7 +446,7 @@
           },
           {
             "id": 98,
-            "stmtID": 2005,
+            "stmtID": 1867,
             "srcEdges": [
               89,
               92
@@ -458,7 +458,7 @@
           },
           {
             "id": 99,
-            "stmtID": 1999,
+            "stmtID": 1861,
             "srcEdges": [
               90
             ],
@@ -468,7 +468,7 @@
           },
           {
             "id": 100,
-            "stmtID": 2004,
+            "stmtID": 1866,
             "srcEdges": [
               91
             ],
@@ -478,7 +478,7 @@
           },
           {
             "id": 101,
-            "stmtID": 2012,
+            "stmtID": 1874,
             "srcEdges": [
               93
             ],
@@ -488,7 +488,7 @@
           },
           {
             "id": 102,
-            "stmtID": 2018,
+            "stmtID": 1880,
             "srcEdges": [
               94
             ],
@@ -498,7 +498,7 @@
           },
           {
             "id": 103,
-            "stmtID": 2024,
+            "stmtID": 1886,
             "srcEdges": [
               95
             ],
@@ -508,7 +508,7 @@
           },
           {
             "id": 104,
-            "stmtID": 2030,
+            "stmtID": 1892,
             "srcEdges": [
               96
             ],
@@ -518,7 +518,7 @@
           },
           {
             "id": 105,
-            "stmtID": 2039,
+            "stmtID": 1901,
             "srcEdges": [
               97,
               99
@@ -529,7 +529,7 @@
           },
           {
             "id": 106,
-            "stmtID": 2038,
+            "stmtID": 1900,
             "srcEdges": [
               98
             ],
@@ -702,15 +702,15 @@
       ]
     },
     {
-      "name": "EffectTestContract",
+      "name": "EffectTest",
       "methods": [
         {
-          "name": "EffectTestContract.init_1942",
+          "name": "EffectTest.init_1971",
           "cfg": {
             "nodes": [
               {
                 "id": 109,
-                "stmtID": 1822,
+                "stmtID": 1912,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -719,12 +719,12 @@
           }
         },
         {
-          "name": "EffectTestContract.funcWithSend",
+          "name": "EffectTest.funcWithSend",
           "cfg": {
             "nodes": [
               {
                 "id": 110,
-                "stmtID": 1828,
+                "stmtID": 1918,
                 "srcEdges": [],
                 "dstEdges": [
                   100
@@ -732,7 +732,7 @@
               },
               {
                 "id": 111,
-                "stmtID": 1841,
+                "stmtID": 1931,
                 "srcEdges": [
                   100
                 ],
@@ -749,12 +749,12 @@
           }
         },
         {
-          "name": "EffectTestContract.funcWithStateRead",
+          "name": "EffectTest.funcWithStateRead",
           "cfg": {
             "nodes": [
               {
                 "id": 112,
-                "stmtID": 1849,
+                "stmtID": 1938,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -763,12 +763,12 @@
           }
         },
         {
-          "name": "EffectTestContract.funcWithStateWrite",
+          "name": "EffectTest.funcWithStateWrite",
           "cfg": {
             "nodes": [
               {
                 "id": 113,
-                "stmtID": 1856,
+                "stmtID": 1948,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -777,64 +777,42 @@
           }
         },
         {
-          "name": "EffectTestContract.funcWithDatetimeAccess",
+          "name": "EffectTest.funcWithMultipleEffects",
           "cfg": {
             "nodes": [
               {
                 "id": 114,
-                "stmtID": 1863,
-                "srcEdges": [],
-                "dstEdges": []
-              }
-            ],
-            "edges": []
-          }
-        },
-        {
-          "name": "EffectTestContract.funcWithRandomnessUse",
-          "cfg": {
-            "nodes": [
-              {
-                "id": 115,
-                "stmtID": 1872,
-                "srcEdges": [],
-                "dstEdges": []
-              }
-            ],
-            "edges": []
-          }
-        },
-        {
-          "name": "EffectTestContract.funcWithRandomnessSeedInit",
-          "cfg": {
-            "nodes": [
-              {
-                "id": 116,
-                "stmtID": 1882,
-                "srcEdges": [],
-                "dstEdges": []
-              }
-            ],
-            "edges": []
-          }
-        },
-        {
-          "name": "EffectTestContract.generatePseudoRandom",
-          "cfg": {
-            "nodes": [
-              {
-                "id": 117,
-                "stmtID": 1901,
+                "stmtID": 1955,
                 "srcEdges": [],
                 "dstEdges": [
                   101
                 ]
               },
               {
-                "id": 118,
-                "stmtID": 1905,
+                "id": 115,
+                "stmtID": 1962,
                 "srcEdges": [
                   101
+                ],
+                "dstEdges": [
+                  102
+                ]
+              },
+              {
+                "id": 116,
+                "stmtID": 1969,
+                "srcEdges": [
+                  102
+                ],
+                "dstEdges": [
+                  103
+                ]
+              },
+              {
+                "id": 117,
+                "stmtID": 1968,
+                "srcEdges": [
+                  103
                 ],
                 "dstEdges": []
               }
@@ -842,68 +820,18 @@
             "edges": [
               {
                 "id": 101,
-                "src": 117,
-                "dst": 118
-              }
-            ]
-          }
-        },
-        {
-          "name": "EffectTestContract.funcWithMultipleEffects",
-          "cfg": {
-            "nodes": [
-              {
-                "id": 119,
-                "stmtID": 1915,
-                "srcEdges": [],
-                "dstEdges": [
-                  102
-                ]
+                "src": 114,
+                "dst": 115
               },
-              {
-                "id": 120,
-                "stmtID": 1930,
-                "srcEdges": [
-                  102
-                ],
-                "dstEdges": [
-                  103
-                ]
-              },
-              {
-                "id": 121,
-                "stmtID": 1935,
-                "srcEdges": [
-                  103
-                ],
-                "dstEdges": [
-                  104
-                ]
-              },
-              {
-                "id": 122,
-                "stmtID": 1940,
-                "srcEdges": [
-                  104
-                ],
-                "dstEdges": []
-              }
-            ],
-            "edges": [
               {
                 "id": 102,
-                "src": 119,
-                "dst": 120
+                "src": 115,
+                "dst": 116
               },
               {
                 "id": 103,
-                "src": 120,
-                "dst": 121
-              },
-              {
-                "id": 104,
-                "src": 121,
-                "dst": 122
+                "src": 116,
+                "dst": 117
               }
             ]
           }

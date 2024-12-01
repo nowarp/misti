@@ -1,83 +1,79 @@
 graph TD
-    node_1["SampleJetton::contract_init_1817"]
-    node_2["SampleJetton::receiver_1857"]
-    node_3["SampleJetton::receiver_1882"]
-    node_4["SampleJetton::receiver_1905"]
-    node_5["JettonDefaultWallet::contract_init_2359"]
-    node_6["JettonDefaultWallet::receiver_2517"]
-    node_7["JettonDefaultWallet::receiver_2687"]
-    node_8["JettonDefaultWallet::msgValue"]
-    node_9["JettonDefaultWallet::receiver_2832"]
-    node_10["JettonDefaultWallet::receiver_2876"]
-    node_11["JettonDefaultWallet::get_wallet_data"]
-    node_12["require"]
-    node_13["SampleJetton::mint"]
-    node_14["context"]
-    node_15["send"]
-    node_16["ctx::readForwardFee"]
-    node_17["min"]
-    node_18["ton"]
-    node_19["contractAddress"]
-    node_20["JettonDefaultWallet::toCell"]
-    node_21["myBalance"]
-    node_22["msg::loadUint"]
-    node_23["msg::loadCoins"]
+    node_1["init(owner: Address, content: Cell, max_supply: Int)
+[StateWrite]"]
+    node_2["receive(msg: Mint)
+[StateRead]"]
+    node_3["receive('Mint: 100')
+[StateRead]"]
+    node_4["receive('Owner: MintClose')
+[StateRead,StateWrite]"]
+    node_5["init(master: Address, owner: Address)
+[StateWrite]"]
+    node_6["receive(msg: TokenTransfer)
+[Send,StateRead,StateWrite]"]
+    node_7["receive(msg: TokenTransferInternal)
+[Send,StateRead,StateWrite]"]
+    node_8["get fun msgValue(value: Int): Int
+[StateRead]"]
+    node_9["receive(msg: TokenBurn)
+[Send,StateRead,StateWrite]"]
+    node_10["bounced(msg: Slice)
+[StateWrite]"]
+    node_11["get fun get_wallet_data(): JettonWalletData
+[StateRead]"]
+    node_12["context"]
+    node_13["require"]
+    node_14["mint"]
+    node_15["ctx::readForwardFee"]
+    node_16["min"]
+    node_17["ton"]
+    node_18["contractAddress"]
+    node_19["send"]
+    node_20["toCell"]
+    node_21["msgValue"]
+    node_22["myBalance"]
+    node_23["msg::loadUint"]
+    node_24["msg::loadCoins"]
     node_2 --> node_12
-    node_2 --> node_12
+    node_2 --> node_13
     node_2 --> node_13
     node_2 --> node_14
-    node_2 --> node_12
-    node_2 --> node_12
-    node_2 --> node_13
     node_3 --> node_12
     node_3 --> node_13
     node_3 --> node_14
-    node_3 --> node_12
-    node_3 --> node_13
     node_4 --> node_12
-    node_4 --> node_14
-    node_4 --> node_12
+    node_4 --> node_13
     node_6 --> node_12
-    node_6 --> node_12
-    node_6 --> node_12
+    node_6 --> node_13
     node_6 --> node_15
-    node_6 --> node_14
-    node_6 --> node_12
+    node_6 --> node_15
+    node_6 --> node_13
     node_6 --> node_16
-    node_6 --> node_16
-    node_6 --> node_12
     node_6 --> node_17
+    node_6 --> node_13
     node_6 --> node_18
-    node_6 --> node_12
     node_6 --> node_19
-    node_6 --> node_15
     node_6 --> node_20
     node_7 --> node_12
-    node_7 --> node_14
-    node_7 --> node_12
+    node_7 --> node_13
+    node_7 --> node_18
+    node_7 --> node_13
     node_7 --> node_19
-    node_7 --> node_12
-    node_7 --> node_15
     node_7 --> node_20
-    node_7 --> node_8
-    node_7 --> node_16
+    node_7 --> node_21
     node_7 --> node_15
+    node_7 --> node_19
     node_7 --> node_20
-    node_8 --> node_21
-    node_8 --> node_17
+    node_8 --> node_22
+    node_8 --> node_16
     node_9 --> node_12
-    node_9 --> node_12
-    node_9 --> node_12
+    node_9 --> node_13
+    node_9 --> node_13
     node_9 --> node_15
-    node_9 --> node_14
-    node_9 --> node_12
-    node_9 --> node_12
-    node_9 --> node_16
-    node_9 --> node_12
-    node_9 --> node_15
+    node_9 --> node_13
+    node_9 --> node_19
     node_9 --> node_20
-    node_10 --> node_12
-    node_10 --> node_22
-    node_10 --> node_22
     node_10 --> node_23
-    node_10 --> node_12
+    node_10 --> node_23
+    node_10 --> node_24
+    node_10 --> node_13

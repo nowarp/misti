@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ShortCircuitCondition` detector: PR [#202](https://github.com/nowarp/misti/pull/202)
 - `PreferredStdlibApi` detector now suggest some preferred replacements for cell methods
 - Add Callgraph: PR [#185](https://github.com/nowarp/misti/pull/185)
+- Add function effects to Callgraph: PR [#227](https://github.com/nowarp/misti/pull/227)
 
 ### Changed
 - `SuspiciousMessageMode` detector now suggests using SendDefaultMode instead of 0 for mode: PR [#199](https://github.com/nowarp/misti/pull/199/)

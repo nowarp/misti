@@ -1,50 +1,44 @@
 graph TD
-    node_1["test_try"]
-    node_2["test_loops"]
-    node_3["testTryCatch"]
-    node_4["testLoops"]
-    node_5["TestContract::getter"]
-    node_6["TestContractF::test"]
-    node_7["TestContractT::test"]
-    node_8["TestContractT::receiver_1722"]
-    node_9["EffectTestContract::contract_init_1823"]
-    node_10["EffectTestContract::funcWithSend"]
-    node_11["EffectTestContract::funcWithStateRead"]
-    node_12["EffectTestContract::funcWithStateWrite"]
-    node_13["EffectTestContract::funcWithDatetimeAccess"]
-    node_14["EffectTestContract::funcWithRandomnessUse"]
-    node_15["EffectTestContract::funcWithRandomnessSeedInit"]
-    node_16["EffectTestContract::generatePseudoRandom"]
-    node_17["EffectTestContract::funcWithMultipleEffects"]
-    node_18["dump"]
-    node_19["emptyMap"]
-    node_20["m::set"]
-    node_21["TestContractT::getA"]
-    node_22["sender"]
-    node_23["send"]
-    node_24["now"]
-    node_25["random"]
-    node_26["pow"]
-    node_1 --> node_18
-    node_2 --> node_19
-    node_3 --> node_18
-    node_4 --> node_20
-    node_4 --> node_20
-    node_4 --> node_20
-    node_4 --> node_19
-    node_4 --> node_20
-    node_4 --> node_20
-    node_4 --> node_20
-    node_7 --> node_21
-    node_9 --> node_22
-    node_10 --> node_23
-    node_10 --> node_23
-    node_13 --> node_24
-    node_14 --> node_25
-    node_16 --> node_26
-    node_17 --> node_23
-    node_17 --> node_15
-    node_17 --> node_25
-    node_17 --> node_23
-    node_17 --> node_24
-    node_17 --> node_15
+    node_1["fun test_try(a: Int)"]
+    node_2["fun test_loops()"]
+    node_3["fun testTryCatch(a: Int)"]
+    node_4["fun testLoops()
+[StateWrite]"]
+    node_5["override get fun getter(): Int"]
+    node_6["fun test()"]
+    node_7["fun test(): Int"]
+    node_8["external()"]
+    node_9["init()
+[StateWrite]"]
+    node_10["fun funcWithSend()
+[Send,StateRead]"]
+    node_11["fun funcWithStateRead()
+[StateRead]"]
+    node_12["fun funcWithStateWrite()
+[StateWrite]"]
+    node_13["fun funcWithMultipleEffects()
+[AccessDatetime,PrgUse,PrgSeedInit]"]
+    node_14["dump"]
+    node_15["emptyMap"]
+    node_16["m::set"]
+    node_17["getA"]
+    node_18["sender"]
+    node_19["send"]
+    node_20["newAddress"]
+    node_21["now"]
+    node_22["random"]
+    node_23["nativeRandomizeLt"]
+    node_1 --> node_14
+    node_2 --> node_15
+    node_3 --> node_14
+    node_4 --> node_15
+    node_4 --> node_16
+    node_4 --> node_16
+    node_4 --> node_16
+    node_7 --> node_17
+    node_9 --> node_18
+    node_10 --> node_19
+    node_12 --> node_20
+    node_13 --> node_21
+    node_13 --> node_22
+    node_13 --> node_23
