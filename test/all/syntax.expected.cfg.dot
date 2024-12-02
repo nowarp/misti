@@ -46,18 +46,95 @@ digraph "syntax" {
         "test_loops_85" -> "test_loops_86";
         "test_loops_86" -> "test_loops_86";
     }
+    subgraph "cluster_testTryCatch" {
+        label="testTryCatch";
+        "testTryCatch_87" [label="try ... catch (err)"];
+        "testTryCatch_88" [label="a += 1",style=filled,fillcolor="#66A7DB"];
+        "testTryCatch_89" [label="dump(err)",style=filled,fillcolor="#66A7DB"];
+        "testTryCatch_87" -> "testTryCatch_88";
+        "testTryCatch_87" -> "testTryCatch_89";
+    }
+    subgraph "cluster_testLoops" {
+        label="testLoops";
+        "testLoops_90" [label="let sum: Int = 0"];
+        "testLoops_91" [label="let i: Int = 0"];
+        "testLoops_92" [label="while (i < 10)"];
+        "testLoops_93" [label="i = i + 1"];
+        "testLoops_94" [label="sum = sum + i"];
+        "testLoops_95" [label="until (i <= 0)"];
+        "testLoops_96" [label="i = i - 1"];
+        "testLoops_97" [label="sum = sum + i"];
+        "testLoops_98" [label="repeat (10)"];
+        "testLoops_99" [label="i = i + 1"];
+        "testLoops_100" [label="sum = sum + i"];
+        "testLoops_101" [label="let m: map<Int, Int> = emptyMap()"];
+        "testLoops_102" [label="m.set(1, 10)"];
+        "testLoops_103" [label="m.set(2, 20)"];
+        "testLoops_104" [label="m.set(3, 30)"];
+        "testLoops_105" [label="foreach ((key, value) of m)"];
+        "testLoops_106" [label="sum = sum + value"];
+        "testLoops_90" -> "testLoops_91";
+        "testLoops_91" -> "testLoops_92";
+        "testLoops_92" -> "testLoops_93";
+        "testLoops_93" -> "testLoops_94";
+        "testLoops_94" -> "testLoops_92";
+        "testLoops_92" -> "testLoops_95";
+        "testLoops_95" -> "testLoops_96";
+        "testLoops_96" -> "testLoops_97";
+        "testLoops_97" -> "testLoops_95";
+        "testLoops_95" -> "testLoops_98";
+        "testLoops_98" -> "testLoops_99";
+        "testLoops_99" -> "testLoops_100";
+        "testLoops_100" -> "testLoops_98";
+        "testLoops_98" -> "testLoops_101";
+        "testLoops_101" -> "testLoops_102";
+        "testLoops_102" -> "testLoops_103";
+        "testLoops_103" -> "testLoops_104";
+        "testLoops_104" -> "testLoops_105";
+        "testLoops_105" -> "testLoops_106";
+        "testLoops_106" -> "testLoops_105";
+    }
     subgraph "cluster_TestContract__getter" {
         label="TestContract__getter";
-        "TestContract__getter_87" [label="return 0",style=filled,fillcolor="#66A7DB"];
+        "TestContract__getter_107" [label="return 0",style=filled,fillcolor="#66A7DB"];
     }
     subgraph "cluster_TestContractF__test" {
         label="TestContractF__test";
     }
     subgraph "cluster_TestContractT__test" {
         label="TestContractT__test";
-        "TestContractT__test_88" [label="return self.getA()",style=filled,fillcolor="#66A7DB"];
+        "TestContractT__test_108" [label="return self.getA()",style=filled,fillcolor="#66A7DB"];
     }
     subgraph "cluster_TestContractT__receive_external_fallback_1722" {
         label="TestContractT__receive_external_fallback_1722";
     }
+    subgraph "cluster_EffectTest__init_1971" {
+        label="EffectTest__init_1971";
+        "EffectTest__init_1971_109" [label="self.addr = sender()",style=filled,fillcolor="#66A7DB"];
+    }
+    subgraph "cluster_EffectTest__funcWithSend" {
+        label="EffectTest__funcWithSend";
+        "EffectTest__funcWithSend_110" [label="let amount: Int = 100"];
+        "EffectTest__funcWithSend_111" [label="send(SendParameters{to: self.addr, value: amount})",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__funcWithSend_110" -> "EffectTest__funcWithSend_111";
+    }
+    subgraph "cluster_EffectTest__funcWithStateRead" {
+        label="EffectTest__funcWithStateRead";
+        "EffectTest__funcWithStateRead_112" [label="let value = self.addr",style=filled,fillcolor="#66A7DB"];
+    }
+    subgraph "cluster_EffectTest__funcWithStateWrite" {
+        label="EffectTest__funcWithStateWrite";
+        "EffectTest__funcWithStateWrite_113" [label="self.addr = newAddress(0, 0)",style=filled,fillcolor="#66A7DB"];
+    }
+    subgraph "cluster_EffectTest__funcWithMultipleEffects" {
+        label="EffectTest__funcWithMultipleEffects";
+        "EffectTest__funcWithMultipleEffects_114" [label="let currentTime: Int = now()"];
+        "EffectTest__funcWithMultipleEffects_115" [label="let randValue: Int = random(1, 100)"];
+        "EffectTest__funcWithMultipleEffects_116" [label="if (1 > 42)"];
+        "EffectTest__funcWithMultipleEffects_117" [label="nativeRandomizeLt()",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__funcWithMultipleEffects_114" -> "EffectTest__funcWithMultipleEffects_115";
+        "EffectTest__funcWithMultipleEffects_115" -> "EffectTest__funcWithMultipleEffects_116";
+        "EffectTest__funcWithMultipleEffects_116" -> "EffectTest__funcWithMultipleEffects_117";
+    }
+"115" -> "26";
 }

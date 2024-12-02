@@ -4,7 +4,14 @@ import { IdxGenerator } from "./indices";
 import { MistiContext } from "../../";
 import { Logger } from "../../internals/logger";
 import { findInExpressions, forEachExpression } from "../tact/iterators";
-import { isSendCall } from "../tact/util";
+import {
+  DATETIME_NAMES,
+  isSelfAccess,
+  isSendCall,
+  PRG_INIT_NAMES,
+  PRG_NATIVE_USE_NAMES,
+  PRG_SAFE_USE_NAMES,
+} from "../tact/util";
 import {
   AstFunctionDef,
   AstReceiver,
@@ -16,22 +23,35 @@ import {
   AstId,
   AstContractDeclaration,
   AstNode,
+  AstFieldAccess,
+  AstStatement,
+  idText,
 } from "@tact-lang/compiler/dist/grammar/ast";
+import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
 export type CGNodeId = number & { readonly brand: unique symbol };
 export type CGEdgeId = number & { readonly brand: unique symbol };
 
 /**
- * Flag constants for CGNode.
- *
- * `FLAG_CALLS_SEND` (0b0001): Indicates that the function represented by this node
- * contains a direct or indirect call to a "send" function.
+ * Effects flags for callgraph functions
  */
-const FLAG_CALLS_SEND = 0b0001;
+export enum Effect {
+  /** Uses functions that send funds. */
+  Send = 1 << 0,
+  /** Reads contract's state. */
+  StateRead = 1 << 1,
+  /** Writes contract's state. */
+  StateWrite = 1 << 2,
+  /** Accesses datetime functions. */
+  AccessDatetime = 1 << 3,
+  /** Uses PRG. */
+  PrgUse = 1 << 4,
+  /** Inits PRG seed. */
+  PrgSeedInit = 1 << 5,
+}
 
 /**
  * Represents an edge in the call graph, indicating a call from one function to another.
- * Each edge has a unique index (`idx`) generated using `IdxGenerator`.
  */
 class CGEdge {
   public idx: CGEdgeId;
@@ -50,13 +70,12 @@ class CGEdge {
 
 /**
  * Represents a node in the call graph, corresponding to a function or method.
- * Nodes maintain references to incoming and outgoing edges.
  */
 class CGNode {
   public idx: CGNodeId;
   public inEdges: Set<CGEdgeId> = new Set();
   public outEdges: Set<CGEdgeId> = new Set();
-  public flags: number = 0;
+  public effects: number = 0;
 
   /**
    * @param astId The AST ID of the function or method this node represents (can be `undefined` for synthetic nodes)
@@ -64,7 +83,7 @@ class CGNode {
    * @param logger A logger instance for logging messages
    */
   constructor(
-    public astId: number | undefined,
+    public astId: AstNode["id"] | undefined,
     public name: string,
     private logger: Logger,
   ) {
@@ -74,35 +93,44 @@ class CGNode {
     }
   }
 
-  // Method to set a flag
-  public setFlag(flag: number) {
-    this.flags |= flag;
+  public addEffect(effect: Effect) {
+    this.effects |= effect;
   }
 
-  // Method to check if a flag is set
-  public hasFlag(flag: number): boolean {
-    return (this.flags & flag) !== 0;
+  public hasEffect(effect: Effect): boolean {
+    return (this.effects & effect) !== 0;
+  }
+
+  /**
+   * Pretty-prints a signature of the function is available
+   */
+  public signature(ast: TactASTStore): string | undefined {
+    if (!this.astId) return undefined;
+    const fun = ast.getFunction(this.astId);
+    if (!fun) return undefined;
+    const signature = prettyPrint(fun)
+      .split("{")[0]
+      .replace(/\s+/g, " ")
+      .trim();
+    return signature;
   }
 }
 
 /**
  * Represents the call graph, a directed graph where nodes represent functions or methods,
  * and edges indicate calls between them.
- *
- * The `CallGraph` class provides methods to build the graph from a Tact AST, retrieve nodes/edges,
- * analyze connectivity, and add function calls dynamically.
  */
 export class CallGraph {
   private nodeMap: Map<CGNodeId, CGNode> = new Map();
   private astIdToNodeId: Map<AstNode["id"], CGNodeId> = new Map();
   private nameToNodeId: Map<string, CGNodeId> = new Map();
   private edgesMap: Map<CGEdgeId, CGEdge> = new Map();
-  private logger: Logger;
+  private readonly logger: Logger;
 
   /**
    * @param ctx The MistiContext providing a logger and other utilities
    */
-  constructor(private ctx: MistiContext) {
+  constructor(ctx: MistiContext) {
     this.logger = ctx.logger;
   }
 
@@ -190,18 +218,18 @@ export class CallGraph {
    * @returns The constructed `CallGraph`.
    */
   public build(astStore: TactASTStore): CallGraph {
-    for (const entry of astStore.getProgramEntries()) {
+    astStore.getProgramEntries().forEach((entry) => {
       if (entry.kind === "contract") {
         const contract = entry as AstContract;
         const contractName = contract.name.text;
-        for (const declaration of contract.declarations) {
+        contract.declarations.forEach((declaration) => {
           this.addContractDeclarationToGraph(declaration, contractName);
-        }
+        });
       } else if (entry.kind === "function_def") {
         const func = entry as AstFunctionDef;
         this.addFunctionToGraph(func);
       }
-    }
+    });
     this.analyzeFunctionCalls(astStore);
     return this;
   }
@@ -285,7 +313,6 @@ export class CallGraph {
     for (const entry of astStore.getProgramEntries()) {
       if (entry.kind === "contract") {
         const contract = entry as AstContract;
-        const contractName = contract.name.text;
         for (const declaration of contract.declarations) {
           if (
             declaration.kind === "function_def" ||
@@ -298,17 +325,11 @@ export class CallGraph {
               | AstReceiver;
             const funcNodeId = this.astIdToNodeId.get(func.id);
             if (funcNodeId !== undefined) {
-              forEachExpression(func, (expr) => {
-                this.processExpression(expr, funcNodeId, contractName);
+              const funcNode = this.getNode(funcNodeId);
+              if (!funcNode) continue;
+              func.statements.forEach((stmt) => {
+                this.processStatement(stmt, funcNodeId);
               });
-              const sendCallFound =
-                findInExpressions(func, isSendCall) !== null;
-              if (sendCallFound) {
-                const funcNode = this.getNode(funcNodeId);
-                if (funcNode) {
-                  funcNode.setFlag(FLAG_CALLS_SEND);
-                }
-              }
             }
           }
         }
@@ -316,23 +337,46 @@ export class CallGraph {
         const func = entry as AstFunctionDef;
         const funcNodeId = this.astIdToNodeId.get(func.id);
         if (funcNodeId !== undefined) {
-          forEachExpression(func, (expr) => {
-            this.processExpression(expr, funcNodeId);
+          const funcNode = this.getNode(funcNodeId);
+          if (!funcNode) continue;
+          func.statements.forEach((stmt) => {
+            this.processStatement(stmt, funcNodeId);
           });
-          const sendCallFound = findInExpressions(func, isSendCall) !== null;
-          if (sendCallFound) {
-            const funcNode = this.getNode(funcNodeId);
-            if (funcNode) {
-              funcNode.setFlag(FLAG_CALLS_SEND);
-            }
-          }
         }
       }
     }
   }
 
   /**
-   * Processes a single expression, identifying function or method calls to create edges.
+   * Processes a single statement, identifying assignments and other statements.
+   * Also detects effects and sets corresponding flags on the function node.
+   * @param stmt The statement to process.
+   * @param callerId The node ID of the calling function.
+   * @param contractName Name of the processed contract, if applicable.
+   */
+  private processStatement(
+    stmt: AstStatement,
+    callerId: CGNodeId,
+    contractName?: string,
+  ) {
+    const funcNode = this.getNode(callerId);
+    if (!funcNode) return;
+    if (isContractStateWrite(stmt)) {
+      funcNode.addEffect(Effect.StateWrite);
+    }
+    if (
+      stmt.kind === "statement_assign" ||
+      stmt.kind === "statement_augmentedassign"
+    ) {
+      this.processExpression(stmt.expression, callerId, contractName);
+    } else
+      forEachExpression(stmt, (expr) => {
+        this.processExpression(expr, callerId, contractName);
+      });
+  }
+
+  /**
+   * Processes an expression, adding edges and setting effect flags as necessary.
    * @param expr The expression to process.
    * @param callerId The node ID of the calling function.
    * @param currentContractName The name of the contract, if applicable.
@@ -342,6 +386,7 @@ export class CallGraph {
     callerId: CGNodeId,
     currentContractName?: string,
   ) {
+    // Connect CG nodes
     if (expr.kind === "static_call" || expr.kind === "method_call") {
       const functionName = this.getFunctionCallName(
         expr as AstStaticCall | AstMethodCall,
@@ -356,6 +401,24 @@ export class CallGraph {
         );
       }
     }
+
+    // Add effects to the caller node
+    const funcNode = this.getNode(callerId);
+    if (!funcNode) return;
+    if (expr.kind === "static_call") {
+      const functionName = idText(expr.function);
+      if (DATETIME_NAMES.has(functionName))
+        funcNode.addEffect(Effect.AccessDatetime);
+      else if (
+        PRG_NATIVE_USE_NAMES.has(functionName) ||
+        PRG_SAFE_USE_NAMES.has(functionName)
+      )
+        funcNode.addEffect(Effect.PrgUse);
+      else if (PRG_INIT_NAMES.has(functionName))
+        funcNode.addEffect(Effect.PrgSeedInit);
+    }
+    if (isSendCall(expr)) funcNode.addEffect(Effect.Send);
+    if (isContractStateRead(expr)) funcNode.addEffect(Effect.StateRead);
   }
 
   /**
@@ -424,10 +487,59 @@ export class CallGraph {
 }
 
 /**
- * Helper function to check if an expression represents 'self'.
- * @param expr The expression to check.
- * @returns True if the expression is 'self'; otherwise, false.
+ * Helper function to determine if an expression is a contract state read.
  */
-export function isSelf(expr: AstExpression): boolean {
-  return expr.kind === "id" && (expr as AstId).text === "self";
+function isContractStateRead(expr: AstExpression): boolean {
+  if (expr.kind === "field_access") {
+    const fieldAccess = expr as AstFieldAccess;
+    if (fieldAccess.aggregate.kind === "id") {
+      const idExpr = fieldAccess.aggregate as AstId;
+      if (idExpr.text === "self") {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Helper function to determine if a statement is a contract state write.
+ */
+function isContractStateWrite(stmt: AstStatement): boolean {
+  if (
+    stmt.kind === "statement_assign" ||
+    stmt.kind === "statement_augmentedassign"
+  ) {
+    return isSelfAccess(stmt.path);
+  }
+
+  // https://docs.tact-lang.org/book/maps/
+  const MAP_MUTATING_OPERATIONS = new Set<string>(["set", "del", "replace"]);
+  // For slices, cells, builders:
+  // https://github.com/tact-lang/tact/blob/08133e8418f3c6dcb49229b45cfeb7dd261bbe1f/stdlib/std/cells.tact#L75
+  const CELL_MUTATING_OPERATIONS = new Set<string>([
+    "loadRef",
+    "loadBits",
+    "loadInt",
+    "loadUint",
+    "loadBool",
+    "loadBit",
+    "loadCoins",
+    "loadAddress",
+    "skipBits",
+  ]);
+  // Strings:
+  // https://github.com/tact-lang/tact/blob/08133e8418f3c6dcb49229b45cfeb7dd261bbe1f/stdlib/std/text.tact#L18
+  const STRING_MUTATING_OPERATIONS = new Set<string>(["append"]);
+  return (
+    null !==
+    findInExpressions(
+      stmt,
+      (expr) =>
+        expr.kind === "method_call" &&
+        (MAP_MUTATING_OPERATIONS.has(idText(expr.method)) ||
+          STRING_MUTATING_OPERATIONS.has(idText(expr.method)) ||
+          CELL_MUTATING_OPERATIONS.has(idText(expr.method))),
+    )
+  );
 }

@@ -43,13 +43,82 @@ subgraph test_loops
     test_loops_85 --> test_loops_86
     test_loops_86 --> test_loops_86
 end
+subgraph testTryCatch
+    testTryCatch_87["try ... catch (err)"]
+    testTryCatch_88["a += 1"]:::exitNode
+    testTryCatch_89["dump(err)"]:::exitNode
+    testTryCatch_87 --> testTryCatch_88
+    testTryCatch_87 --> testTryCatch_89
+end
+subgraph testLoops
+    testLoops_90["let sum: Int = 0"]
+    testLoops_91["let i: Int = 0"]
+    testLoops_92["while (i &lt; 10)"]
+    testLoops_93["i = i + 1"]
+    testLoops_94["sum = sum + i"]
+    testLoops_95["until (i &lt;= 0)"]
+    testLoops_96["i = i - 1"]
+    testLoops_97["sum = sum + i"]
+    testLoops_98["repeat (10)"]
+    testLoops_99["i = i + 1"]
+    testLoops_100["sum = sum + i"]
+    testLoops_101["let m: map&lt;Int, Int&gt; = emptyMap()"]
+    testLoops_102["m.set(1, 10)"]
+    testLoops_103["m.set(2, 20)"]
+    testLoops_104["m.set(3, 30)"]
+    testLoops_105["foreach ((key, value) of m)"]
+    testLoops_106["sum = sum + value"]
+    testLoops_90 --> testLoops_91
+    testLoops_91 --> testLoops_92
+    testLoops_92 --> testLoops_93
+    testLoops_93 --> testLoops_94
+    testLoops_94 --> testLoops_92
+    testLoops_92 --> testLoops_95
+    testLoops_95 --> testLoops_96
+    testLoops_96 --> testLoops_97
+    testLoops_97 --> testLoops_95
+    testLoops_95 --> testLoops_98
+    testLoops_98 --> testLoops_99
+    testLoops_99 --> testLoops_100
+    testLoops_100 --> testLoops_98
+    testLoops_98 --> testLoops_101
+    testLoops_101 --> testLoops_102
+    testLoops_102 --> testLoops_103
+    testLoops_103 --> testLoops_104
+    testLoops_104 --> testLoops_105
+    testLoops_105 --> testLoops_106
+    testLoops_106 --> testLoops_105
+end
 subgraph TestContract__getter
-    TestContract__getter_87["return 0"]:::exitNode
+    TestContract__getter_107["return 0"]:::exitNode
 end
 subgraph TestContractF__test
 end
 subgraph TestContractT__test
-    TestContractT__test_88["return self.getA()"]:::exitNode
+    TestContractT__test_108["return self.getA()"]:::exitNode
 end
 subgraph TestContractT__receive_external_fallback_1722
+end
+subgraph EffectTest__init_1971
+    EffectTest__init_1971_109["self.addr = sender()"]:::exitNode
+end
+subgraph EffectTest__funcWithSend
+    EffectTest__funcWithSend_110["let amount: Int = 100"]
+    EffectTest__funcWithSend_111["send(SendParameters{to: self.addr, value: amount})"]:::exitNode
+    EffectTest__funcWithSend_110 --> EffectTest__funcWithSend_111
+end
+subgraph EffectTest__funcWithStateRead
+    EffectTest__funcWithStateRead_112["let value = self.addr"]:::exitNode
+end
+subgraph EffectTest__funcWithStateWrite
+    EffectTest__funcWithStateWrite_113["self.addr = newAddress(0, 0)"]:::exitNode
+end
+subgraph EffectTest__funcWithMultipleEffects
+    EffectTest__funcWithMultipleEffects_114["let currentTime: Int = now()"]
+    EffectTest__funcWithMultipleEffects_115["let randValue: Int = random(1, 100)"]
+    EffectTest__funcWithMultipleEffects_116["if (1 &gt; 42)"]
+    EffectTest__funcWithMultipleEffects_117["nativeRandomizeLt()"]:::exitNode
+    EffectTest__funcWithMultipleEffects_114 --> EffectTest__funcWithMultipleEffects_115
+    EffectTest__funcWithMultipleEffects_115 --> EffectTest__funcWithMultipleEffects_116
+    EffectTest__funcWithMultipleEffects_116 --> EffectTest__funcWithMultipleEffects_117
 end

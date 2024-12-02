@@ -1,5 +1,9 @@
 import { CompilationUnit } from "../../internals/ir";
-import { forEachExpression } from "../../internals/tact";
+import {
+  forEachExpression,
+  PRG_INIT_NAMES,
+  PRG_NATIVE_USE_NAMES,
+} from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { ASTDetector } from "../detector";
 import { AstStaticCall, idText } from "@tact-lang/compiler/dist/grammar/ast";
@@ -38,20 +42,14 @@ export class EnsurePrgSeed extends ASTDetector {
   severity = Severity.MEDIUM;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
-    const prgInitNames = new Set([
-      "nativePrepareRandom",
-      "nativeRandomize",
-      "nativeRandomizeLt",
-    ]);
-    const prgUseNames = new Set(["nativeRandom", "nativeRandomInterval"]);
     const randomCalls = cu.ast.getProgramEntries().reduce(
       (acc, node) => {
         forEachExpression(node, (expr) => {
           if (expr.kind === "static_call") {
-            if (prgInitNames.has(idText(expr.function))) {
+            if (PRG_INIT_NAMES.has(idText(expr.function))) {
               acc.hasInitializer = true;
             }
-            if (prgUseNames.has(idText(expr.function))) {
+            if (PRG_NATIVE_USE_NAMES.has(idText(expr.function))) {
               acc.uses.push(expr);
             }
           }
@@ -72,7 +70,7 @@ export class EnsurePrgSeed extends ASTDetector {
           `PRG seed should be initialized before using ${idText(use.function)}`,
           use.loc,
           {
-            suggestion: `Use ${Array.from(prgInitNames)
+            suggestion: `Use ${Array.from(PRG_INIT_NAMES)
               .map((name) => "`" + name + "`")
               .join(
                 ", ",

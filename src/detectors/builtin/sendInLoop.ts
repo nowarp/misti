@@ -1,5 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
-import { CallGraph } from "../../internals/ir/callGraph";
+import { CallGraph, Effect } from "../../internals/ir/callGraph";
 import { forEachStatement, foldExpressions } from "../../internals/tact";
 import { isSendCall } from "../../internals/tact/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
@@ -120,7 +120,7 @@ export class SendInLoop extends ASTDetector {
               const calleeNodeId = callGraph.getNodeIdByName(calleeName);
               if (calleeNodeId !== undefined) {
                 const calleeNode = callGraph.getNode(calleeNodeId);
-                if (calleeNode && calleeNode.hasFlag(0b0001)) {
+                if (calleeNode && calleeNode.hasEffect(Effect.Send)) {
                   const functionName = calleeNode.name.includes("::")
                     ? calleeNode.name.split("::").pop()
                     : calleeNode.name;

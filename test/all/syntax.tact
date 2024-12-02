@@ -59,3 +59,73 @@ fun test_loops() {
     let m: map<Int, Int> = emptyMap();
     foreach (k, v in m) {}
 }
+
+fun testTryCatch(a: Int) {
+    try {
+        a += 1;
+    } catch (err) {
+        dump(err);
+    }
+}
+
+fun testLoops() {
+    let sum: Int = 0;
+    let i: Int = 0;
+
+    while (i < 10) {
+        i = i + 1;
+        sum = sum + i;
+    }
+
+    do {
+        i = i - 1;
+        sum = sum + i;
+    } until (i <= 0);
+
+    repeat (10) {
+        i = i + 1;
+        sum = sum + i;
+    }
+
+    let m: map<Int, Int> = emptyMap();
+    m.set(1, 10);
+    m.set(2, 20);
+    m.set(3, 30);
+
+    foreach (key, value in m) {
+        sum = sum + value;
+    }
+}
+
+// Test callgraph effects
+contract EffectTest {
+    addr: Address;
+    // Effect.StateWrite
+    init() { self.addr = sender(); }
+
+    // Effect.Send + Effect.StateRead
+    fun funcWithSend() {
+        let amount: Int = 100;
+        send(SendParameters{ to: self.addr, value: amount });
+    }
+
+    // Effect.StateRead
+    fun funcWithStateRead() {
+        let value = self.addr;
+    }
+
+    // Effect.StateWrite
+    fun funcWithStateWrite() {
+        self.addr = newAddress(0, 0);
+    }
+
+    // Multiple effects:
+    // Effect.AccessDatetime + Effect.PrgUse + Effect.SeedInit
+    fun funcWithMultipleEffects() {
+        let currentTime: Int = now();
+        let randValue: Int = random(1, 100);
+        if (1 > 42) {
+            nativeRandomizeLt();
+        }
+    }
+}
