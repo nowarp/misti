@@ -1,6 +1,6 @@
 import { Tool } from "./tool";
 import { ToolOutput } from "../cli/result";
-import { BasicBlock, CFG, CompilationUnit } from "../internals/ir";
+import { BasicBlock, Cfg, CompilationUnit } from "../internals/ir";
 import { unreachable } from "../internals/util";
 import { AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
@@ -12,7 +12,7 @@ interface DumpCfgOptions extends Record<string, unknown> {
 }
 
 /**
- * A tool that dumps the CFG of the given compilation unit.
+ * A tool that dumps the Cfg of the given compilation unit.
  */
 export class DumpCfg extends Tool<DumpCfgOptions> {
   get defaultOptions(): DumpCfgOptions {
@@ -45,12 +45,12 @@ export class DumpCfg extends Tool<DumpCfgOptions> {
   }
 
   getDescription(): string {
-    return "Dumps the Control Flow Graph (CFG)";
+    return "Dumps the Control Flow Graph (Cfg)";
   }
 
   getOptionDescriptions(): Record<keyof DumpCfgOptions, string> {
     return {
-      format: "The output format for the CFG dump: <dot|json|mmd>",
+      format: "The output format for the Cfg dump: <dot|json|mmd>",
       dumpStdlib: "Whether to include standard library definitions in the dump",
     };
   }
@@ -72,14 +72,14 @@ class MermaidDumper {
       if (!dumpStdlib && cfg.origin == "stdlib") {
         return;
       }
-      diagram += this.dumpCFG(cu, cfg, cfg.name);
+      diagram += this.dumpCfg(cu, cfg, cfg.name);
     });
     cu.contracts.forEach((contract) => {
       contract.methods.forEach((cfg) => {
         if (!dumpStdlib && cfg.origin == "stdlib") {
           return;
         }
-        diagram += this.dumpCFG(cu, cfg, `${contract.name}__${cfg.name}`);
+        diagram += this.dumpCfg(cu, cfg, `${contract.name}__${cfg.name}`);
       });
     });
     // Mermaid does not support global connections in the same way as Graphviz,
@@ -93,9 +93,9 @@ class MermaidDumper {
    * @param prefix A prefix to uniquely identify nodes across multiple CFGs.
    * @returns The Mermaid diagram representation of the CFG.
    */
-  private static dumpCFG(
+  private static dumpCfg(
     cu: CompilationUnit,
-    cfg: CFG,
+    cfg: Cfg,
     prefix: string,
   ): string {
     const sanitizedPrefix = prefix.replace(/[^a-zA-Z0-9_]/g, "_");
@@ -139,14 +139,14 @@ class GraphvizDumper {
       if (!dumpStdlib && cfg.origin == "stdlib") {
         return;
       }
-      graph += this.dumpCFG(cu, cfg, cfg.name);
+      graph += this.dumpCfg(cu, cfg, cfg.name);
     });
     cu.contracts.forEach((contract) => {
       contract.methods.forEach((cfg) => {
         if (!dumpStdlib && cfg.origin == "stdlib") {
           return;
         }
-        graph += this.dumpCFG(cu, cfg, `${contract.name}__${cfg.name}`);
+        graph += this.dumpCfg(cu, cfg, `${contract.name}__${cfg.name}`);
       });
     });
     graph += this.connectFunctionCalls(cu);
@@ -155,7 +155,7 @@ class GraphvizDumper {
   }
 
   /**
-   * Creates edges between function and method calls within the CFG.
+   * Creates edges between function and method calls within the Cfg.
    * @param cu The CompilationUnit containing all CFGs of the project.
    * @returns The Graphviz dot representation of the created edges.
    */
@@ -163,10 +163,10 @@ class GraphvizDumper {
     let output = "";
     cu.forEachBasicBlock(
       cu.ast,
-      (_cfg: CFG, bb: BasicBlock, _: AstStatement) => {
+      (_cfg: Cfg, bb: BasicBlock, _: AstStatement) => {
         if (bb.kind.kind === "call") {
           bb.kind.callees.forEach((calleeIdx) => {
-            const cfg = cu.findCFGByIdx(calleeIdx);
+            const cfg = cu.findCfgByIdx(calleeIdx);
             if (cfg && cfg.nodes.length > 0) {
               // TODO: We should connect with a dummy start node instead
               output += `"${bb.idx}" -> "${cfg.nodes[0].idx}";\n`;
@@ -184,9 +184,9 @@ class GraphvizDumper {
    * @param prefix A prefix to uniquely identify nodes across multiple CFGs.
    * @returns The Graphviz dot representation of the CFG.
    */
-  private static dumpCFG(
+  private static dumpCfg(
     cu: CompilationUnit,
-    cfg: CFG,
+    cfg: Cfg,
     prefix: string,
   ): string {
     let output = `    subgraph "cluster_${prefix}" {\n`;
@@ -252,11 +252,11 @@ class JSONDumper {
   }
 
   /**
-   * Generates a JSON object for a given CFG.
-   * @param cfg The CFG to be dumped.
-   * @returns The JSON object representing the CFG.
+   * Generates a JSON object for a given Cfg.
+   * @param cfg The Cfg to be dumped.
+   * @returns The JSON object representing the Cfg.
    */
-  private static dumpCFG(cfg: CFG): object {
+  private static dumpCFG(cfg: Cfg): object {
     const nodes = cfg.nodes.map((node) => ({
       id: node.idx,
       stmtID: node.stmtID,

@@ -1,5 +1,5 @@
 import { InternalException } from "../../internals/exceptions";
-import { BasicBlock, CFG, CompilationUnit } from "../../internals/ir";
+import { BasicBlock, Cfg, CompilationUnit } from "../../internals/ir";
 import {
   extractPath,
   forEachExpression,
@@ -171,7 +171,7 @@ export class UnboundLoop extends SouffleDetector {
   ): void {
     cu.forEachBasicBlock(
       cu.ast,
-      (cfg: CFG, _: BasicBlock, stmt: AstStatement) => {
+      (cfg: Cfg, _: BasicBlock, stmt: AstStatement) => {
         if (cfg.origin === "stdlib") {
           return;
         }

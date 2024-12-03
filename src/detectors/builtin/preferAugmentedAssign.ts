@@ -1,7 +1,7 @@
 import { CompilationUnit } from "../../internals/ir";
 import { foldStatements } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import {
   AstExpression,
   AstStatement,
@@ -52,7 +52,7 @@ const DontSuggestKinds = new Set<string>([
  * msgValue -= ctx.readForwardFee());
  * ```
  */
-export class PreferAugmentedAssign extends ASTDetector {
+export class PreferAugmentedAssign extends AstDetector {
   severity = Severity.INFO;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

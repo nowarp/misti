@@ -1,5 +1,5 @@
 import { unreachable } from "../util";
-import { TactASTStore } from "./astStore";
+import { AstStore } from "./astStore";
 import { IdxGenerator } from "./indices";
 import { MistiContext } from "../../";
 import { Logger } from "../../internals/logger";
@@ -104,7 +104,7 @@ class CGNode {
   /**
    * Pretty-prints a signature of the function is available
    */
-  public signature(ast: TactASTStore): string | undefined {
+  public signature(ast: AstStore): string | undefined {
     if (!this.astId) return undefined;
     const fun = ast.getFunction(this.astId);
     if (!fun) return undefined;
@@ -217,7 +217,7 @@ export class CallGraph {
    * @param astStore The AST store containing program entries.
    * @returns The constructed `CallGraph`.
    */
-  public build(astStore: TactASTStore): CallGraph {
+  public build(astStore: AstStore): CallGraph {
     astStore.getProgramEntries().forEach((entry) => {
       if (entry.kind === "contract") {
         const contract = entry as AstContract;
@@ -309,7 +309,7 @@ export class CallGraph {
    * Additionally, sets flags on nodes based on their properties (e.g., if they call 'send').
    * @param astStore The AST store to analyze.
    */
-  private analyzeFunctionCalls(astStore: TactASTStore) {
+  private analyzeFunctionCalls(astStore: AstStore) {
     for (const entry of astStore.getProgramEntries()) {
       if (entry.kind === "contract") {
         const contract = entry as AstContract;

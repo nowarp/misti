@@ -6,7 +6,7 @@ import {
   statementsAreEqual,
 } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import {
   AstCondition,
   AstExpression,
@@ -41,7 +41,7 @@ import {
  * }
  * ```
  */
-export class BranchDuplicate extends ASTDetector {
+export class BranchDuplicate extends AstDetector {
   severity = Severity.HIGH;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

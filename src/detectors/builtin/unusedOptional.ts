@@ -6,7 +6,7 @@ import {
   collectFields,
 } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import {
   AstExpression,
   AstContractInit,
@@ -50,7 +50,7 @@ type UnusedVarInfo = { name: AstId; originalType: AstType };
  * }
  * ```
  */
-export class UnusedOptional extends ASTDetector {
+export class UnusedOptional extends AstDetector {
   severity = Severity.LOW;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

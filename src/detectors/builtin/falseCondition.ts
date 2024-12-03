@@ -6,7 +6,7 @@ import {
   collectConditions,
 } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import {
   AstContractInit,
   AstExpression,
@@ -40,7 +40,7 @@ import {
  * if (param) {}
  * ```
  */
-export class FalseCondition extends ASTDetector {
+export class FalseCondition extends AstDetector {
   severity = Severity.MEDIUM;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

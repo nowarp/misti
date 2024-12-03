@@ -1,7 +1,7 @@
 import { CompilationUnit } from "../../internals/ir";
 import { forEachExpression } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import {
   AstExpression,
   AstStructInstance,
@@ -39,7 +39,7 @@ import {
  * });
  * ```
  */
-export class SuspiciousMessageMode extends ASTDetector {
+export class SuspiciousMessageMode extends AstDetector {
   severity = Severity.MEDIUM;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

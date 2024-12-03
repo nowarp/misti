@@ -114,7 +114,7 @@ export abstract class Detector {
 /**
  * Abstract class for detectors that identify specific patterns in the AST.
  */
-export abstract class ASTDetector extends Detector {
+export abstract class AstDetector extends Detector {
   get kind(): DetectorKind {
     return "ast";
   }

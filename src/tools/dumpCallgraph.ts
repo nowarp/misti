@@ -1,7 +1,7 @@
 import { Tool } from "./tool";
 import { ToolOutput } from "../cli/result";
 import { MistiContext } from "../internals/context";
-import { CompilationUnit, TactASTStore } from "../internals/ir";
+import { CompilationUnit, AstStore } from "../internals/ir";
 import { CallGraph, Effect } from "../internals/ir/callGraph";
 import { unreachable } from "../internals/util";
 import JSONbig from "json-bigint";
@@ -66,7 +66,7 @@ export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
  * Utility class to dump the call graph in Mermaid format.
  */
 class MermaidDumper {
-  public static dumpCallGraph(ast: TactASTStore, callGraph: CallGraph): string {
+  public static dumpCallGraph(ast: AstStore, callGraph: CallGraph): string {
     if (!callGraph || callGraph.getNodes().size === 0) {
       return 'graph TD\n    empty["Empty Call Graph"]';
     }
@@ -93,7 +93,7 @@ class MermaidDumper {
  * Utility class to dump the call graph in DOT (Graphviz) format.
  */
 class GraphvizDumper {
-  public static dumpCallGraph(ast: TactASTStore, callGraph: CallGraph): string {
+  public static dumpCallGraph(ast: AstStore, callGraph: CallGraph): string {
     if (!callGraph || callGraph.getNodes().size === 0) {
       return 'digraph "CallGraph" {\n    node [shape=box];\n    empty [label="Empty Call Graph"];\n}\n';
     }

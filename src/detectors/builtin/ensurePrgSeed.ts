@@ -5,7 +5,7 @@ import {
   PRG_NATIVE_USE_NAMES,
 } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import { AstStaticCall, idText } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
@@ -38,7 +38,7 @@ import { AstStaticCall, idText } from "@tact-lang/compiler/dist/grammar/ast";
  * }
  * ```
  */
-export class EnsurePrgSeed extends ASTDetector {
+export class EnsurePrgSeed extends AstDetector {
   severity = Severity.MEDIUM;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

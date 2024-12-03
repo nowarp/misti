@@ -1,4 +1,4 @@
-import { ASTDetector } from "../../src/detectors/detector";
+import { AstDetector } from "../../src/detectors/detector";
 import { CompilationUnit, FunctionName } from "../../src/internals/ir";
 import { MistiTactWarning, Severity } from "../../src/internals/warnings";
 
@@ -27,7 +27,7 @@ import { MistiTactWarning, Severity } from "../../src/internals/warnings";
  * }
  * ```
  */
-export class ImplicitInit extends ASTDetector {
+export class ImplicitInit extends AstDetector {
   severity = Severity.INFO;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

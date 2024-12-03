@@ -3,7 +3,7 @@ import { CallGraph, Effect } from "../../internals/ir/callGraph";
 import { forEachStatement, foldExpressions } from "../../internals/tact";
 import { isSendCall } from "../../internals/tact/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import {
   AstStatement,
   AstExpression,
@@ -38,7 +38,7 @@ import {
  * }
  * ```
  */
-export class SendInLoop extends ASTDetector {
+export class SendInLoop extends AstDetector {
   severity = Severity.MEDIUM;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

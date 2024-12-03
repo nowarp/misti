@@ -1,7 +1,7 @@
 import { CompilationUnit } from "../../internals/ir";
 import { collectFields } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import {
   AstContract,
   AstContractInit,
@@ -33,7 +33,7 @@ import {
  * }
  * ```
  */
-export class FieldDoubleInit extends ASTDetector {
+export class FieldDoubleInit extends AstDetector {
   severity = Severity.MEDIUM;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

@@ -1,7 +1,7 @@
 import { CompilationUnit } from "../../internals/ir";
 import { foldExpressions } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
@@ -36,7 +36,7 @@ import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
  * }
  * ```
  */
-export class ConstantAddress extends ASTDetector {
+export class ConstantAddress extends AstDetector {
   severity = Severity.INFO;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

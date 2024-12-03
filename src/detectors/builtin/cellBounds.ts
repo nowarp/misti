@@ -1,5 +1,5 @@
 import { InternalException } from "../../internals/exceptions";
-import { BasicBlock, CFG, CompilationUnit } from "../../internals/ir";
+import { BasicBlock, Cfg, CompilationUnit } from "../../internals/ir";
 import { JoinSemilattice } from "../../internals/lattice";
 import { Interval, Num } from "../../internals/numbers";
 import { WorklistSolver } from "../../internals/solver/";
@@ -888,7 +888,7 @@ export class CellBounds extends DataflowDetector {
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     let warnings: MistiTactWarning[] = [];
     cu.forEachCFG(
-      (cfg: CFG) => {
+      (cfg: Cfg) => {
         const node = cu.ast.getFunction(cfg.id);
         if (node === undefined) {
           return;

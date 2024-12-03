@@ -1,7 +1,7 @@
 import { CompilationUnit } from "../../internals/ir";
 import { foldExpressions, evalsToValue } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import { AstExpression, idText } from "@tact-lang/compiler/dist/grammar/ast";
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
@@ -26,7 +26,7 @@ const REPLACEMENTS: Record<string, string> = {
  * log2(x)
  * ```
  */
-export class OptimalMathFunction extends ASTDetector {
+export class OptimalMathFunction extends AstDetector {
   severity = Severity.LOW;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

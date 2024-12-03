@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `SuspiciousMessageMode` detector now suggests using SendDefaultMode instead of 0 for mode: PR [#199](https://github.com/nowarp/misti/pull/199/)
 - `CellOverflow` detector was replaced with the `CellBounds` detector that supports both overflows and underflows: PR [#214](https://github.com/nowarp/misti/pull/214)
+- Renamed IR entries to follow the Tact codebase naming style
 
 ### Fixed
 - Missing Module `version-info` When Installing Misti from GitHub: Issue [#216](https://github.com/nowarp/misti/issues/216/)

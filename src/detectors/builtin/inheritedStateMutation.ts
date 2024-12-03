@@ -7,7 +7,7 @@ import {
 } from "../../internals/tact";
 import { intersectLists } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import { AstStatement, AstNode } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
@@ -53,7 +53,7 @@ import { AstStatement, AstNode } from "@tact-lang/compiler/dist/grammar/ast";
  * }
  * ```
  */
-export class InheritedStateMutation extends ASTDetector {
+export class InheritedStateMutation extends AstDetector {
   severity = Severity.LOW;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

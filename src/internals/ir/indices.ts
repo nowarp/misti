@@ -1,6 +1,6 @@
 /**
- * Generates unique indexes used to assign unique identifiers to nodes and edges,
- * ensuring that each element within the CFG can be distinctly referenced.
+ * Generates unique indexes used to assign unique identifiers to IR entries
+ * ensuring that each element can be distinctly referenced.
  */
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace IdxGenerator {

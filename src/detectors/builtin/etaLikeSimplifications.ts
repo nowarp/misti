@@ -2,7 +2,7 @@ import { CompilationUnit } from "../../internals/ir";
 import { forEachStatement, forEachExpression } from "../../internals/tact";
 import { evalToType, evalsToValue } from "../../internals/tact/";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import {
   AstNode,
   AstStatement,
@@ -48,7 +48,7 @@ import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
  * return b;
  * ```
  */
-export class EtaLikeSimplifications extends ASTDetector {
+export class EtaLikeSimplifications extends AstDetector {
   severity = Severity.LOW;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
