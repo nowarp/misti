@@ -1,10 +1,13 @@
-import { getStdlibPath } from "./stdlib";
+import { VirtualFileSystem } from "../../vfs/virtualFileSystem";
 import { MistiContext } from "../context";
 import { TactException } from "../exceptions";
+import { getStdlibPath } from "./stdlib";
+import { createVirtualFileSystem } from "@tact-lang/compiler";
 import { ConfigProject } from "@tact-lang/compiler/dist/config/parseConfig";
 import { CompilerContext } from "@tact-lang/compiler/dist/context";
 import { getRawAST } from "@tact-lang/compiler/dist/grammar/store";
 import { AstStore } from "@tact-lang/compiler/dist/grammar/store";
+import stdLibFiles from '@tact-lang/compiler/dist/imports/stdlib';
 import { enableFeatures } from "@tact-lang/compiler/dist/pipeline/build";
 import { precompile } from "@tact-lang/compiler/dist/pipeline/precompile";
 import { createNodeFileSystem } from "@tact-lang/compiler/dist/vfs/createNodeFileSystem";
@@ -21,15 +24,22 @@ export function parseTactProject(
   mistiCtx: MistiContext,
   projectConfig: ConfigProject,
   projectRoot: string,
+  vfs: VirtualFileSystem
 ): AstStore | never {
-  const project = createNodeFileSystem(projectRoot, false);
   const stdlibPath = mistiCtx.config.tactStdlibPath ?? getStdlibPath();
-  const stdlib = createNodeFileSystem(stdlibPath, false);
+  let stdlib: any;
+  if (!vfs) {
+    stdlib = createNodeFileSystem(stdlibPath);
+  } else {
+    stdlib = createVirtualFileSystem('@stdlib', stdLibFiles);
+  }
+
+
   mistiCtx.logger.debug(`Parsing project ${projectConfig.name} ...`);
   try {
     let ctx = new CompilerContext();
     ctx = enableFeatures(ctx, mistiCtx.logger, projectConfig);
-    ctx = precompile(ctx, project, stdlib, projectConfig.path);
+    ctx = precompile(ctx, vfs, stdlib, projectConfig.path);
     return getRawAST(ctx);
   } catch (error: unknown) {
     throw TactException.make(error);

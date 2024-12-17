@@ -33,7 +33,7 @@ export type DetectorKind = "ast" | "dataflow" | "souffle";
  * Abstract base class for a detector module, providing an interface for defining various types of detectors.
  */
 export abstract class Detector {
-  constructor(readonly ctx: MistiContext) {}
+  constructor(readonly ctx: MistiContext) { }
 
   /**
    * Gets the short identifier of the detector, used in analyzer warnings.

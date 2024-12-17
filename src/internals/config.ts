@@ -5,7 +5,8 @@ import {
   getEnabledDetectors,
   DetectorName,
 } from "../detectors/detector";
-import * as fs from "fs";
+import { createVirtualFileSystem } from "../vfs/createVirtualFileSystem";
+import { VirtualFileSystem } from "../vfs/virtualFileSystem";
 import { z } from "zod";
 
 const DetectorConfigSchema = z.object({
@@ -57,22 +58,30 @@ export class MistiConfig {
   public tactStdlibPath?: string;
   public unusedPrefix: string;
   public verbosity: "quiet" | "debug" | "default";
+  public fs: VirtualFileSystem;
 
   constructor({
     configPath = undefined,
     detectors = undefined,
     tools = undefined,
     allDetectors = false,
+    fs = createVirtualFileSystem("/", {
+      hello: { content: "world", type: "file" },
+    }),
   }: Partial<{
     configPath?: string;
     detectors?: string[];
     tools?: ToolConfig[];
     allDetectors: boolean;
+    fs: VirtualFileSystem;
   }> = {}) {
     let configData;
+    this.fs = fs;
     if (configPath) {
       try {
-        const configFileContents = fs.readFileSync(configPath, "utf8");
+        const configFileContents = this.fs
+          .readFile(configPath)
+          .toString("utf8");
         configData = JSON.parse(configFileContents);
       } catch (err) {
         if (err instanceof Error) {

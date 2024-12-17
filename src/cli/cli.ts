@@ -13,6 +13,7 @@ import {
   ResultReport,
 } from "./result";
 import { Logger } from "../internals/logger";
+import { createNodeFileSystem } from "../vfs/createNodeFileSystem";
 import { Command } from "commander";
 
 /**
@@ -56,7 +57,7 @@ export async function runMistiCommand(
   command: Command = createMistiCommand(),
 ): Promise<[Driver, MistiResult]> {
   await command.parseAsync(args, { from: "user" });
-  const driver = await Driver.create(command.args, command.opts());
+  const driver = await Driver.create(command.args, { ...command.opts(), fs: createNodeFileSystem(process.cwd()) });
   const result = await driver.execute();
   return [driver, result];
 }

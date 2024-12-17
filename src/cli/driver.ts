@@ -17,11 +17,10 @@ import {
   Severity,
 } from "../internals/warnings";
 import { Tool, findBuiltInTool } from "../tools/tool";
-import fs from "fs";
+import { VirtualFileSystem } from "../vfs/virtualFileSystem";
 import ignore from "ignore";
 import JSONbig from "json-bigint";
 import path from "path";
-import { setTimeout } from "timers/promises";
 
 /**
  * Manages the initialization and execution of detectors for analyzing compilation units.
@@ -33,6 +32,7 @@ export class Driver {
   outputPath: string;
   disabledDetectors: Set<string>;
   colorizeOutput: boolean;
+  fs: VirtualFileSystem;
   /**
    * Compilation units representing the actual entrypoints of the analysis targets
    * based on user's input. Might be empty if no paths are specified.
@@ -43,6 +43,7 @@ export class Driver {
   outputFormat: OutputFormat;
 
   private constructor(tactPaths: string[], options: CLIOptions) {
+    this.fs = options.fs;
     this.ctx = new MistiContext(options);
     this.cus = this.createCUs(tactPaths);
     this.disabledDetectors = new Set(options.disabledDetectors ?? []);
@@ -81,7 +82,7 @@ export class Driver {
   private createCUs(tactPaths: string[]): Map<ProjectName, CompilationUnit> {
     return [...new Set(tactPaths)]
       .reduce((acc, tactPath) => {
-        if (fs.statSync(tactPath).isDirectory()) {
+        if (this.fs.stat(tactPath).isDirectory()) {
           const tactFiles = this.collectTactFiles(tactPath);
           this.ctx.logger.debug(
             `Collected Tact files from ${tactPath}:\n${tactFiles.map((tactFile) => "- " + tactFile).join("\n")}`,
@@ -94,7 +95,7 @@ export class Driver {
       }, [] as string[])
       .filter(
         (tactPath) =>
-          fs.existsSync(tactPath) ||
+          this.fs.exists(tactPath) ||
           (this.ctx.logger.error(`${tactPath} is not available`), false),
       )
       .reduce((acc, tactPath) => {
@@ -103,7 +104,7 @@ export class Driver {
         let configManager: TactConfigManager;
         if (tactPath.endsWith(".tact")) {
           importGraph = ImportGraphBuilder.make(this.ctx, [tactPath]).build();
-          let projectRoot = importGraph.resolveProjectRoot();
+          let projectRoot = importGraph.resolveProjectRoot(this.fs);
           if (projectRoot === undefined) {
             projectRoot = path.dirname(tactPath);
             this.ctx.logger.warn(
@@ -116,6 +117,7 @@ export class Driver {
             projectRoot,
             tactPath,
             projectName,
+            this.fs,
           );
           const projectConfig = configManager.findProjectByName(projectName);
           if (projectConfig === undefined) {
@@ -126,7 +128,12 @@ export class Driver {
               ].join("\n"),
             );
           }
-          const ast = parseTactProject(this.ctx, projectConfig, projectRoot);
+          const ast = parseTactProject(
+            this.ctx,
+            projectConfig,
+            projectRoot,
+            this.fs,
+          );
           const cu = createIR(this.ctx, projectName, ast, importGraph);
           acc.set(projectName, cu);
         } else {
@@ -141,6 +148,7 @@ export class Driver {
               this.ctx,
               configProject,
               configManager.getProjectRoot(),
+              this.fs,
             );
             const projectName = configProject.name as ProjectName;
             const cu = createIR(this.ctx, projectName, ast, importGraph);
@@ -158,20 +166,20 @@ export class Driver {
    */
   private collectTactFiles(dir: string): string[] {
     let results: string[] = [];
-    const files = fs.readdirSync(dir);
+    const files = this.fs.readdir(dir);
 
     // If .gitignore exists, use it to ignore files
-    const gitignorePath = findGitignore(dir);
+    const gitignorePath = findGitignore(dir, this.fs);
     let ig = ignore();
     if (gitignorePath) {
-      ig = ignore().add(fs.readFileSync(gitignorePath, "utf8"));
+      ig = ignore().add(this.fs.readFile(gitignorePath).toString("utf8"));
     }
 
     files.forEach((file) => {
       const fullPath = path.join(dir, file);
       const relativePath = path.relative(dir, fullPath);
       if (!ig.ignores(relativePath) && !fullPath.includes("node_modules")) {
-        if (fs.statSync(fullPath).isDirectory()) {
+        if (this.fs.stat(fullPath).isDirectory()) {
           results = results.concat(this.collectTactFiles(fullPath));
         } else if (file.endsWith(".tact")) {
           results.push(fullPath);
@@ -622,9 +630,17 @@ export class Driver {
         `${cu.projectName}: Running ${detector.id} for ${cu.projectName}`,
       );
       try {
+        // Conditional import for setTimeout to support both Node.js and browser environments
+        let setTimeoutPromise: (ms: number, value?: any) => Promise<any>;
+
+        if (typeof window !== 'undefined') {
+          setTimeoutPromise = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+        } else {
+          setTimeoutPromise = (await import('timers/promises')).setTimeout;
+        }
         const warnings = await Promise.race([
           detector.check(cu),
-          setTimeout(MistiEnv.MISTI_TIMEOUT, []).then(() => {
+          setTimeoutPromise(MistiEnv.MISTI_TIMEOUT, []).then(() => {
             throw new Error(
               `Detector ${detector.id} timed out after ${MistiEnv.MISTI_TIMEOUT}ms`,
             );
@@ -668,11 +684,11 @@ export class Driver {
  * @param startDir The directory to start searching from.
  * @returns The path to the .gitignore file or null if not found.
  */
-function findGitignore(startDir: string): string | null {
+function findGitignore(startDir: string, fs: VirtualFileSystem): string | null {
   let currentDir = startDir;
   while (currentDir !== path.parse(currentDir).root) {
     const gitignorePath = path.join(currentDir, ".gitignore");
-    if (fs.existsSync(gitignorePath)) {
+    if (fs.exists(gitignorePath)) {
       return gitignorePath;
     }
     currentDir = path.dirname(currentDir);

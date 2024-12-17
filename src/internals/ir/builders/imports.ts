@@ -22,7 +22,6 @@ import {
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { ItemOrigin } from "@tact-lang/compiler/dist/grammar/grammar";
 import tactGrammar from "@tact-lang/compiler/dist/grammar/grammar.ohm-bundle";
-import fs from "fs";
 import { Node, NonterminalNode } from "ohm-js";
 import path from "path";
 
@@ -30,7 +29,7 @@ export class ImportGraphBuilder {
   private constructor(
     private readonly ctx: MistiContext,
     private readonly entryPoints: string[],
-  ) {}
+  ) { }
 
   /**
    * Creates an ImportGraphBuilder.
@@ -66,7 +65,7 @@ export class ImportGraphBuilder {
 
     let fileContent = "";
     try {
-      fileContent = fs.readFileSync(filePath, "utf8");
+      fileContent = this.ctx.config.fs.readFile(filePath).toString("utf8");
     } catch {
       this.ctx.logger.warn(
         `Cannot find imported file: ${filePath}. The analysis might not work.`,
@@ -146,10 +145,10 @@ export class ImportGraphBuilder {
       : filePath.endsWith(".fc")
         ? "func"
         : (() => {
-            throw ExecutionException.make(
-              `Cannot determine the target language of import: ${filePath}`,
-            );
-          })();
+          throw ExecutionException.make(
+            `Cannot determine the target language of import: ${filePath}`,
+          );
+        })();
   }
 
   /**

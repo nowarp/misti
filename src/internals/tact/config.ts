@@ -1,3 +1,4 @@
+import { VirtualFileSystem } from "../../vfs/virtualFileSystem";
 import { ExecutionException, throwZodError } from "../exceptions";
 import { ProjectName } from "../ir";
 import {
@@ -24,7 +25,7 @@ export class TactConfigManager {
     private projectRoot: string,
     /** Tact config parsed with Zod. */
     private config: TactConfig,
-  ) {}
+  ) { }
 
   /**
    * Creates a TactConfigManager from a Tact configuration file typically specified by the user.
@@ -53,12 +54,16 @@ export class TactConfigManager {
       contractPath,
       ".tact",
     ) as ProjectName,
+    vfs: VirtualFileSystem,
   ): TactConfigManager {
+    const absoluteProjectRoot = vfs.resolve(projectRoot);
+    const absoluteContractPath = path.resolve(projectRoot, contractPath);
+
     const tactConfig: TactConfig = {
       projects: [
         {
           name: projectName,
-          path: path.relative(projectRoot, contractPath),
+          path: path.relative(absoluteProjectRoot, absoluteContractPath),
           output: "/tmp/misti/output", // never used
           options: {
             debug: false,
