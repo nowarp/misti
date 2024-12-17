@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  */
-import fs from "fs-extra";
+import { createNodeFileSystem } from "./vfs/createNodeFileSystem";
 import path from "path";
 
 const TEMPLATE_PATH = path.join(
@@ -49,6 +49,7 @@ function getFileInfo(str: string): [string, string] {
  * @return true if the detector was successfully created, false otherwise.
  */
 export async function createDetector(nameOrPath: string): Promise<boolean> {
+  const fs = createNodeFileSystem(process.cwd());
   const [dir, detectorName] = getFileInfo(nameOrPath);
   if (!isCamelCase(detectorName)) {
     console.error(
@@ -57,17 +58,17 @@ export async function createDetector(nameOrPath: string): Promise<boolean> {
     return false;
   }
   const filepath = path.join(dir, `${detectorName}.ts`);
-  if (await fs.pathExists(filepath)) {
+  if (fs.exists(filepath)) {
     console.error(`File already exists at ${filepath}`);
     return false;
   }
   try {
-    const templateContent = await fs.readFile(TEMPLATE_PATH, "utf8");
+    const templateContent = fs.readFile(TEMPLATE_PATH).toString("utf8");
     const content = templateContent.replace(
       /__ClassName__/g,
       capitalize(detectorName),
     );
-    await fs.outputFile(filepath, content);
+    fs.writeFile(filepath, content);
     console.log(
       [
         `Created ${filepath}\n`,

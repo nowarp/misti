@@ -1,4 +1,5 @@
 import { IdxGenerator } from "./indices";
+import { VirtualFileSystem } from "../../vfs/virtualFileSystem";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import { ItemOrigin } from "@tact-lang/compiler/dist/grammar/grammar";
 import path from "path";
@@ -97,7 +98,7 @@ export class ImportGraph {
    *
    * @returns Project root directory or undefined if there are no user imports.
    */
-  public resolveProjectRoot(): string | undefined {
+  public resolveProjectRoot(fs: VirtualFileSystem): string | undefined {
     let projectRoot: string | undefined;
     this.nodes.forEach((node) => {
       if (node.origin === "user") {
@@ -113,7 +114,7 @@ export class ImportGraph {
         }
       }
     });
-    return projectRoot ? path.resolve(projectRoot) : undefined;
+    return projectRoot ? fs.resolve(projectRoot) : undefined;
   }
 
   /**
