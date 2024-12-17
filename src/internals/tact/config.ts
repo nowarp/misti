@@ -25,7 +25,7 @@ export class TactConfigManager {
     private projectRoot: string,
     /** Tact config parsed with Zod. */
     private config: TactConfig,
-  ) { }
+  ) {}
 
   /**
    * Creates a TactConfigManager from a Tact configuration file typically specified by the user.

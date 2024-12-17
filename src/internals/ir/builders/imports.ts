@@ -29,7 +29,7 @@ export class ImportGraphBuilder {
   private constructor(
     private readonly ctx: MistiContext,
     private readonly entryPoints: string[],
-  ) { }
+  ) {}
 
   /**
    * Creates an ImportGraphBuilder.
@@ -145,10 +145,10 @@ export class ImportGraphBuilder {
       : filePath.endsWith(".fc")
         ? "func"
         : (() => {
-          throw ExecutionException.make(
-            `Cannot determine the target language of import: ${filePath}`,
-          );
-        })();
+            throw ExecutionException.make(
+              `Cannot determine the target language of import: ${filePath}`,
+            );
+          })();
   }
 
   /**

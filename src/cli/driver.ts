@@ -633,10 +633,11 @@ export class Driver {
         // Conditional import for setTimeout to support both Node.js and browser environments
         let setTimeoutPromise: (ms: number, value?: any) => Promise<any>;
 
-        if (typeof window !== 'undefined') {
-          setTimeoutPromise = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+        if (typeof window !== "undefined") {
+          setTimeoutPromise = (ms) =>
+            new Promise((resolve) => setTimeout(resolve, ms));
         } else {
-          setTimeoutPromise = (await import('timers/promises')).setTimeout;
+          setTimeoutPromise = (await import("timers/promises")).setTimeout;
         }
         const warnings = await Promise.race([
           detector.check(cu),
