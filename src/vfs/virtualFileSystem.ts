@@ -18,6 +18,7 @@ export type FileStat = {
 
 export type VirtualFileSystem = {
   root: string;
+  type: "node" | "memory";
   resolve(...path: string[]): string;
   exists(path: string): boolean;
   readFile(path: string): Buffer;

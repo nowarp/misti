@@ -13,6 +13,7 @@ export function createNodeFileSystem(
 
   return {
     root: normalizedRoot,
+    type: "node",
 
     exists(filePath: string): boolean {
       const resolvedPath = this.resolve(filePath);

@@ -23,6 +23,7 @@ export function createVirtualFileSystem(
 
   return {
     root: normalizedRoot,
+    type: "memory",
 
     exists(filePath: string): boolean {
       const resolvedPath = this.resolve(filePath);

@@ -5,7 +5,7 @@ import {
   getEnabledDetectors,
   DetectorName,
 } from "../detectors/detector";
-import { createVirtualFileSystem } from "../vfs/createVirtualFileSystem";
+import { createNodeFileSystem } from "../vfs/createNodeFileSystem";
 import { VirtualFileSystem } from "../vfs/virtualFileSystem";
 import { z } from "zod";
 
@@ -65,9 +65,7 @@ export class MistiConfig {
     detectors = undefined,
     tools = undefined,
     allDetectors = false,
-    fs = createVirtualFileSystem("/", {
-      hello: { content: "world", type: "file" },
-    }),
+    fs = createNodeFileSystem(process.cwd()),
   }: Partial<{
     configPath?: string;
     detectors?: string[];
@@ -79,9 +77,7 @@ export class MistiConfig {
     this.fs = fs;
     if (configPath) {
       try {
-        const configFileContents = this.fs
-          .readFile(configPath)
-          .toString("utf8");
+        const configFileContents = fs.readFile(configPath).toString("utf8");
         configData = JSON.parse(configFileContents);
       } catch (err) {
         if (err instanceof Error) {
