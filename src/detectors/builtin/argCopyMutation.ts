@@ -9,7 +9,7 @@ import {
 import { hasInExpressions } from "../../internals/tact/iterators";
 import { intersectLists } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import {
   AstStatement,
   AstFunctionDef,
@@ -51,7 +51,7 @@ import {
  * m.set(self.nextKey, self.generateNewValue()); // OK
  * ```
  */
-export class ArgCopyMutation extends ASTDetector {
+export class ArgCopyMutation extends AstDetector {
   severity = Severity.HIGH;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

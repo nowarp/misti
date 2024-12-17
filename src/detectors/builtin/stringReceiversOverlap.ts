@@ -1,4 +1,4 @@
-import { BasicBlock, CFG, CompilationUnit } from "../../internals/ir";
+import { BasicBlock, Cfg, CompilationUnit } from "../../internals/ir";
 import { JoinSemilattice } from "../../internals/lattice";
 import { WorklistSolver } from "../../internals/solver/";
 import { forEachExpression, forEachStatement } from "../../internals/tact";
@@ -177,7 +177,7 @@ export class StringReceiversOverlap extends DataflowDetector {
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const stringReceivers = this.getStringReceiverNames(cu);
     let warnings: MistiTactWarning[] = [];
-    cu.forEachCFG((cfg: CFG) => {
+    cu.forEachCFG((cfg: Cfg) => {
       const node = cu.ast.getFunction(cfg.id);
       if (node !== undefined && node.kind === "receiver") {
         const arg = this.findGenericReceiverArg(node);

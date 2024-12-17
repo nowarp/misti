@@ -1,7 +1,7 @@
 import { CompilationUnit } from "../../internals/ir";
 import { foldExpressions } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import {
   AstExpression,
   AstMethodCall,
@@ -70,7 +70,7 @@ const METHOD_CHAINS: Array<{
  *                      body: beginCell().endCell() });
  * ```
  */
-export class PreferredStdlibApi extends ASTDetector {
+export class PreferredStdlibApi extends AstDetector {
   severity = Severity.INFO;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

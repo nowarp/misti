@@ -2,13 +2,11 @@
   "nodes": [
     {
       "idx": 1,
-      "name": "SampleJetton::contract_init_1817",
       "inEdges": [],
       "outEdges": []
     },
     {
       "idx": 2,
-      "name": "SampleJetton::receiver_1857",
       "inEdges": [],
       "outEdges": [
         1,
@@ -19,7 +17,6 @@
     },
     {
       "idx": 3,
-      "name": "SampleJetton::receiver_1882",
       "inEdges": [],
       "outEdges": [
         5,
@@ -29,7 +26,6 @@
     },
     {
       "idx": 4,
-      "name": "SampleJetton::receiver_1905",
       "inEdges": [],
       "outEdges": [
         8,
@@ -38,13 +34,11 @@
     },
     {
       "idx": 5,
-      "name": "JettonDefaultWallet::contract_init_2359",
       "inEdges": [],
       "outEdges": []
     },
     {
       "idx": 6,
-      "name": "JettonDefaultWallet::receiver_2517",
       "inEdges": [],
       "outEdges": [
         10,
@@ -62,7 +56,6 @@
     },
     {
       "idx": 7,
-      "name": "JettonDefaultWallet::receiver_2687",
       "inEdges": [],
       "outEdges": [
         21,
@@ -79,10 +72,7 @@
     },
     {
       "idx": 8,
-      "name": "JettonDefaultWallet::msgValue",
-      "inEdges": [
-        27
-      ],
+      "inEdges": [],
       "outEdges": [
         31,
         32
@@ -90,7 +80,6 @@
     },
     {
       "idx": 9,
-      "name": "JettonDefaultWallet::receiver_2832",
       "inEdges": [],
       "outEdges": [
         33,
@@ -104,7 +93,6 @@
     },
     {
       "idx": 10,
-      "name": "JettonDefaultWallet::receiver_2876",
       "inEdges": [],
       "outEdges": [
         40,
@@ -115,13 +103,11 @@
     },
     {
       "idx": 11,
-      "name": "JettonDefaultWallet::get_wallet_data",
       "inEdges": [],
       "outEdges": []
     },
     {
       "idx": 12,
-      "name": "context",
       "inEdges": [
         1,
         5,
@@ -134,7 +120,6 @@
     },
     {
       "idx": 13,
-      "name": "require",
       "inEdges": [
         2,
         3,
@@ -154,7 +139,6 @@
     },
     {
       "idx": 14,
-      "name": "SampleJetton::mint",
       "inEdges": [
         4,
         7
@@ -163,7 +147,6 @@
     },
     {
       "idx": 15,
-      "name": "ctx::readForwardFee",
       "inEdges": [
         12,
         13,
@@ -174,7 +157,6 @@
     },
     {
       "idx": 16,
-      "name": "min",
       "inEdges": [
         15,
         32
@@ -183,7 +165,6 @@
     },
     {
       "idx": 17,
-      "name": "ton",
       "inEdges": [
         16
       ],
@@ -191,7 +172,6 @@
     },
     {
       "idx": 18,
-      "name": "contractAddress",
       "inEdges": [
         18,
         23
@@ -200,7 +180,6 @@
     },
     {
       "idx": 19,
-      "name": "send",
       "inEdges": [
         19,
         25,
@@ -211,7 +190,6 @@
     },
     {
       "idx": 20,
-      "name": "JettonDefaultWallet::toCell",
       "inEdges": [
         20,
         26,
@@ -222,15 +200,20 @@
     },
     {
       "idx": 21,
-      "name": "myBalance",
+      "inEdges": [
+        27
+      ],
+      "outEdges": []
+    },
+    {
+      "idx": 22,
       "inEdges": [
         31
       ],
       "outEdges": []
     },
     {
-      "idx": 22,
-      "name": "msg::loadUint",
+      "idx": 23,
       "inEdges": [
         40,
         41
@@ -238,8 +221,7 @@
       "outEdges": []
     },
     {
-      "idx": 23,
-      "name": "msg::loadCoins",
+      "idx": 24,
       "inEdges": [
         42
       ],
@@ -380,7 +362,7 @@
     {
       "idx": 27,
       "src": 7,
-      "dst": 8
+      "dst": 21
     },
     {
       "idx": 28,
@@ -400,7 +382,7 @@
     {
       "idx": 31,
       "src": 8,
-      "dst": 21
+      "dst": 22
     },
     {
       "idx": 32,
@@ -445,17 +427,17 @@
     {
       "idx": 40,
       "src": 10,
-      "dst": 22
+      "dst": 23
     },
     {
       "idx": 41,
       "src": 10,
-      "dst": 22
+      "dst": 23
     },
     {
       "idx": 42,
       "src": 10,
-      "dst": 23
+      "dst": 24
     },
     {
       "idx": 43,

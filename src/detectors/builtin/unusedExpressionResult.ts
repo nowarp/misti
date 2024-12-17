@@ -2,7 +2,7 @@ import { CompilationUnit } from "../../internals/ir";
 import { forEachStatement, isSelf } from "../../internals/tact";
 import { unreachable } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import {
   AstExpression,
   AstStatementExpression,
@@ -38,7 +38,7 @@ const IGNORED_FUNCTIONS = new Set<string>(["send"]);
  * let _ = inc(a); // OK: explicitly ignored
  * ```
  */
-export class UnusedExpressionResult extends ASTDetector {
+export class UnusedExpressionResult extends AstDetector {
   severity = Severity.MEDIUM;
 
   /**

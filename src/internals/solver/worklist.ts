@@ -3,7 +3,7 @@ import { Solver } from "./solver";
 import { InternalException } from "../exceptions";
 import {
   BasicBlock,
-  CFG,
+  Cfg,
   CompilationUnit,
   getPredecessors,
   getSuccessors,
@@ -29,12 +29,12 @@ export type AnalysisKind = "forward" | "backward";
 /**
  * Provides a framework for solving dataflow analysis problems by employing a worklist-based algorithm.
  *
- * This class encapsulates the control flow graph (CFG), node state transformations,
- * and lattice properties necessary for the computation of fixpoints in dataflow equations.
+ * This class encapsulates the CFG, node state transformations, and lattice
+ * properties necessary for the computation of fixpoints in dataflow equations.
  */
 export abstract class AbstractWorklistSolver<State> implements Solver<State> {
   protected readonly cu: CompilationUnit;
-  protected readonly cfg: CFG;
+  protected readonly cfg: Cfg;
   protected transfer: Transfer<State>;
   protected readonly lattice: Semilattice<State>;
   protected readonly kind: AnalysisKind;
@@ -46,7 +46,7 @@ export abstract class AbstractWorklistSolver<State> implements Solver<State> {
    */
   constructor(
     cu: CompilationUnit,
-    cfg: CFG,
+    cfg: Cfg,
     transfer: Transfer<State>,
     lattice: Semilattice<State>,
     kind: AnalysisKind,
@@ -204,7 +204,7 @@ export class WideningWorklistSolver<
    */
   constructor(
     cu: CompilationUnit,
-    cfg: CFG,
+    cfg: Cfg,
     transfer: Transfer<State>,
     lattice: WideningLattice<State>,
     kind: AnalysisKind,

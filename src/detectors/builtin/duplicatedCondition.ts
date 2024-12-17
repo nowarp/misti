@@ -6,7 +6,7 @@ import {
   collectConditions,
 } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import {
   AstStatement,
   AstConditional,
@@ -44,7 +44,7 @@ import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
  * }
  * ```
  */
-export class DuplicatedCondition extends ASTDetector {
+export class DuplicatedCondition extends AstDetector {
   severity = Severity.HIGH;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

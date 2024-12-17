@@ -3,8 +3,8 @@ import {
   BasicBlock,
   BasicBlockIdx,
   BasicBlockKind,
-  CFG,
-  CFGIdx,
+  Cfg,
+  CfgIdx,
   CompilationUnit,
   Contract,
   ContractName,
@@ -13,14 +13,14 @@ import {
   FunctionName,
   ImportGraph,
   ProjectName,
-  TactASTStore,
+  AstStore,
 } from "..";
 import { MistiContext } from "../../context";
 import { InternalException } from "../../exceptions";
 import { formatPosition } from "../../tact";
 import { unreachable } from "../../util";
 import { CallGraph } from "../callGraph";
-import { TactASTStoreBuilder } from "./astStore";
+import { AstStoreBuilder } from "./astStore";
 import {
   AstContractDeclaration,
   AstExpression,
@@ -29,7 +29,7 @@ import {
   SrcInfo,
   isSelfId,
 } from "@tact-lang/compiler/dist/grammar/ast";
-import { AstStore } from "@tact-lang/compiler/dist/grammar/store";
+import { AstStore as TactAstStore } from "@tact-lang/compiler/dist/grammar/store";
 
 /**
  * Generates a unique name used to identify receive functions in CFG.
@@ -58,10 +58,10 @@ function generateReceiveName(receive: AstReceiver): string {
 export class TactCallGraphBuilder {
   /**
    * Builds a CallGraph for the provided AST Store.
-   * @param astStore The TactASTStore containing AST nodes and function definitions.
+   * @param astStore The AstStore containing AST nodes and function definitions.
    * @returns A CallGraph instance built from the AST nodes.
    */
-  static make(ctx: MistiContext, astStore: TactASTStore): CallGraph {
+  static make(ctx: MistiContext, astStore: AstStore): CallGraph {
     const callGraph = new CallGraph(ctx);
     return callGraph.build(astStore);
   }
@@ -75,12 +75,12 @@ export class TactIRBuilder {
   /**
    * Keeps unique identifiers registered for building CFG nodes for free functions.
    */
-  private functionIndexes: Map<FunctionName, CFGIdx> = new Map();
+  private functionIndexes: Map<FunctionName, CfgIdx> = new Map();
 
   /**
-   * Keeps unique identifiers registered for building CFG nodes for contract methods.
+   * Keeps unique identifiers registered for building Cfg nodes for contract methods.
    */
-  private methodIndexes: Map<ContractName, Map<FunctionName, CFGIdx>> =
+  private methodIndexes: Map<ContractName, Map<FunctionName, CfgIdx>> =
     new Map();
 
   /**
@@ -90,7 +90,7 @@ export class TactIRBuilder {
   private constructor(
     private ctx: MistiContext,
     private projectName: ProjectName,
-    private ast: AstStore,
+    private ast: TactAstStore,
     private imports: ImportGraph,
   ) {
     this.registerFunctions();
@@ -99,7 +99,7 @@ export class TactIRBuilder {
   public static make(
     ctx: MistiContext,
     projectName: ProjectName,
-    ast: AstStore,
+    ast: TactAstStore,
     imports: ImportGraph,
   ): TactIRBuilder {
     return new TactIRBuilder(ctx, projectName, ast, imports);
@@ -111,11 +111,11 @@ export class TactIRBuilder {
   build(): CompilationUnit {
     const functions = this.createFunctions();
     const contracts = this.createContracts();
-    const tactASTStore = TactASTStoreBuilder.make(this.ctx, this.ast).build();
+    const tactASTStore = AstStoreBuilder.make(this.ctx, this.ast).build();
     const callGraph = TactCallGraphBuilder.make(this.ctx, tactASTStore);
     return new CompilationUnit(
       this.projectName,
-      TactASTStoreBuilder.make(this.ctx, this.ast).build(),
+      AstStoreBuilder.make(this.ctx, this.ast).build(),
       this.imports,
       functions,
       contracts,
@@ -124,7 +124,7 @@ export class TactIRBuilder {
   }
 
   /**
-   * Assign the unique CFG indices to free function definitions.
+   * Assign the unique Cfg indices to free function definitions.
    */
   private registerFunctions(): void {
     this.functionIndexes = this.ast.functions.reduce((acc, fun) => {
@@ -140,14 +140,14 @@ export class TactIRBuilder {
         acc.set(funName, idx);
       }
       return acc;
-    }, new Map<FunctionName, CFGIdx>());
+    }, new Map<FunctionName, CfgIdx>());
   }
 
   /**
    * Creates CFGs for each free function defined in the AST using their previously registered unique identifiers.
-   * @returns A map of CFG structures keyed by their unique identifiers, representing each free function's CFG.
+   * @returns A map of Cfg structures keyed by their unique identifiers, representing each free function's Cfg.
    */
-  private createFunctions(): Map<CFGIdx, CFG> {
+  private createFunctions(): Map<CfgIdx, Cfg> {
     return this.ast.functions.reduce((acc, fun) => {
       if (fun.kind == "function_def") {
         const funName = fun.name.text as FunctionName;
@@ -166,7 +166,7 @@ export class TactIRBuilder {
         );
       }
       return acc;
-    }, new Map<CFGIdx, CFG>());
+    }, new Map<CfgIdx, Cfg>());
   }
 
   /**
@@ -194,7 +194,7 @@ export class TactIRBuilder {
   }
 
   /**
-   * Assign the unique CFG indices to contract methods.
+   * Assign the unique Cfg indices to contract methods.
    */
   private registerContracts(): void {
     this.methodIndexes = this.ast.types.reduce((acc, entry) => {
@@ -202,7 +202,7 @@ export class TactIRBuilder {
         const contractName = entry.name.text as ContractName;
         const methodsMap = entry.declarations.reduce((methodAcc, decl) => {
           const [name, kind, _] = this.getMethodInfo(decl, entry.id);
-          // NOTE: We don't create CFG entries for asm functions.
+          // NOTE: We don't create Cfg entries for asm functions.
           if (kind && name) {
             const idx = this.registerCFGIdx(
               name,
@@ -214,15 +214,15 @@ export class TactIRBuilder {
             methodAcc.set(name, idx);
           }
           return methodAcc;
-        }, new Map<FunctionName, CFGIdx>());
+        }, new Map<FunctionName, CfgIdx>());
         acc.set(contractName, methodsMap);
       }
       return acc;
-    }, new Map<ContractName, Map<FunctionName, CFGIdx>>());
+    }, new Map<ContractName, Map<FunctionName, CfgIdx>>());
   }
 
   /**
-   * Creates the complete CFGs for contract entries using the previously registered CFG identifiers.
+   * Creates the complete CFGs for contract entries using the previously registered Cfg identifiers.
    */
   private createContracts(): Map<ContractIdx, Contract> {
     return this.ast.types.reduce((acc, entry) => {
@@ -247,7 +247,7 @@ export class TactIRBuilder {
             );
           }
           return methodAcc;
-        }, new Map<CFGIdx, CFG>());
+        }, new Map<CfgIdx, Cfg>());
         const contract = new Contract(contractName, methodCFGs, entry.loc);
         acc.set(contract.idx, contract);
       }
@@ -256,7 +256,7 @@ export class TactIRBuilder {
   }
 
   /**
-   * Creates an unique CFG index for the function with the given name.
+   * Creates an unique Cfg index for the function with the given name.
    */
   private registerCFGIdx(
     name: FunctionName,
@@ -264,48 +264,48 @@ export class TactIRBuilder {
     kind: "function" | "method" | "receive",
     origin: "user" | "stdlib",
     ref: SrcInfo,
-  ): CFGIdx {
-    return new CFG(name, id, kind, origin, [], [], ref).idx;
+  ): CfgIdx {
+    return new Cfg(name, id, kind, origin, [], [], ref).idx;
   }
 
   /**
-   * Generates basic blocks (BB) and edges for the CFG based on the statements within a given function or method.
+   * Generates basic blocks (BB) and edges for the Cfg based on the statements within a given function or method.
    * Each BB represents a single statement, and edges represent control flow between statements.
    *
-   * @param idx Unique CFG identifier created on the function registration step.
+   * @param idx Unique Cfg identifier created on the function registration step.
    * @param name The name of the function or method being processed.
    * @param name AST ID.
    * @param kind Indicates whether the input represents a function or a method.
    * @param origin Indicates whether the function was defined in users code or in standard library.
    * @param statements An array of AstStatement from the AST of the function or method.
    * @param ref AST reference to the corresponding function or method.
-   * @returns A CFG instance populated with BBs and edges for the provided statements.
+   * @returns A Cfg instance populated with BBs and edges for the provided statements.
    */
   private createCFGFromStatements(
-    idx: CFGIdx,
+    idx: CfgIdx,
     name: FunctionName,
     id: number,
     kind: "function" | "method" | "receive",
     origin: "user" | "stdlib",
     statements: AstStatement[] | null,
     ref: SrcInfo,
-  ): CFG {
+  ): Cfg {
     const [bbs, edges] =
       statements === null ? [[], []] : this.processStatements(statements);
     this.markExitBBs(bbs);
-    return new CFG(name, id, kind, origin, bbs, edges, ref, idx);
+    return new Cfg(name, id, kind, origin, bbs, edges, ref, idx);
   }
 
   /**
    * Recursively collects function and method calls from the given expression using the registered unique indexes.
    * @param expr The AST expression from which to collect function and method calls.
-   * @param parentCalls A set of CFG indexes to which the indices of found function/method calls will be added.
-   * @returns A set containing CFG indexes of function and method calls within the expression.
+   * @param parentCalls A set of Cfg indexes to which the indices of found function/method calls will be added.
+   * @returns A set containing Cfg indexes of function and method calls within the expression.
    */
   private collectFunctionCalls(
     expr: AstExpression,
-    parentCalls: Set<CFGIdx> = new Set(),
-  ): Set<CFGIdx> {
+    parentCalls: Set<CfgIdx> = new Set(),
+  ): Set<CfgIdx> {
     switch (expr.kind) {
       case "method_call":
         if (expr.self.kind === "id" && isSelfId(expr.self)) {
@@ -408,13 +408,13 @@ export class TactIRBuilder {
   }
 
   /**
-   * Recursively processes an array of AST statements to generate nodes and edges for a CFG.
+   * Recursively processes an array of AST statements to generate nodes and edges for a Cfg.
    *
    * @param statements The array of AstStatement objects.
    * @param bbs An optional array of basic blocks to which new nodes will be added.
    * @param edges An optional array of Edge objects to which new edges will be added.
    * @param lastBBIdxes An optional indices representing from which control flow enters the current sequence of statements.
-   * @returns A tuple containing the arrays of BasicBlock and Edge objects representing the CFG derived from the statements.
+   * @returns A tuple containing the arrays of BasicBlock and Edge objects representing the Cfg derived from the statements.
    */
   processStatements(
     statements: AstStatement[],
@@ -582,7 +582,7 @@ export class TactIRBuilder {
 export function createIR(
   ctx: MistiContext,
   projectName: ProjectName,
-  ast: AstStore,
+  ast: TactAstStore,
   imports: ImportGraph,
 ): CompilationUnit {
   return TactIRBuilder.make(ctx, projectName, ast, imports).build();

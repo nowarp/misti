@@ -1,5 +1,5 @@
 import { MistiContext } from "../../internals/context";
-import { BasicBlock, CFG, CompilationUnit } from "../../internals/ir";
+import { BasicBlock, Cfg, CompilationUnit } from "../../internals/ir";
 import { JoinSemilattice } from "../../internals/lattice";
 import { WorklistSolver } from "../../internals/solver/";
 import {
@@ -335,7 +335,7 @@ export class NeverAccessedVariables extends DataflowDetector {
   checkVariables(cu: CompilationUnit): MistiTactWarning[] {
     const warnings: MistiTactWarning[] = [];
     const traversedFunctions = new Set<string>();
-    cu.forEachCFG((cfg: CFG) => {
+    cu.forEachCFG((cfg: Cfg) => {
       if (cfg.origin === "stdlib" || traversedFunctions.has(cfg.name)) {
         return;
       }

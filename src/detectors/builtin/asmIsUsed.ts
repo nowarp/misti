@@ -1,6 +1,6 @@
 import { CompilationUnit } from "../../internals/ir";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 
 /**
  * An optional detector that highlights all the `asm` functions.
@@ -16,7 +16,7 @@ import { ASTDetector } from "../detector";
  * asm fun getStorageFee(cells: Int, bits: Int, seconds: Int, is_masterchain: Bool): Int { GETSTORAGEFEE }
  * ```
  */
-export class AsmIsUsed extends ASTDetector {
+export class AsmIsUsed extends AstDetector {
   severity = Severity.INFO;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

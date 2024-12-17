@@ -2,7 +2,7 @@ import { SolverResults } from "./results";
 import { Solver } from "./solver";
 import { MistiContext } from "../context";
 import { InternalException } from "../exceptions";
-import { BasicBlockIdx, CFG, CompilationUnit } from "../ir";
+import { BasicBlockIdx, Cfg, CompilationUnit } from "../ir";
 import {
   SouffleContext,
   SouffleExecutionResult,
@@ -71,7 +71,7 @@ export class SouffleSolver<State> implements Solver<State> {
     private readonly detectorId: string,
     private readonly ctx: MistiContext,
     private readonly cu: CompilationUnit,
-    private readonly cfg: CFG,
+    private readonly cfg: Cfg,
     private readonly mapper: SouffleMapper,
   ) {}
 

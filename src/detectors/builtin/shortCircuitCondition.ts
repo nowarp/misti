@@ -6,7 +6,7 @@ import {
   findInExpressions,
 } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
@@ -34,7 +34,7 @@ import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
  * }
  * ```
  */
-export class ShortCircuitCondition extends ASTDetector {
+export class ShortCircuitCondition extends AstDetector {
   severity = Severity.LOW;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

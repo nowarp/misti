@@ -1,8 +1,8 @@
 import { Tool } from "./tool";
 import { ToolOutput } from "../cli/result";
 import { MistiContext } from "../internals/context";
-import { CompilationUnit } from "../internals/ir";
-import { CallGraph } from "../internals/ir/callGraph";
+import { CompilationUnit, AstStore } from "../internals/ir";
+import { CallGraph, Effect } from "../internals/ir/callGraph";
 import { unreachable } from "../internals/util";
 import JSONbig from "json-bigint";
 
@@ -35,9 +35,15 @@ export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
 
     switch (format) {
       case "dot":
-        return this.makeOutput(cu, GraphvizDumper.dumpCallGraph(callGraph));
+        return this.makeOutput(
+          cu,
+          GraphvizDumper.dumpCallGraph(cu.ast, callGraph),
+        );
       case "mmd":
-        return this.makeOutput(cu, MermaidDumper.dumpCallGraph(callGraph));
+        return this.makeOutput(
+          cu,
+          MermaidDumper.dumpCallGraph(cu.ast, callGraph),
+        );
       case "json":
         return this.makeOutput(cu, JSONDumper.dumpCallGraph(callGraph));
       default:
@@ -60,15 +66,19 @@ export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
  * Utility class to dump the call graph in Mermaid format.
  */
 class MermaidDumper {
-  public static dumpCallGraph(callGraph: CallGraph): string {
+  public static dumpCallGraph(ast: AstStore, callGraph: CallGraph): string {
     if (!callGraph || callGraph.getNodes().size === 0) {
       return 'graph TD\n    empty["Empty Call Graph"]';
     }
     let diagram = "graph TD\n";
     callGraph.getNodes().forEach((node) => {
       const nodeId = `node_${node.idx}`;
-      const label = node.name?.replace(/"/g, '\\"') || "Unknown";
-      diagram += `    ${nodeId}["${label}"]\n`;
+      const label = (node.signature(ast) || node.name || "Unknown").replace(
+        /"/g,
+        "'",
+      );
+      const effects = getEffectsTooltip(node.effects);
+      diagram += `    ${nodeId}["${label}${effects}"]\n`;
     });
     callGraph.getEdges().forEach((edge) => {
       const srcId = `node_${edge.src}`;
@@ -83,15 +93,19 @@ class MermaidDumper {
  * Utility class to dump the call graph in DOT (Graphviz) format.
  */
 class GraphvizDumper {
-  public static dumpCallGraph(callGraph: CallGraph): string {
+  public static dumpCallGraph(ast: AstStore, callGraph: CallGraph): string {
     if (!callGraph || callGraph.getNodes().size === 0) {
       return 'digraph "CallGraph" {\n    node [shape=box];\n    empty [label="Empty Call Graph"];\n}\n';
     }
     let dot = `digraph "CallGraph" {\n    node [shape=box];\n`;
     callGraph.getNodes().forEach((node) => {
       const nodeId = `node_${node.idx}`;
-      const label = node.name?.replace(/"/g, '\\"') || "Unknown";
-      dot += `    ${nodeId} [label="${label}"];\n`;
+      const label = (node.signature(ast) || node.name || "Unknown").replace(
+        /"/g,
+        "'",
+      );
+      const effects = getEffectsTooltip(node.effects);
+      dot += `    ${nodeId} [label="${label}${effects}"];\n`;
     });
     callGraph.getEdges().forEach((edge) => {
       const srcId = `node_${edge.src}`;
@@ -114,7 +128,7 @@ class JSONDumper {
     const data = {
       nodes: Array.from(callGraph.getNodes().values()).map((node) => ({
         idx: node.idx,
-        name: node.name || "Unknown",
+        name: node.signature || node.name || "Unknown",
         inEdges: Array.from(node.inEdges || []),
         outEdges: Array.from(node.outEdges || []),
       })),
@@ -126,4 +140,18 @@ class JSONDumper {
     };
     return JSONbig.stringify(data, null, 2);
   }
+}
+
+function getEffectsTooltip(effects: number): string {
+  if (effects === 0) return "";
+
+  const effectsList = [];
+  if (effects & Effect.Send) effectsList.push("Send");
+  if (effects & Effect.StateRead) effectsList.push("StateRead");
+  if (effects & Effect.StateWrite) effectsList.push("StateWrite");
+  if (effects & Effect.AccessDatetime) effectsList.push("AccessDatetime");
+  if (effects & Effect.PrgUse) effectsList.push("PrgUse");
+  if (effects & Effect.PrgSeedInit) effectsList.push("PrgSeedInit");
+
+  return effectsList.length > 0 ? `\n[${effectsList.join(",")}]` : "";
 }

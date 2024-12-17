@@ -23,6 +23,25 @@ import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 import { Interval as RawInterval } from "ohm-js";
 import * as path from "path";
 
+/** Stdlib functions that access datetime functions. */
+export const DATETIME_NAMES = new Set(["now", "timestamp"]);
+
+/** Stdlib functions that initialize PRG seed. */
+export const PRG_INIT_NAMES = new Set([
+  "nativePrepareRandom",
+  "nativeRandomize",
+  "nativeRandomizeLt",
+]);
+
+/** Native stdlib functions that use PRG. */
+export const PRG_NATIVE_USE_NAMES = new Set([
+  "nativeRandom",
+  "nativeRandomInterval",
+]);
+
+/** Safe Tact wrapper functions that use PRG. */
+export const PRG_SAFE_USE_NAMES = new Set(["random", "randomInt"]);
+
 /**
  * Creates a concise string representation of `SrcInfo`.
  */

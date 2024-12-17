@@ -2,7 +2,7 @@ import { CompilationUnit } from "../../internals/ir";
 import { collectFields, forEachExpression, isSelf } from "../../internals/tact";
 import { intersectSets } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { ASTDetector } from "../detector";
+import { AstDetector } from "../detector";
 import {
   AstContract,
   AstFieldDecl,
@@ -50,7 +50,7 @@ const MAP_DEL_OPERATIONS = new Set<string>(["del"]);
  * }
  * ```
  */
-export class UnboundMap extends ASTDetector {
+export class UnboundMap extends AstDetector {
   severity = Severity.LOW;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {

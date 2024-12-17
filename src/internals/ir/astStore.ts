@@ -40,9 +40,9 @@ type Filename = string;
  * The generated AST entries includes all the dependent elements, including imported
  * code which is included in the project AST in C/C++ style.
  */
-export class TactASTStore {
+export class AstStore {
   /**
-   * Constructs a TactASTStore with mappings to all major AST components accessible
+   * Constructs a AstStore with mappings to all major AST components accessible
    * by their unique AST identifiers.
    *
    * @param stdlibIds Identifiers of AST elements defined in stdlib.

@@ -313,6 +313,334 @@
           }
         ]
       }
+    },
+    {
+      "name": "testTryCatch",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 87,
+            "stmtID": 1817,
+            "srcEdges": [],
+            "dstEdges": [
+              78,
+              79
+            ]
+          },
+          {
+            "id": 88,
+            "stmtID": 1811,
+            "srcEdges": [
+              78
+            ],
+            "dstEdges": []
+          },
+          {
+            "id": 89,
+            "stmtID": 1816,
+            "srcEdges": [
+              79
+            ],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
+          {
+            "id": 78,
+            "src": 87,
+            "dst": 88
+          },
+          {
+            "id": 79,
+            "src": 87,
+            "dst": 89
+          }
+        ]
+      }
+    },
+    {
+      "name": "testLoops",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 90,
+            "stmtID": 1823,
+            "srcEdges": [],
+            "dstEdges": [
+              80
+            ]
+          },
+          {
+            "id": 91,
+            "stmtID": 1827,
+            "srcEdges": [
+              80
+            ],
+            "dstEdges": [
+              81
+            ]
+          },
+          {
+            "id": 92,
+            "stmtID": 1841,
+            "srcEdges": [
+              81,
+              84
+            ],
+            "dstEdges": [
+              82,
+              85
+            ]
+          },
+          {
+            "id": 93,
+            "stmtID": 1835,
+            "srcEdges": [
+              82
+            ],
+            "dstEdges": [
+              83
+            ]
+          },
+          {
+            "id": 94,
+            "stmtID": 1840,
+            "srcEdges": [
+              83
+            ],
+            "dstEdges": [
+              84
+            ]
+          },
+          {
+            "id": 95,
+            "stmtID": 1855,
+            "srcEdges": [
+              85,
+              88
+            ],
+            "dstEdges": [
+              86,
+              89
+            ]
+          },
+          {
+            "id": 96,
+            "stmtID": 1849,
+            "srcEdges": [
+              86
+            ],
+            "dstEdges": [
+              87
+            ]
+          },
+          {
+            "id": 97,
+            "stmtID": 1854,
+            "srcEdges": [
+              87
+            ],
+            "dstEdges": [
+              88
+            ]
+          },
+          {
+            "id": 98,
+            "stmtID": 1867,
+            "srcEdges": [
+              89,
+              92
+            ],
+            "dstEdges": [
+              90,
+              93
+            ]
+          },
+          {
+            "id": 99,
+            "stmtID": 1861,
+            "srcEdges": [
+              90
+            ],
+            "dstEdges": [
+              91
+            ]
+          },
+          {
+            "id": 100,
+            "stmtID": 1866,
+            "srcEdges": [
+              91
+            ],
+            "dstEdges": [
+              92
+            ]
+          },
+          {
+            "id": 101,
+            "stmtID": 1874,
+            "srcEdges": [
+              93
+            ],
+            "dstEdges": [
+              94
+            ]
+          },
+          {
+            "id": 102,
+            "stmtID": 1880,
+            "srcEdges": [
+              94
+            ],
+            "dstEdges": [
+              95
+            ]
+          },
+          {
+            "id": 103,
+            "stmtID": 1886,
+            "srcEdges": [
+              95
+            ],
+            "dstEdges": [
+              96
+            ]
+          },
+          {
+            "id": 104,
+            "stmtID": 1892,
+            "srcEdges": [
+              96
+            ],
+            "dstEdges": [
+              97
+            ]
+          },
+          {
+            "id": 105,
+            "stmtID": 1901,
+            "srcEdges": [
+              97,
+              99
+            ],
+            "dstEdges": [
+              98
+            ]
+          },
+          {
+            "id": 106,
+            "stmtID": 1900,
+            "srcEdges": [
+              98
+            ],
+            "dstEdges": [
+              99
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "id": 80,
+            "src": 90,
+            "dst": 91
+          },
+          {
+            "id": 81,
+            "src": 91,
+            "dst": 92
+          },
+          {
+            "id": 82,
+            "src": 92,
+            "dst": 93
+          },
+          {
+            "id": 83,
+            "src": 93,
+            "dst": 94
+          },
+          {
+            "id": 84,
+            "src": 94,
+            "dst": 92
+          },
+          {
+            "id": 85,
+            "src": 92,
+            "dst": 95
+          },
+          {
+            "id": 86,
+            "src": 95,
+            "dst": 96
+          },
+          {
+            "id": 87,
+            "src": 96,
+            "dst": 97
+          },
+          {
+            "id": 88,
+            "src": 97,
+            "dst": 95
+          },
+          {
+            "id": 89,
+            "src": 95,
+            "dst": 98
+          },
+          {
+            "id": 90,
+            "src": 98,
+            "dst": 99
+          },
+          {
+            "id": 91,
+            "src": 99,
+            "dst": 100
+          },
+          {
+            "id": 92,
+            "src": 100,
+            "dst": 98
+          },
+          {
+            "id": 93,
+            "src": 98,
+            "dst": 101
+          },
+          {
+            "id": 94,
+            "src": 101,
+            "dst": 102
+          },
+          {
+            "id": 95,
+            "src": 102,
+            "dst": 103
+          },
+          {
+            "id": 96,
+            "src": 103,
+            "dst": 104
+          },
+          {
+            "id": 97,
+            "src": 104,
+            "dst": 105
+          },
+          {
+            "id": 98,
+            "src": 105,
+            "dst": 106
+          },
+          {
+            "id": 99,
+            "src": 106,
+            "dst": 105
+          }
+        ]
+      }
     }
   ],
   "contracts": [
@@ -324,7 +652,7 @@
           "cfg": {
             "nodes": [
               {
-                "id": 87,
+                "id": 107,
                 "stmtID": 1662,
                 "srcEdges": [],
                 "dstEdges": []
@@ -355,7 +683,7 @@
           "cfg": {
             "nodes": [
               {
-                "id": 88,
+                "id": 108,
                 "stmtID": 1720,
                 "srcEdges": [],
                 "dstEdges": []
@@ -369,6 +697,143 @@
           "cfg": {
             "nodes": [],
             "edges": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "EffectTest",
+      "methods": [
+        {
+          "name": "EffectTest.init_1971",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 109,
+                "stmtID": 1912,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        },
+        {
+          "name": "EffectTest.funcWithSend",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 110,
+                "stmtID": 1918,
+                "srcEdges": [],
+                "dstEdges": [
+                  100
+                ]
+              },
+              {
+                "id": 111,
+                "stmtID": 1931,
+                "srcEdges": [
+                  100
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 100,
+                "src": 110,
+                "dst": 111
+              }
+            ]
+          }
+        },
+        {
+          "name": "EffectTest.funcWithStateRead",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 112,
+                "stmtID": 1938,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        },
+        {
+          "name": "EffectTest.funcWithStateWrite",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 113,
+                "stmtID": 1948,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        },
+        {
+          "name": "EffectTest.funcWithMultipleEffects",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 114,
+                "stmtID": 1955,
+                "srcEdges": [],
+                "dstEdges": [
+                  101
+                ]
+              },
+              {
+                "id": 115,
+                "stmtID": 1962,
+                "srcEdges": [
+                  101
+                ],
+                "dstEdges": [
+                  102
+                ]
+              },
+              {
+                "id": 116,
+                "stmtID": 1969,
+                "srcEdges": [
+                  102
+                ],
+                "dstEdges": [
+                  103
+                ]
+              },
+              {
+                "id": 117,
+                "stmtID": 1968,
+                "srcEdges": [
+                  103
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 101,
+                "src": 114,
+                "dst": 115
+              },
+              {
+                "id": 102,
+                "src": 115,
+                "dst": 116
+              },
+              {
+                "id": 103,
+                "src": 116,
+                "dst": 117
+              }
+            ]
           }
         }
       ]

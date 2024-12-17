@@ -1,4 +1,4 @@
-import { TactASTStore } from "..";
+import { AstStore } from "..";
 import { MistiContext } from "../../context";
 import { definedInStdlib } from "../../tact/stdlib";
 import { unreachable } from "../../util";
@@ -19,12 +19,12 @@ import {
   AstTypeDecl,
   SrcInfo,
 } from "@tact-lang/compiler/dist/grammar/ast";
-import { AstStore } from "@tact-lang/compiler/dist/grammar/store";
+import { AstStore as TactAstStore } from "@tact-lang/compiler/dist/grammar/store";
 
 /**
- * Transforms AstStore to TactASTStore.
+ * Transforms AstStore to AstStore.
  */
-export class TactASTStoreBuilder {
+export class AstStoreBuilder {
   private programEntries: Map<string, Set<number>> = new Map();
   private stdlibIds = new Set<number>();
   /** Items defined within contracts and traits */
@@ -45,14 +45,14 @@ export class TactASTStoreBuilder {
 
   private constructor(
     private ctx: MistiContext,
-    private ast: AstStore,
+    private ast: TactAstStore,
   ) {
     this.processAstElements(this.ast.functions, this.processFunctionElement);
     this.processAstElements(this.ast.constants, this.processConstantElement);
     this.processAstElements(this.ast.types, this.processTypeElement);
   }
-  public static make(ctx: MistiContext, ast: AstStore): TactASTStoreBuilder {
-    return new TactASTStoreBuilder(ctx, ast);
+  public static make(ctx: MistiContext, ast: TactAstStore): AstStoreBuilder {
+    return new AstStoreBuilder(ctx, ast);
   }
 
   private processAstElements<T extends { id: number; loc: SrcInfo }>(
@@ -101,8 +101,8 @@ export class TactASTStoreBuilder {
     this.processType(type);
   }
 
-  public build(): TactASTStore {
-    return new TactASTStore(
+  public build(): AstStore {
+    return new AstStore(
       this.stdlibIds,
       this.contractEntries,
       this.programEntries,

@@ -4,7 +4,7 @@
  *
  * @packageDocumentation
  */
-import { TactASTStore } from "./astStore";
+import { AstStore } from "./astStore";
 import { IdxGenerator } from "./indices";
 import { FunctionName } from "./types";
 import { InternalException } from "../exceptions";
@@ -13,7 +13,7 @@ import { ItemOrigin } from "@tact-lang/compiler/dist/grammar/grammar";
 
 export type EdgeIdx = number & { readonly __brand: unique symbol };
 export type BasicBlockIdx = number & { readonly __brand: unique symbol };
-export type CFGIdx = number & { readonly __brand: unique symbol };
+export type CfgIdx = number & { readonly __brand: unique symbol };
 
 /**
  * Represents an edge in a Control Flow Graph (CFG), connecting two basic blocks.
@@ -33,7 +33,7 @@ export class Edge {
 }
 
 /**
- * Represents the kinds of basic blocks that can be present in a control flow graph (CFG).
+ * Represents the kinds of basic blocks that can be present in a CFG.
  */
 export type BasicBlockKind =
   /**
@@ -46,14 +46,14 @@ export type BasicBlockKind =
    * Functions which definitions are not available in the current
    * compilation unit are omitted.
    */
-  | { kind: "call"; callees: Set<CFGIdx> }
+  | { kind: "call"; callees: Set<CfgIdx> }
   /**
    * Represents an exit node that effectively terminates the execution of the current control flow.
    */
   | { kind: "exit" };
 
 /**
- * Represents a basic block in a Control Flow Graph (CFG), corresponding to a single
+ * Represents a basic block in a CFG, corresponding to a single
  * statement in the source code.
  * Basic blocks are connected by edges that represent the flow of control between statements.
  *
@@ -87,13 +87,13 @@ export class BasicBlock {
 export type FunctionKind = "function" | "method" | "receive";
 
 /**
- * Describes the intraprocedural control flow graph (CFG) that corresponds to a function or method within the project.
+ * Describes the intraprocedural CFG that corresponds to a function or method within the project.
  */
-export class CFG {
+export class Cfg {
   /**
    * The unique identifier of this CFG among the compilation unit it belongs to.
    */
-  public idx: CFGIdx;
+  public idx: CfgIdx;
 
   /**
    * Map from unique basic block indices to array indices in the `this.bbs`.
@@ -124,9 +124,9 @@ export class CFG {
     public nodes: BasicBlock[],
     public edges: Edge[],
     public ref: SrcInfo,
-    idx: CFGIdx | undefined = undefined,
+    idx: CfgIdx | undefined = undefined,
   ) {
-    this.idx = idx ? idx : (IdxGenerator.next("cfg") as CFGIdx);
+    this.idx = idx ? idx : (IdxGenerator.next("cfg") as CfgIdx);
     this.bbsMap = new Map();
     this.initializeMapping(this.bbsMap, nodes);
     this.edgesMap = new Map();
@@ -215,7 +215,7 @@ export class CFG {
    * @param callback The function to apply to each block.
    */
   public forEachBasicBlock(
-    astStore: TactASTStore,
+    astStore: AstStore,
     callback: (stmt: AstStatement, cfgBB: BasicBlock) => void,
   ) {
     this.nodes.forEach((cfgBB) => {
@@ -252,11 +252,11 @@ export class CFG {
 /**
  * An utility function that extracts basic block's predecessors.
  */
-export function getPredecessors(cfg: CFG, bb: BasicBlock): BasicBlock[] {
+export function getPredecessors(cfg: Cfg, bb: BasicBlock): BasicBlock[] {
   const predecessors = cfg.getPredecessors(bb.idx);
   if (predecessors === undefined) {
     throw InternalException.make(
-      `Incorrect definition in the CFG: BB #${bb.idx} has an undefined predecessor`,
+      `Incorrect definition in the Cfg: BB #${bb.idx} has an undefined predecessor`,
     );
   }
   return predecessors;
@@ -265,11 +265,11 @@ export function getPredecessors(cfg: CFG, bb: BasicBlock): BasicBlock[] {
 /**
  * An utility function that extracts basic blocks's successors.
  */
-export function getSuccessors(cfg: CFG, bb: BasicBlock): BasicBlock[] {
+export function getSuccessors(cfg: Cfg, bb: BasicBlock): BasicBlock[] {
   const successors = cfg.getSuccessors(bb.idx);
   if (successors === undefined) {
     throw InternalException.make(
-      `Incorrect definition in the CFG: BB #${bb.idx} has an undefined predecessor`,
+      `Incorrect definition in the Cfg: BB #${bb.idx} has an undefined predecessor`,
     );
   }
   return successors;

@@ -3,10 +3,10 @@
  *
  * @packageDocumentation
  */
-import { CFGIdx, ContractName, FunctionName, ProjectName } from ".";
-import { TactASTStore } from "./astStore";
+import { CfgIdx, ContractName, FunctionName, ProjectName } from ".";
+import { AstStore } from "./astStore";
 import { CallGraph } from "./callGraph";
-import { BasicBlock, CFG } from "./cfg";
+import { BasicBlock, Cfg } from "./cfg";
 import { ImportGraph } from "./imports";
 import { IdxGenerator } from "./indices";
 import { AstStatement, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
@@ -28,9 +28,9 @@ export class CompilationUnit {
    */
   constructor(
     public projectName: ProjectName,
-    public ast: TactASTStore,
+    public ast: AstStore,
     public imports: ImportGraph,
-    public functions: Map<CFGIdx, CFG>,
+    public functions: Map<CfgIdx, Cfg>,
     public contracts: Map<ContractIdx, Contract>,
     public callGraph: CallGraph,
   ) {}
@@ -39,7 +39,7 @@ export class CompilationUnit {
    * Looks for a CFG with a specific index.
    * @returns Found CFG or `undefined` if not found.
    */
-  public findCFGByIdx(idx: CFGIdx): CFG | undefined {
+  public findCfgByIdx(idx: CfgIdx): Cfg | undefined {
     const funCfg = this.functions.get(idx);
     if (funCfg) return funCfg;
     return Array.from(this.contracts.values())
@@ -48,21 +48,21 @@ export class CompilationUnit {
   }
 
   /**
-   * Looks for a CFG for a function node with a specific name.
-   * @returns Found CFG or `undefined` if not found.
+   * Looks for a Cfg for a function node with a specific name.
+   * @returns Found Cfg or `undefined` if not found.
    */
-  public findFunctionCFGByName(name: FunctionName): CFG | undefined {
+  public findFunctionCFGByName(name: FunctionName): Cfg | undefined {
     return Array.from(this.functions.values()).find((cfg) => cfg.name === name);
   }
 
   /**
-   * Looks for a CFG for a method node with a specific name.
-   * @returns Found CFG or `undefined` if not found.
+   * Looks for a Cfg for a method node with a specific name.
+   * @returns Found Cfg or `undefined` if not found.
    */
   public findMethodCFGByName(
     contractName: ContractName,
     methodName: FunctionName,
-  ): CFG | undefined {
+  ): Cfg | undefined {
     const contract = Array.from(this.contracts.values()).find(
       (contract) => contract.name === contractName,
     );
@@ -76,12 +76,12 @@ export class CompilationUnit {
   }
 
   /**
-   * Iterates over all CFGs in a Compilation Unit, and applies a callback to CFG.
+   * Iterates over all CFGs in a Compilation Unit, and applies a callback to Cfg.
    *
-   * @param callback The function to apply to each CFG.
+   * @param callback The function to apply to each Cfg.
    */
   forEachCFG(
-    callback: (cfg: CFG) => void,
+    callback: (cfg: Cfg) => void,
     { includeStdlib = true }: Partial<{ includeStdlib: boolean }> = {},
   ) {
     this.functions.forEach((cfg, _) => {
@@ -101,11 +101,11 @@ export class CompilationUnit {
    * Performs a fold operation over all CFGs in the Compilation Unit.
    *
    * @param init The initial value of the accumulator.
-   * @param callback A function that takes the current accumulator and a CFG,
+   * @param callback A function that takes the current accumulator and a Cfg,
    *                 and returns a new accumulator value.
    * @returns The final accumulated value.
    */
-  foldCFGs<T>(init: T, callback: (acc: T, cfg: CFG) => T): T {
+  foldCFGs<T>(init: T, callback: (acc: T, cfg: Cfg) => T): T {
     let acc = init;
     this.functions.forEach((cfg) => {
       acc = callback(acc, cfg);
@@ -120,14 +120,14 @@ export class CompilationUnit {
 
   /**
    * Iterates over all CFGs in a Compilation Unit, and applies a callback to each
-   * basic block in every CFG.
+   * basic block in every Cfg.
    *
    * @param astStore The store containing the AST nodes.
-   * @param callback The function to apply to each BB within each CFG.
+   * @param callback The function to apply to each BB within each Cfg.
    */
   forEachBasicBlock(
-    astStore: TactASTStore,
-    callback: (cfg: CFG, node: BasicBlock, stmt: AstStatement) => void,
+    astStore: AstStore,
+    callback: (cfg: Cfg, node: BasicBlock, stmt: AstStatement) => void,
   ) {
     // Iterate over all functions' CFGs
     this.functions.forEach((cfg, _) => {
@@ -166,7 +166,7 @@ export class Contract {
    */
   constructor(
     public name: ContractName,
-    public methods: Map<CFGIdx, CFG>,
+    public methods: Map<CfgIdx, Cfg>,
     public ref: SrcInfo,
     idx: ContractIdx | undefined = undefined,
   ) {

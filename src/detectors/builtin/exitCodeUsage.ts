@@ -1,5 +1,5 @@
 import { InternalException } from "../../internals/exceptions";
-import { CFG, BasicBlock, CompilationUnit } from "../../internals/ir";
+import { Cfg, BasicBlock, CompilationUnit } from "../../internals/ir";
 import {
   IntervalJoinSemiLattice,
   JoinSemilattice,
@@ -211,7 +211,7 @@ export class ExitCodeUsage extends DataflowDetector {
     const warnings: MistiTactWarning[] = [];
 
     cu.forEachCFG(
-      (cfg: CFG) => {
+      (cfg: Cfg) => {
         const node = cu.ast.getFunction(cfg.id);
         if (node === undefined) {
           return;

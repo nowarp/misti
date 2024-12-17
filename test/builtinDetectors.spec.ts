@@ -72,7 +72,7 @@ function processSingleDetectorFile(filePath: string) {
   runTestForFile(contractPath, nameBase, detectorName, detectorName);
 }
 
-const filePathArg = getFilePathArg();
+const filePathArg = getFilePathArg(DETECTORS_DIR);
 if (filePathArg) {
   // Run test for a single file
   const fullPath = path.resolve(filePathArg);
@@ -105,16 +105,18 @@ if (filePathArg) {
   });
 }
 
-describe("Built-in Detectors Tests", () => {
-  it("should have test contracts for all built-in detectors", () => {
-    const allDetectors = getAllDetectors();
-    const testFiles = fs
-      .readdirSync(DETECTORS_DIR)
-      .filter((file) => file.endsWith(".tact"));
-    const missingTests = allDetectors.filter((detector) => {
-      const expectedTestFile = `${detector}.tact`;
-      return !testFiles.includes(expectedTestFile);
+if (!filePathArg) {
+  describe("Built-in Detectors Tests", () => {
+    it("should have test contracts for all built-in detectors", () => {
+      const allDetectors = getAllDetectors();
+      const testFiles = fs
+        .readdirSync(DETECTORS_DIR)
+        .filter((file) => file.endsWith(".tact"));
+      const missingTests = allDetectors.filter((detector) => {
+        const expectedTestFile = `${detector}.tact`;
+        return !testFiles.includes(expectedTestFile);
+      });
+      expect(missingTests).toEqual([]);
     });
-    expect(missingTests).toEqual([]);
   });
-});
+}

@@ -110,6 +110,6 @@ export function resetIds(): void {
  *
  * Example usage: yarn test tactIR.spec.ts <filepath>
  */
-export function getFilePathArg(): string | undefined {
-  return process.argv.find((arg) => path.resolve(arg).includes(ALL_DIR));
+export function getFilePathArg(dir = ALL_DIR): string | undefined {
+  return process.argv.find((arg) => path.resolve(arg).includes(dir));
 }
