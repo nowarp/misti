@@ -21,6 +21,7 @@ import { precompile } from "@tact-lang/compiler/dist/pipeline/precompile";
  * @param mistiCtx Misti context
  * @param projectRoot Absolute path to the root the project
  * @param config The Tact configuration object: contents of the existing file or a generated object
+ * @param vfs Virtual file system to manage file interactions during parsing
  * @returns A mapping of project names to their corresponding ASTs.
  */
 export function parseTactProject(
@@ -32,7 +33,7 @@ export function parseTactProject(
   const stdlibPath = mistiCtx.config.tactStdlibPath ?? getStdlibPath();
   let stdlib: VirtualFileSystem | TactVirtualFileSystem;
 
-  if (vfs.type === "node") {
+  if (vfs.type === "local") {
     stdlib = createNodeFileSystem(stdlibPath);
     vfs = createNodeFileSystem(projectRoot);
   } else {

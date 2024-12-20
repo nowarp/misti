@@ -96,6 +96,7 @@ export class ImportGraph {
    * Resolves project root based on the import directives.
    * The project root is a directory including all the imported files.
    *
+   * @param fs The virtual file system used to manage and resolve file paths during the operation.
    * @returns Project root directory or undefined if there are no user imports.
    */
   public resolveProjectRoot(fs: VirtualFileSystem): string | undefined {

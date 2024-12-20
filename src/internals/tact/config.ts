@@ -46,6 +46,7 @@ export class TactConfigManager {
    * @param ctx Misti context.
    * @param projectName Name of the project.
    * @param contractPath Path to the Tact contract.
+   * @param vfs Virtual file system to manage interactions with the project files.
    */
   public static fromContract(
     projectRoot: string,
