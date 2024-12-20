@@ -1,7 +1,5 @@
 import { MistiConfig } from "../src/internals/config";
-import * as fs from "fs";
-
-jest.mock("fs");
+import { createVirtualFileSystem } from "../src/vfs/createVirtualFileSystem";
 
 describe("Config class", () => {
   const MOCK_CONFIG_PATH = "./mistiConfig_mock.json";
@@ -13,13 +11,20 @@ describe("Config class", () => {
     ignoredProjects: ["ignoredProject"],
   });
 
+  const fs = createVirtualFileSystem(process.cwd(), {}, false);
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it("should load and parse config file correctly", () => {
-    (fs.readFileSync as jest.Mock).mockReturnValue(MOCK_CONFIG_CONTENT);
-    const configInstance = new MistiConfig({ configPath: MOCK_CONFIG_PATH });
+    fs.readFile = jest
+      .fn()
+      .mockReturnValue(Buffer.from(MOCK_CONFIG_CONTENT, "utf8"));
+    const configInstance = new MistiConfig({
+      configPath: MOCK_CONFIG_PATH,
+      fs,
+    });
     expect(configInstance.detectors).toEqual([
       { className: "ReadOnlyVariables" },
       { className: "ZeroAddress" },
@@ -28,10 +33,10 @@ describe("Config class", () => {
   });
 
   it("throws an error when the config file cannot be read", () => {
-    (fs.readFileSync as jest.Mock).mockImplementation(() => {
+    fs.readFile = jest.fn().mockImplementation(() => {
       throw new Error("Failed to read file");
     });
-    expect(() => new MistiConfig({ configPath: MOCK_CONFIG_PATH })).toThrow(
+    expect(() => new MistiConfig({ configPath: MOCK_CONFIG_PATH, fs })).toThrow(
       "Failed to read file",
     );
   });
@@ -43,8 +48,14 @@ describe("Config class", () => {
         { detector: "ReadOnlyVariables", position: "file.tact:10:5" },
       ],
     });
-    (fs.readFileSync as jest.Mock).mockReturnValue(configWithSuppressions);
-    const configInstance = new MistiConfig({ configPath: MOCK_CONFIG_PATH });
+    fs.readFile = jest
+      .fn()
+      .mockReturnValue(Buffer.from(configWithSuppressions, "utf8"));
+
+    const configInstance = new MistiConfig({
+      configPath: MOCK_CONFIG_PATH,
+      fs,
+    });
     expect(configInstance.suppressions).toEqual([
       { detector: "ReadOnlyVariables", file: "file.tact", line: 10, col: 5 },
     ]);

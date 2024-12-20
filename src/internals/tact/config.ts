@@ -1,3 +1,4 @@
+import { VirtualFileSystem } from "../../vfs/virtualFileSystem";
 import { ExecutionException, throwZodError } from "../exceptions";
 import { ProjectName } from "../ir";
 import {
@@ -45,6 +46,7 @@ export class TactConfigManager {
    * @param ctx Misti context.
    * @param projectName Name of the project.
    * @param contractPath Path to the Tact contract.
+   * @param vfs Virtual file system to manage interactions with the project files.
    */
   public static fromContract(
     projectRoot: string,
@@ -53,12 +55,16 @@ export class TactConfigManager {
       contractPath,
       ".tact",
     ) as ProjectName,
+    vfs: VirtualFileSystem,
   ): TactConfigManager {
+    const absoluteProjectRoot = vfs.resolve(projectRoot);
+    const absoluteContractPath = path.resolve(projectRoot, contractPath);
+
     const tactConfig: TactConfig = {
       projects: [
         {
           name: projectName,
-          path: path.relative(projectRoot, contractPath),
+          path: path.relative(absoluteProjectRoot, absoluteContractPath),
           output: "/tmp/misti/output", // never used
           options: {
             debug: false,
