@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+The `scripts` directory wasn't included in the npm release, which makes it impossible to build Misti as a dependency
+
 ## [0.6.0] - 2024-12-22
 
 ### Added

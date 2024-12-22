@@ -38,6 +38,7 @@
   "files": [
     "dist/**/*",
     "src/**/*",
+    "scripts/**/*",
     "bin/**/*"
   ],
   "main": "./dist/main.js",
