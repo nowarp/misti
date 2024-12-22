@@ -1,5 +1,7 @@
 import { ToolConfig, OutputFormat } from "./types";
 import { Severity, parseSeverity } from "../internals/warnings";
+import { createVirtualFileSystem } from "../vfs/createVirtualFileSystem";
+import { VirtualFileSystem } from "../vfs/virtualFileSystem";
 import { Option } from "commander";
 
 export const STDOUT_PATH = "-";
@@ -13,6 +15,7 @@ export interface CLIOptions {
   soufflePath: string;
   souffleBinary: string;
   souffleVerbose: boolean;
+  souffleEnabled: boolean;
   tactStdlibPath: string | undefined;
   verbose: boolean;
   quiet: boolean;
@@ -23,6 +26,7 @@ export interface CLIOptions {
   config: string | undefined;
   newDetector: string | undefined;
   listDetectors: boolean;
+  fs: VirtualFileSystem;
 }
 
 export const cliOptionDefaults: Required<CLIOptions> = {
@@ -34,6 +38,7 @@ export const cliOptionDefaults: Required<CLIOptions> = {
   soufflePath: "/tmp/misti/souffle",
   souffleBinary: "souffle",
   souffleVerbose: false,
+  souffleEnabled: true,
   tactStdlibPath: undefined,
   verbose: false,
   quiet: false,
@@ -44,6 +49,7 @@ export const cliOptionDefaults: Required<CLIOptions> = {
   config: undefined,
   newDetector: undefined,
   listDetectors: false,
+  fs: createVirtualFileSystem("/", {}),
 };
 
 export const cliOptions = [

@@ -42,5 +42,9 @@ export function definedInStdlib(
       ? DEFAULT_STDLIB_PATH_ELEMENTS
       : stdlibPath.split("/").filter((part) => part !== "");
   const filePath = typeof locOrPath === "string" ? locOrPath : locOrPath.file;
-  return filePath !== null && hasSubdirs(filePath, pathElements);
+
+  return (
+    filePath !== null &&
+    (filePath.startsWith("@stdlib") || hasSubdirs(filePath, pathElements))
+  );
 }
