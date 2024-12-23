@@ -2,8 +2,7 @@ graph TD
     node_1["fun test_try(a: Int)"]
     node_2["fun test_loops()"]
     node_3["fun testTryCatch(a: Int)"]
-    node_4["fun testLoops()
-[StateWrite]"]
+    node_4["fun testLoops()"]
     node_5["override get fun getter(): Int"]
     node_6["fun test()"]
     node_7["fun test(): Int"]
@@ -18,27 +17,32 @@ graph TD
 [StateWrite]"]
     node_13["fun funcWithMultipleEffects()
 [AccessDatetime,PrgUse,PrgSeedInit]"]
-    node_14["dump"]
-    node_15["emptyMap"]
-    node_16["m::set"]
-    node_17["getA"]
-    node_18["sender"]
-    node_19["send"]
-    node_20["newAddress"]
-    node_21["now"]
-    node_22["random"]
-    node_23["nativeRandomizeLt"]
-    node_1 --> node_14
-    node_2 --> node_15
-    node_3 --> node_14
-    node_4 --> node_15
+    node_14["receive()"]
+    node_15["dump"]
+    node_16["emptyMap"]
+    node_17["m::set"]
+    node_18["getA"]
+    node_19["sender"]
+    node_20["send"]
+    node_21["newAddress"]
+    node_22["now"]
+    node_23["random"]
+    node_24["nativeRandomizeLt"]
+    node_25["beginString"]
+    node_26["a::append"]
+    node_1 --> node_15
+    node_2 --> node_16
+    node_3 --> node_15
     node_4 --> node_16
-    node_4 --> node_16
-    node_4 --> node_16
-    node_7 --> node_17
-    node_9 --> node_18
-    node_10 --> node_19
-    node_12 --> node_20
-    node_13 --> node_21
+    node_4 --> node_17
+    node_4 --> node_17
+    node_4 --> node_17
+    node_7 --> node_18
+    node_9 --> node_19
+    node_10 --> node_20
+    node_12 --> node_21
     node_13 --> node_22
     node_13 --> node_23
+    node_13 --> node_24
+    node_14 --> node_25
+    node_14 --> node_26

@@ -128,4 +128,10 @@ contract EffectTest {
             nativeRandomizeLt();
         }
     }
+
+    // Doesn't add the state write effect
+    receive() {
+        let a = beginString();
+        a.append("f");
+    }
 }

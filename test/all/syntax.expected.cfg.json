@@ -705,7 +705,7 @@
       "name": "EffectTest",
       "methods": [
         {
-          "name": "EffectTest.init_1971",
+          "name": "EffectTest.init_1981",
           "cfg": {
             "nodes": [
               {
@@ -832,6 +832,36 @@
                 "id": 103,
                 "src": 116,
                 "dst": 117
+              }
+            ]
+          }
+        },
+        {
+          "name": "EffectTest.receive_internal_fallback_1980",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 118,
+                "stmtID": 1974,
+                "srcEdges": [],
+                "dstEdges": [
+                  104
+                ]
+              },
+              {
+                "id": 119,
+                "stmtID": 1979,
+                "srcEdges": [
+                  104
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 104,
+                "src": 118,
+                "dst": 119
               }
             ]
           }

@@ -8,6 +8,7 @@ import {
   DATETIME_NAMES,
   isSelfAccess,
   isSendCall,
+  isSelf,
   PRG_INIT_NAMES,
   PRG_NATIVE_USE_NAMES,
   PRG_SAFE_USE_NAMES,
@@ -537,6 +538,7 @@ function isContractStateWrite(stmt: AstStatement): boolean {
       stmt,
       (expr) =>
         expr.kind === "method_call" &&
+        isSelf(expr.self) &&
         (MAP_MUTATING_OPERATIONS.has(idText(expr.method)) ||
           STRING_MUTATING_OPERATIONS.has(idText(expr.method)) ||
           CELL_MUTATING_OPERATIONS.has(idText(expr.method))),

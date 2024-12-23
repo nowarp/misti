@@ -99,8 +99,8 @@ subgraph TestContractT__test
 end
 subgraph TestContractT__receive_external_fallback_1722
 end
-subgraph EffectTest__init_1971
-    EffectTest__init_1971_109["self.addr = sender()"]:::exitNode
+subgraph EffectTest__init_1981
+    EffectTest__init_1981_109["self.addr = sender()"]:::exitNode
 end
 subgraph EffectTest__funcWithSend
     EffectTest__funcWithSend_110["let amount: Int = 100"]
@@ -121,4 +121,9 @@ subgraph EffectTest__funcWithMultipleEffects
     EffectTest__funcWithMultipleEffects_114 --> EffectTest__funcWithMultipleEffects_115
     EffectTest__funcWithMultipleEffects_115 --> EffectTest__funcWithMultipleEffects_116
     EffectTest__funcWithMultipleEffects_116 --> EffectTest__funcWithMultipleEffects_117
+end
+subgraph EffectTest__receive_internal_fallback_1980
+    EffectTest__receive_internal_fallback_1980_118["let a = beginString()"]
+    EffectTest__receive_internal_fallback_1980_119["a.append('f')"]:::exitNode
+    EffectTest__receive_internal_fallback_1980_118 --> EffectTest__receive_internal_fallback_1980_119
 end
