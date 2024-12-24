@@ -82,80 +82,66 @@ export class SendInLoop extends AstDetector {
     if (processedLoopIds.has(stmt.id)) {
       return [];
     }
-    if (this.isLoop(stmt)) {
-      processedLoopIds.add(stmt.id);
+    processedLoopIds.add(stmt.id);
+    if (!this.isLoop(stmt)) {
+      return [];
+    }
 
-      const warnings: MistiTactWarning[] = [];
+    const warnings: MistiTactWarning[] = [];
 
-      // Check direct send calls within the loop
-      foldExpressions(
-        stmt,
-        (acc: MistiTactWarning[], expr: AstExpression) => {
-          if (isSendCall(expr)) {
-            acc.push(
-              this.makeWarning("Send function called inside a loop", expr.loc, {
-                suggestion:
-                  "Consider refactoring to avoid calling send functions inside loops",
-              }),
-            );
-          }
-          return acc;
-        },
-        warnings,
-      );
+    // Check direct send calls within the loop
+    foldExpressions(
+      stmt,
+      (acc: MistiTactWarning[], expr: AstExpression) => {
+        if (isSendCall(expr)) {
+          acc.push(
+            this.makeWarning("Send function called inside a loop", expr.loc, {
+              suggestion:
+                "Consider refactoring to avoid calling send functions inside loops",
+            }),
+          );
+        }
+        return acc;
+      },
+      warnings,
+    );
 
-      // Check function calls within the loop that lead to a send
-      foldExpressions(
-        stmt,
-        (acc: MistiTactWarning[], expr: AstExpression) => {
-          if (expr.kind === "static_call" || expr.kind === "method_call") {
-            const calleeName = callGraph.getFunctionCallName(
-              expr as AstStaticCall | AstMethodCall,
-              currentContractName,
-            );
-            if (calleeName) {
-              const calleeNodeId = callGraph.getNodeIdByName(calleeName);
-              if (calleeNodeId !== undefined) {
-                const calleeNode = callGraph.getNode(calleeNodeId);
-                if (calleeNode && calleeNode.hasEffect(Effect.Send)) {
-                  const functionName = calleeNode.name.includes("::")
-                    ? calleeNode.name.split("::").pop()
-                    : calleeNode.name;
-                  acc.push(
-                    this.makeWarning(
-                      `Method "${functionName}" called inside a loop leads to a send function`,
-                      expr.loc,
-                      {
-                        suggestion:
-                          "Consider refactoring to avoid calling send functions inside loops",
-                      },
-                    ),
-                  );
-                }
+    // Check function calls within the loop that lead to a send
+    foldExpressions(
+      stmt,
+      (acc: MistiTactWarning[], expr: AstExpression) => {
+        if (expr.kind === "static_call" || expr.kind === "method_call") {
+          const calleeName = callGraph.getFunctionCallName(
+            expr as AstStaticCall | AstMethodCall,
+            currentContractName,
+          );
+          if (calleeName) {
+            const calleeNodeId = callGraph.getNodeIdByName(calleeName);
+            if (calleeNodeId !== undefined) {
+              const calleeNode = callGraph.getNode(calleeNodeId);
+              if (calleeNode && calleeNode.hasEffect(Effect.Send)) {
+                const functionName = calleeNode.name.includes("::")
+                  ? calleeNode.name.split("::").pop()
+                  : calleeNode.name;
+                acc.push(
+                  this.makeWarning(
+                    `Method "${functionName}" called inside a loop leads to a send function`,
+                    expr.loc,
+                    {
+                      suggestion:
+                        "Consider refactoring to avoid calling send functions inside loops",
+                    },
+                  ),
+                );
               }
             }
           }
-          return acc;
-        },
-        warnings,
-      );
-      return warnings;
-    }
-    // If the statement is not a loop, don't flag anything
-    return [];
-  }
-
-  private isSendCall(expr: AstExpression): boolean {
-    const staticSendFunctions = ["send", "nativeSendMessage"];
-    const selfMethodSendFunctions = ["reply", "forward", "notify", "emit"];
-    return (
-      (expr.kind === "static_call" &&
-        staticSendFunctions.includes(expr.function?.text || "")) ||
-      (expr.kind === "method_call" &&
-        expr.self.kind === "id" &&
-        (expr.self as any).text === "self" &&
-        selfMethodSendFunctions.includes(expr.method?.text || ""))
+        }
+        return acc;
+      },
+      warnings,
     );
+    return warnings;
   }
 
   private isLoop(stmt: AstStatement): boolean {
