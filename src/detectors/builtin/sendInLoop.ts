@@ -10,6 +10,7 @@ import {
   AstStaticCall,
   AstMethodCall,
   AstContract,
+  SrcInfo,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
@@ -94,12 +95,7 @@ export class SendInLoop extends AstDetector {
       stmt,
       (acc: MistiTactWarning[], expr: AstExpression) => {
         if (isSendCall(expr)) {
-          acc.push(
-            this.makeWarning("Send function called inside a loop", expr.loc, {
-              suggestion:
-                "Consider refactoring to avoid calling send functions inside loops",
-            }),
-          );
+          acc.push(this.warn("Send function called inside a loop", expr.loc));
         }
         return acc;
       },
@@ -115,26 +111,30 @@ export class SendInLoop extends AstDetector {
             expr as AstStaticCall | AstMethodCall,
             currentContractName,
           );
-          if (calleeName) {
-            const calleeNodeId = callGraph.getNodeIdByName(calleeName);
-            if (calleeNodeId !== undefined) {
-              const calleeNode = callGraph.getNode(calleeNodeId);
-              if (calleeNode && calleeNode.hasEffect(Effect.Send)) {
-                const functionName = calleeNode.name.includes("::")
-                  ? calleeNode.name.split("::").pop()
-                  : calleeNode.name;
-                acc.push(
-                  this.makeWarning(
-                    `Method "${functionName}" called inside a loop leads to a send function`,
-                    expr.loc,
-                    {
-                      suggestion:
-                        "Consider refactoring to avoid calling send functions inside loops",
-                    },
-                  ),
-                );
-              }
+          if (calleeName === undefined) {
+            this.ctx.logger.error(
+              `Cannot retrieve function name for AST node: #${expr.id}`,
+            );
+            return acc;
+          }
+          const calleeNodeId = callGraph.getNodeIdByName(calleeName);
+          if (calleeNodeId !== undefined) {
+            const calleeNode = callGraph.getNode(calleeNodeId);
+            if (calleeNode && calleeNode.hasEffect(Effect.Send)) {
+              const isMethod = calleeNode.name.includes("::");
+              const functionName = isMethod
+                ? calleeNode.name.split("::").pop()
+                : calleeNode.name;
+              acc.push(
+                this.warn(
+                  `${isMethod ? "Method" : "Function"} "${functionName}" called inside a loop leads to calling a send function`,
+                  expr.loc,
+                ),
+              );
             }
+          } else {
+            this.ctx.logger.error(`Cannot retrieve CG node: ${calleeName}`);
+            return acc;
           }
         }
         return acc;
@@ -142,6 +142,13 @@ export class SendInLoop extends AstDetector {
       warnings,
     );
     return warnings;
+  }
+
+  private warn(msg: string, loc: SrcInfo): MistiTactWarning {
+    return this.makeWarning(msg, loc, {
+      suggestion:
+        "Consider refactoring to avoid calling send functions inside loops",
+    });
   }
 
   private isLoop(stmt: AstStatement): boolean {

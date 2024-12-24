@@ -433,7 +433,7 @@ export class CallGraph {
     currentContractName?: string,
   ): string | undefined {
     if (expr.kind === "static_call") {
-      return expr.function?.text;
+      return expr.function.text;
     } else if (expr.kind === "method_call") {
       const methodName = expr.method?.text;
       if (methodName) {
