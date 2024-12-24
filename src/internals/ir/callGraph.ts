@@ -102,6 +102,10 @@ class CGNode {
     return (this.effects & effect) !== 0;
   }
 
+  public hasAnyEffect(...effects: Effect[]): boolean {
+    return effects.some((effect) => this.hasEffect(effect));
+  }
+
   /**
    * Pretty-prints a signature of the function is available
    */
@@ -161,11 +165,11 @@ export class CallGraph {
   }
 
   /**
-   * Retrieves a node's ID by its AST ID.
-   * @param astId The AST ID of the function.
+   * Retrieves a node's ID by the AST ID of its definition.
+   * @param astId The AST ID of the function definition.
    * @returns The corresponding node ID, or `undefined` if not found.
    */
-  public getNodeIdByAstId(astId: number): CGNodeId | undefined {
+  public getNodeIdByAstId(astId: AstNode["id"]): CGNodeId | undefined {
     return this.astIdToNodeId.get(astId);
   }
 
@@ -267,9 +271,7 @@ export class CallGraph {
       const node = new CGNode(func.id, funcName, this.logger);
       this.nodeMap.set(node.idx, node);
       this.nameToNodeId.set(funcName, node.idx);
-      if (func.id !== undefined) {
-        this.astIdToNodeId.set(func.id, node.idx);
-      }
+      this.astIdToNodeId.set(func.id, node.idx);
     } else {
       this.logger.error(
         `Function with id ${func.id} has no name and will be skipped.`,
