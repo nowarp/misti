@@ -44,9 +44,6 @@ export class SendInLoop extends AstDetector {
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const processedLoopIds = new Set<number>();
     const allWarnings: MistiTactWarning[] = [];
-    const astStore = cu.ast;
-    const ctx = this.ctx;
-    const callGraph = new CallGraph(ctx).build(astStore);
 
     // Analyze loops and check if any function called within leads to a send
     for (const entry of cu.ast.getProgramEntries()) {
@@ -57,7 +54,7 @@ export class SendInLoop extends AstDetector {
           const warnings = this.analyzeStatement(
             stmt,
             processedLoopIds,
-            callGraph,
+            cu.callGraph,
             contractName,
           );
           allWarnings.push(...warnings);
@@ -67,7 +64,7 @@ export class SendInLoop extends AstDetector {
           const warnings = this.analyzeStatement(
             stmt,
             processedLoopIds,
-            callGraph,
+            cu.callGraph,
           );
           allWarnings.push(...warnings);
         });
