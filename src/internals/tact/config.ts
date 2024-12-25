@@ -57,14 +57,22 @@ export class TactConfigManager {
     ) as ProjectName,
     vfs: VirtualFileSystem,
   ): TactConfigManager {
-    const absoluteProjectRoot = vfs.resolve(projectRoot);
-    const absoluteContractPath = path.resolve(projectRoot, contractPath);
-
+    let vfsContractPath: string = "";
+    if (vfs.type === "local") {
+      vfsContractPath = path.relative(projectRoot, contractPath);
+    } else {
+      const absoluteProjectRoot = vfs.resolve(projectRoot);
+      const absoluteContractPath = path.resolve(projectRoot, contractPath);
+      vfsContractPath = path.relative(
+        absoluteProjectRoot,
+        absoluteContractPath,
+      );
+    }
     const tactConfig: TactConfig = {
       projects: [
         {
           name: projectName,
-          path: path.relative(absoluteProjectRoot, absoluteContractPath),
+          path: vfsContractPath,
           output: "/tmp/misti/output", // never used
           options: {
             debug: false,
