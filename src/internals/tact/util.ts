@@ -558,19 +558,20 @@ export function getConstantLoadSize(call: AstMethodCall): bigint | undefined {
   }
 }
 
+export const SEND_FUNCTIONS = ["send", "nativeSendMessage"];
+export const SEND_METHODS = ["reply", "forward", "notify", "emit"];
+
 /**
  * Determines if the given expression is a 'send' call.
  * @param expr The expression to check.
  * @returns True if the expression is a 'send' call; otherwise, false.
  */
 export function isSendCall(expr: AstExpression): boolean {
-  const staticSendFunctions = ["send", "nativeSendMessage"];
-  const selfMethodSendFunctions = ["reply", "forward", "notify", "emit"];
   return (
     (expr.kind === "static_call" &&
-      staticSendFunctions.includes(expr.function?.text || "")) ||
+      SEND_FUNCTIONS.includes(expr.function.text)) ||
     (expr.kind === "method_call" &&
       isSelf(expr.self) &&
-      selfMethodSendFunctions.includes(expr.method?.text || ""))
+      SEND_METHODS.includes(expr.method.text))
   );
 }

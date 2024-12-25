@@ -1,0 +1,291 @@
+import {
+  AstStoreFunction,
+  BasicBlock,
+  Cfg,
+  CompilationUnit,
+  Effect,
+} from "../../internals/ir";
+import { JoinSemilattice } from "../../internals/lattice";
+import { WorklistSolver } from "../../internals/solver/";
+import {
+  foldExpressions,
+  getMethodCallsChain,
+  isSelf,
+  SEND_FUNCTIONS,
+  SEND_METHODS,
+} from "../../internals/tact";
+import { Transfer } from "../../internals/transfer";
+import { unreachable, mergeLists, isListSubsetOf } from "../../internals/util";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { DataflowDetector } from "../detector";
+import {
+  AstExpression,
+  AstId,
+  AstNode,
+  AstStatement,
+  AstTypedParameter,
+  idText,
+} from "@tact-lang/compiler/dist/grammar/ast";
+import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
+
+type argTaint = {
+  id: AstNode["id"];
+  parents: AstNode["id"][];
+  name: string;
+};
+function createArgTaint(node: AstId, parents: AstNode["id"][] = []): argTaint {
+  return { id: node.id, name: idText(node), parents };
+}
+
+interface TaintState {
+  argTaints: argTaint[];
+}
+
+class TaintLattice implements JoinSemilattice<TaintState> {
+  bottom(): TaintState {
+    return {
+      argTaints: [],
+    };
+  }
+
+  join(a: TaintState, b: TaintState): TaintState {
+    const argTaints = mergeLists(a.argTaints, b.argTaints);
+    return {
+      argTaints,
+    };
+  }
+
+  leq(a: TaintState, b: TaintState): boolean {
+    return isListSubsetOf(a.argTaints, b.argTaints);
+  }
+}
+
+class UnprotectedCallTransfer implements Transfer<TaintState> {
+  constructor(private funArgs: argTaint[]) {}
+
+  public transfer(
+    inState: TaintState,
+    _node: BasicBlock,
+    stmt: AstStatement,
+  ): TaintState {
+    const out = {
+      argTaints: inState.argTaints,
+    };
+    this.processStatement(out, stmt);
+    return out;
+  }
+
+  private findTaints(
+    acc: argTaint[] = [],
+    expr: AstExpression,
+    out: TaintState,
+  ): void {
+    const getTaint = (expr: AstId) =>
+      out.argTaints.find((t) => t.name === expr.text) ||
+      this.funArgs.find((t) => t.name === expr.text);
+    switch (expr.kind) {
+      case "id":
+        const taint = getTaint(expr);
+        if (taint) acc.push(taint);
+        break;
+      case "op_binary":
+        this.findTaints(acc, expr.left, out);
+        this.findTaints(acc, expr.right, out);
+        break;
+      case "op_unary":
+        this.findTaints(acc, expr.operand, out);
+        break;
+      case "conditional":
+        this.findTaints(acc, expr.condition, out);
+        this.findTaints(acc, expr.thenBranch, out);
+        this.findTaints(acc, expr.elseBranch, out);
+        break;
+      case "method_call":
+        // Propagate taint through method call chains: taint.method1().method2()
+        // Heuristic: If the base object originated from a function argument and
+        // we're calling its methods, it's likely a mutable structure (e.g.,
+        // Slice or Cell).
+        const chain = getMethodCallsChain(expr);
+        if (chain && chain.self.kind === "id") {
+          const taint = getTaint(chain.self);
+          if (taint) acc.push(taint);
+        }
+        break;
+      case "static_call":
+        // XXX: What if there is a function/method call that takes a tainted
+        //      value and returns a new (tainted) result?
+        break;
+      case "struct_instance":
+      case "field_access":
+      case "init_of":
+        break;
+      case "string":
+      case "number":
+      case "boolean":
+      case "null":
+        break;
+      default:
+        unreachable(expr);
+    }
+  }
+
+  private processStatement(out: TaintState, stmt: AstStatement) {
+    const lhsRhs = (() => {
+      if (
+        (stmt.kind === "statement_assign" ||
+          stmt.kind === "statement_augmentedassign") &&
+        stmt.path.kind === "id"
+      )
+        return { lhs: stmt.path, rhs: stmt.expression };
+      else if (stmt.kind === "statement_let")
+        return { lhs: stmt.name, rhs: stmt.expression };
+      else return undefined;
+    })();
+    if (lhsRhs) {
+      const { lhs, rhs } = lhsRhs;
+      const taints: argTaint[] = [];
+      this.findTaints(taints, rhs, out);
+      if (taints.length > 0) {
+        const taint = createArgTaint(
+          lhs,
+          taints.map((t) => t.id),
+        );
+        out.argTaints.push(taint);
+      }
+    }
+  }
+}
+
+/**
+ * A detector that identifies unprotected calls or state modifications.
+ *
+ * ## Why is it bad?
+ * Without conditions or permission checks, some calls can be exploited to
+ * disrupt the contract's intended behavior or allow malicious actors to
+ * perform unauthorized actions. For example, a publicly accessible `set`
+ * function in a mapping or an unguarded `send` call can enable draining
+ * contract's funds, denial-of-service (DoS) attacks or other malicious
+ * activities.
+ *
+ * ## Example
+ * ```tact
+ * receive(msg: Insert) {
+ *     // Bad: No protection for the mapping update
+ *     m.set(msg.key, msg.val);
+ * }
+ * ```
+ *
+ * Use instead:
+ * ```tact
+ * receive(msg: Insert) {
+ *     // OK: Permission check ensures only the owner can modify the state
+ *     require(ctx.sender == this.owner, "Invalid sender");
+ *     m.set(msg.key, msg.val);
+ * }
+ * ```
+ */
+export class UnprotectedCall extends DataflowDetector {
+  severity = Severity.CRITICAL;
+
+  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+    let warnings: MistiTactWarning[] = [];
+    cu.forEachCFG((cfg: Cfg) => {
+      const astFun = cu.ast.getFunction(cfg.id);
+      if (!astFun) {
+        this.ctx.logger.warn(`Cannot find AST node for BB #${cfg.id}`);
+        return;
+      }
+      if (!this.hasCallsToCheck(cu, cfg.id)) return;
+      const argTaints = this.getArgTaints(astFun);
+      const lattice = new TaintLattice();
+      const transfer = new UnprotectedCallTransfer(argTaints);
+      const solver = new WorklistSolver(cu, cfg, transfer, lattice, "forward");
+      const taintResults = solver.solve();
+      cfg.forEachBasicBlock(cu.ast, (stmt, bb) => {
+        const state = taintResults.getState(bb.idx);
+        if (state === undefined) {
+          this.ctx.logger.warn(`${this.id}: Cannot find BB #${bb.idx}`);
+          return;
+        }
+        warnings = warnings.concat(this.checkCalls(stmt, state));
+      });
+    });
+    return warnings;
+  }
+
+  private getArgTaints(f: AstStoreFunction): argTaint[] {
+    const taintOfTypedParam = (p: AstTypedParameter) => createArgTaint(p.name);
+    switch (f.kind) {
+      case "function_def":
+      case "contract_init":
+        return f.params.map(taintOfTypedParam);
+      case "receiver":
+        switch (f.selector.kind) {
+          case "internal-simple":
+          case "bounce":
+          case "external-simple":
+            return [taintOfTypedParam(f.selector.param)];
+          default:
+            return [];
+        }
+      default:
+        unreachable(f);
+    }
+  }
+
+  private checkCalls(
+    stmt: AstStatement,
+    state: TaintState,
+  ): MistiTactWarning[] {
+    const inspectArg = (acc: MistiTactWarning[], arg: AstExpression) => {
+      // TODO: Support expressions that taint an arg, e.g.: taint+1
+      // TODO: Print the source of taint (using argTaint.parent)
+      if (arg.kind !== "id") return;
+      const name = idText(arg);
+      if (state.argTaints.find((at) => at.name === name)) {
+        acc.push(
+          this.makeWarning(
+            `Unprotected send argument: ${prettyPrint(arg)}`,
+            arg.loc,
+          ),
+        );
+      }
+    };
+    return foldExpressions(
+      stmt,
+      (acc, expr) => {
+        // Unprotected send argument
+        if (
+          (expr.kind === "static_call" &&
+            SEND_FUNCTIONS.includes(expr.function.text)) ||
+          (expr.kind === "method_call" &&
+            isSelf(expr.self) &&
+            SEND_METHODS.includes(expr.method.text))
+        ) {
+          expr.args.forEach((a) => {
+            if (a.kind === "id") inspectArg(acc, a);
+            else if (a.kind === "struct_instance")
+              a.args.forEach((afield) => inspectArg(acc, afield.initializer));
+          });
+        }
+        // TODO Unprotected map add (key is tainted)
+        return acc;
+      },
+      [] as MistiTactWarning[],
+    );
+  }
+
+  private hasCallsToCheck(cu: CompilationUnit, id: AstNode["id"]): boolean {
+    const cgIdx = cu.callGraph.getNodeIdByAstId(id);
+    if (cgIdx === undefined) {
+      this.ctx.logger.warn(`Cannot find a CG node for AST ID: #${id}`);
+      return false;
+    }
+    const cgNode = cu.callGraph.getNode(cgIdx);
+    if (cgNode === undefined) {
+      this.ctx.logger.warn(`Cannot find a CG node for CG ID: #${cgIdx}`);
+      return false;
+    }
+    return cgNode.hasAnyEffect(Effect.Send, Effect.StateWrite);
+  }
+}
