@@ -16,7 +16,7 @@ import {
   SEND_METHODS,
 } from "../../internals/tact";
 import { Transfer } from "../../internals/transfer";
-import { unreachable, mergeLists, isListSubsetOf } from "../../internals/util";
+import { unreachable, mergeLists } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";
 import {
@@ -29,17 +29,35 @@ import {
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
-type argTaint = {
+type ArgTaint = {
   id: AstNode["id"];
   parents: AstNode["id"][];
   name: string;
+  // Poor man's path-sensitivity: we don't care about path contexts; we only
+  // need to set this flag and ensure the transfer function maintains
+  // monotonicity.
+  unprotected: boolean;
 };
-function createArgTaint(node: AstId, parents: AstNode["id"][] = []): argTaint {
-  return { id: node.id, name: idText(node), parents };
+function createArgTaint(
+  node: AstId,
+  {
+    parents = [],
+    unprotected = true,
+  }: Partial<{ parents: AstNode["id"][]; unprotected: boolean }> = {},
+): ArgTaint {
+  return { id: node.id, name: idText(node), parents, unprotected };
+}
+function eqArgTaint(lhs: ArgTaint, rhs: ArgTaint): boolean {
+  return (
+    lhs.id === rhs.id &&
+    lhs.name === rhs.name &&
+    lhs.parents.length === rhs.parents.length &&
+    lhs.parents.every((v, i) => v === rhs.parents[i])
+  );
 }
 
 interface TaintState {
-  argTaints: argTaint[];
+  argTaints: ArgTaint[];
 }
 
 class TaintLattice implements JoinSemilattice<TaintState> {
@@ -57,12 +75,12 @@ class TaintLattice implements JoinSemilattice<TaintState> {
   }
 
   leq(a: TaintState, b: TaintState): boolean {
-    return isListSubsetOf(a.argTaints, b.argTaints);
+    return a.argTaints.every((x) => b.argTaints.some((y) => eqArgTaint(x, y)));
   }
 }
 
 class UnprotectedCallTransfer implements Transfer<TaintState> {
-  constructor(private funArgs: argTaint[]) {}
+  constructor(private funArgs: ArgTaint[]) {}
 
   public transfer(
     inState: TaintState,
@@ -77,12 +95,12 @@ class UnprotectedCallTransfer implements Transfer<TaintState> {
   }
 
   private findTaints(
-    acc: argTaint[] = [],
+    acc: ArgTaint[] = [],
     expr: AstExpression,
     out: TaintState,
   ): void {
     const getTaint = (expr: AstId) =>
-      out.argTaints.find((t) => t.name === expr.text) ||
+      out.argTaints.find((t) => t.name === expr.text && t.unprotected) ||
       this.funArgs.find((t) => t.name === expr.text);
     switch (expr.kind) {
       case "id":
@@ -117,6 +135,7 @@ class UnprotectedCallTransfer implements Transfer<TaintState> {
         //      value and returns a new (tainted) result?
         break;
       case "struct_instance":
+      // TODO: Should we handle taints appearing in field defs?
       case "field_access":
       case "init_of":
         break;
@@ -131,6 +150,23 @@ class UnprotectedCallTransfer implements Transfer<TaintState> {
   }
 
   private processStatement(out: TaintState, stmt: AstStatement) {
+    this.addNewTaints(out, stmt);
+    this.trackConditions(out, stmt);
+  }
+
+  private trackConditions(out: TaintState, stmt: AstStatement) {
+    if (stmt.kind === "statement_condition") {
+      const argTaints: ArgTaint[] = [];
+      this.findTaints(argTaints, stmt.condition, out);
+      out.argTaints = out.argTaints.map((existing) =>
+        argTaints.some((found) => found.id === existing.id)
+          ? { ...existing, unprotected: false }
+          : existing,
+      );
+    }
+  }
+
+  private addNewTaints(out: TaintState, stmt: AstStatement) {
     const lhsRhs = (() => {
       if (
         (stmt.kind === "statement_assign" ||
@@ -144,13 +180,10 @@ class UnprotectedCallTransfer implements Transfer<TaintState> {
     })();
     if (lhsRhs) {
       const { lhs, rhs } = lhsRhs;
-      const taints: argTaint[] = [];
+      const taints: ArgTaint[] = [];
       this.findTaints(taints, rhs, out);
       if (taints.length > 0) {
-        const taint = createArgTaint(
-          lhs,
-          taints.map((t) => t.id),
-        );
+        const taint = createArgTaint(lhs, { parents: taints.map((t) => t.id) });
         out.argTaints.push(taint);
       }
     }
@@ -214,7 +247,7 @@ export class UnprotectedCall extends DataflowDetector {
     return warnings;
   }
 
-  private getArgTaints(f: AstStoreFunction): argTaint[] {
+  private getArgTaints(f: AstStoreFunction): ArgTaint[] {
     const taintOfTypedParam = (p: AstTypedParameter) => createArgTaint(p.name);
     switch (f.kind) {
       case "function_def":
@@ -247,7 +280,8 @@ export class UnprotectedCall extends DataflowDetector {
       // TODO: Print the source of taint (using argTaint.parent)
       if (arg.kind !== "id") return;
       const name = idText(arg);
-      if (state.argTaints.find((at) => at.name === name)) {
+      // TODO: direct funargs usage
+      if (state.argTaints.find((at) => at.name === name && at.unprotected)) {
         acc.push(this.makeWarning(`${msg}: ${prettyPrint(arg)}`, arg.loc));
       }
     };
