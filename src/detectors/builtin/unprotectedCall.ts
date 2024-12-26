@@ -11,6 +11,7 @@ import {
   foldExpressions,
   getMethodCallsChain,
   isSelf,
+  isStdlibMutationMethod,
   SEND_FUNCTIONS,
   SEND_METHODS,
 } from "../../internals/tact";
@@ -237,38 +238,63 @@ export class UnprotectedCall extends DataflowDetector {
     stmt: AstStatement,
     state: TaintState,
   ): MistiTactWarning[] {
-    const inspectArg = (acc: MistiTactWarning[], arg: AstExpression) => {
+    const inspectArg = (
+      acc: MistiTactWarning[],
+      arg: AstExpression,
+      msg: string,
+    ) => {
       // TODO: Support expressions that taint an arg, e.g.: taint+1
       // TODO: Print the source of taint (using argTaint.parent)
       if (arg.kind !== "id") return;
       const name = idText(arg);
       if (state.argTaints.find((at) => at.name === name)) {
-        acc.push(
-          this.makeWarning(
-            `Unprotected send argument: ${prettyPrint(arg)}`,
-            arg.loc,
-          ),
-        );
+        acc.push(this.makeWarning(`${msg}: ${prettyPrint(arg)}`, arg.loc));
+      }
+    };
+    const checkUnprotectedSendArg = (
+      acc: MistiTactWarning[],
+      expr: AstExpression,
+    ) => {
+      const inspectArg_ = (acc: MistiTactWarning[], arg: AstExpression) =>
+        inspectArg(acc, arg, "Unprotected send argument");
+      if (
+        (expr.kind === "static_call" &&
+          SEND_FUNCTIONS.includes(expr.function.text)) ||
+        (expr.kind === "method_call" &&
+          isSelf(expr.self) &&
+          SEND_METHODS.includes(expr.method.text))
+      ) {
+        expr.args.forEach((a) => {
+          if (a.kind === "struct_instance")
+            a.args.forEach((afield) => inspectArg_(acc, afield.initializer));
+          else inspectArg_(acc, a);
+        });
+      }
+    };
+    const checkUnprotectedFieldMutation = (
+      acc: MistiTactWarning[],
+      expr: AstExpression,
+    ) => {
+      if (expr.kind === "method_call") {
+        const chain = getMethodCallsChain(expr);
+        if (
+          chain &&
+          chain.self.kind === "field_access" &&
+          isSelf(chain.self.aggregate) &&
+          chain.calls.length === 1 &&
+          isStdlibMutationMethod(chain.calls[0])
+        ) {
+          expr.args.forEach((a) => {
+            inspectArg(acc, a, "Unprotected field mutation");
+          });
+        }
       }
     };
     return foldExpressions(
       stmt,
       (acc, expr) => {
-        // Unprotected send argument
-        if (
-          (expr.kind === "static_call" &&
-            SEND_FUNCTIONS.includes(expr.function.text)) ||
-          (expr.kind === "method_call" &&
-            isSelf(expr.self) &&
-            SEND_METHODS.includes(expr.method.text))
-        ) {
-          expr.args.forEach((a) => {
-            if (a.kind === "id") inspectArg(acc, a);
-            else if (a.kind === "struct_instance")
-              a.args.forEach((afield) => inspectArg(acc, afield.initializer));
-          });
-        }
-        // TODO Unprotected map add (key is tainted)
+        checkUnprotectedSendArg(acc, expr);
+        checkUnprotectedFieldMutation(acc, expr);
         return acc;
       },
       [] as MistiTactWarning[],
