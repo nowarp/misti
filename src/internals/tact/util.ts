@@ -388,6 +388,12 @@ export function srcInfoToString(loc: SrcInfo): string {
 /**
  * Collects a chain of method calls.
  *
+ * Example:
+ *
+ * self.field.set(a, b);
+ * ^^^^^^^^^^ ^^^^^^^^^
+ *    self    calls[0]
+ *
  * The return format is the following: `expr.method1().method2()`, where `expr`
  * might be a function call, e.g.:
  *
@@ -409,10 +415,9 @@ export function getMethodCallsChain(
     calls.push(methodCall);
     currentExpr = methodCall.self;
   }
-  if (calls.length === 0) {
-    return undefined;
-  }
-  return { self: currentExpr, calls: calls.reverse() };
+  return calls.length === 0
+    ? undefined
+    : { self: currentExpr, calls: calls.reverse() };
 }
 
 /**
