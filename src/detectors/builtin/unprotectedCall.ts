@@ -29,31 +29,36 @@ import {
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
-type ArgTaint = {
-  id: AstNode["id"];
-  parents: AstNode["id"][];
-  name: string;
+class ArgTaint {
+  readonly id: AstNode["id"];
+  readonly parents: AstNode["id"][];
+  readonly name: string;
   // Poor man's path-sensitivity: we don't care about path contexts; we only
   // need to set this flag and ensure the transfer function maintains
   // monotonicity.
-  unprotected: boolean;
-};
-function createArgTaint(
-  node: AstId,
-  {
-    parents = [],
-    unprotected = true,
-  }: Partial<{ parents: AstNode["id"][]; unprotected: boolean }> = {},
-): ArgTaint {
-  return { id: node.id, name: idText(node), parents, unprotected };
-}
-function eqArgTaint(lhs: ArgTaint, rhs: ArgTaint): boolean {
-  return (
-    lhs.id === rhs.id &&
-    lhs.name === rhs.name &&
-    lhs.parents.length === rhs.parents.length &&
-    lhs.parents.every((v, i) => v === rhs.parents[i])
-  );
+  readonly unprotected: boolean;
+
+  constructor(
+    node: AstId,
+    {
+      parents = [],
+      unprotected = true,
+    }: Partial<{ parents: AstNode["id"][]; unprotected: boolean }> = {},
+  ) {
+    this.id = node.id;
+    this.name = idText(node);
+    this.parents = parents;
+    this.unprotected = unprotected;
+  }
+
+  static eq(lhs: ArgTaint, rhs: ArgTaint): boolean {
+    return (
+      lhs.id === rhs.id &&
+      lhs.name === rhs.name &&
+      lhs.parents.length === rhs.parents.length &&
+      lhs.parents.every((v, i) => v === rhs.parents[i])
+    );
+  }
 }
 
 interface TaintState {
@@ -75,7 +80,7 @@ class TaintLattice implements JoinSemilattice<TaintState> {
   }
 
   leq(a: TaintState, b: TaintState): boolean {
-    return a.argTaints.every((x) => b.argTaints.some((y) => eqArgTaint(x, y)));
+    return a.argTaints.every((x) => b.argTaints.some((y) => ArgTaint.eq(x, y)));
   }
 }
 
@@ -183,7 +188,7 @@ class UnprotectedCallTransfer implements Transfer<TaintState> {
       const taints: ArgTaint[] = [];
       this.findTaints(taints, rhs, out);
       if (taints.length > 0) {
-        const taint = createArgTaint(lhs, { parents: taints.map((t) => t.id) });
+        const taint = new ArgTaint(lhs, { parents: taints.map((t) => t.id) });
         out.argTaints.push(taint);
       }
     }
@@ -248,7 +253,7 @@ export class UnprotectedCall extends DataflowDetector {
   }
 
   private getArgTaints(f: AstStoreFunction): ArgTaint[] {
-    const taintOfTypedParam = (p: AstTypedParameter) => createArgTaint(p.name);
+    const taintOfTypedParam = (p: AstTypedParameter) => new ArgTaint(p.name);
     switch (f.kind) {
       case "function_def":
       case "contract_init":
