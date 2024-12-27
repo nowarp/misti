@@ -93,7 +93,7 @@ class UnprotectedCallTransfer implements Transfer<TaintState> {
     stmt: AstStatement,
   ): TaintState {
     const out = {
-      argTaints: inState.argTaints,
+      argTaints: [...inState.argTaints],
     };
     this.processStatement(out, stmt);
     return out;
