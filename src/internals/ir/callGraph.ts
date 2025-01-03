@@ -223,7 +223,7 @@ export class CallGraph {
    * @returns The constructed `CallGraph`.
    */
   public build(astStore: AstStore): CallGraph {
-    astStore.getProgramEntries().forEach((entry) => {
+    astStore.getProgramEntries({ includeStdlib: true }).forEach((entry) => {
       if (entry.kind === "contract") {
         const contract = entry as AstContract;
         const contractName = contract.name.text;

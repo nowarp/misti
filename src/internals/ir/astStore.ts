@@ -22,6 +22,8 @@ import {
   AstTrait,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
+export type AstStoreFunction = AstFunctionDef | AstReceiver | AstContractInit;
+
 /**
  * Parameters for filtering AST items.
  */
@@ -63,10 +65,7 @@ export class AstStore {
     private stdlibIds = new Set<AstNode["id"]>(),
     private contractEntries = new Map<AstNode["id"], Set<AstNode["id"]>>(),
     private programEntries: Map<Filename, Set<AstNode["id"]>>,
-    private functions: Map<
-      AstNode["id"],
-      AstFunctionDef | AstReceiver | AstContractInit
-    >,
+    private functions: Map<AstNode["id"], AstStoreFunction>,
     private constants: Map<AstNode["id"], AstConstantDef>,
     private contracts: Map<AstNode["id"], AstContract>,
     private nativeFunctions: Map<AstNode["id"], AstNativeFunctionDecl>,
@@ -155,7 +154,7 @@ export class AstStore {
    */
   public getFunctions(
     params: AstItemParams = {},
-  ): IterableIterator<AstFunctionDef | AstReceiver | AstContractInit> {
+  ): IterableIterator<AstStoreFunction> {
     return this.getItems(this.functions, params);
   }
 
@@ -227,9 +226,7 @@ export class AstStore {
    * @param id The unique identifier of the function or method.
    * @returns The function or method if found, otherwise undefined.
    */
-  public getFunction(
-    id: AstNode["id"],
-  ): AstFunctionDef | AstReceiver | AstContractInit | undefined {
+  public getFunction(id: AstNode["id"]): AstStoreFunction | undefined {
     return this.functions.get(id);
   }
 
