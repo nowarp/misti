@@ -296,9 +296,6 @@ export class UnprotectedCall extends DataflowDetector {
       if (taints.length > 0) {
         acc.push(this.makeWarning(`${msg}: ${prettyPrint(arg)}`, arg.loc));
       }
-      // if (arg.kind === "id" && findUnprotectedArg(idText(arg), state.argTaints)) {
-      //     acc.push(this.makeWarning(`${msg}: ${prettyPrint(arg)}`, arg.loc));
-      // }
     };
     const checkUnprotectedSendArg = (
       acc: MistiTactWarning[],
