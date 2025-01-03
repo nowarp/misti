@@ -65,10 +65,76 @@ interface TaintState {
   argTaints: ArgTaint[];
 }
 
+/**
+ * Recursively identifies tainted values in AST expressions.
+ *
+ * @param acc Output taint accumulator
+ * @param expr AST expression to analyze
+ * @param out Current taint state
+ */
+function findTaints(
+  acc: ArgTaint[] = [],
+  expr: AstExpression,
+  out: Readonly<TaintState>,
+): void {
+  const findUnprotectedArg = (
+    name: string,
+    args: ArgTaint[],
+  ): ArgTaint | undefined =>
+    args.find((arg) => arg.name === name && arg.unprotected);
+  switch (expr.kind) {
+    case "id":
+      const taint = findUnprotectedArg(idText(expr), out.argTaints);
+      if (taint) acc.push(taint);
+      break;
+    case "op_binary":
+      findTaints(acc, expr.left, out);
+      findTaints(acc, expr.right, out);
+      break;
+    case "op_unary":
+      findTaints(acc, expr.operand, out);
+      break;
+    case "conditional":
+      findTaints(acc, expr.condition, out);
+      findTaints(acc, expr.thenBranch, out);
+      findTaints(acc, expr.elseBranch, out);
+      break;
+    case "method_call":
+      // Propagate taint through method call chains: taint.method1().method2()
+      // Heuristic: If the base object originated from a function argument and
+      // we're calling its methods, it's likely a mutable structure (e.g.,
+      // Slice or Cell).
+      const chain = getMethodCallsChain(expr);
+      if (chain && chain.self.kind === "id") {
+        const taint = findUnprotectedArg(idText(chain.self), out.argTaints);
+        if (taint) acc.push(taint);
+      }
+      break;
+    case "static_call":
+      // XXX: What if there is a function/method call that takes a tainted
+      //      value and returns a new (tainted) result?
+      break;
+    case "struct_instance":
+    // TODO: Should we handle taints appearing in field defs?
+    case "field_access":
+    case "init_of":
+      break;
+    case "string":
+    case "number":
+    case "boolean":
+    case "null":
+      break;
+    default:
+      unreachable(expr);
+  }
+}
+
 class TaintLattice implements JoinSemilattice<TaintState> {
+  constructor(private funArgs: ArgTaint[]) {}
+
   bottom(): TaintState {
     return {
-      argTaints: [],
+      argTaints: this.funArgs,
     };
   }
 
@@ -85,8 +151,6 @@ class TaintLattice implements JoinSemilattice<TaintState> {
 }
 
 class UnprotectedCallTransfer implements Transfer<TaintState> {
-  constructor(private funArgs: ArgTaint[]) {}
-
   public transfer(
     inState: TaintState,
     _node: BasicBlock,
@@ -99,61 +163,6 @@ class UnprotectedCallTransfer implements Transfer<TaintState> {
     return out;
   }
 
-  private findTaints(
-    acc: ArgTaint[] = [],
-    expr: AstExpression,
-    out: TaintState,
-  ): void {
-    const getTaint = (expr: AstId) =>
-      out.argTaints.find((t) => t.name === expr.text && t.unprotected) ||
-      this.funArgs.find((t) => t.name === expr.text);
-    switch (expr.kind) {
-      case "id":
-        const taint = getTaint(expr);
-        if (taint) acc.push(taint);
-        break;
-      case "op_binary":
-        this.findTaints(acc, expr.left, out);
-        this.findTaints(acc, expr.right, out);
-        break;
-      case "op_unary":
-        this.findTaints(acc, expr.operand, out);
-        break;
-      case "conditional":
-        this.findTaints(acc, expr.condition, out);
-        this.findTaints(acc, expr.thenBranch, out);
-        this.findTaints(acc, expr.elseBranch, out);
-        break;
-      case "method_call":
-        // Propagate taint through method call chains: taint.method1().method2()
-        // Heuristic: If the base object originated from a function argument and
-        // we're calling its methods, it's likely a mutable structure (e.g.,
-        // Slice or Cell).
-        const chain = getMethodCallsChain(expr);
-        if (chain && chain.self.kind === "id") {
-          const taint = getTaint(chain.self);
-          if (taint) acc.push(taint);
-        }
-        break;
-      case "static_call":
-        // XXX: What if there is a function/method call that takes a tainted
-        //      value and returns a new (tainted) result?
-        break;
-      case "struct_instance":
-      // TODO: Should we handle taints appearing in field defs?
-      case "field_access":
-      case "init_of":
-        break;
-      case "string":
-      case "number":
-      case "boolean":
-      case "null":
-        break;
-      default:
-        unreachable(expr);
-    }
-  }
-
   private processStatement(out: TaintState, stmt: AstStatement) {
     this.addNewTaints(out, stmt);
     this.trackConditions(out, stmt);
@@ -162,7 +171,7 @@ class UnprotectedCallTransfer implements Transfer<TaintState> {
   private trackConditions(out: TaintState, stmt: AstStatement) {
     if (stmt.kind === "statement_condition") {
       const argTaints: ArgTaint[] = [];
-      this.findTaints(argTaints, stmt.condition, out);
+      findTaints(argTaints, stmt.condition, out);
       out.argTaints = out.argTaints.map((existing) =>
         argTaints.some((found) => found.id === existing.id)
           ? { ...existing, unprotected: false }
@@ -186,7 +195,7 @@ class UnprotectedCallTransfer implements Transfer<TaintState> {
     if (lhsRhs) {
       const { lhs, rhs } = lhsRhs;
       const taints: ArgTaint[] = [];
-      this.findTaints(taints, rhs, out);
+      findTaints(taints, rhs, out);
       if (taints.length > 0) {
         const taint = new ArgTaint(lhs, { parents: taints.map((t) => t.id) });
         out.argTaints.push(taint);
@@ -236,8 +245,8 @@ export class UnprotectedCall extends DataflowDetector {
       }
       if (!this.hasCallsToCheck(cu, cfg.id)) return;
       const argTaints = this.getArgTaints(astFun);
-      const lattice = new TaintLattice();
-      const transfer = new UnprotectedCallTransfer(argTaints);
+      const lattice = new TaintLattice(argTaints);
+      const transfer = new UnprotectedCallTransfer();
       const solver = new WorklistSolver(cu, cfg, transfer, lattice, "forward");
       const taintResults = solver.solve();
       cfg.forEachBasicBlock(cu.ast, (stmt, bb) => {
@@ -281,14 +290,15 @@ export class UnprotectedCall extends DataflowDetector {
       arg: AstExpression,
       msg: string,
     ) => {
-      // TODO: Support expressions that taint an arg, e.g.: taint+1
       // TODO: Print the source of taint (using argTaint.parent)
-      if (arg.kind !== "id") return;
-      const name = idText(arg);
-      // TODO: direct funargs usage
-      if (state.argTaints.find((at) => at.name === name && at.unprotected)) {
+      const taints: ArgTaint[] = [];
+      findTaints(taints, arg, state);
+      if (taints.length > 0) {
         acc.push(this.makeWarning(`${msg}: ${prettyPrint(arg)}`, arg.loc));
       }
+      // if (arg.kind === "id" && findUnprotectedArg(idText(arg), state.argTaints)) {
+      //     acc.push(this.makeWarning(`${msg}: ${prettyPrint(arg)}`, arg.loc));
+      // }
     };
     const checkUnprotectedSendArg = (
       acc: MistiTactWarning[],
