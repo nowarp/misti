@@ -14,7 +14,6 @@ import {
   MeetSemilattice,
   WideningLattice,
 } from "../lattice";
-import { Num } from "../numbers/";
 import { Transfer } from "../transfer";
 
 /**
@@ -234,18 +233,5 @@ export class WideningWorklistSolver<
         throw InternalException.make("Unsupported semilattice type");
       }
     }
-  }
-
-  /**
-   * Type guard to check if the value is a numeric type.
-   * @param n The value to check.
-   * @returns True if the value is a Num, false otherwise.
-   */
-  private isNum(n: any): n is Num {
-    return (
-      typeof n === "object" &&
-      "kind" in n &&
-      (n.kind === "IntNum" || n.kind === "PInf" || n.kind === "MInf")
-    );
   }
 }
