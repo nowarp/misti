@@ -205,6 +205,13 @@ interface DetectorEntry {
  * A mapping of detector names to their respective loader functions and default enablement status.
  */
 export const BuiltInDetectors: Record<string, DetectorEntry> = {
+  NeverAccessedVariables: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/neverAccessedVariables").then(
+        (module) => new module.NeverAccessedVariables(ctx),
+      ),
+    enabledByDefault: true,
+  },
   DivideBeforeMultiply: {
     loader: (ctx: MistiContext) =>
       import("./builtin/divideBeforeMultiply").then(
@@ -216,13 +223,6 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
     loader: (ctx: MistiContext) =>
       import("./builtin/readOnlyVariables").then(
         (module) => new module.ReadOnlyVariables(ctx),
-      ),
-    enabledByDefault: true,
-  },
-  NeverAccessedVariables: {
-    loader: (ctx: MistiContext) =>
-      import("./builtin/neverAccessedVariables").then(
-        (module) => new module.NeverAccessedVariables(ctx),
       ),
     enabledByDefault: true,
   },
@@ -398,6 +398,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
         (module) => new module.CellBounds(ctx),
       ),
     enabledByDefault: true,
+  },
+  SuspiciousLoop: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/suspiciousLoop").then(
+        (module) => new module.SuspiciousLoop(ctx),
+      ),
+    enabledByDefault: false,
   },
 };
 
