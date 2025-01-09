@@ -1,5 +1,6 @@
-import { AstStore } from "..";
+import { AstStore, ContractName, FunctionName } from "..";
 import { MistiContext } from "../../context";
+import { InternalException } from "../../exceptions";
 import { definedInStdlib } from "../../tact/stdlib";
 import { unreachable } from "../../util";
 import {
@@ -18,6 +19,7 @@ import {
   AstTrait,
   AstTypeDecl,
   SrcInfo,
+  idText,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { AstStore as TactAstStore } from "@tact-lang/compiler/dist/grammar/store";
 
@@ -25,23 +27,24 @@ import { AstStore as TactAstStore } from "@tact-lang/compiler/dist/grammar/store
  * Transforms AstStore to AstStore.
  */
 export class AstStoreBuilder {
-  private programEntries: Map<string, Set<number>> = new Map();
-  private stdlibIds = new Set<number>();
+  private programEntries: Map<string, Set<AstNode["id"]>> = new Map();
+  private stdlibIds = new Set<AstNode["id"]>();
   /** Items defined within contracts and traits */
   private contractEntries = new Map<AstContract["id"], Set<AstNode["id"]>>();
+  private functionNames = new Map<AstNode["id"], FunctionName>();
   private functions = new Map<
-    number,
+    AstNode["id"],
     AstFunctionDef | AstReceiver | AstContractInit
   >();
-  private constants = new Map<number, AstConstantDef>();
-  private contracts = new Map<number, AstContract>();
-  private nativeFunctions = new Map<number, AstNativeFunctionDecl>();
-  private asmFunctions = new Map<number, AstAsmFunctionDef>();
-  private primitives = new Map<number, AstPrimitiveTypeDecl>();
-  private structs = new Map<number, AstStructDecl>();
-  private messages = new Map<number, AstMessageDecl>();
-  private traits = new Map<number, AstTrait>();
-  private statements = new Map<number, AstStatement>();
+  private constants = new Map<AstNode["id"], AstConstantDef>();
+  private contracts = new Map<AstNode["id"], AstContract>();
+  private nativeFunctions = new Map<AstNode["id"], AstNativeFunctionDecl>();
+  private asmFunctions = new Map<AstNode["id"], AstAsmFunctionDef>();
+  private primitives = new Map<AstNode["id"], AstPrimitiveTypeDecl>();
+  private structs = new Map<AstNode["id"], AstStructDecl>();
+  private messages = new Map<AstNode["id"], AstMessageDecl>();
+  private traits = new Map<AstNode["id"], AstTrait>();
+  private statements = new Map<AstNode["id"], AstStatement>();
 
   private constructor(
     private ctx: MistiContext,
@@ -49,7 +52,7 @@ export class AstStoreBuilder {
   ) {
     this.processAstElements(this.ast.functions, this.processFunctionElement);
     this.processAstElements(this.ast.constants, this.processConstantElement);
-    this.processAstElements(this.ast.types, this.processTypeElement);
+    this.processAstElements(this.ast.types, this.processType);
   }
   public static make(ctx: MistiContext, ast: TactAstStore): AstStoreBuilder {
     return new AstStoreBuilder(ctx, ast);
@@ -80,13 +83,13 @@ export class AstStoreBuilder {
   ): void {
     switch (func.kind) {
       case "function_def":
-        this.processFunction(func);
+        this.processFunction(func, undefined);
         break;
       case "asm_function_def":
-        this.asmFunctions.set(func.id, func);
+        this.processAsmFunction(func, undefined);
         break;
       case "native_function_decl":
-        this.nativeFunctions.set(func.id, func);
+        this.processNativeFunction(func);
         break;
       default:
         unreachable(func);
@@ -97,15 +100,12 @@ export class AstStoreBuilder {
     this.constants.set(constant.id, constant);
   }
 
-  private processTypeElement(type: AstTypeDecl): void {
-    this.processType(type);
-  }
-
   public build(): AstStore {
     return new AstStore(
       this.stdlibIds,
       this.contractEntries,
       this.programEntries,
+      this.functionNames,
       this.functions,
       this.constants,
       this.contracts,
@@ -143,6 +143,7 @@ export class AstStoreBuilder {
 
   private processTrait(trait: AstTrait): void {
     this.traits.set(trait.id, trait);
+    const traitName = idText(trait.name) as ContractName;
     for (const decl of trait.declarations) {
       this.addContractEntry(trait.id, decl.id);
       switch (decl.kind) {
@@ -151,10 +152,10 @@ export class AstStoreBuilder {
           break;
         case "function_def":
         case "receiver":
-          this.processFunction(decl);
+          this.processFunction(decl, traitName);
           break;
         case "asm_function_def":
-          this.asmFunctions.set(decl.id, decl);
+          this.processAsmFunction(decl, traitName);
           break;
         case "constant_def":
           this.constants.set(decl.id, decl);
@@ -170,6 +171,7 @@ export class AstStoreBuilder {
 
   private processContract(contract: AstContract): void {
     this.contracts.set(contract.id, contract);
+    const contractName = idText(contract.name) as ContractName;
     for (const decl of contract.declarations) {
       this.addContractEntry(contract.id, decl.id);
       switch (decl.kind) {
@@ -179,10 +181,10 @@ export class AstStoreBuilder {
         case "function_def":
         case "contract_init":
         case "receiver":
-          this.processFunction(decl);
+          this.processFunction(decl, contractName);
           break;
         case "asm_function_def":
-          this.asmFunctions.set(decl.id, decl);
+          this.processAsmFunction(decl, contractName);
           break;
         case "constant_def":
           this.constants.set(decl.id, decl);
@@ -195,9 +197,27 @@ export class AstStoreBuilder {
 
   private processFunction(
     func: AstFunctionDef | AstContractInit | AstReceiver,
+    contract: ContractName | undefined,
   ): void {
+    const name = this.extractFunctionName(func, contract);
+    this.functionNames.set(func.id, name);
     this.functions.set(func.id, func);
     func.statements?.forEach((stmt) => this.processStmt(stmt));
+  }
+
+  private processAsmFunction(
+    func: AstAsmFunctionDef,
+    contract: ContractName | undefined,
+  ): void {
+    const name = this.extractFunctionName(func, contract);
+    this.functionNames.set(func.id, name);
+    this.asmFunctions.set(func.id, func);
+  }
+
+  private processNativeFunction(func: AstNativeFunctionDecl): void {
+    const name = this.extractFunctionName(func, undefined);
+    this.functionNames.set(func.id, name);
+    this.nativeFunctions.set(func.id, func);
   }
 
   private processStmt(stmt: AstStatement): void {
@@ -242,5 +262,49 @@ export class AstStoreBuilder {
       contractId,
       (this.contractEntries.get(contractId) || new Set()).add(nodeId),
     );
+  }
+
+  /**
+   * Extracts the function name based on its type and optional contract name.
+   * @param func The function definition, receiver, or initializer.
+   * @param contract The optional contract name.
+   * @returns The function name, or `undefined` if it cannot be determined.
+   */
+  private extractFunctionName(
+    func:
+      | AstFunctionDef
+      | AstReceiver
+      | AstContractInit
+      | AstAsmFunctionDef
+      | AstNativeFunctionDecl,
+    contract: ContractName | undefined,
+  ): FunctionName | never {
+    const withContract = (base: string): FunctionName =>
+      `${contract}::${base}` as FunctionName;
+    const requireContract = () => {
+      if (!contract) throw InternalException.make("");
+    };
+    switch (func.kind) {
+      case "function_def":
+        return contract
+          ? withContract(idText(func.name))
+          : (idText(func.name) as FunctionName);
+      case "asm_function_def":
+        return contract
+          ? withContract(`[asm]${idText(func.name)}`)
+          : (`[asm]${idText(func.name)}` as FunctionName);
+      case "native_function_decl":
+        return contract
+          ? withContract(`[native]${idText(func.name)}`)
+          : (`[native]${idText(func.name)}` as FunctionName);
+      case "contract_init":
+        requireContract();
+        return withContract(`contract_init_${func.id}`);
+      case "receiver":
+        requireContract();
+        return withContract(`receiver_${func.id}`);
+      default:
+        unreachable(func);
+    }
   }
 }
