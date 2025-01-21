@@ -406,6 +406,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: false,
   },
+  TimestampDependence: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/timestampDependence").then(
+        (module) => new module.TimestampDependence(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**
