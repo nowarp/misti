@@ -8,8 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- File-scoped CFG dumps: Issue [#241](https://github.com/nowarp/misti/issues/241)
 - `SuspiciousLoop` detector: PR [#206](https://github.com/nowarp/misti/pull/206)
+- File-scoped CFG dumps: Issue [#241](https://github.com/nowarp/misti/issues/241)
 ## [0.6.2] - 2024-12-25
 
 ### Fixed
