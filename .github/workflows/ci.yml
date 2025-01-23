@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [22]
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
 
     runs-on: ${{ matrix.os }}
 
@@ -31,8 +31,9 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y graphviz
-        wget http://archive.ubuntu.com/ubuntu/pool/main/libf/libffi/libffi7_3.3-4_amd64.deb
-        sudo dpkg -i libffi7_3.3-4_amd64.deb
+        # Install libffi7 coming as dependency of Souffle
+        # wget http://archive.ubuntu.com/ubuntu/pool/main/libf/libffi/libffi7_3.3-4_amd64.deb
+        # sudo dpkg -i libffi7_3.3-4_amd64.deb
 
     - name: Install Soufflé on Ubuntu
       if: matrix.os == 'ubuntu-latest'
