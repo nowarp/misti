@@ -1,0 +1,35 @@
+[HIGH] SuspiciousLoop: Potential unbounded or high-cost loop
+test/detectors/SuspiciousLoop.tact:5:9:
+  4 |         let i: Int = 0;
+> 5 |         while (true) { // This should be flagged for an unbounded condition
+              ^
+  6 |             i = i + 1;
+Help: Avoid excessive iterations or unbounded conditions in loops
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
+
+[HIGH] SuspiciousLoop: Potential unbounded or high-cost loop
+test/detectors/SuspiciousLoop.tact:11:9:
+  10 |     fun testRepeatHighCount() { 
+> 11 |         repeat (1_000_001) { // This should be flagged for excessive iteration
+               ^
+  12 |             let x = 1;
+Help: Avoid excessive iterations or unbounded conditions in loops
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
+
+[HIGH] SuspiciousLoop: Potential unbounded or high-cost loop
+test/detectors/SuspiciousLoop.tact:18:9:
+  17 |         let i: Int = 0;
+> 18 |         while (i < 1_000_000) { // This should be flagged for large constant comparison
+               ^
+  19 |             i = i + 1;
+Help: Avoid excessive iterations or unbounded conditions in loops
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
+
+[HIGH] SuspiciousLoop: Potential unbounded or high-cost loop
+test/detectors/SuspiciousLoop.tact:25:9:
+  24 |         let i: Int = 0;
+> 25 |         while (i < 10) {
+               ^
+  26 |             repeat (1_000_000) { // Should be flagged within nested loop
+Help: Avoid excessive iterations or unbounded conditions in loops
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop

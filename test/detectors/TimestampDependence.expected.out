@@ -1,0 +1,189 @@
+[LOW] TimestampDependence: Assignment uses now() or a tainted variable
+test/detectors/TimestampDependence.tact:11:9:
+  10 |     init() {
+> 11 |         self.timestamp = now();  //BAD: Assignment uses now()
+               ^
+  12 |         self.data = Data {
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Assignment uses now() or a tainted variable
+test/detectors/TimestampDependence.tact:12:9:
+  11 |         self.timestamp = now();  //BAD: Assignment uses now()
+> 12 |         self.data = Data {
+               ^
+  13 |             time: now(),         //BAD: Struct initialization with now()
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Variable declaration uses now() or a tainted variable
+test/detectors/TimestampDependence.tact:39:9:
+  38 |     receive("test_variable") {
+> 39 |         let time: Int = now();  //BAD: Variable declaration with now()
+               ^
+  40 |         self.timestamp = time; //BAD: Assigning tainted variable
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Assignment uses now() or a tainted variable
+test/detectors/TimestampDependence.tact:40:9:
+  39 |         let time: Int = now();  //BAD: Variable declaration with now()
+> 40 |         self.timestamp = time; //BAD: Assigning tainted variable
+               ^
+  41 |     }
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Variable declaration uses now() or a tainted variable
+test/detectors/TimestampDependence.tact:45:9:
+  44 |     receive("test_loops") {
+> 45 |         let start: Int = now();  //BAD: Variable initialization with now()
+               ^
+  46 | 
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Loop condition depends on tainted timestamp
+test/detectors/TimestampDependence.tact:47:9:
+  46 | 
+> 47 |         while (now() < start + 1000) {  //BAD: Loop condition depends on now()
+               ^
+  48 |             self.timestamp += 1;
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Loop condition depends on tainted timestamp
+test/detectors/TimestampDependence.tact:51:9:
+  50 | 
+> 51 |         repeat(5) {
+               ^
+  52 |             self.timestamp = now();  //BAD: Repeat loop with now()
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Assignment uses now() or a tainted variable
+test/detectors/TimestampDependence.tact:52:13:
+  51 |         repeat(5) {
+> 52 |             self.timestamp = now();  //BAD: Repeat loop with now()
+                   ^
+  53 |         }
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Loop condition depends on tainted timestamp
+test/detectors/TimestampDependence.tact:55:9:
+  54 | 
+> 55 |         do {
+               ^
+  56 |             self.timestamp += 1;
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Assignment uses now() or a tainted variable
+test/detectors/TimestampDependence.tact:56:13:
+  55 |         do {
+> 56 |             self.timestamp += 1;
+                   ^
+  57 |         } until (now() > start + 2000);  //BAD: Until condition depends on now()
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Returning a tainted timestamp
+test/detectors/TimestampDependence.tact:62:9:
+  61 |     fun getTimestamp(): Int {
+> 62 |         return now();  //BAD: Returning now() directly
+               ^
+  63 |     }
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Variable declaration uses now() or a tainted variable
+test/detectors/TimestampDependence.tact:67:9:
+  66 |     receive("test_expressions") {
+> 67 |         let result: Int = now() > 0 ? now() : 0;  //BAD: Ternary operator with now()
+               ^
+  68 |         self.timestamp = result;                 //BAD: Assigning tainted result
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Assignment uses now() or a tainted variable
+test/detectors/TimestampDependence.tact:68:9:
+  67 |         let result: Int = now() > 0 ? now() : 0;  //BAD: Ternary operator with now()
+> 68 |         self.timestamp = result;                 //BAD: Assigning tainted result
+               ^
+  69 |     }
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Variable declaration uses now() or a tainted variable
+test/detectors/TimestampDependence.tact:82:9:
+  81 |     receive("test_edge_cases") {
+> 82 |         let a: Int = now() > 10 ? 42 : now();  //BAD: Ternary operator with now()
+               ^
+  83 |         self.helperFunction(now());           //BAD: Function call with now()
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Time-dependent usage found
+test/detectors/TimestampDependence.tact:83:9:
+  82 |         let a: Int = now() > 10 ? 42 : now();  //BAD: Ternary operator with now()
+> 83 |         self.helperFunction(now());           //BAD: Function call with now()
+               ^
+  84 |         self.taintedValue = self.helperFunction(now());  //BAD: Assigning tainted return value
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Assignment uses now() or a tainted variable
+test/detectors/TimestampDependence.tact:84:9:
+  83 |         self.helperFunction(now());           //BAD: Function call with now()
+> 84 |         self.taintedValue = self.helperFunction(now());  //BAD: Assigning tainted return value
+               ^
+  85 | 
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Variable declaration uses now() or a tainted variable
+test/detectors/TimestampDependence.tact:86:9:
+  85 | 
+> 86 |         let nested: Int = (now() > 0 ? self.taintedValue : 0) + 
+               ^
+  87 |                          (self.helperFunction(now()) * 2);  //BAD: Nested tainted operations
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Returning a tainted timestamp
+test/detectors/TimestampDependence.tact:95:9:
+  94 |     fun getTainted(): Int {
+> 95 |         return now(); //BAD: Returning tainted timestamp
+               ^
+  96 |     }
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
+[LOW] TimestampDependence: Assignment uses now() or a tainted variable
+test/detectors/TimestampDependence.tact:99:9:
+   98 |     receive("test_function") {
+>  99 |         self.timestamp = self.getTainted(); //BAD: Assigning tainted return value
+                ^
+  100 |     }
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence

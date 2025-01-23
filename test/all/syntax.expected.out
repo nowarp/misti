@@ -43,6 +43,16 @@ test/all/syntax.tact:119:35:
 Help: Consider changing code to avoid using it. For example, you could pass the address during the deployment.
 See: https://nowarp.io/tools/misti/docs/detectors/ZeroAddress
 
+[LOW] TimestampDependence: Variable declaration uses now() or a tainted variable
+test/all/syntax.tact:125:9:
+  124 |     fun funcWithMultipleEffects() {
+> 125 |         let currentTime: Int = now();
+                ^
+  126 |         let randValue: Int = random(1, 100);
+Conditional logic depends on `now()`.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
+See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
+
 [INFO] DumpIsUsed: Found `dump` usage
 test/all/syntax.tact:41:35:
   40 |     try { /* empty */ }
