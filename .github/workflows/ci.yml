@@ -30,6 +30,13 @@ jobs:
     - name: Install system dependencies
       run: sudo apt-get update && sudo apt-get install -y graphviz
 
+    - name: DEBUG
+      run: |
+        lsb_release -a
+        apt-cache policy libffi*
+        dpkg -l | grep libffi
+        apt-cache madison libffi*
+
     - name: Install Soufflé on Ubuntu
       if: matrix.os == 'ubuntu-latest'
       run: |
