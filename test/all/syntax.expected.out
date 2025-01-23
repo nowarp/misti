@@ -50,7 +50,7 @@ test/all/syntax.tact:125:9:
                 ^
   126 |         let randValue: Int = random(1, 100);
 Conditional logic depends on `now()`.
-Help: Detailed check variable now() base on your code. Now() is predictable. Block timestamps are publicly visible, making them unsuitable for generating random numbers.
+Help: Avoid using `now()` for logic. Replace it with deterministic or external data.
 See: https://nowarp.io/tools/misti/docs/detectors/TimestampDependence
 
 [INFO] DumpIsUsed: Found `dump` usage

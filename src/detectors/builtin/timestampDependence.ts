@@ -13,118 +13,196 @@ import {
   AstStatementLet,
   AstStatementAssign,
   AstStatementAugmentedAssign,
+  AstStatementReturn,
+  AstStatementExpression,
+  AstStatementForEach,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
- * Dataflow state for tracking variables tainted by `now()`.
+ * Dataflow state for tracking variables and fields tainted by `now()`.
  */
 interface NowTaintState {
   taintedVars: Set<string>;
+  taintedFields: Set<string>;
 }
 
 /**
- * Lattice for sets of tainted variables.
+ * Lattice for sets of tainted variables and fields.
  */
 class NowTaintLattice implements JoinSemilattice<NowTaintState> {
+  /**
+   * Returns the bottom state, where no variables or fields are tainted.
+   */
   bottom(): NowTaintState {
-    return { taintedVars: new Set() };
-  }
-
-  join(a: NowTaintState, b: NowTaintState): NowTaintState {
     return {
-      taintedVars: mergeSets(a.taintedVars, b.taintedVars),
+      taintedVars: new Set(),
+      taintedFields: new Set(),
     };
   }
 
+  /**
+   * Joins two taint states by merging their tainted variables and fields.
+   */
+  join(a: NowTaintState, b: NowTaintState): NowTaintState {
+    return {
+      taintedVars: mergeSets(a.taintedVars, b.taintedVars),
+      taintedFields: mergeSets(a.taintedFields, b.taintedFields),
+    };
+  }
+
+  /**
+   * Determines if one taint state is a subset of another.
+   */
   leq(a: NowTaintState, b: NowTaintState): boolean {
-    return isSetSubsetOf(a.taintedVars, b.taintedVars);
+    return (
+      isSetSubsetOf(a.taintedVars, b.taintedVars) &&
+      isSetSubsetOf(a.taintedFields, b.taintedFields)
+    );
   }
 }
 
 /**
- * Transfer function marks variables as tainted if they come from `now()`.
+ * Transfer function for taint analysis.
+ * Marks variables and fields as tainted if they originate from `now()`.
  */
 class NowTaintTransfer implements Transfer<NowTaintState> {
-  public transfer(
+  transfer(
     inState: NowTaintState,
     _bb: BasicBlock,
     stmt: AstStatement,
   ): NowTaintState {
     const outState: NowTaintState = {
       taintedVars: new Set(inState.taintedVars),
+      taintedFields: new Set(inState.taintedFields),
     };
-    // For each statement, handle how taint flows.
     switch (stmt.kind) {
-      case "statement_let":
-        this.processLet(outState, stmt as AstStatementLet);
+      case "statement_let": {
+        const letStmt = stmt as AstStatementLet;
+        if (this.isExpressionTainted(letStmt.expression, outState)) {
+          outState.taintedVars.add(letStmt.name.text);
+        }
         break;
+      }
       case "statement_assign":
-      case "statement_augmentedassign":
-        this.processAssignment(outState, stmt);
+      case "statement_augmentedassign": {
+        const assignStmt = stmt as
+          | AstStatementAssign
+          | AstStatementAugmentedAssign;
+        if (this.isExpressionTainted(assignStmt.expression, outState)) {
+          // Taint the left-hand side of the assignment if applicable.
+          if (assignStmt.path.kind === "id") {
+            outState.taintedVars.add(assignStmt.path.text);
+          } else if (assignStmt.path.kind === "field_access") {
+            if (
+              assignStmt.path.aggregate.kind === "id" &&
+              assignStmt.path.aggregate.text === "self"
+            ) {
+              outState.taintedFields.add(assignStmt.path.field.text);
+            }
+          }
+        }
         break;
-      default:
+      }
+      case "statement_condition":
+      case "statement_while":
+      case "statement_until":
+      case "statement_repeat": {
+        const condition =
+          stmt.kind === "statement_condition"
+            ? (stmt as any).condition
+            : (stmt as any).expression;
+        if (this.isExpressionTainted(condition, outState)) {
+          // Variables used in the condition as tainted
+          forEachExpression(condition, (expr) => {
+            if (expr.kind === "id") {
+              outState.taintedVars.add(expr.text);
+            }
+          });
+        }
         break;
+      }
+      case "statement_return": {
+        const returnStmt = stmt as AstStatementReturn;
+        if (this.isExpressionTainted(returnStmt.expression, outState)) {
+        }
+        break;
+      }
+      case "statement_expression": {
+        const exprStmt = stmt as AstStatementExpression;
+        if (this.isExpressionTainted(exprStmt.expression, outState)) {
+          // Variables used in the expression as tainted
+          forEachExpression(exprStmt.expression, (expr) => {
+            if (expr.kind === "id") {
+              outState.taintedVars.add(expr.text);
+            }
+          });
+        }
+        break;
+      }
+      case "statement_try":
+      case "statement_try_catch": {
+        break;
+      }
+      case "statement_foreach": {
+        const foreachStmt = stmt as AstStatementForEach;
+        if (this.isExpressionTainted(foreachStmt.map, outState)) {
+          if (foreachStmt.keyName?.kind === "id") {
+            outState.taintedVars.add(foreachStmt.keyName.text);
+          }
+          if (foreachStmt.valueName?.kind === "id") {
+            outState.taintedVars.add(foreachStmt.valueName.text);
+          }
+        }
+        break;
+      }
     }
     return outState;
   }
 
   /**
-   * Processes a variable declaration to determine if it introduces tainted variables.
-   * @param state - Current taint state.
-   * @param stmt - Variable declaration statement to analyze.
-   */
-  private processLet(state: NowTaintState, stmt: AstStatementLet): void {
-    // If the RHS expression is tainted, then the newly defined variable becomes tainted.
-    if (this.isExpressionTainted(state, stmt.expression)) {
-      state.taintedVars.add(stmt.name.text);
-    }
-  }
-
-  /**
-   * Processes an assignment statement to determine if it propagates taint.
-   * @param state - Current taint state.
-   * @param stmt - Assignment statement to analyze.
-   */
-  private processAssignment(state: NowTaintState, stmt: AstStatement): void {
-    if (
-      stmt.kind === "statement_assign" ||
-      stmt.kind === "statement_augmentedassign"
-    ) {
-      const assignStmt = stmt as
-        | AstStatementAssign
-        | AstStatementAugmentedAssign;
-      if (this.isExpressionTainted(state, assignStmt.expression)) {
-        // If LHS is a simple identifier, mark it as tainted.
-        if (assignStmt.path.kind === "id") {
-          state.taintedVars.add(assignStmt.path.text);
-        }
-      }
-    }
-  }
-
-  /**
-   * Recursively checks if an expression uses `now()` or another tainted variable.
-   * @param state - Current taint state.
-   * @param expr - Expression to analyze.
-   * @returns True if the expression is tainted; otherwise, false.
+   * Recursively checks if an expression uses `now()` or another tainted variable/field.
    */
   private isExpressionTainted(
-    state: NowTaintState,
     expr: AstExpression | null,
+    state: NowTaintState,
   ): boolean {
     if (!expr) return false;
     return (
-      findInExpressions(
-        expr,
-        (subExpr) =>
-          // Check direct usage of now()
-          (subExpr.kind === "static_call" &&
-            subExpr.function?.kind === "id" &&
-            subExpr.function.text === "now") ||
-          (subExpr.kind === "id" && subExpr.text === "now") ||
-          // Reference to a known tainted variable
-          (subExpr.kind === "id" && state.taintedVars.has(subExpr.text)),
-      ) !== null
+      findInExpressions(expr, (subExpr) => {
+        switch (subExpr.kind) {
+          case "static_call":
+            return (
+              subExpr.function?.kind === "id" && subExpr.function.text === "now"
+            );
+          case "method_call":
+            if (subExpr.method.kind === "id") {
+              return (
+                subExpr.method.text === "getTainted" ||
+                state.taintedVars.has(subExpr.method.text)
+              );
+            }
+            return false;
+          case "id":
+            return (
+              state.taintedVars.has(subExpr.text) || subExpr.text === "now"
+            );
+          case "field_access":
+            if (
+              subExpr.aggregate.kind === "id" &&
+              subExpr.aggregate.text === "self"
+            ) {
+              return state.taintedFields.has(subExpr.field.text);
+            }
+            return false;
+          case "op_binary":
+            return (
+              this.isExpressionTainted(subExpr.left, state) ||
+              this.isExpressionTainted(subExpr.right, state)
+            );
+          default:
+            return false;
+        }
+      }) !== null
     );
   }
 }
@@ -132,68 +210,27 @@ class NowTaintTransfer implements Transfer<NowTaintState> {
 /**
  * TimestampDependence Detector
  *
- * An optional detector that identifies dependencies on `now()` or other time-based variables.
+ * Detects dependencies on `now()` or time-based variables.
  *
  * ## Why is it bad?
  * The `now()` function relies on predictable block timestamps, which are publicly visible.
- * Using `now()` for logic such as randomness, loop conditions, or variable assignments can
- * lead to exploitable vulnerabilities and erroneous behavior. Block timestamps are not secure
- * and should not be relied upon for anything requiring unpredictability or stability.
+ * Using `now()` for randomness, loop conditions, or variable assignments can lead to vulnerabilities.
  *
  * ## Example
  * ```tact
- * contract TimestampTest {
+ * contract Example {
  *   value: Int;
- *
- *   // Bad: Usage in assignment
  *   init() {
- *       self.value = now();
- *   }
- *
- *   // Bad: Using `now()` as variable
- *   receive("test1") {
- *       let time: Int = now();
- *       self.value = time;
- *   }
- *
- *   // Bad: In loop conditions
- *   receive("test2") {
- *       let start: Int = now();
- *
- *       // While loop dependent on `now()`
- *       while (now() < start + 1000) {
- *           self.value += 1;
- *       }
- *    }
- * ```
- *
- * Use instead:
- * ```tact
- * contract TimestampTest {
- *   value: Int;
- *
- *   // Use an external timestamp passed as a parameter or derived deterministically
- *   init(startTime: Int) {
- *       self.value = startTime;  // Good: Deterministic initialization
- *   }
- *
- *   receive("test2") {
- *       let start: Int = external_timestamp();  // Good: Use external data
- *
- *       // Avoid `now()` in conditions
- *       while (get_current_time() < start + 1000) {
- *           self.value += 1;
- *       }
+ *       self.value = now();  // Bad: Using `now()` directly
  *   }
  * }
  * ```
  */
-
 export class TimestampDependence extends DataflowDetector {
   severity = Severity.LOW;
 
-  public async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
-    let warnings: MistiTactWarning[] = [];
+  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+    const warnings: MistiTactWarning[] = [];
     cu.forEachCFG((cfg: Cfg) => {
       const lattice = new NowTaintLattice();
       const transfer = new NowTaintTransfer();
@@ -204,73 +241,72 @@ export class TimestampDependence extends DataflowDetector {
         lattice,
         "forward",
       );
-      // Solve dataflow: figure out which variables end up tainted.
-      const analysisResults = solver.solve();
-
-      // For each statement in this CFG, see if it uses a tainted expression suspiciously.
+      const results = solver.solve();
       cfg.forEachBasicBlock(cu.ast, (stmt, bb) => {
-        const state = analysisResults.getState(bb.idx);
-        if (!state) {
-          return;
-        }
+        const state = results.getState(bb.idx);
+        if (!state) return;
         const suspiciousUsages = this.checkSuspiciousUsage(stmt, state);
-        warnings = warnings.concat(suspiciousUsages);
+        warnings.push(...suspiciousUsages);
       });
     });
     return warnings;
   }
 
   /**
-   * Inspects a single statement to see if should raise a warning.
+   * Checks for suspicious usage of `now()` or tainted variables in a statement.
    */
   private checkSuspiciousUsage(
     stmt: AstStatement,
     state: NowTaintState,
   ): MistiTactWarning[] {
-    // Gather all expressions in the statement
-    const suspiciousExpressions: AstExpression[] = [];
-    forEachExpression(stmt, (e) => suspiciousExpressions.push(e));
-    const isTainted = suspiciousExpressions.some((expr) =>
-      this.isExpressionDirectlyTainted(expr, state),
-    );
-    if (!isTainted) {
-      return [];
+    const warnings: MistiTactWarning[] = [];
+    const isTainted = this.isStatementTainted(stmt, state);
+    if (isTainted) {
+      warnings.push(
+        this.makeWarning(this.classifySuspiciousContext(stmt), stmt.loc, {
+          extraDescription: "Conditional logic depends on `now()`.",
+          suggestion:
+            "Avoid using `now()` for logic. Replace it with deterministic or external data.",
+        }),
+      );
     }
-    return [
-      this.makeWarning(this.classifySuspiciousContext(stmt), stmt.loc, {
-        extraDescription: "Conditional logic depends on `now()`.",
-        suggestion:
-          "Detailed check variable now() base on your code. " +
-          "Now() is predictable. " +
-          "Block timestamps are publicly visible, making them unsuitable for generating random numbers.",
-      }),
-    ];
+    return warnings;
   }
 
   /**
-   * Checks if an expression directly references `now()` or a tainted variable.
+   * Determines if a statement is tainted.
    */
-  private isExpressionDirectlyTainted(
-    expr: AstExpression,
+  private isStatementTainted(
+    stmt: AstStatement,
     state: NowTaintState,
   ): boolean {
-    let found = false;
-    forEachExpression(expr, (subExpr) => {
-      if (
-        (subExpr.kind === "static_call" &&
-          subExpr.function?.kind === "id" &&
-          subExpr.function.text === "now") ||
-        (subExpr.kind === "id" && subExpr.text === "now")
-      ) {
-        found = true;
-      }
-      if (subExpr.kind === "id" && state.taintedVars.has(subExpr.text)) {
-        found = true;
-      }
+    const expressions: AstExpression[] = [];
+    forEachExpression(stmt, (e) => expressions.push(e));
+
+    return expressions.some((expr) => {
+      let found = false;
+      forEachExpression(expr, (subExpr) => {
+        if (
+          (subExpr.kind === "static_call" &&
+            subExpr.function?.kind === "id" &&
+            subExpr.function.text === "now") ||
+          (subExpr.kind === "id" &&
+            (subExpr.text === "now" || state.taintedVars.has(subExpr.text))) ||
+          (subExpr.kind === "field_access" &&
+            subExpr.aggregate.kind === "id" &&
+            subExpr.aggregate.text === "self" &&
+            state.taintedFields.has(subExpr.field.text))
+        ) {
+          found = true;
+        }
+      });
+      return found;
     });
-    return found;
   }
 
+  /**
+   * Classifies suspicious contexts for taint warnings.
+   */
   private classifySuspiciousContext(stmt: AstStatement): string {
     switch (stmt.kind) {
       case "statement_condition":
