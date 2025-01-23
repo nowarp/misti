@@ -28,14 +28,11 @@ jobs:
         cache: "yarn"
 
     - name: Install system dependencies
-      run: sudo apt-get update && sudo apt-get install -y graphviz
-
-    - name: DEBUG
       run: |
-        lsb_release -a
-        apt-cache policy libffi*
-        dpkg -l | grep libffi
-        apt-cache madison libffi*
+        sudo apt-get update
+        sudo apt-get install -y graphviz
+        wget http://archive.ubuntu.com/ubuntu/pool/main/libf/libffi/libffi7_3.3-4_amd64.deb
+        sudo dpkg -i libffi7_3.3-4_amd64.deb
 
     - name: Install Soufflé on Ubuntu
       if: matrix.os == 'ubuntu-latest'
