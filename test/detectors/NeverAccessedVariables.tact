@@ -5,10 +5,10 @@ fun test1(): Int {
     }
     return 42;
 }
-// suppress SuspiciousLoop
-//fun test2() {
-//    while(true) { let a: Int = 0; }
-//}
+
+fun test2() {
+ while(true) { let a: Int = 0; }
+}
 
 fun test3(): Int {
     let a: Int = 20; // read-only variable
