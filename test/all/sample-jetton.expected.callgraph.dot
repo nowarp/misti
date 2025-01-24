@@ -1,81 +1,95 @@
 digraph "CallGraph" {
     node [shape=box];
-    node_1 [label="init(owner: Address, content: Cell, max_supply: Int)
+    node_1 [label="inline extends fun asSlice(self: Builder): Slice"];
+    node_2 [label="inline extends fun asSlice(self: Cell): Slice"];
+    node_3 [label="inline extends fun asCell(self: Slice): Cell"];
+    node_4 [label="inline extends fun asCell(self: Builder): Cell"];
+    node_5 [label="inline fun emptyCell(): Cell"];
+    node_6 [label="inline fun emptySlice(): Slice"];
+    node_7 [label="inline extends fun toCoinsString(self: Int): String"];
+    node_8 [label="extends fun asComment(self: String): Cell"];
+    node_9 [label="inline extends fun fromBase64(self: String): Slice"];
+    node_10 [label="extends fun fromBase64(self: Slice): Slice"];
+    node_11 [label="inline fun randomInt(): Int"];
+    node_12 [label="inline fun random(min: Int, max: Int): Int"];
+    node_13 [label="inline fun contractAddress(s: StateInit): Address"];
+    node_14 [label="extends fun readForwardFee(self: Context): Int"];
+    node_15 [label="fun send(params: SendParameters): Int"];
+    node_16 [label="inline fun emit(body: Cell)"];
+    node_17 [label="init(owner: Address, content: Cell, max_supply: Int)
 [StateWrite]"];
-    node_2 [label="receive(msg: Mint)
+    node_18 [label="receive(msg: Mint)
 [StateRead]"];
-    node_3 [label="receive('Mint: 100')
+    node_19 [label="receive('Mint: 100')
 [StateRead]"];
-    node_4 [label="receive('Owner: MintClose')
+    node_20 [label="receive('Owner: MintClose')
 [StateRead,StateWrite]"];
-    node_5 [label="init(master: Address, owner: Address)
+    node_21 [label="init(master: Address, owner: Address)
 [StateWrite]"];
-    node_6 [label="receive(msg: TokenTransfer)
+    node_22 [label="receive(msg: TokenTransfer)
 [Send,StateRead,StateWrite]"];
-    node_7 [label="receive(msg: TokenTransferInternal)
+    node_23 [label="receive(msg: TokenTransferInternal)
 [Send,StateRead,StateWrite]"];
-    node_8 [label="get fun msgValue(value: Int): Int
+    node_24 [label="get fun msgValue(value: Int): Int
 [StateRead]"];
-    node_9 [label="receive(msg: TokenBurn)
+    node_25 [label="receive(msg: TokenBurn)
 [Send,StateRead,StateWrite]"];
-    node_10 [label="bounced(msg: Slice)
+    node_26 [label="bounced(msg: Slice)
 [StateWrite]"];
-    node_11 [label="get fun get_wallet_data(): JettonWalletData
+    node_27 [label="get fun get_wallet_data(): JettonWalletData
 [StateRead]"];
-    node_12 [label="context"];
-    node_13 [label="require"];
-    node_14 [label="mint"];
-    node_15 [label="ctx::readForwardFee"];
-    node_16 [label="min"];
-    node_17 [label="ton"];
-    node_18 [label="contractAddress"];
-    node_19 [label="send"];
-    node_20 [label="toCell"];
-    node_21 [label="msgValue"];
-    node_22 [label="myBalance"];
-    node_23 [label="msg::loadUint"];
-    node_24 [label="msg::loadCoins"];
-    node_2 -> node_12;
-    node_2 -> node_13;
-    node_2 -> node_13;
-    node_2 -> node_14;
-    node_3 -> node_12;
-    node_3 -> node_13;
-    node_3 -> node_14;
-    node_4 -> node_12;
-    node_4 -> node_13;
-    node_6 -> node_12;
-    node_6 -> node_13;
-    node_6 -> node_15;
-    node_6 -> node_15;
-    node_6 -> node_13;
-    node_6 -> node_16;
-    node_6 -> node_17;
-    node_6 -> node_13;
-    node_6 -> node_18;
-    node_6 -> node_19;
-    node_6 -> node_20;
-    node_7 -> node_12;
-    node_7 -> node_13;
-    node_7 -> node_18;
-    node_7 -> node_13;
-    node_7 -> node_19;
-    node_7 -> node_20;
-    node_7 -> node_21;
-    node_7 -> node_15;
-    node_7 -> node_19;
-    node_7 -> node_20;
-    node_8 -> node_22;
-    node_8 -> node_16;
-    node_9 -> node_12;
-    node_9 -> node_13;
-    node_9 -> node_13;
-    node_9 -> node_15;
-    node_9 -> node_13;
-    node_9 -> node_19;
-    node_9 -> node_20;
-    node_10 -> node_23;
-    node_10 -> node_23;
-    node_10 -> node_24;
-    node_10 -> node_13;
+    node_28 [label="context"];
+    node_29 [label="require"];
+    node_30 [label="mint"];
+    node_31 [label="ctx::readForwardFee"];
+    node_32 [label="min"];
+    node_33 [label="ton"];
+    node_34 [label="toCell"];
+    node_35 [label="msgValue"];
+    node_36 [label="myBalance"];
+    node_37 [label="msg::loadUint"];
+    node_38 [label="msg::loadCoins"];
+    node_18 -> node_28;
+    node_18 -> node_29;
+    node_18 -> node_29;
+    node_18 -> node_30;
+    node_19 -> node_28;
+    node_19 -> node_29;
+    node_19 -> node_30;
+    node_20 -> node_28;
+    node_20 -> node_29;
+    node_22 -> node_28;
+    node_22 -> node_29;
+    node_22 -> node_31;
+    node_22 -> node_31;
+    node_22 -> node_29;
+    node_22 -> node_32;
+    node_22 -> node_33;
+    node_22 -> node_29;
+    node_22 -> node_13;
+    node_22 -> node_15;
+    node_22 -> node_34;
+    node_23 -> node_28;
+    node_23 -> node_29;
+    node_23 -> node_13;
+    node_23 -> node_29;
+    node_23 -> node_15;
+    node_23 -> node_34;
+    node_23 -> node_35;
+    node_23 -> node_31;
+    node_23 -> node_15;
+    node_23 -> node_34;
+    node_24 -> node_36;
+    node_24 -> node_32;
+    node_25 -> node_28;
+    node_25 -> node_29;
+    node_25 -> node_29;
+    node_25 -> node_31;
+    node_25 -> node_29;
+    node_25 -> node_15;
+    node_25 -> node_34;
+    node_26 -> node_37;
+    node_26 -> node_37;
+    node_26 -> node_38;
+    node_26 -> node_29;
 }
