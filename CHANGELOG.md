@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `UnprotectedCall` detector: PR [#235](https://github.com/nowarp/misti/pull/235)
 - File-scoped CFG dumps: Issue [#241](https://github.com/nowarp/misti/issues/241)
 
 ### Fixed
