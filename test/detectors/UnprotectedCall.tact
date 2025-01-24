@@ -21,6 +21,6 @@ contract C {
         if (self.checkAddr(a)) { self.m.set(a, 42); } // OK
     }
 
-    // Utility funcitons
+    // Utility functions
     fun checkAddr(a: Address): Bool { return a != newAddress(0, 0); }
 }
