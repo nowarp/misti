@@ -1,48 +1,62 @@
 graph TD
-    node_1["fun test_try(a: Int)"]
-    node_2["fun test_loops()"]
-    node_3["fun testTryCatch(a: Int)"]
-    node_4["fun testLoops()"]
-    node_5["override get fun getter(): Int"]
-    node_6["fun test()"]
-    node_7["fun test(): Int"]
-    node_8["external()"]
-    node_9["init()
+    node_1["inline extends fun asSlice(self: Builder): Slice"]
+    node_2["inline extends fun asSlice(self: Cell): Slice"]
+    node_3["inline extends fun asCell(self: Slice): Cell"]
+    node_4["inline extends fun asCell(self: Builder): Cell"]
+    node_5["inline fun emptyCell(): Cell"]
+    node_6["inline fun emptySlice(): Slice"]
+    node_7["inline extends fun toCoinsString(self: Int): String"]
+    node_8["extends fun asComment(self: String): Cell"]
+    node_9["inline extends fun fromBase64(self: String): Slice"]
+    node_10["extends fun fromBase64(self: Slice): Slice"]
+    node_11["inline fun randomInt(): Int"]
+    node_12["inline fun random(min: Int, max: Int): Int"]
+    node_13["inline fun contractAddress(s: StateInit): Address"]
+    node_14["extends fun readForwardFee(self: Context): Int"]
+    node_15["fun send(params: SendParameters): Int"]
+    node_16["inline fun emit(body: Cell)"]
+    node_17["fun test_try(a: Int)"]
+    node_18["fun test_loops()"]
+    node_19["fun testTryCatch(a: Int)"]
+    node_20["fun testLoops()"]
+    node_21["override get fun getter(): Int"]
+    node_22["fun test()"]
+    node_23["fun test(): Int"]
+    node_24["external()"]
+    node_25["init()
 [StateWrite]"]
-    node_10["fun funcWithSend()
+    node_26["fun funcWithSend()
 [Send,StateRead]"]
-    node_11["fun funcWithStateRead()
+    node_27["fun funcWithStateRead()
 [StateRead]"]
-    node_12["fun funcWithStateWrite()
+    node_28["fun funcWithStateWrite()
 [StateWrite]"]
-    node_13["fun funcWithMultipleEffects()
+    node_29["fun funcWithMultipleEffects()
 [AccessDatetime,PrgUse,PrgSeedInit]"]
-    node_14["receive()"]
-    node_15["dump"]
-    node_16["emptyMap"]
-    node_17["m::set"]
-    node_18["getA"]
-    node_19["sender"]
-    node_20["send"]
-    node_21["newAddress"]
-    node_22["now"]
-    node_23["random"]
-    node_24["nativeRandomizeLt"]
-    node_25["beginString"]
-    node_26["a::append"]
-    node_1 --> node_15
-    node_2 --> node_16
-    node_3 --> node_15
-    node_4 --> node_16
-    node_4 --> node_17
-    node_4 --> node_17
-    node_4 --> node_17
-    node_7 --> node_18
-    node_9 --> node_19
-    node_10 --> node_20
-    node_12 --> node_21
-    node_13 --> node_22
-    node_13 --> node_23
-    node_13 --> node_24
-    node_14 --> node_25
-    node_14 --> node_26
+    node_30["receive()"]
+    node_31["dump"]
+    node_32["emptyMap"]
+    node_33["m::set"]
+    node_34["getA"]
+    node_35["sender"]
+    node_36["newAddress"]
+    node_37["now"]
+    node_38["nativeRandomizeLt"]
+    node_39["beginString"]
+    node_40["a::append"]
+    node_17 --> node_31
+    node_18 --> node_32
+    node_19 --> node_31
+    node_20 --> node_32
+    node_20 --> node_33
+    node_20 --> node_33
+    node_20 --> node_33
+    node_23 --> node_34
+    node_25 --> node_35
+    node_26 --> node_15
+    node_28 --> node_36
+    node_29 --> node_37
+    node_29 --> node_12
+    node_29 --> node_38
+    node_30 --> node_39
+    node_30 --> node_40

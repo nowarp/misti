@@ -399,6 +399,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  UnprotectedCall: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/unprotectedCall").then(
+        (module) => new module.UnprotectedCall(ctx),
+      ),
+    enabledByDefault: true,
+  },
   SuspiciousLoop: {
     loader: (ctx: MistiContext) =>
       import("./builtin/suspiciousLoop").then(

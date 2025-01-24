@@ -22,6 +22,8 @@ import {
   AstTrait,
 } from "@tact-lang/compiler/dist/grammar/ast";
 
+export type AstStoreFunction = AstFunctionDef | AstReceiver | AstContractInit;
+
 /**
  * Parameters for filtering AST items.
  */
@@ -35,7 +37,7 @@ export type AstItemParams = Partial<{
 type Filename = string;
 
 /**
- * Provides access to AST elements defined within a single Tact project.
+ * Provides access to AST elements using their unique IDs.
  *
  * The generated AST entries includes all the dependent elements, including imported
  * code which is included in the project AST in C/C++ style.
@@ -48,6 +50,7 @@ export class AstStore {
    * @param stdlibIds Identifiers of AST elements defined in stdlib.
    * @param contractEntries Items defined within contracts and traits.
    * @param programEntries Identifiers of AST elements defined on the top-level of each file.
+   * @param functionNames Unique names for each function definition.
    * @param functions Functions and methods including user-defined and special methods.
    * @param constants Constants defined across the compilation unit.
    * @param contracts Contracts defined within the project.
@@ -63,10 +66,8 @@ export class AstStore {
     private stdlibIds = new Set<AstNode["id"]>(),
     private contractEntries = new Map<AstNode["id"], Set<AstNode["id"]>>(),
     private programEntries: Map<Filename, Set<AstNode["id"]>>,
-    private functions: Map<
-      AstNode["id"],
-      AstFunctionDef | AstReceiver | AstContractInit
-    >,
+    private functionNames: Map<AstNode["id"], FunctionName>,
+    private functions: Map<AstNode["id"], AstStoreFunction>,
     private constants: Map<AstNode["id"], AstConstantDef>,
     private contracts: Map<AstNode["id"], AstContract>,
     private nativeFunctions: Map<AstNode["id"], AstNativeFunctionDecl>,
@@ -77,6 +78,10 @@ export class AstStore {
     private traits: Map<AstNode["id"], AstTrait>,
     private statements: Map<AstNode["id"], AstStatement>,
   ) {}
+
+  public getFunctionName(defId: AstNode["id"]): FunctionName | undefined {
+    return this.functionNames.get(defId);
+  }
 
   /**
    * Returns top-level program entries in order as they defined in each file.
@@ -155,7 +160,7 @@ export class AstStore {
    */
   public getFunctions(
     params: AstItemParams = {},
-  ): IterableIterator<AstFunctionDef | AstReceiver | AstContractInit> {
+  ): IterableIterator<AstStoreFunction> {
     return this.getItems(this.functions, params);
   }
 
@@ -227,9 +232,7 @@ export class AstStore {
    * @param id The unique identifier of the function or method.
    * @returns The function or method if found, otherwise undefined.
    */
-  public getFunction(
-    id: AstNode["id"],
-  ): AstFunctionDef | AstReceiver | AstContractInit | undefined {
+  public getFunction(id: AstNode["id"]): AstStoreFunction | undefined {
     return this.functions.get(id);
   }
 
