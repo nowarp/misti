@@ -111,11 +111,8 @@ function findTaints(
       }
       break;
     case "static_call":
-      // XXX: What if there is a function/method call that takes a tainted
-      //      value and returns a new (tainted) result?
       break;
     case "struct_instance":
-    // TODO: Should we handle taints appearing in field defs?
     case "field_access":
     case "init_of":
       break;
