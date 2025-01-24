@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- File-scoped CFG dumps: Issue [#241](https://github.com/nowarp/misti/issues/241)
+
+### Fixed
+- Souffle installation in CI: PR [#253](https://github.com/nowarp/misti/pull/253)
+
+## [0.6.2] - 2024-12-25
+
 ### Fixed
 - Callgraph: Don't add state write effects when changing local maps/strings/cells
 - Regression in the single-contract mode execution: Issue [#233](https://github.com/nowarp/misti/issues/233)

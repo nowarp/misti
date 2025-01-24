@@ -5,9 +5,11 @@ import { unreachable } from "../internals/util";
 import { AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 import JSONbig from "json-bigint";
+import path from "path";
 
 interface DumpCfgOptions extends Record<string, unknown> {
   format: "dot" | "json" | "mmd";
+  file: string | undefined; // include only entries from this file
   dumpStdlib: boolean;
 }
 
@@ -18,26 +20,30 @@ export class DumpCfg extends Tool<DumpCfgOptions> {
   get defaultOptions(): DumpCfgOptions {
     return {
       format: "json",
+      file: undefined,
       dumpStdlib: false,
     };
   }
 
-  run(cu: CompilationUnit): ToolOutput | never {
+  public run(cu: CompilationUnit): ToolOutput | never {
+    const file = this.options.file
+      ? path.resolve(this.options.file)
+      : undefined;
     switch (this.options.format) {
       case "dot":
         return this.makeOutput(
           cu,
-          GraphvizDumper.dumpCU(cu, this.options.dumpStdlib),
+          GraphvizDumper.dumpCU(cu, this.options.dumpStdlib, file),
         );
       case "mmd":
         return this.makeOutput(
           cu,
-          MermaidDumper.dumpCU(cu, this.options.dumpStdlib),
+          MermaidDumper.dumpCU(cu, this.options.dumpStdlib, file),
         );
       case "json":
         return this.makeOutput(
           cu,
-          JSONDumper.dumpCU(cu, this.options.dumpStdlib),
+          JSONDumper.dumpCU(cu, this.options.dumpStdlib, file),
         );
       default:
         throw unreachable(this.options.format);
@@ -51,6 +57,7 @@ export class DumpCfg extends Tool<DumpCfgOptions> {
   getOptionDescriptions(): Record<keyof DumpCfgOptions, string> {
     return {
       format: "The output format for the Cfg dump: <dot|json|mmd>",
+      file: "Filter to only show entries from specified file path",
       dumpStdlib: "Whether to include standard library definitions in the dump",
     };
   }
@@ -66,19 +73,24 @@ class MermaidDumper {
    * @param dumpStdlib If true, the standard library definitions will be included in the dump.
    * @returns The Mermaid diagram representation of the compilation unit.
    */
-  public static dumpCU(cu: CompilationUnit, dumpStdlib: boolean): string {
+  public static dumpCU(
+    cu: CompilationUnit,
+    dumpStdlib: boolean,
+    file?: string,
+  ): string {
     let diagram = `graph TD\n`;
     cu.functions.forEach((cfg) => {
-      if (!dumpStdlib && cfg.origin == "stdlib") {
+      if (
+        (!dumpStdlib && cfg.origin == "stdlib") ||
+        (file && cfg.ref.file !== file)
+      )
         return;
-      }
       diagram += this.dumpCfg(cu, cfg, cfg.name);
     });
     cu.contracts.forEach((contract) => {
+      if (file && contract.ref.file !== file) return;
       contract.methods.forEach((cfg) => {
-        if (!dumpStdlib && cfg.origin == "stdlib") {
-          return;
-        }
+        if (!dumpStdlib && cfg.origin == "stdlib") return;
         diagram += this.dumpCfg(cu, cfg, `${contract.name}__${cfg.name}`);
       });
     });
@@ -132,20 +144,26 @@ class GraphvizDumper {
    * @param dumpStdlib If true, the standard library definitions will be included in the dump.
    * @returns The Graphviz dot representation of the compilation unit.
    */
-  public static dumpCU(cu: CompilationUnit, dumpStdlib: boolean): string {
+  public static dumpCU(
+    cu: CompilationUnit,
+    dumpStdlib: boolean,
+    file?: string,
+  ): string {
     let graph = `digraph "${cu.projectName}" {\n`;
     graph += "    node [shape=box];\n";
     cu.functions.forEach((cfg) => {
-      if (!dumpStdlib && cfg.origin == "stdlib") {
+      if (
+        (!dumpStdlib && cfg.origin == "stdlib") ||
+        (file && cfg.ref.file !== file)
+      ) {
         return;
       }
       graph += this.dumpCfg(cu, cfg, cfg.name);
     });
     cu.contracts.forEach((contract) => {
+      if (file && contract.ref.file !== file) return;
       contract.methods.forEach((cfg) => {
-        if (!dumpStdlib && cfg.origin == "stdlib") {
-          return;
-        }
+        if (!dumpStdlib && cfg.origin == "stdlib") return;
         graph += this.dumpCfg(cu, cfg, `${contract.name}__${cfg.name}`);
       });
     });
@@ -217,13 +235,20 @@ class JSONDumper {
    * @param dumpStdlib If true, the standard library definitions will be included in the dump.
    * @returns The JSON representation of the compilation unit.
    */
-  public static dumpCU(cu: CompilationUnit, dumpStdlib: boolean): string {
+  public static dumpCU(
+    cu: CompilationUnit,
+    dumpStdlib: boolean,
+    file?: string,
+  ): string {
     const data = {
       projectName: cu.projectName,
       functions: Array.from(cu.functions.entries()).reduce<
         { name: string; cfg: object }[]
       >((acc, [_, cfg]) => {
-        if (!dumpStdlib && cfg.origin == "stdlib") {
+        if (
+          (!dumpStdlib && cfg.origin == "stdlib") ||
+          (file && cfg.ref.file !== file)
+        ) {
           return acc;
         }
         acc.push({
@@ -237,7 +262,10 @@ class JSONDumper {
         methods: Array.from(contract.methods.entries()).reduce<
           { name: string; cfg: object }[]
         >((acc, [_, cfg]) => {
-          if (!dumpStdlib && cfg.origin == "stdlib") {
+          if (
+            (!dumpStdlib && cfg.origin == "stdlib") ||
+            (file && cfg.ref.file !== file)
+          ) {
             return acc;
           }
           acc.push({
