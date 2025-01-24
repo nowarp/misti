@@ -7,7 +7,7 @@ fun test1(): Int {
 }
 
 fun test2() {
- while(true) { let a: Int = 0; }
+    while(true) { let a: Int = 0; }
 }
 
 fun test3(): Int {
@@ -77,4 +77,3 @@ contract TestContract2 {
         let _test: Int = 123; // suppressed: no warning
     }
 }
-

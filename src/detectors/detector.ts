@@ -114,7 +114,7 @@ export abstract class Detector {
 /**
  * Abstract class for detectors that identify specific patterns in the AST.
  */
-export abstract class ASTDetector extends Detector {
+export abstract class AstDetector extends Detector {
   get kind(): DetectorKind {
     return "ast";
   }
@@ -350,13 +350,6 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: false,
   },
-  CellOverflow: {
-    loader: (ctx: MistiContext) =>
-      import("./builtin/cellOverflow").then(
-        (module) => new module.CellOverflow(ctx),
-      ),
-    enabledByDefault: true,
-  },
   UnboundMap: {
     loader: (ctx: MistiContext) =>
       import("./builtin/unboundMap").then(
@@ -398,6 +391,27 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
         (module) => new module.ExitCodeUsage(ctx),
       ),
     enabledByDefault: true,
+  },
+  CellBounds: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/cellBounds").then(
+        (module) => new module.CellBounds(ctx),
+      ),
+    enabledByDefault: true,
+  },
+  UnprotectedCall: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/unprotectedCall").then(
+        (module) => new module.UnprotectedCall(ctx),
+      ),
+    enabledByDefault: true,
+  },
+  SuspiciousLoop: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/suspiciousLoop").then(
+        (module) => new module.SuspiciousLoop(ctx),
+      ),
+    enabledByDefault: false,
   },
 };
 
