@@ -28,11 +28,11 @@ contract TestSuspiciousLoops {
             }
         }
     }
-fun testLoop() {
-let a: Int = 0;
- while (false) {
-     a = 10000000; true; 
+
+    fun testLoop() {
+    let a: Int = 0;
+    while (false) {
+        a = 10000000; true; 
      } 
 }
-  
 }
