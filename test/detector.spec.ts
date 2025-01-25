@@ -13,7 +13,8 @@ describe("Common detectors functionality", () => {
   it(`should generate valid JSON output for ${CONTRACT_NAME}`, async () => {
     const filePath = ABSOLUTE_PATH;
     const output = await executeMisti([
-      "--enabled-detectors", "NeverAccessedVariables",
+      "--enabled-detectors",
+      "NeverAccessedVariables",
       "--no-colors",
       "--output-format",
       "json",

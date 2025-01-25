@@ -99,7 +99,10 @@ export class SuspiciousLoop extends AstDetector {
    * @param stmt - The statement to evaluate.
    * @returns True if the expression is suspicious, otherwise false.
    */
-  private isSuspiciousCondition(expr: AstExpression, stmt: AstStatement): boolean {
+  private isSuspiciousCondition(
+    expr: AstExpression,
+    stmt: AstStatement,
+  ): boolean {
     if (stmt.kind === "statement_foreach") {
       return false;
     }
