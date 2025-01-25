@@ -12,7 +12,6 @@ import {
 } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
- * SuspiciousLoop Detector
  *
  * An optional detector that identifies potentially problematic loops, such as those
  * with unbounded conditions or excessive iteration counts.
