@@ -72,7 +72,7 @@ export class SuspiciousLoop extends AstDetector {
       return foldExpressions(
         stmt,
         (acc, expr) => {
-          if (this.isSuspiciousCondition(expr)) {
+          if (this.isSuspiciousCondition(expr, stmt)) {
             acc.push(
               this.makeWarning(
                 "Potential unbounded or high-cost loop",
@@ -96,22 +96,23 @@ export class SuspiciousLoop extends AstDetector {
    * Checks if an expression is a suspicious condition, indicating an unbounded
    * loop or excessive iteration.
    * @param expr - The expression to evaluate.
+   * @param stmt - The statement to evaluate.
    * @returns True if the expression is suspicious, otherwise false.
    */
-
-  private isSuspiciousCondition(expr: AstExpression): boolean {
-    // Try evaluating the expression as a constant.
+  private isSuspiciousCondition(expr: AstExpression, stmt: AstStatement): boolean {
+    if (stmt.kind === "statement_foreach") {
+      return false;
+    }
     const result = evalExpr(expr);
-    if (result !== undefined) {
-      if (typeof result === "boolean" && result === true) {
-        // Unbounded loop detected
-        return true;
-      }
-      // Check if the result is a large constant for repeat counts.
+    if (result === undefined) {
+      return false;
+    }
+    if (stmt.kind === "statement_repeat") {
       const threshold = 100_000;
-      if (typeof result === "bigint" && result > BigInt(threshold)) {
-        return true;
-      }
+      return typeof result === "bigint" && result > BigInt(threshold);
+    }
+    if (stmt.kind === "statement_while" || stmt.kind === "statement_until") {
+      return typeof result === "boolean" && result === true;
     }
     return false;
   }
