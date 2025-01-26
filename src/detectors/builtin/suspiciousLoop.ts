@@ -1,9 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
-import {
-  foldStatements,
-  foldExpressions,
-  evalExpr,
-} from "../../internals/tact";
+import { foldStatements, evalExpr } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 import {
@@ -65,70 +61,58 @@ export class SuspiciousLoop extends AstDetector {
     if (processedLoopIds.has(stmt.id)) {
       return [];
     }
-    if (this.isLoop(stmt)) {
-      processedLoopIds.add(stmt.id);
-      return foldExpressions(
-        stmt,
-        (acc, expr) => {
-          if (this.isSuspiciousCondition(expr, stmt)) {
-            acc.push(
-              this.makeWarning(
-                "Potential unbounded or high-cost loop",
-                stmt.loc,
-                {
-                  suggestion:
-                    "Avoid excessive iterations or unbounded conditions in loops",
-                },
-              ),
-            );
-          }
-          return acc;
-        },
-        [] as MistiTactWarning[],
-      );
+    processedLoopIds.add(stmt.id);
+    if (stmt.kind === "statement_foreach") {
+      return [];
+    }
+    if (stmt.kind === "statement_repeat") {
+      return this.isBig(stmt.iterations);
+    }
+    if (stmt.kind === "statement_while" || stmt.kind === "statement_until") {
+      return this.isTrue(stmt.condition);
     }
     return [];
   }
 
   /**
-   * Checks if an expression is a suspicious condition, indicating an unbounded
-   * loop or excessive iteration.
-   * @param expr - The expression to evaluate.
-   * @param stmt - The statement to evaluate.
-   * @returns True if the expression is suspicious, otherwise false.
+   * Checks if an integer expression evaluates to a large number.
    */
-  private isSuspiciousCondition(
-    expr: AstExpression,
-    stmt: AstStatement,
-  ): boolean {
-    if (stmt.kind === "statement_foreach") {
-      return false;
-    }
+  private isBig(expr: AstExpression): MistiTactWarning[] {
     const result = evalExpr(expr);
-    if (result === undefined) {
-      return false;
+    if (result !== undefined && typeof result === "bigint") {
+      const threshold = 1_000_000;
+      if (result > BigInt(threshold)) {
+        return [
+          this.makeWarning("Potential high-cost loop", expr.loc, {
+            suggestion: "Avoid excessive iterations in loops",
+          }),
+        ];
+      }
     }
-    if (stmt.kind === "statement_repeat") {
-      const threshold = 100_000;
-      return typeof result === "bigint" && result > BigInt(threshold);
-    }
-    if (stmt.kind === "statement_while" || stmt.kind === "statement_until") {
-      return typeof result === "boolean" && result === true;
-    }
-    return false;
+    return [];
   }
 
   /**
-   * Determines if a statement is a loop.
-   * @param stmt - The statement to evaluate.
-   * @returns True if the statement represents a loop, otherwise false.
+   * Checks if a boolean expression evaluates to false or true (infinite loop).
    */
-  private isLoop(stmt: AstStatement): boolean {
-    return (
-      stmt.kind === "statement_while" ||
-      stmt.kind === "statement_repeat" ||
-      stmt.kind === "statement_until" ||
-      stmt.kind === "statement_foreach"
-    );
+  private isTrue(expr: AstExpression): MistiTactWarning[] {
+    const result = evalExpr(expr);
+    if (result !== undefined && typeof result === "boolean") {
+      if (result === false) {
+        return [
+          this.makeWarning("Loop condition is always false", expr.loc, {
+            suggestion: "Consider removing the loop if there is no logic error",
+          }),
+        ];
+      }
+      if (result === true) {
+        return [
+          this.makeWarning("Potential infinite loop", expr.loc, {
+            suggestion: "Avoid unbounded conditions in loops",
+          }),
+        ];
+      }
+    }
+    return [];
   }
 }

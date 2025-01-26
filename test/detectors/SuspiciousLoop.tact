@@ -31,7 +31,7 @@ contract TestSuspiciousLoops {
 
     fun testLoop() {
     let a: Int = 0;
-    while (false) {
+    while (false) { // Should be flagged for infinite loop
         a = 10000000; true; 
      } 
 }
