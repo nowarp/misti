@@ -62,16 +62,28 @@ export class SuspiciousLoop extends AstDetector {
       return [];
     }
     processedLoopIds.add(stmt.id);
-    if (stmt.kind === "statement_foreach") {
-      return [];
+    let warnings: MistiTactWarning[] = [];
+    if ("statements" in stmt) {
+      for (const nestedStmt of stmt.statements) {
+        warnings = warnings.concat(
+          this.analyzeLoopStatement(nestedStmt, processedLoopIds),
+        );
+      }
     }
     if (stmt.kind === "statement_repeat") {
-      return this.isBig(stmt.iterations);
+      warnings = warnings.concat(this.isBig(stmt.iterations));
     }
     if (stmt.kind === "statement_while" || stmt.kind === "statement_until") {
-      return this.isTrue(stmt.condition);
+      warnings = warnings.concat(this.isTrue(stmt.condition));
+      // Check for large constant comparisons in while loops
+      if (
+        stmt.kind === "statement_while" &&
+        stmt.condition.kind === "op_binary"
+      ) {
+        warnings = warnings.concat(this.isBig(stmt.condition.right));
+      }
     }
-    return [];
+    return warnings;
   }
 
   /**
@@ -79,15 +91,16 @@ export class SuspiciousLoop extends AstDetector {
    */
   private isBig(expr: AstExpression): MistiTactWarning[] {
     const result = evalExpr(expr);
-    if (result !== undefined && typeof result === "bigint") {
-      const threshold = 1_000_000;
-      if (result > BigInt(threshold)) {
-        return [
-          this.makeWarning("Potential high-cost loop", expr.loc, {
-            suggestion: "Avoid excessive iterations in loops",
-          }),
-        ];
-      }
+    if (
+      result !== undefined &&
+      typeof result === "bigint" &&
+      result >= BigInt(1_000_000)
+    ) {
+      return [
+        this.makeWarning("Potential high-cost loop", expr.loc, {
+          suggestion: "Avoid excessive iterations in loops",
+        }),
+      ];
     }
     return [];
   }
@@ -98,17 +111,17 @@ export class SuspiciousLoop extends AstDetector {
   private isTrue(expr: AstExpression): MistiTactWarning[] {
     const result = evalExpr(expr);
     if (result !== undefined && typeof result === "boolean") {
-      if (result === false) {
-        return [
-          this.makeWarning("Loop condition is always false", expr.loc, {
-            suggestion: "Consider removing the loop if there is no logic error",
-          }),
-        ];
-      }
       if (result === true) {
         return [
           this.makeWarning("Potential infinite loop", expr.loc, {
             suggestion: "Avoid unbounded conditions in loops",
+          }),
+        ];
+      }
+      if (result === false) {
+        return [
+          this.makeWarning("Loop condition is always false", expr.loc, {
+            suggestion: "This is likely dead code and should be removed",
           }),
         ];
       }

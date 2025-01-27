@@ -16,11 +16,29 @@ test/detectors/SuspiciousLoop.tact:11:17:
 Help: Avoid excessive iterations in loops
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
 
+[HIGH] SuspiciousLoop: Potential high-cost loop
+test/detectors/SuspiciousLoop.tact:18:20:
+  17 |         let i: Int = 0;
+> 18 |         while (i < 1_000_000) { // This should be flagged for large constant comparison
+                          ^
+  19 |             i = i + 1;
+Help: Avoid excessive iterations in loops
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
+
+[HIGH] SuspiciousLoop: Potential high-cost loop
+test/detectors/SuspiciousLoop.tact:26:21:
+  25 |         while (i < 10) {
+> 26 |             repeat (1_000_000) { // Should be flagged within nested loop
+                           ^
+  27 |                 i = i + 1;
+Help: Avoid excessive iterations in loops
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
+
 [HIGH] SuspiciousLoop: Loop condition is always false
 test/detectors/SuspiciousLoop.tact:34:12:
   33 |     let a: Int = 0;
-> 34 |     while (false) { // Should be flagged for infinite loop
+> 34 |     while (false) { // Should be flagged for dead code
                   ^
   35 |         a = 10000000; true; 
-Help: Consider removing the loop if there is no logic error
+Help: This is likely dead code and should be removed
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
