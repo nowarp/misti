@@ -13,13 +13,6 @@ contract TestSuspiciousLoops {
         }
     }
 
-    fun testWhileLargeLimit() {
-        let i: Int = 0;
-        while (i < 1_000_000) { // This should be flagged for large constant comparison
-            i = i + 1;
-        }
-    }
-
     fun testNestedLoops() {
         let i: Int = 0;
         while (i < 10) {

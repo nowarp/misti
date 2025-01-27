@@ -73,21 +73,18 @@ export class SuspiciousLoop extends AstDetector {
     if (stmt.kind === "statement_repeat") {
       warnings = warnings.concat(this.isBig(stmt.iterations));
     }
-    if (stmt.kind === "statement_while" || stmt.kind === "statement_until") {
-      warnings = warnings.concat(this.isTrue(stmt.condition));
-      // Check for large constant comparisons in while loops
-      if (
-        stmt.kind === "statement_while" &&
-        stmt.condition.kind === "op_binary"
-      ) {
-        warnings = warnings.concat(this.isBig(stmt.condition.right));
-      }
+    if (stmt.kind === "statement_while") {
+      const bodyCount = "statements" in stmt ? stmt.statements.length : 0;
+      warnings = warnings.concat(
+        this.checkWhileLoopCondition(stmt.condition, bodyCount),
+      );
     }
     return warnings;
   }
 
   /**
-   * Checks if an integer expression evaluates to a large number.
+   * Checks if an integer expression evaluates to a large number (>= 1_000_000).
+   * Used only in `repeat(...)`.
    */
   private isBig(expr: AstExpression): MistiTactWarning[] {
     const result = evalExpr(expr);
@@ -106,9 +103,14 @@ export class SuspiciousLoop extends AstDetector {
   }
 
   /**
-   * Checks if a boolean expression evaluates to false or true (infinite loop).
+   * Checks a `while` loop condition for:
+   * - Always true ( => "Potential infinite loop")
+   * - Always false ( => "Loop condition is always false" if loop body has > 0 statements)
    */
-  private isTrue(expr: AstExpression): MistiTactWarning[] {
+  private checkWhileLoopCondition(
+    expr: AstExpression,
+    bodyCount: number,
+  ): MistiTactWarning[] {
     const result = evalExpr(expr);
     if (result !== undefined && typeof result === "boolean") {
       if (result === true) {
@@ -118,10 +120,11 @@ export class SuspiciousLoop extends AstDetector {
           }),
         ];
       }
-      if (result === false) {
+      if (result === false && bodyCount > 0) {
         return [
           this.makeWarning("Loop condition is always false", expr.loc, {
-            suggestion: "This is likely dead code and should be removed",
+            suggestion:
+              "The condition is always false; therefore, the body will never execute",
           }),
         ];
       }
