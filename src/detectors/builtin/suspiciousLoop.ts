@@ -63,7 +63,10 @@ export class SuspiciousLoop extends AstDetector {
     }
     processedLoopIds.add(stmt.id);
     let warnings: MistiTactWarning[] = [];
-    if ("statements" in stmt) {
+    if (
+      (stmt.kind === "statement_repeat" || stmt.kind === "statement_while") &&
+      stmt.statements
+    ) {
       for (const nestedStmt of stmt.statements) {
         warnings = warnings.concat(
           this.analyzeLoopStatement(nestedStmt, processedLoopIds),
@@ -74,7 +77,7 @@ export class SuspiciousLoop extends AstDetector {
       warnings = warnings.concat(this.isBig(stmt.iterations));
     }
     if (stmt.kind === "statement_while") {
-      const bodyCount = "statements" in stmt ? stmt.statements.length : 0;
+      const bodyCount = stmt.statements ? stmt.statements.length : 0;
       warnings = warnings.concat(
         this.checkWhileLoopCondition(stmt.condition, bodyCount),
       );
