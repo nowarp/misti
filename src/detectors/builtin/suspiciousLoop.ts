@@ -22,7 +22,7 @@ import {
  *
  * ## Example
  * ```tact
- * repeat (1_0001) { // Bad: High iteration count
+ * repeat (10_001) { // Bad: High iteration count
  *     // ...
  * }
  *
