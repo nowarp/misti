@@ -77,4 +77,3 @@ contract TestContract2 {
         let _test: Int = 123; // suppressed: no warning
     }
 }
-
