@@ -1,5 +1,3 @@
-Here's the updated text with the grammar fixed:
-
 # Tests
 
 ## Structure

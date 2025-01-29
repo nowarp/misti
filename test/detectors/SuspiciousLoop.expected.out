@@ -1,35 +1,44 @@
-[HIGH] SuspiciousLoop: Potential infinite loop
-test/detectors/SuspiciousLoop.tact:5:16:
-  4 |         let i: Int = 0;
-> 5 |         while (true) { // This should be flagged for an unbounded condition
-                     ^
-  6 |             i = i + 1;
+[MEDIUM] SuspiciousLoop: Infinite loop detected
+test/detectors/SuspiciousLoop.tact:10:16:
+   9 |         let i: Int = 0;
+> 10 |         while (true) { i = i + 1; } // Bad
+                      ^
+  11 |         do { i = i + 1; } until (true); // Bad
 Help: Avoid unbounded conditions in loops
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
 
-[HIGH] SuspiciousLoop: Potential high-cost loop
-test/detectors/SuspiciousLoop.tact:11:17:
-  10 |     fun testRepeatHighCount() { 
-> 11 |         repeat (1_000_001) { // This should be flagged for excessive iteration
+[MEDIUM] SuspiciousLoop: Infinite loop detected
+test/detectors/SuspiciousLoop.tact:11:34:
+  10 |         while (true) { i = i + 1; } // Bad
+> 11 |         do { i = i + 1; } until (true); // Bad
+                                        ^
+  12 |         do { i = i + 1; } until (TRUE); // TODO: Unsupported in consteval
+Help: Avoid unbounded conditions in loops
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
+
+[MEDIUM] SuspiciousLoop: Potential high-cost loop
+test/detectors/SuspiciousLoop.tact:16:17:
+  15 |     fun testRepeatHighCount() {
+> 16 |         repeat (10_001) { let x = 1; } // Bad
                        ^
-  12 |             let x = 1;
+  17 |         repeat (A + B) { let x = 1; } // TODO: Unsupported in consteval
 Help: Avoid excessive iterations in loops
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
 
-[HIGH] SuspiciousLoop: Potential high-cost loop
-test/detectors/SuspiciousLoop.tact:19:21:
-  18 |         while (i < 10) {
-> 19 |             repeat (1_000_000) { // Should be flagged within nested loop
+[MEDIUM] SuspiciousLoop: Potential high-cost loop
+test/detectors/SuspiciousLoop.tact:24:21:
+  23 |         while (i < 10) {
+> 24 |             repeat (1_000_000) { i = i + 1; } // Bad
                            ^
-  20 |                 i = i + 1;
+  25 |         }
 Help: Avoid excessive iterations in loops
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
 
-[HIGH] SuspiciousLoop: Loop condition is always false
-test/detectors/SuspiciousLoop.tact:27:12:
-  26 |     let a: Int = 0;
-> 27 |     while (false) { // Should be flagged for dead code
-                  ^
-  28 |         a = 10000000; true; 
-Help: The condition is always false; therefore, the body will never execute
+[MEDIUM] SuspiciousLoop: Loop condition is always false
+test/detectors/SuspiciousLoop.tact:30:16:
+  29 |         let a: Int = 0;
+> 30 |         while (false) { a = 1; } // Bad
+                      ^
+  31 |         while (false) { } // OK: Empty body
+Help: The condition is always false; the body will never execute
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop

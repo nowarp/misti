@@ -71,3 +71,9 @@ contract TestContract {
         let test: Int = 123; // should be reported
     }
 }
+
+contract TestContract2 {
+    receive() {
+        let _test: Int = 123; // suppressed: no warning
+    }
+}

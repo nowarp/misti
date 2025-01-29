@@ -411,7 +411,7 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       import("./builtin/suspiciousLoop").then(
         (module) => new module.SuspiciousLoop(ctx),
       ),
-    enabledByDefault: false,
+    enabledByDefault: true,
   },
 };
 
