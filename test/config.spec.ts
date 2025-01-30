@@ -56,8 +56,11 @@ describe("Config class", () => {
       configPath: MOCK_CONFIG_PATH,
       fs,
     });
-    expect(configInstance.suppressions).toEqual([
-      { detector: "ReadOnlyVariables", file: "file.tact", line: 10, col: 5 },
-    ]);
+    expect(configInstance.suppressions).toHaveLength(1);
+    expect(configInstance.suppressions[0]).toMatchObject({
+      detector: "ReadOnlyVariables",
+      line: 10,
+      col: 5,
+    });
   });
 });

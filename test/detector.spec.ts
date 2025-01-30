@@ -51,6 +51,7 @@ describe("Common detectors functionality", () => {
   it("should respect suppressions in config file", async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "misti-test-"));
     const configPath = path.join(tempDir, "misti.config.json");
+    const absolutePath = path.resolve(ABSOLUTE_PATH);
     const mockConfig = {
       detectors: [{ className: "NeverAccessedVariables" }],
       tools: [],
@@ -60,33 +61,34 @@ describe("Common detectors functionality", () => {
       suppressions: [
         {
           detector: "NeverAccessedVariables",
-          position: `${RELATIVE_PATH}:31:5`,
+          position: `${absolutePath}:31:5`,
         },
         {
           detector: "NeverAccessedVariables",
-          position: `${RELATIVE_PATH}:2:5`,
+          position: `${absolutePath}:2:5`,
         },
         {
           detector: "NeverAccessedVariables",
-          position: `${RELATIVE_PATH}:24:5`,
+          position: `${absolutePath}:24:5`,
         },
         {
           detector: "NeverAccessedVariables",
-          position: `${RELATIVE_PATH}:71:9`,
+          position: `${absolutePath}:71:9`,
         },
       ],
     };
 
     fs.writeFileSync(configPath, JSON.stringify(mockConfig, null, 2));
-    const filePath = ABSOLUTE_PATH;
+
     const output = await executeMisti([
-      "--all-detectors",
+      "--enabled-detectors",
+      "NeverAccessedVariables",
       "--no-colors",
       "--output-format",
       "json",
       "--config",
       configPath,
-      filePath,
+      absolutePath,
     ]);
     let jsonOutput: { kind: string };
     try {

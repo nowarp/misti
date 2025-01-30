@@ -7,6 +7,7 @@ import {
 } from "../detectors/detector";
 import { createNodeFileSystem } from "../vfs/createNodeFileSystem";
 import { VirtualFileSystem } from "../vfs/virtualFileSystem";
+import path from "path";
 import { z } from "zod";
 
 const DetectorConfigSchema = z.object({
@@ -59,6 +60,7 @@ export class MistiConfig {
   public unusedPrefix: string;
   public verbosity: "quiet" | "debug" | "default";
   public fs: VirtualFileSystem;
+  private configDir: string;
 
   constructor({
     configPath = undefined,
@@ -73,8 +75,11 @@ export class MistiConfig {
     allDetectors: boolean;
     fs: VirtualFileSystem;
   }> = {}) {
-    let configData;
     this.fs = fs;
+    this.configDir = configPath
+      ? path.dirname(path.resolve(configPath))
+      : process.cwd();
+    let configData;
     if (configPath) {
       try {
         const configFileContents = fs.readFile(configPath).toString("utf8");
@@ -187,9 +192,13 @@ export class MistiConfig {
           `Invalid line or column number in suppression position: ${position}`,
         );
       }
+      // Normalize the suppression file path
+      const normalizedFile = path.isAbsolute(file)
+        ? path.normalize(file)
+        : path.normalize(path.resolve(this.configDir, file));
       return {
         detector: detector as DetectorName,
-        file,
+        file: normalizedFile,
         line,
         col,
       };

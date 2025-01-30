@@ -555,14 +555,20 @@ export class Driver {
       let suppressionUsed = false;
       warnings.forEach((projectWarnings, projectName) => {
         const filteredWarnings = projectWarnings.filter((warning) => {
+          if (!warning.loc.file) return true;
           const lc = warning.loc.interval.getLineAndColumn() as {
             lineNum: number;
             colNum: number;
           };
+          // Normalize the warning file path
+          const warningFile = path.normalize(
+            path.isAbsolute(warning.loc.file)
+              ? warning.loc.file
+              : path.resolve(process.cwd(), warning.loc.file),
+          );
           if (
             warning.detectorId === suppression.detector &&
-            warning.loc.file &&
-            warning.loc.file.includes(suppression.file) &&
+            warningFile === suppression.file &&
             lc.lineNum === suppression.line &&
             lc.colNum === suppression.col
           ) {
