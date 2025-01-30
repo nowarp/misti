@@ -14,15 +14,13 @@ export const DEFAULT_STDLIB_PATH_ELEMENTS = [
 ];
 
 /**
- * Returns an absolute path to Tact stdlib.
- *
- * This adjustment is needed to get an actual path to stdlib distributed within the tact package.
+ * Returns an absolute path to Tact stdlib distributed within the tact compiler
+ * package.
  */
-export function getStdlibPath(nodeModulesPath: string = "../../..") {
-  return path.resolve(
-    __dirname,
-    nodeModulesPath,
-    ...DEFAULT_STDLIB_PATH_ELEMENTS,
+export function getStdlibPath() {
+  return path.join(
+    path.dirname(require.resolve("@tact-lang/compiler/package.json")),
+    "stdlib",
   );
 }
 
