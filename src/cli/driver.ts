@@ -555,27 +555,16 @@ export class Driver {
       let suppressionUsed = false;
       warnings.forEach((projectWarnings, projectName) => {
         const filteredWarnings = projectWarnings.filter((warning) => {
-          if (!warning.loc.file) {
-            return true;
-          }
-          // Get the base directory from the warning file
-          const warningDir = path.dirname(warning.loc.file);
-          // Convert warning path to absolute
-          const warningFile = warning.loc.file;
-          // Resolve relative to the warning directory's parent
-          const suppressionFile = path.isAbsolute(suppression.file)
-            ? suppression.file
-            : path.resolve(path.dirname(warningDir), suppression.file);
-          const { lineNum, colNum } =
-            warning.loc.interval.getLineAndColumn() ?? {
-              lineNum: 0,
-              colNum: 0,
-            };
+          const lc = warning.loc.interval.getLineAndColumn() as {
+            lineNum: number;
+            colNum: number;
+          };
           if (
             warning.detectorId === suppression.detector &&
-            path.normalize(warningFile) === path.normalize(suppressionFile) &&
-            lineNum === suppression.line &&
-            colNum === suppression.col
+            warning.loc.file &&
+            warning.loc.file.includes(suppression.file) &&
+            lc.lineNum === suppression.line &&
+            lc.colNum === suppression.col
           ) {
             suppressionUsed = true;
             return false;
@@ -586,8 +575,7 @@ export class Driver {
       });
       if (!suppressionUsed) {
         this.ctx.logger.warn(
-          `Unused suppression: ${suppression.detector} at ` +
-            `${suppression.file}:${suppression.line}`,
+          `Unused suppression: ${suppression.detector} at ${suppression.file}:${suppression.line}`,
         );
       }
     });
