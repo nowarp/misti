@@ -553,20 +553,18 @@ export class Driver {
   ): void {
     this.ctx.config.suppressions.forEach((suppression) => {
       let suppressionUsed = false;
-      Array.from(warnings.keys()).forEach((projectName) => {
-        const projectWarnings = warnings.get(projectName)!;
+      warnings.forEach((projectWarnings, projectName) => {
         const filteredWarnings = projectWarnings.filter((warning) => {
-          const warningFilePath = path.resolve(warning.loc.file!);
-          let suppressionFilePath = suppression.file;
-          if (!path.isAbsolute(suppressionFilePath)) {
-            suppressionFilePath = path.resolve(
-              path.dirname(warningFilePath),
+          const warningFile = warning.loc.file!;
+          let suppressionFile = suppression.file;
+          if (!path.isAbsolute(suppressionFile)) {
+            suppressionFile = path.join(
+              path.dirname(warningFile),
               suppression.file,
             );
           }
           const isSameFile =
-            path.basename(warningFilePath) ===
-            path.basename(suppressionFilePath);
+            path.basename(warningFile) === path.basename(suppressionFile);
           const lc = warning.loc.interval.getLineAndColumn() as {
             lineNum: number;
             colNum: number;
