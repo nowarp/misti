@@ -98,7 +98,7 @@ describe("Common detectors functionality", () => {
     expect(jsonOutput.kind).toBe("ok");
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
-  
+
   it("should respect suppressions in config file using absolute paths", async () => {
     // Test absolute paths in the suppressions.
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "misti-test-"));
