@@ -555,7 +555,10 @@ export class Driver {
       let suppressionUsed = false;
       warnings.forEach((projectWarnings, projectName) => {
         const filteredWarnings = projectWarnings.filter((warning) => {
-          const warningFile = warning.loc.file!;
+          const warningFile = warning.loc.file;
+          if (!warningFile) {
+            return true;
+          }
           let suppressionFile = suppression.file;
           if (!path.isAbsolute(suppressionFile)) {
             suppressionFile = path.join(
