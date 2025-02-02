@@ -563,7 +563,6 @@ export class Driver {
           if (!path.isAbsolute(suppressionFile)) {
             suppressionFile = path.resolve(
               path.dirname(warningFile),
-              "..",
               suppression.file,
             );
           }
