@@ -561,8 +561,9 @@ export class Driver {
           }
           let suppressionFile = suppression.file;
           if (!path.isAbsolute(suppressionFile)) {
-            suppressionFile = path.join(
+            suppressionFile = path.resolve(
               path.dirname(warningFile),
+              "..",
               suppression.file,
             );
           }
