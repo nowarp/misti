@@ -1,17 +1,49 @@
 [HIGH] BranchDuplicate: Duplicated code in conditional branches is detected
-test/detectors/BranchDuplicate.tact:3:5:
-  2 |     let a: Int = 42;
-> 3 |     if (a == 42) {
-          ^
-  4 |         a = 43; // bad
-Help: Identical code in both branches detected. Refactor to eliminate redundancy.
+test/detectors/BranchDuplicate.tact:4:9:
+  3 |     if (a == 42) {
+> 4 |         a = 43; // Bad
+              ^
+  5 |     } else {
+Identical code block was detected at line 6
+Help: Consider refactoring to eliminate this duplication
 See: https://nowarp.io/tools/misti/docs/detectors/BranchDuplicate
 
 [HIGH] BranchDuplicate: Duplicated code in conditional branches is detected
-test/detectors/BranchDuplicate.tact:12:12:
+test/detectors/BranchDuplicate.tact:12:24:
   11 |     let a: Int = 42;
-> 12 |     return (a == 42) ? a + 43 : a + 43; // bad
-                  ^
+> 12 |     return (a == 42) ? a + 43 : a + 43; // Bad
+                              ^
   13 | }
-Help: Identical code in both branches detected. Refactor to eliminate redundancy.
+Identical code block was detected at line 12
+Help: Consider refactoring to eliminate this duplication
+See: https://nowarp.io/tools/misti/docs/detectors/BranchDuplicate
+
+[HIGH] BranchDuplicate: Duplicated code in conditional branches is detected
+test/detectors/BranchDuplicate.tact:33:9:
+  32 |     } else if (a == 43) {
+> 33 |         a = 43; // Bad
+               ^
+  34 |     } else if (a == 43) {
+Identical code block was detected at line 35
+Help: Consider refactoring to eliminate this duplication
+See: https://nowarp.io/tools/misti/docs/detectors/BranchDuplicate
+
+[HIGH] BranchDuplicate: Duplicated code in conditional branches is detected
+test/detectors/BranchDuplicate.tact:43:9:
+  42 |     } else if (a == 43) {
+> 43 |         a = 43; // Bad
+               ^
+  44 |     } else if (a == 44) {
+Identical code block was detected at line 45
+Help: Consider refactoring to eliminate this duplication
+See: https://nowarp.io/tools/misti/docs/detectors/BranchDuplicate
+
+[HIGH] BranchDuplicate: Duplicated code in conditional branches is detected
+test/detectors/BranchDuplicate.tact:45:9:
+  44 |     } else if (a == 44) {
+> 45 |         a = 43; // Bad
+               ^
+  46 |     } else if (a == 45) {
+Identical code block was detected at line 47
+Help: Consider refactoring to eliminate this duplication
 See: https://nowarp.io/tools/misti/docs/detectors/BranchDuplicate

@@ -75,7 +75,7 @@ export class BranchDuplicate extends AstDetector {
       expr.kind === "conditional" &&
       nodesAreEqual(expr.thenBranch, expr.elseBranch)
     ) {
-      acc.push(this.createWarning(expr.loc));
+      acc.push(this.createWarning(expr.thenBranch.loc, expr.elseBranch.loc));
     }
     return acc;
   }
@@ -89,48 +89,46 @@ export class BranchDuplicate extends AstDetector {
     stmt: AstStatement,
   ): MistiTactWarning[] {
     if (stmt.kind === "statement_condition") {
-      const allConditions = this.collectAllConditions(stmt);
-      if (this.hasDuplicateConditions(allConditions)) {
-        acc.push(this.createWarning(stmt.loc));
+      const allBranches = this.collectAllBranches(stmt);
+      for (let i = 0; i < allBranches.length; i++) {
+        for (let j = i; j < allBranches.length; j++) {
+          const lhs = allBranches[i];
+          const rhs = allBranches[j];
+          if (i != j && statementsAreEqual(lhs, rhs)) {
+            acc.push(this.createWarning(lhs[0].loc, rhs[0].loc));
+            break;
+          }
+        }
       }
     }
     return acc;
   }
 
-  /**
-   * Collects the main condition and all elseif conditions into an array.
-   */
-  private collectAllConditions(stmt: AstCondition): AstCondition[] {
-    const conditions: AstCondition[] = [];
-    let current: AstCondition | null = stmt;
+  private collectAllBranches(cond: AstCondition): AstStatement[][] {
+    const branches: AstStatement[][] = [];
+    let current: AstCondition | null = cond;
     while (current !== null) {
-      conditions.push(current);
+      if (current.trueStatements.length > 0) {
+        branches.push(current.trueStatements);
+      }
+      if (
+        current.falseStatements !== null &&
+        current.falseStatements.length > 0
+      ) {
+        branches.push(current.falseStatements);
+      }
       current = current.elseif;
     }
-    return conditions;
+    return branches;
   }
 
-  /**
-   * Checks if any condition in the array has identical true and false branches.
-   */
-  private hasDuplicateConditions(conditions: AstCondition[]): boolean {
-    return conditions.some((condition) =>
-      condition.falseStatements === null
-        ? false
-        : statementsAreEqual(
-            condition.trueStatements,
-            condition.falseStatements || [],
-          ),
-    );
-  }
-
-  private createWarning(loc: SrcInfo): MistiTactWarning {
+  private createWarning(loc: SrcInfo, dupLoc: SrcInfo): MistiTactWarning {
     return this.makeWarning(
       "Duplicated code in conditional branches is detected",
       loc,
       {
-        suggestion:
-          "Identical code in both branches detected. Refactor to eliminate redundancy.",
+        extraDescription: `Identical code block was detected at line ${dupLoc.interval.getLineAndColumn().lineNum}`,
+        suggestion: "Consider refactoring to eliminate this duplication",
       },
     );
   }
