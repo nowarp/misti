@@ -25,7 +25,7 @@ export class Logger implements ILogger {
     this.logFunctions = new Map([
       [LogLevel.DEBUG, undefined],
       [LogLevel.INFO, console.log],
-      [LogLevel.WARN, console.log],
+      [LogLevel.WARN, console.warn],
       [LogLevel.ERROR, console.error],
     ]);
     if (logMapping) {

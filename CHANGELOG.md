@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `SuspiciousLoop` detector: PR [#206](https://github.com/nowarp/misti/pull/206)
 - File-scoped CFG dumps: Issue [#241](https://github.com/nowarp/misti/issues/241)
 
+### Changed
+- Display `warn` logger messages to `stderr` instead of `stdout`: Issue [#259](https://github.com/nowarp/misti/issues/259)
+
 ### Fixed
 - Souffle installation in CI: PR [#253](https://github.com/nowarp/misti/pull/253)
 - Tact stdlib path resolution: PR [#256](https://github.com/nowarp/misti/pull/256)
