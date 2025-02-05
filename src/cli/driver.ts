@@ -552,21 +552,42 @@ export class Driver {
     warnings: Map<ProjectName, MistiTactWarning[]>,
   ): void {
     this.ctx.config.suppressions.forEach((suppression) => {
+      let suppressionUsed = false;
       warnings.forEach((projectWarnings, projectName) => {
-        const filtered = projectWarnings.filter((warning) => {
+        const filteredWarnings = projectWarnings.filter((warning) => {
           if (!warning.loc.file) return true;
-          if (warning.detectorId !== suppression.detector) return true;
+          const canonicalWarningFile = path.normalize(warning.loc.file);
           const { lineNum, colNum } = warning.loc.interval.getLineAndColumn();
-          const warningPath = path.normalize(warning.loc.file);
-          const suppressionPath = path.normalize(suppression.file);
-          return !(
-            warningPath.endsWith(suppressionPath) &&
-            lineNum === suppression.line &&
-            colNum === suppression.col
-          );
+          if (path.isAbsolute(suppression.file)) {
+            const canonicalSuppressionFile = path.normalize(suppression.file);
+            if (
+              canonicalWarningFile === canonicalSuppressionFile &&
+              lineNum === suppression.line &&
+              colNum === suppression.col
+            ) {
+              suppressionUsed = true;
+              return false;
+            }
+          } else {
+            const normalizedSuppressionRel = path.normalize(suppression.file);
+            if (
+              canonicalWarningFile.endsWith(normalizedSuppressionRel) &&
+              lineNum === suppression.line &&
+              colNum === suppression.col
+            ) {
+              suppressionUsed = true;
+              return false;
+            }
+          }
+          return true;
         });
-        warnings.set(projectName, filtered);
+        warnings.set(projectName, filteredWarnings);
       });
+      if (!suppressionUsed) {
+        this.ctx.logger.warn(
+          `Unused suppression: ${suppression.detector} at ${suppression.file}:${suppression.line}:${suppression.col}`,
+        );
+      }
     });
   }
 
