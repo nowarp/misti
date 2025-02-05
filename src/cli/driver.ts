@@ -552,43 +552,21 @@ export class Driver {
     warnings: Map<ProjectName, MistiTactWarning[]>,
   ): void {
     this.ctx.config.suppressions.forEach((suppression) => {
-      let suppressionUsed = false;
       warnings.forEach((projectWarnings, projectName) => {
-        const filteredWarnings = projectWarnings.filter((warning) => {
-          const warningFile = warning.loc.file;
-          if (!warningFile) {
-            return true;
-          }
-          let suppressionFile = suppression.file;
-          if (!path.isAbsolute(suppressionFile)) {
-            suppressionFile = path.resolve(
-              path.dirname(warningFile),
-              suppression.file,
-            );
-          }
-          const isSameFile =
-            path.basename(warningFile) === path.basename(suppressionFile);
-          const lc = warning.loc.interval.getLineAndColumn() as {
-            lineNum: number;
-            colNum: number;
-          };
-          if (
-            isSameFile &&
-            lc.lineNum === suppression.line &&
-            lc.colNum === suppression.col
-          ) {
-            suppressionUsed = true;
-            return false;
-          }
-          return true;
+        const filtered = projectWarnings.filter((warning) => {
+          if (!warning.loc.file) return true;
+          if (warning.detectorId !== suppression.detector) return true;
+          const { lineNum, colNum } = warning.loc.interval.getLineAndColumn();
+          const warningPath = path.normalize(warning.loc.file);
+          const suppressionPath = path.normalize(suppression.file);
+          return !(
+            warningPath.endsWith(suppressionPath) &&
+            lineNum === suppression.line &&
+            colNum === suppression.col
+          );
         });
-        warnings.set(projectName, filteredWarnings);
+        warnings.set(projectName, filtered);
       });
-      if (!suppressionUsed) {
-        this.ctx.logger.warn(
-          `Unused suppression: ${suppression.detector} at ${suppression.file}:${suppression.line}`,
-        );
-      }
     });
   }
 
