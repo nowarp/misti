@@ -2,7 +2,7 @@ import { CLIOptions, cliOptionDefaults } from "./options";
 import { MistiResult, ToolOutput, WarningOutput } from "./result";
 import { OutputFormat } from "./types";
 import { Detector, findBuiltInDetector } from "../detectors/detector";
-import { MistiEnv } from "../internals/config";
+import { MistiEnv, WarningSuppression } from "../internals/config";
 import { MistiContext } from "../internals/context";
 import { ExecutionException, InternalException } from "../internals/exceptions";
 import { CompilationUnit, ImportGraph, ProjectName } from "../internals/ir";
@@ -545,8 +545,29 @@ export class Driver {
   }
 
   /**
-   * Filters out the warnings suppressed in the configuration files.
-   * Mutates the input map removing suppressed warnings.
+   * Returns true if warning matches suppression.
+   */
+  private suppressionMatchesWarning(
+    suppression: WarningSuppression,
+    warning: MistiTactWarning,
+  ): boolean {
+    if (!warning.loc.file) return false;
+    const canonicalWarningFile = path.normalize(warning.loc.file);
+    const { lineNum, colNum } = warning.loc.interval.getLineAndColumn();
+    const suppressionFileNormalized = path.normalize(suppression.file);
+    const pathsAreEqual = path.isAbsolute(suppression.file)
+      ? canonicalWarningFile === suppressionFileNormalized
+      : canonicalWarningFile.endsWith(suppressionFileNormalized);
+    return (
+      pathsAreEqual &&
+      lineNum === suppression.line &&
+      colNum === suppression.col
+    );
+  }
+
+  /**
+   * Filters warnings suppressed in the config file.
+   * Mutates the input map, removing suppressed warnings.
    */
   private filterSuppressedInConfig(
     warnings: Map<ProjectName, MistiTactWarning[]>,
@@ -555,29 +576,9 @@ export class Driver {
       let suppressionUsed = false;
       warnings.forEach((projectWarnings, projectName) => {
         const filteredWarnings = projectWarnings.filter((warning) => {
-          if (!warning.loc.file) return true;
-          const canonicalWarningFile = path.normalize(warning.loc.file);
-          const { lineNum, colNum } = warning.loc.interval.getLineAndColumn();
-          if (path.isAbsolute(suppression.file)) {
-            const canonicalSuppressionFile = path.normalize(suppression.file);
-            if (
-              canonicalWarningFile === canonicalSuppressionFile &&
-              lineNum === suppression.line &&
-              colNum === suppression.col
-            ) {
-              suppressionUsed = true;
-              return false;
-            }
-          } else {
-            const normalizedSuppressionRel = path.normalize(suppression.file);
-            if (
-              canonicalWarningFile.endsWith(normalizedSuppressionRel) &&
-              lineNum === suppression.line &&
-              colNum === suppression.col
-            ) {
-              suppressionUsed = true;
-              return false;
-            }
+          if (this.suppressionMatchesWarning(suppression, warning)) {
+            suppressionUsed = true;
+            return false;
           }
           return true;
         });
