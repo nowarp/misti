@@ -545,21 +545,29 @@ export class Driver {
   }
 
   /**
-   * Returns true if warning matches suppression.
+   * Compares suppressionFile and warningFile.
+   * If suppressionFile is an absolute path, returns true if the files are the same after normalization.
+   * If suppressionFile is relative, returns true if warningFile ends with suppressionFile.
+   */
+  private pathsAreEqual(suppressionFile: string, warningFile: string): boolean {
+    const normalizedWarningFile = path.normalize(warningFile);
+    const normalizedSuppressionFile = path.normalize(suppressionFile);
+    return path.isAbsolute(suppressionFile)
+      ? normalizedWarningFile === normalizedSuppressionFile
+      : normalizedWarningFile.endsWith(normalizedSuppressionFile);
+  }
+
+  /**
+   * Checks if a warning matches suppression.
    */
   private suppressionMatchesWarning(
     suppression: WarningSuppression,
     warning: MistiTactWarning,
   ): boolean {
     if (!warning.loc.file) return false;
-    const canonicalWarningFile = path.normalize(warning.loc.file);
     const { lineNum, colNum } = warning.loc.interval.getLineAndColumn();
-    const suppressionFileNormalized = path.normalize(suppression.file);
-    const pathsAreEqual = path.isAbsolute(suppression.file)
-      ? canonicalWarningFile === suppressionFileNormalized
-      : canonicalWarningFile.endsWith(suppressionFileNormalized);
     return (
-      pathsAreEqual &&
+      this.pathsAreEqual(suppression.file, warning.loc.file) &&
       lineNum === suppression.line &&
       colNum === suppression.col
     );
