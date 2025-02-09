@@ -566,11 +566,10 @@ export class Driver {
   ): boolean {
     if (!warning.loc.file) return false;
     const { lineNum, colNum } = warning.loc.interval.getLineAndColumn();
-    return (
-      this.pathsAreEqual(suppression.file, warning.loc.file) &&
-      lineNum === suppression.line &&
-      colNum === suppression.col
-    );
+    if (lineNum !== suppression.line || colNum !== suppression.col) {
+      return false;
+    }
+    return this.pathsAreEqual(suppression.file, warning.loc.file);
   }
 
   /**
