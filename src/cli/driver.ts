@@ -2,7 +2,7 @@ import { CLIOptions, cliOptionDefaults } from "./options";
 import { MistiResult, ToolOutput, WarningOutput } from "./result";
 import { OutputFormat } from "./types";
 import { Detector, findBuiltInDetector } from "../detectors/detector";
-import { MistiEnv } from "../internals/config";
+import { MistiEnv, WarningSuppression } from "../internals/config";
 import { MistiContext } from "../internals/context";
 import { ExecutionException, InternalException } from "../internals/exceptions";
 import { CompilationUnit, ImportGraph, ProjectName } from "../internals/ir";
@@ -545,8 +545,36 @@ export class Driver {
   }
 
   /**
-   * Filters out the warnings suppressed in the configuration files.
-   * Mutates the input map removing suppressed warnings.
+   * Compares suppressionFile and warningFile.
+   * If suppressionFile is an absolute path, returns true if the files are the same after normalization.
+   * If suppressionFile is relative, returns true if warningFile ends with suppressionFile.
+   */
+  private pathsAreEqual(suppressionFile: string, warningFile: string): boolean {
+    const normalizedWarningFile = path.normalize(warningFile);
+    const normalizedSuppressionFile = path.normalize(suppressionFile);
+    return path.isAbsolute(suppressionFile)
+      ? normalizedWarningFile === normalizedSuppressionFile
+      : normalizedWarningFile.endsWith(normalizedSuppressionFile);
+  }
+
+  /**
+   * Checks if a warning matches suppression.
+   */
+  private suppressionMatchesWarning(
+    suppression: WarningSuppression,
+    warning: MistiTactWarning,
+  ): boolean {
+    if (!warning.loc.file) return false;
+    const { lineNum, colNum } = warning.loc.interval.getLineAndColumn();
+    if (lineNum !== suppression.line || colNum !== suppression.col) {
+      return false;
+    }
+    return this.pathsAreEqual(suppression.file, warning.loc.file);
+  }
+
+  /**
+   * Filters warnings suppressed in the config file.
+   * Mutates the input map, removing suppressed warnings.
    */
   private filterSuppressedInConfig(
     warnings: Map<ProjectName, MistiTactWarning[]>,
@@ -555,17 +583,7 @@ export class Driver {
       let suppressionUsed = false;
       warnings.forEach((projectWarnings, projectName) => {
         const filteredWarnings = projectWarnings.filter((warning) => {
-          const lc = warning.loc.interval.getLineAndColumn() as {
-            lineNum: number;
-            colNum: number;
-          };
-          if (
-            warning.detectorId === suppression.detector &&
-            warning.loc.file &&
-            warning.loc.file.includes(suppression.file) &&
-            lc.lineNum === suppression.line &&
-            lc.colNum === suppression.col
-          ) {
+          if (this.suppressionMatchesWarning(suppression, warning)) {
             suppressionUsed = true;
             return false;
           }
@@ -575,7 +593,7 @@ export class Driver {
       });
       if (!suppressionUsed) {
         this.ctx.logger.warn(
-          `Unused suppression: ${suppression.detector} at ${suppression.file}:${suppression.line}`,
+          `Unused suppression: ${suppression.detector} at ${suppression.file}:${suppression.line}:${suppression.col}`,
         );
       }
     });
