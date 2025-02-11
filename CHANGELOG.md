@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tact stdlib path resolution: PR [#256](https://github.com/nowarp/misti/pull/256)
 - `BranchDuplicate`: False negative in `else-if` clauses: Issue [#258](https://github.com/nowarp/misti/issues/258)
 - `UnboundMap`: False positive: Issue [#262](https://github.com/nowarp/misti/issues/262)
+- Internal Errors Printed to `stderr` Instead of JSON Output: Issue [#263](https://github.com/nowarp/misti/issues/263)
 
 ## [0.6.2] - 2024-12-25
 

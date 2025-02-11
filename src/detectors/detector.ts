@@ -23,6 +23,7 @@ import {
   comment,
 } from "@nowarp/souffle";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
+import JSONbig from "json-bigint";
 
 export type WarningsBehavior = "union" | "intersect";
 
@@ -174,7 +175,8 @@ export abstract class SouffleDetector extends Detector {
       const error =
         result.kind === "error"
           ? result.stderr
-          : "Cannot unmarshal raw output:\n" + result.results;
+          : "Cannot unmarshal raw output:\n" +
+            JSONbig.stringify(result.results, null, 2);
       throw InternalException.make(
         `Error executing Soufflé for ${this.id}:\n${error}`,
       );

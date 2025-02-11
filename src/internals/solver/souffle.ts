@@ -11,6 +11,7 @@ import {
   relation,
 } from "@nowarp/souffle";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
+import JSONbig from "json-bigint";
 
 /**
  * Basic block definition added in all the Souffle programs.
@@ -142,7 +143,7 @@ export class SouffleSolver<State> implements Solver<State> {
     const result = this.execute(ctx);
     if (result.kind !== "structured") {
       throw InternalException.make(
-        `Error executing Soufflé:\n${result.kind === "error" ? result.stderr : "Cannot unmarshal raw output:\n" + result.results}`,
+        `Error executing Soufflé:\n${result.kind === "error" ? result.stderr : "Cannot unmarshal raw output:\n" + JSONbig.stringify(result.results, null, 2)}`,
       );
     }
     return this.createSouffleResults(
