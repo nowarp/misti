@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Souffle installation in CI: PR [#253](https://github.com/nowarp/misti/pull/253)
 - Tact stdlib path resolution: PR [#256](https://github.com/nowarp/misti/pull/256)
 - `BranchDuplicate`: False negative in `else-if` clauses: Issue [#258](https://github.com/nowarp/misti/issues/258)
+- `UnboundMap`: False positive: Issue [#262](https://github.com/nowarp/misti/issues/262)
 
 ## [0.6.2] - 2024-12-25
 

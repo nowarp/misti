@@ -1,9 +1,9 @@
-[LOW] UnboundMap: Map self.m_ok could be unbound
-test/detectors/UnboundMap.tact:3:5:
-  2 |     m_bad: map<Int, Int> = emptyMap();
-> 3 |     m_ok: map<Int, Int> = emptyMap();
+[LOW] UnboundMap: Map self.m_bad could be unbound
+test/detectors/UnboundMap.tact:2:5:
+  1 | contract C {
+> 2 |     m_bad: map<Int, Int> = emptyMap(); // Bad
           ^
-  4 |     // OK: Don't report it since we put nothing in this map
+  3 |     m_ok: map<Int, Int> = emptyMap(); // OK
 There are operations adding elements to this map, but there is no API to remove them
 Help: Consider adding a method to remove elements or suppress this warning
 See: https://nowarp.io/tools/misti/docs/detectors/UnboundMap

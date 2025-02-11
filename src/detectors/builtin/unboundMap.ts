@@ -1,6 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
 import { collectFields, forEachExpression, isSelf } from "../../internals/tact";
-import { intersectSets } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 import {
@@ -69,19 +68,21 @@ export class UnboundMap extends AstDetector {
       new Map<FieldName, AstFieldDecl>(),
     );
     const { added, removed } = this.findUses(contract, mapFields);
-    return Array.from(intersectSets(added, removed)).map((notRemovedName) => {
-      const decl = mapFields.get(notRemovedName)!;
-      return this.makeWarning(
-        `Map self.${notRemovedName} could be unbound`,
-        decl.loc,
-        {
-          extraDescription:
-            "There are operations adding elements to this map, but there is no API to remove them",
-          suggestion:
-            "Consider adding a method to remove elements or suppress this warning",
-        },
-      );
-    });
+    return Array.from(added)
+      .filter((name) => !removed.has(name))
+      .map((notRemovedName) => {
+        const decl = mapFields.get(notRemovedName)!;
+        return this.makeWarning(
+          `Map self.${notRemovedName} could be unbound`,
+          decl.loc,
+          {
+            extraDescription:
+              "There are operations adding elements to this map, but there is no API to remove them",
+            suggestion:
+              "Consider adding a method to remove elements or suppress this warning",
+          },
+        );
+      });
   }
 
   /**
