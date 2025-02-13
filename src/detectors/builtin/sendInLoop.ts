@@ -133,7 +133,13 @@ export class SendInLoop extends AstDetector {
               );
             }
           } else {
-            this.ctx.logger.error(`Cannot retrieve CG node: ${calleeName}`);
+            const lc = expr.loc.interval.getLineAndColumn() as {
+              lineNum: number;
+              colNum: number;
+            };
+            this.ctx.logger.error(
+              `Cannot retrieve CG node: ${calleeName} (${lc.lineNum}:${lc.colNum})`,
+            );
             return acc;
           }
         }
