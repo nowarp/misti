@@ -8,6 +8,7 @@ import {
   getConstantLoadSize,
   getMethodCallsChain,
   isStdlibCall,
+  srcInfoEq,
 } from "../../internals/tact/";
 import { forEachExpression } from "../../internals/tact/iterators";
 import { Transfer } from "../../internals/transfer";
@@ -174,6 +175,34 @@ function getVariableFromState(
   }
 }
 
+function storageValueEq(a: StorageValue, b: StorageValue): boolean {
+  return (
+    a.undecidable === b.undecidable &&
+    a.stored.eq(b.stored) &&
+    a.loaded.eq(b.loaded)
+  );
+}
+
+function variableStorageEq(a: VariableStorage, b: VariableStorage): boolean {
+  return (
+    storageValueEq(a.dataSize, b.dataSize) &&
+    storageValueEq(a.refsNum, b.refsNum)
+  );
+}
+
+function variableEq(a: Variable, b: Variable): boolean {
+  return (
+    a.name === b.name &&
+    a.kind === b.kind &&
+    srcInfoEq(a.loc, b.loc) &&
+    variableStorageEq(a.storage, b.storage)
+  );
+}
+
+function unknownVariableEq(a: UnknownVariable, b: UnknownVariable): boolean {
+  return a.kind === b.kind && variableStorageEq(a.storage, b.storage);
+}
+
 class CellUnderflowLattice implements JoinSemilattice<CellUnderflowState> {
   bottom(): CellUnderflowState {
     return {
@@ -200,11 +229,15 @@ class CellUnderflowLattice implements JoinSemilattice<CellUnderflowState> {
 
   leq(a: CellUnderflowState, b: CellUnderflowState): boolean {
     return (
-      isMapSubsetOf(a.builders, b.builders) &&
-      isMapSubsetOf(a.cells, b.cells) &&
-      isMapSubsetOf(a.slices, b.slices) &&
-      isMapSubsetOf(a.structMessages, b.structMessages) &&
-      isListSubsetOf(a.intermediateVariables, b.intermediateVariables)
+      isMapSubsetOf(a.builders, b.builders, variableEq) &&
+      isMapSubsetOf(a.cells, b.cells, variableEq) &&
+      isMapSubsetOf(a.slices, b.slices, variableEq) &&
+      isMapSubsetOf(a.structMessages, b.structMessages, variableEq) &&
+      isListSubsetOf(
+        a.intermediateVariables,
+        b.intermediateVariables,
+        unknownVariableEq,
+      )
     );
   }
 }

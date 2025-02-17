@@ -1,3 +1,7 @@
+// Test for: https://github.com/nowarp/misti/issues/270
+struct R { a: Int; }
+fun f() { let r = R { a: 0 }; repeat (1) { } }
+
 struct S {
     a: Int;
     b: Int;

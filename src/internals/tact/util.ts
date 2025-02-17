@@ -240,13 +240,13 @@ export class SrcInfoSet<T> {
 
   has(item: [T, SrcInfo]): boolean {
     return this.items.some((existingItem) =>
-      this.equals(existingItem[1], item[1]),
+      srcInfoEq(existingItem[1], item[1]),
     );
   }
 
   delete(item: [T, SrcInfo]): boolean {
     const index = this.items.findIndex((existingItem) =>
-      this.equals(existingItem[1], item[1]),
+      srcInfoEq(existingItem[1], item[1]),
     );
     if (index !== -1) {
       this.items.splice(index, 1);
@@ -257,27 +257,6 @@ export class SrcInfoSet<T> {
 
   extract(): [T, SrcInfo][] {
     return this.items.slice();
-  }
-
-  private equals(srcInfo1: SrcInfo, srcInfo2: SrcInfo): boolean {
-    return (
-      srcInfo1.file === srcInfo2.file &&
-      srcInfo1.contents === srcInfo2.contents &&
-      this.compareIntervals(srcInfo1.interval, srcInfo2.interval) &&
-      srcInfo1.origin === srcInfo2.origin
-    );
-  }
-
-  private compareIntervals(
-    interval1: RawInterval,
-    interval2: RawInterval,
-  ): boolean {
-    return (
-      interval1.sourceString === interval2.sourceString &&
-      interval1.startIdx === interval2.startIdx &&
-      interval1.endIdx === interval2.endIdx &&
-      interval1.contents === interval2.contents
-    );
   }
 }
 
@@ -578,5 +557,23 @@ export function isSendCall(expr: AstExpression): boolean {
     (expr.kind === "method_call" &&
       isSelf(expr.self) &&
       SEND_METHODS.includes(expr.method.text))
+  );
+}
+
+export function srcInfoEq(a: SrcInfo, b: SrcInfo): boolean {
+  return (
+    a.file === b.file &&
+    a.contents === b.contents &&
+    a.origin === b.origin &&
+    intervalsEq(a.interval, b.interval)
+  );
+}
+
+export function intervalsEq(a: RawInterval, b: RawInterval): boolean {
+  return (
+    a.sourceString === b.sourceString &&
+    a.startIdx === b.startIdx &&
+    a.endIdx === b.endIdx &&
+    a.contents === b.contents
   );
 }
