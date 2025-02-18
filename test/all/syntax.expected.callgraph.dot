@@ -6,45 +6,48 @@ digraph "CallGraph" {
     node_18 [label="fun test_loops()"];
     node_19 [label="fun testTryCatch(a: Int)"];
     node_20 [label="fun testLoops()"];
-    node_21 [label="override get fun getter(): Int"];
-    node_22 [label="fun test()"];
-    node_23 [label="fun test(): Int"];
-    node_24 [label="external()"];
-    node_25 [label="init()
+    node_21 [label="fun callAsm(s: Slice): Cell"];
+    node_22 [label="override get fun getter(): Int"];
+    node_23 [label="fun test()"];
+    node_24 [label="fun test(): Int"];
+    node_25 [label="external()"];
+    node_26 [label="init()
 [StateWrite]"];
-    node_26 [label="fun funcWithSend()
+    node_27 [label="fun funcWithSend()
 [Send,StateRead]"];
-    node_27 [label="fun funcWithStateRead()
+    node_28 [label="fun funcWithStateRead()
 [StateRead]"];
-    node_28 [label="fun funcWithStateWrite()
+    node_29 [label="fun funcWithStateWrite()
 [StateWrite]"];
-    node_29 [label="fun funcWithMultipleEffects()
+    node_30 [label="fun funcWithMultipleEffects()
 [AccessDatetime,PrgUse,PrgSeedInit]"];
-    node_30 [label="receive()"];
-    node_31 [label="dump"];
-    node_32 [label="emptyMap"];
-    node_33 [label="m::set"];
-    node_34 [label="getA"];
-    node_35 [label="sender"];
-    node_36 [label="newAddress"];
-    node_37 [label="now"];
-    node_38 [label="nativeRandomizeLt"];
-    node_39 [label="beginString"];
-    node_40 [label="a::append"];
-    node_17 -> node_31;
-    node_18 -> node_32;
-    node_19 -> node_31;
-    node_20 -> node_32;
+    node_31 [label="receive()"];
+    node_32 [label="dump"];
+    node_33 [label="emptyMap"];
+    node_34 [label="m::set"];
+    node_35 [label="s::loadRefEx"];
+    node_36 [label="getA"];
+    node_37 [label="sender"];
+    node_38 [label="newAddress"];
+    node_39 [label="now"];
+    node_40 [label="nativeRandomizeLt"];
+    node_41 [label="beginString"];
+    node_42 [label="a::append"];
+    node_17 -> node_32;
+    node_18 -> node_33;
+    node_19 -> node_32;
     node_20 -> node_33;
-    node_20 -> node_33;
-    node_20 -> node_33;
-    node_23 -> node_34;
-    node_25 -> node_35;
-    node_26 -> node_15;
-    node_28 -> node_36;
-    node_29 -> node_37;
-    node_29 -> node_12;
+    node_20 -> node_34;
+    node_20 -> node_34;
+    node_20 -> node_34;
+    node_21 -> node_35;
+    node_24 -> node_36;
+    node_26 -> node_37;
+    node_27 -> node_15;
     node_29 -> node_38;
     node_30 -> node_39;
+    node_30 -> node_12;
     node_30 -> node_40;
+    node_31 -> node_41;
+    node_31 -> node_42;
 }

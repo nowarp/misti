@@ -20,11 +20,8 @@ import {
   AstExpression,
   AstMethodCall,
   AstStaticCall,
-  AstContract,
-  AstId,
   AstContractDeclaration,
   AstNode,
-  AstFieldAccess,
   AstStatement,
   idText,
   AstModule,
@@ -35,6 +32,12 @@ import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
 export type CGNodeId = number & { readonly brand: unique symbol };
 export type CGEdgeId = number & { readonly brand: unique symbol };
+
+type SupportedFunDefs =
+  | AstFunctionDef
+  | AstReceiver
+  | AstContractInit
+  | AstAsmFunctionDef;
 
 /**
  * Effects flags for callgraph functions
@@ -256,52 +259,45 @@ export class CallGraph {
     declaration: AstContractDeclaration,
     contractName: string,
   ) {
-    if (declaration.kind === "function_def") {
-      this.addFunctionToGraph(declaration, contractName);
-    } else if (declaration.kind === "contract_init") {
-      this.addFunctionToGraph(declaration, contractName);
-    } else if (declaration.kind === "receiver") {
-      this.addFunctionToGraph(declaration, contractName);
+    switch (declaration.kind) {
+      case "asm_function_def":
+      case "function_def":
+      case "contract_init":
+      case "receiver":
+        this.addFunctionToGraph(declaration, contractName);
     }
   }
 
   /**
    * Adds a function node to the graph.
-   * @param func The function definition, receiver, or initializer.
    * @param contractName The optional contract name for namespacing.
    */
-  private addFunctionToGraph(
-    func: AstFunctionDef | AstReceiver | AstContractInit,
-    contractName?: string,
-  ) {
+  private addFunctionToGraph(func: SupportedFunDefs, contractName?: string) {
     const funcName = this.getFunctionName(func, contractName);
-    if (funcName) {
-      const node = new CGNode(func, funcName, this.logger);
-      this.nodeMap.set(node.idx, node);
-      this.nameToNodeId.set(funcName, node.idx);
-      this.astIdToNodeId.set(func.id, node.idx);
-    } else {
-      this.logger.error(
-        `Function with id ${func.id} has no name and will be skipped.`,
-      );
-    }
+    const node = new CGNode(func, funcName, this.logger);
+    this.nodeMap.set(node.idx, node);
+    this.nameToNodeId.set(funcName, node.idx);
+    this.astIdToNodeId.set(func.id, node.idx);
   }
 
   /**
    * Extracts the function name based on its type and optional contract name.
-   * @param func The function definition, receiver, or initializer.
    * @param contractName The optional contract name.
    * @returns The function name, or `undefined` if it cannot be determined.
    */
   private getFunctionName(
-    func: AstFunctionDef | AstReceiver | AstContractInit,
+    func: SupportedFunDefs,
     contractName?: string,
-  ): string | undefined {
+  ): string | never {
     switch (func.kind) {
+      case "asm_function_def":
+        return contractName
+          ? `asm_${contractName}::${func.name.text}`
+          : `asm_${func.name.text}`;
       case "function_def":
         return contractName
-          ? `${contractName}::${func.name?.text}`
-          : func.name?.text;
+          ? `${contractName}::${func.name.text}`
+          : func.name.text;
       case "contract_init":
         return contractName
           ? `${contractName}::contract_init_${func.id}`
@@ -399,10 +395,7 @@ export class CallGraph {
   ) {
     // Connect CG nodes
     if (expr.kind === "static_call" || expr.kind === "method_call") {
-      const functionName = this.getFunctionCallName(
-        expr,
-        currentContractName,
-      );
+      const functionName = this.getFunctionCallName(expr, currentContractName);
       if (functionName) {
         const calleeId = this.findOrAddFunction(functionName);
         this.addEdge(callerId, calleeId);

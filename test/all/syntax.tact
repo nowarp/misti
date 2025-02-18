@@ -135,3 +135,6 @@ contract EffectTest {
         a.append("f");
     }
 }
+
+asm(-> 1 0) extends mutates fun loadRefEx(self: Slice): Cell { LDREF }
+fun callAsm(s: Slice): Cell { return s.loadRefEx(); }
