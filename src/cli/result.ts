@@ -6,10 +6,14 @@ import fs from "fs";
 import JSONbig from "json-bigint";
 import path from "path";
 
+type LogMap = {
+  logs?: Record<string, string[]>;
+};
+
 /**
  * MistiResultOK represents the result of a Misti operation that did not find any warnings.
  */
-export type MistiResultOK = {
+export type MistiResultOK = LogMap & {
   kind: "ok";
 };
 
@@ -27,7 +31,7 @@ export type WarningOutput = {
 /**
  * MistiResultWarnings represents the result of a Misti operation that found warnings.
  */
-export type MistiResultWarnings = {
+export type MistiResultWarnings = LogMap & {
   kind: "warnings";
   warnings: WarningOutput[];
 };
@@ -35,7 +39,7 @@ export type MistiResultWarnings = {
 /**
  * MistiResultError represents the result of a Misti operation that encountered an error.
  */
-export type MistiResultError = {
+export type MistiResultError = LogMap & {
   kind: "error";
   /**
    * Error output when Misti cannot complete the requested operation.
@@ -58,7 +62,7 @@ export type ToolOutput = {
 /**
  * MistiResultTool represents the result of a Misti operation that executed an internal tool.
  */
-export type MistiResultTool = {
+export type MistiResultTool = LogMap & {
   kind: "tool";
   output: ToolOutput[];
 };

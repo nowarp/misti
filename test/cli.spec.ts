@@ -41,6 +41,23 @@ describe("CLI Argument Parsing", () => {
     driverMakeSpy.mockRestore();
   });
 
+  it("should save logs to JSON output when requested", async () => {
+    const args = [
+      "--souffle-binary",
+      "/foo/bar", // To generate a warning
+      "--output-format",
+      "json",
+      TACT_CONFIG_PATH,
+    ];
+    const [driver, result] = await runMistiCommand(args);
+    expect(result.logs).toBeDefined();
+    expect(
+      result.logs!.warn.find((w: string) =>
+        w.includes("installation found"),
+      ) !== undefined,
+    ).toBe(true);
+  });
+
   it("should initialize driver with default options when no options are provided", async () => {
     const args = [TACT_CONFIG_PATH];
     const driverMakeSpy = jest.spyOn(Driver, "create");

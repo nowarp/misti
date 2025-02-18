@@ -338,9 +338,9 @@ export class Driver {
   }
 
   /**
-   * Entry point of code analysis and tools execution.
+   * Actual implementation of the entry point.
    */
-  public async execute(): Promise<MistiResult> {
+  public async executeImpl(): Promise<MistiResult> {
     if (this.cus.size === 0) {
       return { kind: "ok" };
     }
@@ -368,6 +368,20 @@ export class Driver {
       new Logger().error(error);
       return { kind: "error", error };
     }
+  }
+
+  /**
+   * Wraps the entry point of execution with extra logging handling logic.
+   */
+  public async execute(): Promise<MistiResult> {
+    const result = await this.executeImpl();
+    if (this.outputFormat === "json") {
+      return {
+        ...result,
+        logs: this.ctx.logger.getJsonLogs(),
+      };
+    }
+    return result;
   }
 
   /**
