@@ -1,4 +1,5 @@
 import { ILogger } from "@tact-lang/compiler/dist/logger";
+import { ExecutionException } from "./exceptions";
 
 export enum LogLevel {
   DEBUG,
@@ -16,23 +17,59 @@ export type LogFunction = (message: string) => void;
  */
 export class Logger implements ILogger {
   private logFunctions: Map<LogLevel, LogFunction | undefined>;
+  private jsonLogs: Map<LogLevel, string[]>;
 
-  /**
-   * Initializes logging functions for each log level, optionally overridden by provided mappings.
-   * @param logMapping Optional mappings to override default log functions per level.
-   */
-  constructor(logMapping?: Partial<Record<LogLevel, LogFunction | undefined>>) {
-    this.logFunctions = new Map([
-      [LogLevel.DEBUG, undefined],
-      [LogLevel.INFO, console.log],
-      [LogLevel.WARN, console.warn],
-      [LogLevel.ERROR, console.error],
+  constructor(
+    logMapping?: Partial<Record<LogLevel, LogFunction | undefined>>,
+    private saveJson: boolean = false,
+  ) {
+    this.jsonLogs = new Map([
+      [LogLevel.DEBUG, []],
+      [LogLevel.INFO, []],
+      [LogLevel.WARN, []],
+      [LogLevel.ERROR, []],
     ]);
+    const defaultLogFunctions = new Map([
+      [LogLevel.DEBUG, undefined],
+      [LogLevel.INFO, this.createLogFunction(console.log, LogLevel.INFO)],
+      [LogLevel.WARN, this.createLogFunction(console.warn, LogLevel.WARN)],
+      [LogLevel.ERROR, this.createLogFunction(console.error, LogLevel.ERROR)],
+    ]);
+    this.logFunctions = defaultLogFunctions;
     if (logMapping) {
       Object.entries(logMapping).forEach(([level, func]) => {
-        this.logFunctions.set(Number(level) as LogLevel, func);
+        const logLevel = Number(level) as LogLevel;
+        this.logFunctions.set(
+          logLevel,
+          func ? this.createLogFunction(func, logLevel) : func,
+        );
       });
     }
+  }
+
+  private createLogFunction(
+    baseFunc: LogFunction,
+    level: LogLevel,
+  ): LogFunction {
+    return (msg: string) => {
+      if (this.saveJson) this.jsonLogs.get(level)?.push(msg);
+      baseFunc(msg);
+    };
+  }
+
+  public getJsonLogs(): Record<string, string[]> {
+    if (!this.saveJson) {
+      throw ExecutionException.make(
+        "JSON logging not enabled for this logger instance",
+      );
+    }
+
+    return {
+      debug: this.jsonLogs.get(LogLevel.DEBUG) ?? [],
+      info: this.jsonLogs.get(LogLevel.INFO) ?? [],
+      warn: this.jsonLogs.get(LogLevel.WARN) ?? [],
+      error: this.jsonLogs.get(LogLevel.ERROR) ?? [],
+    };
   }
 
   /**
@@ -66,12 +103,15 @@ export class Logger implements ILogger {
  * Logger that silences all logs.
  */
 export class QuietLogger extends Logger {
-  constructor() {
-    super({
-      [LogLevel.INFO]: undefined,
-      [LogLevel.WARN]: undefined,
-      [LogLevel.ERROR]: undefined,
-    });
+  constructor(saveJson: boolean = false) {
+    super(
+      {
+        [LogLevel.INFO]: undefined,
+        [LogLevel.WARN]: undefined,
+        [LogLevel.ERROR]: undefined,
+      },
+      saveJson,
+    );
   }
 }
 
@@ -79,10 +119,13 @@ export class QuietLogger extends Logger {
  * Logger that enables debug level logging to stdin.
  */
 export class DebugLogger extends Logger {
-  constructor() {
-    super({
-      [LogLevel.DEBUG]: console.log,
-    });
+  constructor(saveJson: boolean = false) {
+    super(
+      {
+        [LogLevel.DEBUG]: console.log,
+      },
+      saveJson,
+    );
   }
 }
 
@@ -95,12 +138,15 @@ function trace(...args: any) {
  * Logger that adds backtraces to each log function.
  */
 export class TraceLogger extends Logger {
-  constructor() {
-    super({
-      [LogLevel.DEBUG]: trace,
-      [LogLevel.INFO]: trace,
-      [LogLevel.WARN]: trace,
-      [LogLevel.ERROR]: trace,
-    });
+  constructor(saveJson: boolean = false) {
+    super(
+      {
+        [LogLevel.DEBUG]: trace,
+        [LogLevel.INFO]: trace,
+        [LogLevel.WARN]: trace,
+        [LogLevel.ERROR]: trace,
+      },
+      saveJson,
+    );
   }
 }

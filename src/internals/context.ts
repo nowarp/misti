@@ -47,19 +47,19 @@ export class MistiContext {
     }
 
     // Set logger based on verbosity options
-    this.logger = options.verbose
-      ? new DebugLogger()
-      : options.quiet
-        ? new QuietLogger()
-        : this.config.verbosity === "quiet"
-          ? new QuietLogger()
-          : this.config.verbosity === "debug"
-            ? new DebugLogger()
-            : new Logger();
-
-    // Add backtraces to the logger output if requested
+    const saveJson = options.outputFormat === "json";
     if (MistiEnv.MISTI_TRACE) {
-      this.logger = new TraceLogger();
+      this.logger = new TraceLogger(saveJson);
+    } else {
+      this.logger = options.verbose
+        ? new DebugLogger(saveJson)
+        : options.quiet
+          ? new QuietLogger(saveJson)
+          : this.config.verbosity === "quiet"
+            ? new QuietLogger(saveJson)
+            : this.config.verbosity === "debug"
+              ? new DebugLogger(saveJson)
+              : new Logger(undefined, saveJson);
     }
   }
 
