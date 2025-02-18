@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `UnboundMap`: False positive: Issue [#262](https://github.com/nowarp/misti/issues/262)
 - Internal Errors Printed to `stderr` Instead of JSON Output: Issue [#263](https://github.com/nowarp/misti/issues/263)
 - `CellBounds`: Infinite recursion: PR [#272](https://github.com/nowarp/misti/pull/272)
+- Callgraph: Incorrect processing of `Effect.StateWrite` for cells: PR [#279](https://github.com/nowarp/misti/pull/279)
 
 ## [0.6.2] - 2024-12-25
 

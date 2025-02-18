@@ -3,16 +3,19 @@ import { AstStore } from "./astStore";
 import { IdxGenerator } from "./indices";
 import { MistiContext } from "../../";
 import { Logger } from "../../internals/logger";
-import { findInExpressions, forEachExpression } from "../tact/iterators";
 import {
-  DATETIME_NAMES,
   isSelfAccess,
   isSendCall,
   isSelf,
-  PRG_INIT_NAMES,
-  PRG_NATIVE_USE_NAMES,
-  PRG_SAFE_USE_NAMES,
-} from "../tact/util";
+  DATETIME_FUNCTIONS,
+  PRG_INIT_FUNCTIONS,
+  PRG_NATIVE_USE_FUNCTIONS,
+  PRG_SAFE_USE_FUNCTIONS,
+  MAP_MUTATING_METHODS,
+  STRING_MUTATING_METHODS,
+  BUILDER_MUTATING_METHODS,
+} from "../tact";
+import { findInExpressions, forEachExpression } from "../tact/iterators";
 import {
   AstFunctionDef,
   AstReceiver,
@@ -413,14 +416,14 @@ export class CallGraph {
     if (!funcNode) return;
     if (expr.kind === "static_call") {
       const functionName = idText(expr.function);
-      if (DATETIME_NAMES.has(functionName))
+      if (DATETIME_FUNCTIONS.has(functionName))
         funcNode.addEffect(Effect.AccessDatetime);
       else if (
-        PRG_NATIVE_USE_NAMES.has(functionName) ||
-        PRG_SAFE_USE_NAMES.has(functionName)
+        PRG_NATIVE_USE_FUNCTIONS.has(functionName) ||
+        PRG_SAFE_USE_FUNCTIONS.has(functionName)
       )
         funcNode.addEffect(Effect.PrgUse);
-      else if (PRG_INIT_NAMES.has(functionName))
+      else if (PRG_INIT_FUNCTIONS.has(functionName))
         funcNode.addEffect(Effect.PrgSeedInit);
     }
     if (isSendCall(expr)) funcNode.addEffect(Effect.Send);
@@ -518,25 +521,6 @@ function isContractStateWrite(stmt: AstStatement): boolean {
   ) {
     return isSelfAccess(stmt.path);
   }
-
-  // https://docs.tact-lang.org/book/maps/
-  const MAP_MUTATING_OPERATIONS = new Set<string>(["set", "del", "replace"]);
-  // For slices, cells, builders:
-  // https://github.com/tact-lang/tact/blob/08133e8418f3c6dcb49229b45cfeb7dd261bbe1f/stdlib/std/cells.tact#L75
-  const CELL_MUTATING_OPERATIONS = new Set<string>([
-    "loadRef",
-    "loadBits",
-    "loadInt",
-    "loadUint",
-    "loadBool",
-    "loadBit",
-    "loadCoins",
-    "loadAddress",
-    "skipBits",
-  ]);
-  // Strings:
-  // https://github.com/tact-lang/tact/blob/08133e8418f3c6dcb49229b45cfeb7dd261bbe1f/stdlib/std/text.tact#L18
-  const STRING_MUTATING_OPERATIONS = new Set<string>(["append"]);
   return (
     null !==
     findInExpressions(
@@ -544,9 +528,9 @@ function isContractStateWrite(stmt: AstStatement): boolean {
       (expr) =>
         expr.kind === "method_call" &&
         isSelf(expr.self) &&
-        (MAP_MUTATING_OPERATIONS.has(idText(expr.method)) ||
-          STRING_MUTATING_OPERATIONS.has(idText(expr.method)) ||
-          CELL_MUTATING_OPERATIONS.has(idText(expr.method))),
+        (MAP_MUTATING_METHODS.has(idText(expr.method)) ||
+          STRING_MUTATING_METHODS.has(idText(expr.method)) ||
+          BUILDER_MUTATING_METHODS.has(idText(expr.method))),
     )
   );
 }

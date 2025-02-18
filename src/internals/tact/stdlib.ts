@@ -1,7 +1,71 @@
+/**
+ * This module contains definitions from the Tact stdlib  and logic for
+ * accessing the stdlib in Misti.
+ *
+ * It should be reviewed before each Tact update to determine if updates are needed.
+ *
+ * @packageDocumentation
+ */
+
 import { MistiContext } from "../context";
 import { hasSubdirs } from "../util";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import path from "path";
+
+/**
+ * Stdlib functions that access datetime functions.
+ */
+export const DATETIME_FUNCTIONS = new Set(["now", "timestamp"]);
+
+/**
+ * Stdlib functions that initialize PRG seed.
+ */
+export const PRG_INIT_FUNCTIONS = new Set([
+  "nativePrepareRandom",
+  "nativeRandomize",
+  "nativeRandomizeLt",
+]);
+
+/**
+ * Native stdlib functions that use PRG.
+ */
+export const PRG_NATIVE_USE_FUNCTIONS = new Set([
+  "nativeRandom",
+  "nativeRandomInterval",
+]);
+
+/**
+ * Safe Tact wrapper functions that use PRG.
+ */
+export const PRG_SAFE_USE_FUNCTIONS = new Set(["random", "randomInt"]);
+
+/**
+ * Map methods that mutate state.
+ * See: https://docs.tact-lang.org/book/maps/
+ */
+export const MAP_MUTATING_METHODS = new Set<string>(["set", "del", "replace"]);
+
+/**
+ * Builder methods mutating state.
+ * https://github.com/tact-lang/tact/blob/08133e8418f3c6dcb49229b45cfeb7dd261bbe1f/stdlib/std/cells.tact#L75
+ */
+export const BUILDER_MUTATING_METHODS = new Set<string>([
+  "storeRef",
+  "storeBits",
+  "storeInt",
+  "storeUint",
+  "storeBool",
+  "storeBit",
+  "storeCoins",
+  "storeAddress",
+  "skipBits",
+]);
+
+/**
+ * String mutating methods.
+ * https://github.com/tact-lang/tact/blob/08133e8418f3c6dcb49229b45cfeb7dd261bbe1f/stdlib/std/text.tact#L18
+ */
+export const STRING_MUTATING_METHODS = new Set<string>(["append"]);
 
 /**
  * A mandatory part of the file path to stdlib if using the default path.

@@ -8,35 +8,35 @@ Help: Consider removing the variable
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
 [MEDIUM] NeverAccessedVariables: Variable currentTime is never accessed
-test/all/syntax.tact:125:9:
-  124 |     fun funcWithMultipleEffects() {
-> 125 |         let currentTime: Int = now();
+test/all/syntax.tact:128:9:
+  127 |     fun funcWithMultipleEffects() {
+> 128 |         let currentTime: Int = now();
                 ^
-  126 |         let randValue: Int = random(1, 100);
+  129 |         let randValue: Int = random(1, 100);
 Help: Consider removing the variable
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
 [MEDIUM] NeverAccessedVariables: Variable randValue is never accessed
-test/all/syntax.tact:126:9:
-  125 |         let currentTime: Int = now();
-> 126 |         let randValue: Int = random(1, 100);
+test/all/syntax.tact:129:9:
+  128 |         let currentTime: Int = now();
+> 129 |         let randValue: Int = random(1, 100);
                 ^
-  127 |         if (1 > 42) {
+  130 |         if (1 > 42) {
 Help: Consider removing the variable
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
 [MEDIUM] FalseCondition: Condition always evaluates to false
-test/all/syntax.tact:127:13:
-  126 |         let randValue: Int = random(1, 100);
-> 127 |         if (1 > 42) {
+test/all/syntax.tact:130:13:
+  129 |         let randValue: Int = random(1, 100);
+> 130 |         if (1 > 42) {
                     ^
-  128 |             nativeRandomizeLt();
+  131 |             nativeRandomizeLt();
 Help: Consider removing it if there is no logic error
 See: https://nowarp.io/tools/misti/docs/detectors/FalseCondition
 
 [LOW] ZeroAddress: Using zero address
 test/all/syntax.tact:119:35:
-  118 |     fun funcWithStateWrite() {
+  118 |     fun funcWithStateWrite1() {
 > 119 |         self.addr = newAddress(0, 0);
                                           ^
   120 |     }
@@ -179,10 +179,10 @@ Help: Consider using augmented assignment instead: sum += value
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
 
 [INFO] AsmIsUsed: asm function is used
-test/all/syntax.tact:139:1:
-  138 | 
-> 139 | asm(-> 1 0) extends mutates fun loadRefEx(self: Slice): Cell { LDREF }
+test/all/syntax.tact:143:1:
+  142 | // Checks if we add asm functions to IR entries correctly
+> 143 | asm(-> 1 0) extends mutates fun loadRefEx(self: Slice): Cell { LDREF }
         ^
-  140 | fun callAsm(s: Slice): Cell { return s.loadRefEx(); }
+  144 | fun callAsm(s: Slice): Cell { return s.loadRefEx(); }
 Help: Using TVM assembly is a potentially dangerous operation that requires additional review
 See: https://nowarp.io/tools/misti/docs/detectors/AsmIsUsed

@@ -1,6 +1,7 @@
 import { forEachExpression } from "./iterators";
 import { evalToType } from "../../internals/tact/";
 import { unreachable } from "../util";
+import { MAP_MUTATING_METHODS, BUILDER_MUTATING_METHODS } from "./stdlib";
 import { AstComparator } from "@tact-lang/compiler/dist/";
 import {
   AstExpression,
@@ -22,25 +23,6 @@ import {
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 import { Interval as RawInterval } from "ohm-js";
 import * as path from "path";
-
-/** Stdlib functions that access datetime functions. */
-export const DATETIME_NAMES = new Set(["now", "timestamp"]);
-
-/** Stdlib functions that initialize PRG seed. */
-export const PRG_INIT_NAMES = new Set([
-  "nativePrepareRandom",
-  "nativeRandomize",
-  "nativeRandomizeLt",
-]);
-
-/** Native stdlib functions that use PRG. */
-export const PRG_NATIVE_USE_NAMES = new Set([
-  "nativeRandom",
-  "nativeRandomInterval",
-]);
-
-/** Safe Tact wrapper functions that use PRG. */
-export const PRG_SAFE_USE_NAMES = new Set(["random", "randomInt"]);
 
 /**
  * Creates a concise string representation of `SrcInfo`.
@@ -104,28 +86,13 @@ export function isSelfAccess(expr: AstExpression): boolean {
  * @returns True iff `call` is a stdlib method mutating its receiver.
  */
 export function isStdlibMutationMethod(call: AstMethodCall): boolean {
-  // https://docs.tact-lang.org/book/maps
-  const mapMutationOperations = ["set", "del"];
-  // See: stdlib/std/cells.tact
-  const builderMutationOperations = [
-    "storeInt",
-    "storeUint",
-    "storeBool",
-    "storeBit",
-    "storeCoins",
-    "storeRef",
-    "storeSlice",
-    "storeBuilder",
-    "storeAddress",
-    "storeMaybeRef",
-  ];
   const methodName = idText(call.method);
   return (
     // Filter out contract calls e.g.: `self.set(/*...*/)`
     !isSelf(call.self) &&
     // TODO: This should be rewritten when we have types in AST
-    (mapMutationOperations.includes(methodName) ||
-      builderMutationOperations.includes(methodName))
+    (MAP_MUTATING_METHODS.has(methodName) ||
+      BUILDER_MUTATING_METHODS.has(methodName))
   );
 }
 

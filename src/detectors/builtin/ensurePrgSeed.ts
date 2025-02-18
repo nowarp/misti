@@ -1,8 +1,8 @@
 import { CompilationUnit } from "../../internals/ir";
 import {
   forEachExpression,
-  PRG_INIT_NAMES,
-  PRG_NATIVE_USE_NAMES,
+  PRG_INIT_FUNCTIONS,
+  PRG_NATIVE_USE_FUNCTIONS,
 } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
@@ -46,10 +46,10 @@ export class EnsurePrgSeed extends AstDetector {
       (acc, node) => {
         forEachExpression(node, (expr) => {
           if (expr.kind === "static_call") {
-            if (PRG_INIT_NAMES.has(idText(expr.function))) {
+            if (PRG_INIT_FUNCTIONS.has(idText(expr.function))) {
               acc.hasInitializer = true;
             }
-            if (PRG_NATIVE_USE_NAMES.has(idText(expr.function))) {
+            if (PRG_NATIVE_USE_FUNCTIONS.has(idText(expr.function))) {
               acc.uses.push(expr);
             }
           }
@@ -70,7 +70,7 @@ export class EnsurePrgSeed extends AstDetector {
           `PRG seed should be initialized before using ${idText(use.function)}`,
           use.loc,
           {
-            suggestion: `Use ${Array.from(PRG_INIT_NAMES)
+            suggestion: `Use ${Array.from(PRG_INIT_FUNCTIONS)
               .map((name) => "`" + name + "`")
               .join(
                 ", ",

@@ -16,36 +16,39 @@ graph TD
 [Send,StateRead]"]
     node_28["fun funcWithStateRead()
 [StateRead]"]
-    node_29["fun funcWithStateWrite()
+    node_29["fun funcWithStateWrite1()
 [StateWrite]"]
-    node_30["fun funcWithMultipleEffects()
+    node_30["fun funcWithStateWrite2(s: Slice): Address"]
+    node_31["fun funcWithMultipleEffects()
 [AccessDatetime,PrgUse,PrgSeedInit]"]
-    node_31["receive()"]
-    node_32["dump"]
-    node_33["emptyMap"]
-    node_34["m::set"]
-    node_35["s::loadRefEx"]
-    node_36["getA"]
-    node_37["sender"]
-    node_38["newAddress"]
-    node_39["now"]
-    node_40["nativeRandomizeLt"]
-    node_41["beginString"]
-    node_42["a::append"]
-    node_17 --> node_32
-    node_18 --> node_33
-    node_19 --> node_32
-    node_20 --> node_33
+    node_32["receive()"]
+    node_33["dump"]
+    node_34["emptyMap"]
+    node_35["m::set"]
+    node_36["s::loadRefEx"]
+    node_37["getA"]
+    node_38["sender"]
+    node_39["newAddress"]
+    node_40["s::loadAddress"]
+    node_41["now"]
+    node_42["nativeRandomizeLt"]
+    node_43["beginString"]
+    node_44["a::append"]
+    node_17 --> node_33
+    node_18 --> node_34
+    node_19 --> node_33
     node_20 --> node_34
-    node_20 --> node_34
-    node_20 --> node_34
-    node_21 --> node_35
-    node_24 --> node_36
-    node_26 --> node_37
+    node_20 --> node_35
+    node_20 --> node_35
+    node_20 --> node_35
+    node_21 --> node_36
+    node_24 --> node_37
+    node_26 --> node_38
     node_27 --> node_15
-    node_29 --> node_38
-    node_30 --> node_39
-    node_30 --> node_12
+    node_29 --> node_39
     node_30 --> node_40
     node_31 --> node_41
+    node_31 --> node_12
     node_31 --> node_42
+    node_32 --> node_43
+    node_32 --> node_44

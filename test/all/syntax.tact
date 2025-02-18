@@ -115,8 +115,11 @@ contract EffectTest {
     }
 
     // Effect.StateWrite
-    fun funcWithStateWrite() {
+    fun funcWithStateWrite1() {
         self.addr = newAddress(0, 0);
+    }
+    fun funcWithStateWrite2(s: Slice): Address {
+        return s.loadAddress();
     }
 
     // Multiple effects:
@@ -136,5 +139,6 @@ contract EffectTest {
     }
 }
 
+// Checks if we add asm functions to IR entries correctly
 asm(-> 1 0) extends mutates fun loadRefEx(self: Slice): Cell { LDREF }
 fun callAsm(s: Slice): Cell { return s.loadRefEx(); }

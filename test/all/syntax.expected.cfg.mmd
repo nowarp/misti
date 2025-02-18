@@ -102,8 +102,8 @@ subgraph TestContractT__test
 end
 subgraph TestContractT__receive_external_fallback_1722
 end
-subgraph EffectTest__init_1981
-    EffectTest__init_1981_110["self.addr = sender()"]:::exitNode
+subgraph EffectTest__init_1991
+    EffectTest__init_1991_110["self.addr = sender()"]:::exitNode
 end
 subgraph EffectTest__funcWithSend
     EffectTest__funcWithSend_111["let amount: Int = 100"]
@@ -113,20 +113,23 @@ end
 subgraph EffectTest__funcWithStateRead
     EffectTest__funcWithStateRead_113["let value = self.addr"]:::exitNode
 end
-subgraph EffectTest__funcWithStateWrite
-    EffectTest__funcWithStateWrite_114["self.addr = newAddress(0, 0)"]:::exitNode
+subgraph EffectTest__funcWithStateWrite1
+    EffectTest__funcWithStateWrite1_114["self.addr = newAddress(0, 0)"]:::exitNode
+end
+subgraph EffectTest__funcWithStateWrite2
+    EffectTest__funcWithStateWrite2_115["return s.loadAddress()"]:::exitNode
 end
 subgraph EffectTest__funcWithMultipleEffects
-    EffectTest__funcWithMultipleEffects_115["let currentTime: Int = now()"]
-    EffectTest__funcWithMultipleEffects_116["let randValue: Int = random(1, 100)"]
-    EffectTest__funcWithMultipleEffects_117["if (1 &gt; 42)"]
-    EffectTest__funcWithMultipleEffects_118["nativeRandomizeLt()"]:::exitNode
-    EffectTest__funcWithMultipleEffects_115 --> EffectTest__funcWithMultipleEffects_116
+    EffectTest__funcWithMultipleEffects_116["let currentTime: Int = now()"]
+    EffectTest__funcWithMultipleEffects_117["let randValue: Int = random(1, 100)"]
+    EffectTest__funcWithMultipleEffects_118["if (1 &gt; 42)"]
+    EffectTest__funcWithMultipleEffects_119["nativeRandomizeLt()"]:::exitNode
     EffectTest__funcWithMultipleEffects_116 --> EffectTest__funcWithMultipleEffects_117
     EffectTest__funcWithMultipleEffects_117 --> EffectTest__funcWithMultipleEffects_118
+    EffectTest__funcWithMultipleEffects_118 --> EffectTest__funcWithMultipleEffects_119
 end
-subgraph EffectTest__receive_internal_fallback_1980
-    EffectTest__receive_internal_fallback_1980_119["let a = beginString()"]
-    EffectTest__receive_internal_fallback_1980_120["a.append('f')"]:::exitNode
-    EffectTest__receive_internal_fallback_1980_119 --> EffectTest__receive_internal_fallback_1980_120
+subgraph EffectTest__receive_internal_fallback_1990
+    EffectTest__receive_internal_fallback_1990_120["let a = beginString()"]
+    EffectTest__receive_internal_fallback_1990_121["a.append('f')"]:::exitNode
+    EffectTest__receive_internal_fallback_1990_120 --> EffectTest__receive_internal_fallback_1990_121
 end
