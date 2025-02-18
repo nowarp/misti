@@ -177,3 +177,12 @@ test/all/syntax.tact:96:9:
   97 |     }
 Help: Consider using augmented assignment instead: sum += value
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+[INFO] AsmIsUsed: asm function is used
+test/all/syntax.tact:139:1:
+  138 | 
+> 139 | asm(-> 1 0) extends mutates fun loadRefEx(self: Slice): Cell { LDREF }
+        ^
+  140 | fun callAsm(s: Slice): Cell { return s.loadRefEx(); }
+Help: Using TVM assembly is a potentially dangerous operation that requires additional review
+See: https://nowarp.io/tools/misti/docs/detectors/AsmIsUsed

@@ -5,44 +5,47 @@ graph TD
     node_18["fun test_loops()"]
     node_19["fun testTryCatch(a: Int)"]
     node_20["fun testLoops()"]
-    node_21["override get fun getter(): Int"]
-    node_22["fun test()"]
-    node_23["fun test(): Int"]
-    node_24["external()"]
-    node_25["init()
+    node_21["fun callAsm(s: Slice): Cell"]
+    node_22["override get fun getter(): Int"]
+    node_23["fun test()"]
+    node_24["fun test(): Int"]
+    node_25["external()"]
+    node_26["init()
 [StateWrite]"]
-    node_26["fun funcWithSend()
+    node_27["fun funcWithSend()
 [Send,StateRead]"]
-    node_27["fun funcWithStateRead()
+    node_28["fun funcWithStateRead()
 [StateRead]"]
-    node_28["fun funcWithStateWrite()
+    node_29["fun funcWithStateWrite()
 [StateWrite]"]
-    node_29["fun funcWithMultipleEffects()
+    node_30["fun funcWithMultipleEffects()
 [AccessDatetime,PrgUse,PrgSeedInit]"]
-    node_30["receive()"]
-    node_31["dump"]
-    node_32["emptyMap"]
-    node_33["m::set"]
-    node_34["getA"]
-    node_35["sender"]
-    node_36["newAddress"]
-    node_37["now"]
-    node_38["nativeRandomizeLt"]
-    node_39["beginString"]
-    node_40["a::append"]
-    node_17 --> node_31
-    node_18 --> node_32
-    node_19 --> node_31
-    node_20 --> node_32
+    node_31["receive()"]
+    node_32["dump"]
+    node_33["emptyMap"]
+    node_34["m::set"]
+    node_35["s::loadRefEx"]
+    node_36["getA"]
+    node_37["sender"]
+    node_38["newAddress"]
+    node_39["now"]
+    node_40["nativeRandomizeLt"]
+    node_41["beginString"]
+    node_42["a::append"]
+    node_17 --> node_32
+    node_18 --> node_33
+    node_19 --> node_32
     node_20 --> node_33
-    node_20 --> node_33
-    node_20 --> node_33
-    node_23 --> node_34
-    node_25 --> node_35
-    node_26 --> node_15
-    node_28 --> node_36
-    node_29 --> node_37
-    node_29 --> node_12
+    node_20 --> node_34
+    node_20 --> node_34
+    node_20 --> node_34
+    node_21 --> node_35
+    node_24 --> node_36
+    node_26 --> node_37
+    node_27 --> node_15
     node_29 --> node_38
     node_30 --> node_39
+    node_30 --> node_12
     node_30 --> node_40
+    node_31 --> node_41
+    node_31 --> node_42

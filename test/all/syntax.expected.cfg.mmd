@@ -89,41 +89,44 @@ subgraph testLoops
     testLoops_105 --> testLoops_106
     testLoops_106 --> testLoops_105
 end
+subgraph callAsm
+    callAsm_107["return s.loadRefEx()"]:::exitNode
+end
 subgraph TestContract__getter
-    TestContract__getter_107["return 0"]:::exitNode
+    TestContract__getter_108["return 0"]:::exitNode
 end
 subgraph TestContractF__test
 end
 subgraph TestContractT__test
-    TestContractT__test_108["return self.getA()"]:::exitNode
+    TestContractT__test_109["return self.getA()"]:::exitNode
 end
 subgraph TestContractT__receive_external_fallback_1722
 end
 subgraph EffectTest__init_1981
-    EffectTest__init_1981_109["self.addr = sender()"]:::exitNode
+    EffectTest__init_1981_110["self.addr = sender()"]:::exitNode
 end
 subgraph EffectTest__funcWithSend
-    EffectTest__funcWithSend_110["let amount: Int = 100"]
-    EffectTest__funcWithSend_111["send(SendParameters{to: self.addr, value: amount})"]:::exitNode
-    EffectTest__funcWithSend_110 --> EffectTest__funcWithSend_111
+    EffectTest__funcWithSend_111["let amount: Int = 100"]
+    EffectTest__funcWithSend_112["send(SendParameters{to: self.addr, value: amount})"]:::exitNode
+    EffectTest__funcWithSend_111 --> EffectTest__funcWithSend_112
 end
 subgraph EffectTest__funcWithStateRead
-    EffectTest__funcWithStateRead_112["let value = self.addr"]:::exitNode
+    EffectTest__funcWithStateRead_113["let value = self.addr"]:::exitNode
 end
 subgraph EffectTest__funcWithStateWrite
-    EffectTest__funcWithStateWrite_113["self.addr = newAddress(0, 0)"]:::exitNode
+    EffectTest__funcWithStateWrite_114["self.addr = newAddress(0, 0)"]:::exitNode
 end
 subgraph EffectTest__funcWithMultipleEffects
-    EffectTest__funcWithMultipleEffects_114["let currentTime: Int = now()"]
-    EffectTest__funcWithMultipleEffects_115["let randValue: Int = random(1, 100)"]
-    EffectTest__funcWithMultipleEffects_116["if (1 &gt; 42)"]
-    EffectTest__funcWithMultipleEffects_117["nativeRandomizeLt()"]:::exitNode
-    EffectTest__funcWithMultipleEffects_114 --> EffectTest__funcWithMultipleEffects_115
+    EffectTest__funcWithMultipleEffects_115["let currentTime: Int = now()"]
+    EffectTest__funcWithMultipleEffects_116["let randValue: Int = random(1, 100)"]
+    EffectTest__funcWithMultipleEffects_117["if (1 &gt; 42)"]
+    EffectTest__funcWithMultipleEffects_118["nativeRandomizeLt()"]:::exitNode
     EffectTest__funcWithMultipleEffects_115 --> EffectTest__funcWithMultipleEffects_116
     EffectTest__funcWithMultipleEffects_116 --> EffectTest__funcWithMultipleEffects_117
+    EffectTest__funcWithMultipleEffects_117 --> EffectTest__funcWithMultipleEffects_118
 end
 subgraph EffectTest__receive_internal_fallback_1980
-    EffectTest__receive_internal_fallback_1980_118["let a = beginString()"]
-    EffectTest__receive_internal_fallback_1980_119["a.append('f')"]:::exitNode
-    EffectTest__receive_internal_fallback_1980_118 --> EffectTest__receive_internal_fallback_1980_119
+    EffectTest__receive_internal_fallback_1980_119["let a = beginString()"]
+    EffectTest__receive_internal_fallback_1980_120["a.append('f')"]:::exitNode
+    EffectTest__receive_internal_fallback_1980_119 --> EffectTest__receive_internal_fallback_1980_120
 end

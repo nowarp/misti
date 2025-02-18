@@ -20,20 +20,24 @@ import {
   AstExpression,
   AstMethodCall,
   AstStaticCall,
-  AstContract,
-  AstId,
   AstContractDeclaration,
   AstNode,
-  AstFieldAccess,
   AstStatement,
   idText,
   AstModule,
+  AstAsmFunctionDef,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/grammar";
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
 export type CGNodeId = number & { readonly brand: unique symbol };
 export type CGEdgeId = number & { readonly brand: unique symbol };
+
+type SupportedFunDefs =
+  | AstFunctionDef
+  | AstReceiver
+  | AstContractInit
+  | AstAsmFunctionDef;
 
 /**
  * Effects flags for callgraph functions
@@ -232,13 +236,13 @@ export class CallGraph {
   public build(astStore: AstStore): CallGraph {
     astStore.getProgramEntries({ includeStdlib: true }).forEach((entry) => {
       if (entry.kind === "contract") {
-        const contract = entry as AstContract;
+        const contract = entry;
         const contractName = contract.name.text;
         contract.declarations.forEach((declaration) => {
           this.addContractDeclarationToGraph(declaration, contractName);
         });
       } else if (entry.kind === "function_def") {
-        const func = entry as AstFunctionDef;
+        const func = entry;
         this.addFunctionToGraph(func);
       }
     });
@@ -255,52 +259,47 @@ export class CallGraph {
     declaration: AstContractDeclaration,
     contractName: string,
   ) {
-    if (declaration.kind === "function_def") {
-      this.addFunctionToGraph(declaration as AstFunctionDef, contractName);
-    } else if (declaration.kind === "contract_init") {
-      this.addFunctionToGraph(declaration as AstContractInit, contractName);
-    } else if (declaration.kind === "receiver") {
-      this.addFunctionToGraph(declaration as AstReceiver, contractName);
+    switch (declaration.kind) {
+      case "asm_function_def":
+      case "function_def":
+      case "contract_init":
+      case "receiver":
+        this.addFunctionToGraph(declaration, contractName);
+      default:
+        break; // do nothing
     }
   }
 
   /**
    * Adds a function node to the graph.
-   * @param func The function definition, receiver, or initializer.
    * @param contractName The optional contract name for namespacing.
    */
-  private addFunctionToGraph(
-    func: AstFunctionDef | AstReceiver | AstContractInit,
-    contractName?: string,
-  ) {
+  private addFunctionToGraph(func: SupportedFunDefs, contractName?: string) {
     const funcName = this.getFunctionName(func, contractName);
-    if (funcName) {
-      const node = new CGNode(func, funcName, this.logger);
-      this.nodeMap.set(node.idx, node);
-      this.nameToNodeId.set(funcName, node.idx);
-      this.astIdToNodeId.set(func.id, node.idx);
-    } else {
-      this.logger.error(
-        `Function with id ${func.id} has no name and will be skipped.`,
-      );
-    }
+    const node = new CGNode(func, funcName, this.logger);
+    this.nodeMap.set(node.idx, node);
+    this.nameToNodeId.set(funcName, node.idx);
+    this.astIdToNodeId.set(func.id, node.idx);
   }
 
   /**
    * Extracts the function name based on its type and optional contract name.
-   * @param func The function definition, receiver, or initializer.
    * @param contractName The optional contract name.
    * @returns The function name, or `undefined` if it cannot be determined.
    */
   private getFunctionName(
-    func: AstFunctionDef | AstReceiver | AstContractInit,
+    func: SupportedFunDefs,
     contractName?: string,
-  ): string | undefined {
+  ): string | never {
     switch (func.kind) {
+      case "asm_function_def":
+        return contractName
+          ? `asm_${contractName}::${func.name.text}`
+          : `asm_${func.name.text}`;
       case "function_def":
         return contractName
-          ? `${contractName}::${func.name?.text}`
-          : func.name?.text;
+          ? `${contractName}::${func.name.text}`
+          : func.name.text;
       case "contract_init":
         return contractName
           ? `${contractName}::contract_init_${func.id}`
@@ -322,7 +321,7 @@ export class CallGraph {
   private analyzeFunctionCalls(astStore: AstStore) {
     for (const entry of astStore.getProgramEntries()) {
       if (entry.kind === "contract") {
-        const contract = entry as AstContract;
+        const contract = entry;
         for (const declaration of contract.declarations) {
           if (
             declaration.kind === "function_def" ||
@@ -344,7 +343,7 @@ export class CallGraph {
           }
         }
       } else if (entry.kind === "function_def") {
-        const func = entry as AstFunctionDef;
+        const func = entry;
         const funcNodeId = this.astIdToNodeId.get(func.id);
         if (funcNodeId !== undefined) {
           const funcNode = this.getNode(funcNodeId);
@@ -398,10 +397,7 @@ export class CallGraph {
   ) {
     // Connect CG nodes
     if (expr.kind === "static_call" || expr.kind === "method_call") {
-      const functionName = this.getFunctionCallName(
-        expr as AstStaticCall | AstMethodCall,
-        currentContractName,
-      );
+      const functionName = this.getFunctionCallName(expr, currentContractName);
       if (functionName) {
         const calleeId = this.findOrAddFunction(functionName);
         this.addEdge(callerId, calleeId);
@@ -448,7 +444,7 @@ export class CallGraph {
       if (methodName) {
         let contractName = currentContractName;
         if (expr.self.kind === "id") {
-          const idExpr = expr.self as AstId;
+          const idExpr = expr.self;
           if (idExpr.text !== "self") {
             contractName = idExpr.text;
           }
@@ -501,9 +497,9 @@ export class CallGraph {
  */
 function isContractStateRead(expr: AstExpression): boolean {
   if (expr.kind === "field_access") {
-    const fieldAccess = expr as AstFieldAccess;
+    const fieldAccess = expr;
     if (fieldAccess.aggregate.kind === "id") {
-      const idExpr = fieldAccess.aggregate as AstId;
+      const idExpr = fieldAccess.aggregate;
       if (idExpr.text === "self") {
         return true;
       }

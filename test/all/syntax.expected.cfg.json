@@ -641,6 +641,20 @@
           }
         ]
       }
+    },
+    {
+      "name": "callAsm",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 107,
+            "stmtID": 1998,
+            "srcEdges": [],
+            "dstEdges": []
+          }
+        ],
+        "edges": []
+      }
     }
   ],
   "contracts": [
@@ -652,7 +666,7 @@
           "cfg": {
             "nodes": [
               {
-                "id": 107,
+                "id": 108,
                 "stmtID": 1662,
                 "srcEdges": [],
                 "dstEdges": []
@@ -683,7 +697,7 @@
           "cfg": {
             "nodes": [
               {
-                "id": 108,
+                "id": 109,
                 "stmtID": 1720,
                 "srcEdges": [],
                 "dstEdges": []
@@ -709,7 +723,7 @@
           "cfg": {
             "nodes": [
               {
-                "id": 109,
+                "id": 110,
                 "stmtID": 1912,
                 "srcEdges": [],
                 "dstEdges": []
@@ -723,7 +737,7 @@
           "cfg": {
             "nodes": [
               {
-                "id": 110,
+                "id": 111,
                 "stmtID": 1918,
                 "srcEdges": [],
                 "dstEdges": [
@@ -731,7 +745,7 @@
                 ]
               },
               {
-                "id": 111,
+                "id": 112,
                 "stmtID": 1931,
                 "srcEdges": [
                   100
@@ -742,8 +756,8 @@
             "edges": [
               {
                 "id": 100,
-                "src": 110,
-                "dst": 111
+                "src": 111,
+                "dst": 112
               }
             ]
           }
@@ -753,7 +767,7 @@
           "cfg": {
             "nodes": [
               {
-                "id": 112,
+                "id": 113,
                 "stmtID": 1938,
                 "srcEdges": [],
                 "dstEdges": []
@@ -767,7 +781,7 @@
           "cfg": {
             "nodes": [
               {
-                "id": 113,
+                "id": 114,
                 "stmtID": 1948,
                 "srcEdges": [],
                 "dstEdges": []
@@ -781,7 +795,7 @@
           "cfg": {
             "nodes": [
               {
-                "id": 114,
+                "id": 115,
                 "stmtID": 1955,
                 "srcEdges": [],
                 "dstEdges": [
@@ -789,7 +803,7 @@
                 ]
               },
               {
-                "id": 115,
+                "id": 116,
                 "stmtID": 1962,
                 "srcEdges": [
                   101
@@ -799,7 +813,7 @@
                 ]
               },
               {
-                "id": 116,
+                "id": 117,
                 "stmtID": 1969,
                 "srcEdges": [
                   102
@@ -809,7 +823,7 @@
                 ]
               },
               {
-                "id": 117,
+                "id": 118,
                 "stmtID": 1968,
                 "srcEdges": [
                   103
@@ -820,18 +834,18 @@
             "edges": [
               {
                 "id": 101,
-                "src": 114,
-                "dst": 115
-              },
-              {
-                "id": 102,
                 "src": 115,
                 "dst": 116
               },
               {
-                "id": 103,
+                "id": 102,
                 "src": 116,
                 "dst": 117
+              },
+              {
+                "id": 103,
+                "src": 117,
+                "dst": 118
               }
             ]
           }
@@ -841,7 +855,7 @@
           "cfg": {
             "nodes": [
               {
-                "id": 118,
+                "id": 119,
                 "stmtID": 1974,
                 "srcEdges": [],
                 "dstEdges": [
@@ -849,7 +863,7 @@
                 ]
               },
               {
-                "id": 119,
+                "id": 120,
                 "stmtID": 1979,
                 "srcEdges": [
                   104
@@ -860,8 +874,8 @@
             "edges": [
               {
                 "id": 104,
-                "src": 118,
-                "dst": 119
+                "src": 119,
+                "dst": 120
               }
             ]
           }

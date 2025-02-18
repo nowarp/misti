@@ -94,53 +94,57 @@ digraph "syntax" {
         "testLoops_105" -> "testLoops_106";
         "testLoops_106" -> "testLoops_105";
     }
+    subgraph "cluster_callAsm" {
+        label="callAsm";
+        "callAsm_107" [label="return s.loadRefEx()",style=filled,fillcolor="#66A7DB"];
+    }
     subgraph "cluster_TestContract__getter" {
         label="TestContract__getter";
-        "TestContract__getter_107" [label="return 0",style=filled,fillcolor="#66A7DB"];
+        "TestContract__getter_108" [label="return 0",style=filled,fillcolor="#66A7DB"];
     }
     subgraph "cluster_TestContractF__test" {
         label="TestContractF__test";
     }
     subgraph "cluster_TestContractT__test" {
         label="TestContractT__test";
-        "TestContractT__test_108" [label="return self.getA()",style=filled,fillcolor="#66A7DB"];
+        "TestContractT__test_109" [label="return self.getA()",style=filled,fillcolor="#66A7DB"];
     }
     subgraph "cluster_TestContractT__receive_external_fallback_1722" {
         label="TestContractT__receive_external_fallback_1722";
     }
     subgraph "cluster_EffectTest__init_1981" {
         label="EffectTest__init_1981";
-        "EffectTest__init_1981_109" [label="self.addr = sender()",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__init_1981_110" [label="self.addr = sender()",style=filled,fillcolor="#66A7DB"];
     }
     subgraph "cluster_EffectTest__funcWithSend" {
         label="EffectTest__funcWithSend";
-        "EffectTest__funcWithSend_110" [label="let amount: Int = 100"];
-        "EffectTest__funcWithSend_111" [label="send(SendParameters{to: self.addr, value: amount})",style=filled,fillcolor="#66A7DB"];
-        "EffectTest__funcWithSend_110" -> "EffectTest__funcWithSend_111";
+        "EffectTest__funcWithSend_111" [label="let amount: Int = 100"];
+        "EffectTest__funcWithSend_112" [label="send(SendParameters{to: self.addr, value: amount})",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__funcWithSend_111" -> "EffectTest__funcWithSend_112";
     }
     subgraph "cluster_EffectTest__funcWithStateRead" {
         label="EffectTest__funcWithStateRead";
-        "EffectTest__funcWithStateRead_112" [label="let value = self.addr",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__funcWithStateRead_113" [label="let value = self.addr",style=filled,fillcolor="#66A7DB"];
     }
     subgraph "cluster_EffectTest__funcWithStateWrite" {
         label="EffectTest__funcWithStateWrite";
-        "EffectTest__funcWithStateWrite_113" [label="self.addr = newAddress(0, 0)",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__funcWithStateWrite_114" [label="self.addr = newAddress(0, 0)",style=filled,fillcolor="#66A7DB"];
     }
     subgraph "cluster_EffectTest__funcWithMultipleEffects" {
         label="EffectTest__funcWithMultipleEffects";
-        "EffectTest__funcWithMultipleEffects_114" [label="let currentTime: Int = now()"];
-        "EffectTest__funcWithMultipleEffects_115" [label="let randValue: Int = random(1, 100)"];
-        "EffectTest__funcWithMultipleEffects_116" [label="if (1 > 42)"];
-        "EffectTest__funcWithMultipleEffects_117" [label="nativeRandomizeLt()",style=filled,fillcolor="#66A7DB"];
-        "EffectTest__funcWithMultipleEffects_114" -> "EffectTest__funcWithMultipleEffects_115";
+        "EffectTest__funcWithMultipleEffects_115" [label="let currentTime: Int = now()"];
+        "EffectTest__funcWithMultipleEffects_116" [label="let randValue: Int = random(1, 100)"];
+        "EffectTest__funcWithMultipleEffects_117" [label="if (1 > 42)"];
+        "EffectTest__funcWithMultipleEffects_118" [label="nativeRandomizeLt()",style=filled,fillcolor="#66A7DB"];
         "EffectTest__funcWithMultipleEffects_115" -> "EffectTest__funcWithMultipleEffects_116";
         "EffectTest__funcWithMultipleEffects_116" -> "EffectTest__funcWithMultipleEffects_117";
+        "EffectTest__funcWithMultipleEffects_117" -> "EffectTest__funcWithMultipleEffects_118";
     }
     subgraph "cluster_EffectTest__receive_internal_fallback_1980" {
         label="EffectTest__receive_internal_fallback_1980";
-        "EffectTest__receive_internal_fallback_1980_118" [label="let a = beginString()"];
-        "EffectTest__receive_internal_fallback_1980_119" [label="a.append(\"f\")",style=filled,fillcolor="#66A7DB"];
-        "EffectTest__receive_internal_fallback_1980_118" -> "EffectTest__receive_internal_fallback_1980_119";
+        "EffectTest__receive_internal_fallback_1980_119" [label="let a = beginString()"];
+        "EffectTest__receive_internal_fallback_1980_120" [label="a.append(\"f\")",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__receive_internal_fallback_1980_119" -> "EffectTest__receive_internal_fallback_1980_120";
     }
-"115" -> "26";
+"116" -> "26";
 }
