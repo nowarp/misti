@@ -1,5 +1,5 @@
-import { ILogger } from "@tact-lang/compiler/dist/logger";
 import { ExecutionException } from "./exceptions";
+import { ILogger } from "@tact-lang/compiler/dist/logger";
 
 export enum LogLevel {
   DEBUG,
