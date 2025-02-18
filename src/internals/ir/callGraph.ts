@@ -54,7 +54,7 @@ export enum Effect {
 /**
  * Represents an edge in the call graph, indicating a call from one function to another.
  */
-class CGEdge {
+export class CGEdge {
   public idx: CGEdgeId;
 
   /**
@@ -72,7 +72,7 @@ class CGEdge {
 /**
  * Represents a node in the call graph, corresponding to a function or method.
  */
-class CGNode {
+export class CGNode {
   public idx: CGNodeId;
   public inEdges: Set<CGEdgeId> = new Set();
   public outEdges: Set<CGEdgeId> = new Set();
