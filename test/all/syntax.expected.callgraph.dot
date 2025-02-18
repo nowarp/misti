@@ -1,21 +1,7 @@
 digraph "CallGraph" {
     node [shape=box];
-    node_1 [label="inline extends fun asSlice(self: Builder): Slice"];
-    node_2 [label="inline extends fun asSlice(self: Cell): Slice"];
-    node_3 [label="inline extends fun asCell(self: Slice): Cell"];
-    node_4 [label="inline extends fun asCell(self: Builder): Cell"];
-    node_5 [label="inline fun emptyCell(): Cell"];
-    node_6 [label="inline fun emptySlice(): Slice"];
-    node_7 [label="inline extends fun toCoinsString(self: Int): String"];
-    node_8 [label="extends fun asComment(self: String): Cell"];
-    node_9 [label="inline extends fun fromBase64(self: String): Slice"];
-    node_10 [label="extends fun fromBase64(self: Slice): Slice"];
-    node_11 [label="inline fun randomInt(): Int"];
     node_12 [label="inline fun random(min: Int, max: Int): Int"];
-    node_13 [label="inline fun contractAddress(s: StateInit): Address"];
-    node_14 [label="extends fun readForwardFee(self: Context): Int"];
     node_15 [label="fun send(params: SendParameters): Int"];
-    node_16 [label="inline fun emit(body: Cell)"];
     node_17 [label="fun test_try(a: Int)"];
     node_18 [label="fun test_loops()"];
     node_19 [label="fun testTryCatch(a: Int)"];
