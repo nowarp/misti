@@ -2,12 +2,24 @@ import { Tool } from "./tool";
 import { ToolOutput } from "../cli/result";
 import { MistiContext } from "../internals/context";
 import { CompilationUnit, AstStore } from "../internals/ir";
-import { CallGraph, Effect } from "../internals/ir/callGraph";
+import { CallGraph, CGNode, Effect } from "../internals/ir/callGraph";
 import { unreachable } from "../internals/util";
 import JSONbig from "json-bigint";
 
 interface DumpCallGraphOptions extends Record<string, unknown> {
   format: "dot" | "json" | "mmd";
+}
+
+/**
+ * Checks if the node represents any information to be shown on graphic dumps.
+ */
+function shouldBeShown(node: CGNode): boolean {
+  return node.loc
+    ? // Hide unused stdlib functions
+      node.loc.origin === "user" ||
+        node.outEdges.size > 0 ||
+        node.inEdges.size > 0
+    : true;
 }
 
 /**
@@ -72,6 +84,7 @@ class MermaidDumper {
     }
     let diagram = "graph TD\n";
     callGraph.getNodes().forEach((node) => {
+      if (!shouldBeShown(node)) return;
       const nodeId = `node_${node.idx}`;
       const label = (node.signature(ast) || node.name || "Unknown").replace(
         /"/g,
@@ -99,6 +112,7 @@ class GraphvizDumper {
     }
     let dot = `digraph "CallGraph" {\n    node [shape=box];\n`;
     callGraph.getNodes().forEach((node) => {
+      if (!shouldBeShown(node)) return;
       const nodeId = `node_${node.idx}`;
       const label = (node.signature(ast) || node.name || "Unknown").replace(
         /"/g,
@@ -144,7 +158,6 @@ class JSONDumper {
 
 function getEffectsTooltip(effects: number): string {
   if (effects === 0) return "";
-
   const effectsList = [];
   if (effects & Effect.Send) effectsList.push("Send");
   if (effects & Effect.StateRead) effectsList.push("StateRead");
@@ -152,6 +165,5 @@ function getEffectsTooltip(effects: number): string {
   if (effects & Effect.AccessDatetime) effectsList.push("AccessDatetime");
   if (effects & Effect.PrgUse) effectsList.push("PrgUse");
   if (effects & Effect.PrgSeedInit) effectsList.push("PrgSeedInit");
-
   return effectsList.length > 0 ? `\n[${effectsList.join(",")}]` : "";
 }

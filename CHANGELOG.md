@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Display `warn` logger messages to `stderr` instead of `stdout`: Issue [#259](https://github.com/nowarp/misti/issues/259)
+- Export Callgraph definitions for `Node` and `Edge`
+- Callgraph: Hide unused stdlib functions from dump: PR [#276](https://github.com/nowarp/misti/pull/276)
 
 ### Fixed
 - Souffle installation in CI: PR [#253](https://github.com/nowarp/misti/pull/253)

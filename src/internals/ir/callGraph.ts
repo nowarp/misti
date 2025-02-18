@@ -27,7 +27,9 @@ import {
   AstFieldAccess,
   AstStatement,
   idText,
+  AstModule,
 } from "@tact-lang/compiler/dist/grammar/ast";
+import { SrcInfo } from "@tact-lang/compiler/dist/grammar/grammar";
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
 export type CGNodeId = number & { readonly brand: unique symbol };
@@ -54,7 +56,7 @@ export enum Effect {
 /**
  * Represents an edge in the call graph, indicating a call from one function to another.
  */
-class CGEdge {
+export class CGEdge {
   public idx: CGEdgeId;
 
   /**
@@ -72,25 +74,30 @@ class CGEdge {
 /**
  * Represents a node in the call graph, corresponding to a function or method.
  */
-class CGNode {
+export class CGNode {
   public idx: CGNodeId;
   public inEdges: Set<CGEdgeId> = new Set();
   public outEdges: Set<CGEdgeId> = new Set();
+  public astId: AstNode["id"] | undefined;
+  public loc: SrcInfo | undefined;
   public effects: number = 0;
 
   /**
-   * @param astId The AST ID of the function or method this node represents (can be `undefined` for synthetic nodes)
+   * @param node The AST node of the function. Can be `undefined` for call nodes.
    * @param name The name of the function or method
    * @param logger A logger instance for logging messages
    */
   constructor(
-    public astId: AstNode["id"] | undefined,
+    node: Exclude<AstNode, AstModule> | undefined,
     public name: string,
     private logger: Logger,
   ) {
     this.idx = IdxGenerator.next("cg_node") as CGNodeId;
-    if (astId === undefined) {
+    if (node === undefined) {
       this.logger.debug(`CGNode created without AST ID for function "${name}"`);
+    } else {
+      this.astId = node.id;
+      this.loc = node.loc;
     }
   }
 
@@ -268,7 +275,7 @@ export class CallGraph {
   ) {
     const funcName = this.getFunctionName(func, contractName);
     if (funcName) {
-      const node = new CGNode(func.id, funcName, this.logger);
+      const node = new CGNode(func, funcName, this.logger);
       this.nodeMap.set(node.idx, node);
       this.nameToNodeId.set(funcName, node.idx);
       this.astIdToNodeId.set(func.id, node.idx);
