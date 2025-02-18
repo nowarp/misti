@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `SuspiciousLoop` detector: PR [#206](https://github.com/nowarp/misti/pull/206)
 - File-scoped CFG dumps: Issue [#241](https://github.com/nowarp/misti/issues/241)
 - CLI option to disable Soufflé: Issue [#260](https://github.com/nowarp/misti/issues/260)
+- Save logs to JSON output: PR [#275](https://github.com/nowarp/misti/pull/275)
 
 ### Changed
 - Display `warn` logger messages to `stderr` instead of `stdout`: Issue [#259](https://github.com/nowarp/misti/issues/259)
