@@ -265,6 +265,8 @@ export class CallGraph {
       case "contract_init":
       case "receiver":
         this.addFunctionToGraph(declaration, contractName);
+      default:
+        break; // do nothing
     }
   }
 
