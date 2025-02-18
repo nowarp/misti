@@ -15,7 +15,7 @@ export interface CLIOptions {
   soufflePath: string;
   souffleBinary: string;
   souffleVerbose: boolean;
-  souffleEnabled: boolean;
+  souffle: boolean;
   tactStdlibPath: string | undefined;
   verbose: boolean;
   quiet: boolean;
@@ -34,11 +34,11 @@ export const cliOptionDefaults: Required<CLIOptions> = {
   outputPath: STDOUT_PATH,
   listTools: false,
   outputFormat: "plain",
-  colors: true, // Default: colors enabled
+  colors: true,
   soufflePath: "/tmp/misti/souffle",
   souffleBinary: "souffle",
   souffleVerbose: false,
-  souffleEnabled: true,
+  souffle: true,
   tactStdlibPath: undefined,
   verbose: false,
   quiet: false,
@@ -83,7 +83,7 @@ export const cliOptions = [
     "Set the output format for all tools and warnings",
   ).default(cliOptionDefaults.outputFormat),
   new Option("-C, --no-colors", "Disables ANSI colors in the output.").default(
-    cliOptionDefaults.colors, // Invert because the option is --no-colors
+    cliOptionDefaults.colors,
   ),
   new Option("--souffle-binary <PATH>", "Path to the Soufflé binary.").default(
     cliOptionDefaults.souffleBinary,
@@ -96,6 +96,9 @@ export const cliOptions = [
     "--souffle-verbose",
     "Generate human-readable, but more verbose, Soufflé files.",
   ).default(cliOptionDefaults.souffleVerbose),
+  new Option("--no-souffle", "Disable Soufflé detectors.").default(
+    cliOptionDefaults.souffle,
+  ),
   new Option(
     "--tact-stdlib-path <PATH>",
     "Path to the Tact standard library.",

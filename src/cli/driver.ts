@@ -66,7 +66,7 @@ export class Driver {
     const driver = new Driver(tactPaths, mergedOptions);
     await driver.initializeDetectors();
     await driver.initializeTools();
-    if (!driver.ctx.souffleAvailable) {
+    if (mergedOptions.souffle && !driver.ctx.souffleAvailable) {
       this.warnOnDisabledDetectors(driver);
     }
     return driver;

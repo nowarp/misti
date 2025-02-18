@@ -20,7 +20,7 @@ export class MistiContext {
    * Initializes the context for Misti, setting up configuration and appropriate logger.
    */
   constructor(options: CLIOptions = cliOptionDefaults) {
-    this.souffleAvailable = options.souffleEnabled
+    this.souffleAvailable = options.souffle
       ? this.checkSouffleInstallation(options.souffleBinary)
       : false;
 
