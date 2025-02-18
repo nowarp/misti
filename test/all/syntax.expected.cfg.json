@@ -648,7 +648,7 @@
         "nodes": [
           {
             "id": 107,
-            "stmtID": 1998,
+            "stmtID": 2008,
             "srcEdges": [],
             "dstEdges": []
           }
@@ -719,7 +719,7 @@
       "name": "EffectTest",
       "methods": [
         {
-          "name": "EffectTest.init_1981",
+          "name": "EffectTest.init_1991",
           "cfg": {
             "nodes": [
               {
@@ -777,7 +777,7 @@
           }
         },
         {
-          "name": "EffectTest.funcWithStateWrite",
+          "name": "EffectTest.funcWithStateWrite1",
           "cfg": {
             "nodes": [
               {
@@ -791,20 +791,34 @@
           }
         },
         {
-          "name": "EffectTest.funcWithMultipleEffects",
+          "name": "EffectTest.funcWithStateWrite2",
           "cfg": {
             "nodes": [
               {
                 "id": 115,
-                "stmtID": 1955,
+                "stmtID": 1958,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        },
+        {
+          "name": "EffectTest.funcWithMultipleEffects",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 116,
+                "stmtID": 1965,
                 "srcEdges": [],
                 "dstEdges": [
                   101
                 ]
               },
               {
-                "id": 116,
-                "stmtID": 1962,
+                "id": 117,
+                "stmtID": 1972,
                 "srcEdges": [
                   101
                 ],
@@ -813,8 +827,8 @@
                 ]
               },
               {
-                "id": 117,
-                "stmtID": 1969,
+                "id": 118,
+                "stmtID": 1979,
                 "srcEdges": [
                   102
                 ],
@@ -823,8 +837,8 @@
                 ]
               },
               {
-                "id": 118,
-                "stmtID": 1968,
+                "id": 119,
+                "stmtID": 1978,
                 "srcEdges": [
                   103
                 ],
@@ -834,37 +848,37 @@
             "edges": [
               {
                 "id": 101,
-                "src": 115,
-                "dst": 116
-              },
-              {
-                "id": 102,
                 "src": 116,
                 "dst": 117
               },
               {
-                "id": 103,
+                "id": 102,
                 "src": 117,
                 "dst": 118
+              },
+              {
+                "id": 103,
+                "src": 118,
+                "dst": 119
               }
             ]
           }
         },
         {
-          "name": "EffectTest.receive_internal_fallback_1980",
+          "name": "EffectTest.receive_internal_fallback_1990",
           "cfg": {
             "nodes": [
               {
-                "id": 119,
-                "stmtID": 1974,
+                "id": 120,
+                "stmtID": 1984,
                 "srcEdges": [],
                 "dstEdges": [
                   104
                 ]
               },
               {
-                "id": 120,
-                "stmtID": 1979,
+                "id": 121,
+                "stmtID": 1989,
                 "srcEdges": [
                   104
                 ],
@@ -874,8 +888,8 @@
             "edges": [
               {
                 "id": 104,
-                "src": 119,
-                "dst": 120
+                "src": 120,
+                "dst": 121
               }
             ]
           }
