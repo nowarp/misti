@@ -28,6 +28,7 @@ import {
   AstStatement,
   idText,
   AstModule,
+  AstAsmFunctionDef,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/grammar";
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
@@ -232,13 +233,13 @@ export class CallGraph {
   public build(astStore: AstStore): CallGraph {
     astStore.getProgramEntries({ includeStdlib: true }).forEach((entry) => {
       if (entry.kind === "contract") {
-        const contract = entry as AstContract;
+        const contract = entry;
         const contractName = contract.name.text;
         contract.declarations.forEach((declaration) => {
           this.addContractDeclarationToGraph(declaration, contractName);
         });
       } else if (entry.kind === "function_def") {
-        const func = entry as AstFunctionDef;
+        const func = entry;
         this.addFunctionToGraph(func);
       }
     });
@@ -256,11 +257,11 @@ export class CallGraph {
     contractName: string,
   ) {
     if (declaration.kind === "function_def") {
-      this.addFunctionToGraph(declaration as AstFunctionDef, contractName);
+      this.addFunctionToGraph(declaration, contractName);
     } else if (declaration.kind === "contract_init") {
-      this.addFunctionToGraph(declaration as AstContractInit, contractName);
+      this.addFunctionToGraph(declaration, contractName);
     } else if (declaration.kind === "receiver") {
-      this.addFunctionToGraph(declaration as AstReceiver, contractName);
+      this.addFunctionToGraph(declaration, contractName);
     }
   }
 
@@ -322,7 +323,7 @@ export class CallGraph {
   private analyzeFunctionCalls(astStore: AstStore) {
     for (const entry of astStore.getProgramEntries()) {
       if (entry.kind === "contract") {
-        const contract = entry as AstContract;
+        const contract = entry;
         for (const declaration of contract.declarations) {
           if (
             declaration.kind === "function_def" ||
@@ -344,7 +345,7 @@ export class CallGraph {
           }
         }
       } else if (entry.kind === "function_def") {
-        const func = entry as AstFunctionDef;
+        const func = entry;
         const funcNodeId = this.astIdToNodeId.get(func.id);
         if (funcNodeId !== undefined) {
           const funcNode = this.getNode(funcNodeId);
@@ -399,7 +400,7 @@ export class CallGraph {
     // Connect CG nodes
     if (expr.kind === "static_call" || expr.kind === "method_call") {
       const functionName = this.getFunctionCallName(
-        expr as AstStaticCall | AstMethodCall,
+        expr,
         currentContractName,
       );
       if (functionName) {
@@ -448,7 +449,7 @@ export class CallGraph {
       if (methodName) {
         let contractName = currentContractName;
         if (expr.self.kind === "id") {
-          const idExpr = expr.self as AstId;
+          const idExpr = expr.self;
           if (idExpr.text !== "self") {
             contractName = idExpr.text;
           }
@@ -501,9 +502,9 @@ export class CallGraph {
  */
 function isContractStateRead(expr: AstExpression): boolean {
   if (expr.kind === "field_access") {
-    const fieldAccess = expr as AstFieldAccess;
+    const fieldAccess = expr;
     if (fieldAccess.aggregate.kind === "id") {
-      const idExpr = fieldAccess.aggregate as AstId;
+      const idExpr = fieldAccess.aggregate;
       if (idExpr.text === "self") {
         return true;
       }
