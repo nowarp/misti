@@ -11,40 +11,50 @@ graph TD
     node_24["fun test(): Int"]
     node_25["external()"]
     node_26["init()
-[StateWrite<addr,b,s}>]"]
+[StateWrite<addr,b,s>]"]
     node_27["fun funcWithSend()
-[Send,StateRead<addr}>]"]
+[Send,StateRead<addr>]"]
     node_28["fun funcWithStateRead()
-[StateRead<addr}>]"]
+[StateRead<addr>]"]
     node_29["fun funcWithStateWrite1()
-[StateRead<b,addr,s}>,StateWrite<addr}>]"]
+[StateRead<b,addr,s>,StateWrite<addr>]"]
     node_30["fun funcWithStateWrite2(s: Slice): Address"]
     node_31["fun funcWithMultipleEffects()
 [AccessDatetime,PrgUse,PrgSeedInit]"]
     node_32["receive()"]
     node_33["get fun m(): map<Int, Int>
-[StateRead<m}>]"]
+[StateRead<m>]"]
     node_34["receive()
-[StateRead<m}>]"]
+[StateRead<m>]"]
     node_35["dump"]
     node_36["emptyMap"]
-    node_37["getA"]
-    node_38["sender"]
-    node_39["beginCell"]
-    node_40["newAddress"]
-    node_41["now"]
-    node_42["nativeRandomizeLt"]
-    node_43["beginString"]
+    node_37["m::set"]
+    node_38["s::loadRefEx"]
+    node_39["TestContractT::getA"]
+    node_40["sender"]
+    node_41["beginCell"]
+    node_42["newAddress"]
+    node_43["s::loadAddress"]
+    node_44["now"]
+    node_45["nativeRandomizeLt"]
+    node_46["beginString"]
+    node_47["a::append"]
     node_17 --> node_35
     node_18 --> node_36
     node_19 --> node_35
     node_20 --> node_36
-    node_24 --> node_37
-    node_26 --> node_38
-    node_26 --> node_39
+    node_20 --> node_37
+    node_20 --> node_37
+    node_20 --> node_37
+    node_21 --> node_38
+    node_24 --> node_39
+    node_26 --> node_40
+    node_26 --> node_41
     node_27 --> node_15
-    node_29 --> node_40
-    node_31 --> node_41
+    node_29 --> node_42
+    node_30 --> node_43
+    node_31 --> node_44
     node_31 --> node_12
-    node_31 --> node_42
-    node_32 --> node_43
+    node_31 --> node_45
+    node_32 --> node_46
+    node_32 --> node_47

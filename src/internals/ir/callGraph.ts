@@ -33,7 +33,7 @@ import {
   isSelfId,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/grammar";
-import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
+import { prettyPrint as pp } from "@tact-lang/compiler/dist/prettyPrinter";
 
 export type CGNodeId = number & { readonly brand: unique symbol };
 export type CGEdgeId = number & { readonly brand: unique symbol };
@@ -148,10 +148,7 @@ export class CGNode {
     if (!this.astId) return undefined;
     const fun = ast.getFunction(this.astId);
     if (!fun) return undefined;
-    const signature = prettyPrint(fun)
-      .split("{")[0]
-      .replace(/\s+/g, " ")
-      .trim();
+    const signature = pp(fun).split("{")[0].replace(/\s+/g, " ").trim();
     return signature;
   }
 }
@@ -410,7 +407,7 @@ export class CallGraph {
   }
 
   /**
-   * Processes an expression, adding edges and setting effect flags as necessary.
+   * Processes calls in expressions building the CG.
    * @param expr The expression to process.
    * @param callerId The node ID of the calling function.
    * @param currentContractName The name of the contract, if applicable.
@@ -421,17 +418,14 @@ export class CallGraph {
     currentContractName?: string,
   ) {
     // Connect CG nodes
-    if (
-      expr.kind === "static_call" ||
-      (expr.kind === "method_call" && isSelf(expr.self))
-    ) {
+    if (expr.kind === "static_call" || expr.kind === "method_call") {
       const functionName = this.getFunctionCallName(expr, currentContractName);
       if (functionName) {
         const calleeId = this.findOrAddFunction(functionName);
         this.addEdge(callerId, calleeId);
       } else {
-        this.logger.warn(
-          `Call expression missing function name at caller: ${prettyPrint(expr)}`,
+        this.logger.debug(
+          `Call expression missing function name at caller: ${pp(expr)}`,
         );
       }
     }
@@ -470,18 +464,24 @@ export class CallGraph {
   ): string | undefined {
     if (expr.kind === "static_call") {
       return expr.function.text;
-    } else if (expr.kind === "method_call" && isSelf(expr.self)) {
-      const methodName = expr.method.text;
-      if (methodName) {
-        let contractName = currentContractName;
-        if (expr.self.kind === "id") {
-          const idExpr = expr.self;
-          if (idExpr.text !== "self") {
-            contractName = idExpr.text;
-          }
+    } else if (expr.kind === "method_call") {
+      const methodName = idText(expr.method);
+      // self.<method>()
+      if (isSelf(expr.self)) {
+        if (currentContractName !== undefined) {
+          return `${currentContractName}::${methodName}`;
+        } else {
+          throw InternalException.make(
+            `Cannot process ${pp(expr)} without current contract name`,
+          );
         }
-        return contractName ? `${contractName}::${methodName}` : methodName;
       }
+      // <struct/contract>.<method>()
+      if (expr.self.kind === "id") {
+        // TODO: Replace with actual contract name when #136 is resolved
+        return `${idText(expr.self)}::${methodName}`;
+      }
+      // TODO: Support method call chains: #242
     }
     return undefined;
   }

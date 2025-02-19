@@ -12,41 +12,51 @@ digraph "CallGraph" {
     node_24 [label="fun test(): Int"];
     node_25 [label="external()"];
     node_26 [label="init()
-[StateWrite<addr,b,s}>]"];
+[StateWrite<addr,b,s>]"];
     node_27 [label="fun funcWithSend()
-[Send,StateRead<addr}>]"];
+[Send,StateRead<addr>]"];
     node_28 [label="fun funcWithStateRead()
-[StateRead<addr}>]"];
+[StateRead<addr>]"];
     node_29 [label="fun funcWithStateWrite1()
-[StateRead<b,addr,s}>,StateWrite<addr}>]"];
+[StateRead<b,addr,s>,StateWrite<addr>]"];
     node_30 [label="fun funcWithStateWrite2(s: Slice): Address"];
     node_31 [label="fun funcWithMultipleEffects()
 [AccessDatetime,PrgUse,PrgSeedInit]"];
     node_32 [label="receive()"];
     node_33 [label="get fun m(): map<Int, Int>
-[StateRead<m}>]"];
+[StateRead<m>]"];
     node_34 [label="receive()
-[StateRead<m}>]"];
+[StateRead<m>]"];
     node_35 [label="dump"];
     node_36 [label="emptyMap"];
-    node_37 [label="getA"];
-    node_38 [label="sender"];
-    node_39 [label="beginCell"];
-    node_40 [label="newAddress"];
-    node_41 [label="now"];
-    node_42 [label="nativeRandomizeLt"];
-    node_43 [label="beginString"];
+    node_37 [label="m::set"];
+    node_38 [label="s::loadRefEx"];
+    node_39 [label="TestContractT::getA"];
+    node_40 [label="sender"];
+    node_41 [label="beginCell"];
+    node_42 [label="newAddress"];
+    node_43 [label="s::loadAddress"];
+    node_44 [label="now"];
+    node_45 [label="nativeRandomizeLt"];
+    node_46 [label="beginString"];
+    node_47 [label="a::append"];
     node_17 -> node_35;
     node_18 -> node_36;
     node_19 -> node_35;
     node_20 -> node_36;
-    node_24 -> node_37;
-    node_26 -> node_38;
-    node_26 -> node_39;
+    node_20 -> node_37;
+    node_20 -> node_37;
+    node_20 -> node_37;
+    node_21 -> node_38;
+    node_24 -> node_39;
+    node_26 -> node_40;
+    node_26 -> node_41;
     node_27 -> node_15;
-    node_29 -> node_40;
-    node_31 -> node_41;
+    node_29 -> node_42;
+    node_30 -> node_43;
+    node_31 -> node_44;
     node_31 -> node_12;
-    node_31 -> node_42;
-    node_32 -> node_43;
+    node_31 -> node_45;
+    node_32 -> node_46;
+    node_32 -> node_47;
 }

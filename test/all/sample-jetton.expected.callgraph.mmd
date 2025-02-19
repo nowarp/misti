@@ -2,34 +2,36 @@ graph TD
     node_13["inline fun contractAddress(s: StateInit): Address"]
     node_15["fun send(params: SendParameters): Int"]
     node_17["init(owner: Address, content: Cell, max_supply: Int)
-[StateWrite<totalSupply,max_supply,owner,mintable,content}>]"]
+[StateWrite<totalSupply,max_supply,owner,mintable,content>]"]
     node_18["receive(msg: Mint)
-[StateRead<owner,mintable}>]"]
+[StateRead<owner,mintable>]"]
     node_19["receive('Mint: 100')
-[StateRead<mintable,owner}>]"]
+[StateRead<mintable,owner>]"]
     node_20["receive('Owner: MintClose')
-[StateRead<owner}>,StateWrite<mintable}>]"]
+[StateRead<owner>,StateWrite<mintable>]"]
     node_21["init(master: Address, owner: Address)
-[StateWrite<balance,owner,master}>]"]
+[StateWrite<balance,owner,master>]"]
     node_22["receive(msg: TokenTransfer)
-[Send,StateRead<owner,gasConsumption,minTonsForStorage,balance,master}>,StateWrite<balance}>]"]
+[Send,StateRead<owner,gasConsumption,minTonsForStorage,balance,master>,StateWrite<balance>]"]
     node_23["receive(msg: TokenTransferInternal)
-[Send,StateRead<master,balance,owner}>,StateWrite<balance}>]"]
+[Send,StateRead<master,balance,owner>,StateWrite<balance>]"]
     node_24["get fun msgValue(value: Int): Int
-[StateRead<minTonsForStorage}>]"]
+[StateRead<minTonsForStorage>]"]
     node_25["receive(msg: TokenBurn)
-[Send,StateRead<owner,balance,gasConsumption,minTonsForStorage,master}>,StateWrite<balance}>]"]
+[Send,StateRead<owner,balance,gasConsumption,minTonsForStorage,master>,StateWrite<balance>]"]
     node_26["bounced(msg: Slice)
-[StateWrite<balance}>]"]
+[StateWrite<balance>]"]
     node_27["get fun get_wallet_data(): JettonWalletData
-[StateRead<balance,owner,master}>]"]
+[StateRead<balance,owner,master>]"]
     node_28["context"]
     node_29["require"]
-    node_30["mint"]
-    node_31["min"]
-    node_32["ton"]
-    node_33["msgValue"]
+    node_30["SampleJetton::mint"]
+    node_31["ctx::readForwardFee"]
+    node_32["min"]
+    node_33["ton"]
     node_34["myBalance"]
+    node_35["msg::loadUint"]
+    node_36["msg::loadCoins"]
     node_18 --> node_28
     node_18 --> node_29
     node_18 --> node_29
@@ -41,9 +43,11 @@ graph TD
     node_20 --> node_29
     node_22 --> node_28
     node_22 --> node_29
-    node_22 --> node_29
     node_22 --> node_31
+    node_22 --> node_31
+    node_22 --> node_29
     node_22 --> node_32
+    node_22 --> node_33
     node_22 --> node_29
     node_22 --> node_13
     node_22 --> node_15
@@ -52,13 +56,18 @@ graph TD
     node_23 --> node_13
     node_23 --> node_29
     node_23 --> node_15
-    node_23 --> node_33
+    node_23 --> node_24
+    node_23 --> node_31
     node_23 --> node_15
     node_24 --> node_34
-    node_24 --> node_31
+    node_24 --> node_32
     node_25 --> node_28
     node_25 --> node_29
     node_25 --> node_29
+    node_25 --> node_31
     node_25 --> node_29
     node_25 --> node_15
+    node_26 --> node_35
+    node_26 --> node_35
+    node_26 --> node_36
     node_26 --> node_29
