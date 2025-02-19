@@ -155,3 +155,16 @@ contract EffectTest {
 // Checks if we add asm functions to IR entries correctly
 asm(-> 1 0) extends mutates fun loadRefEx(self: Slice): Cell { LDREF }
 fun callAsm(s: Slice): Cell { return s.loadRefEx(); }
+
+// Regression test for: https://github.com/nowarp/misti/issues/266
+contract A {
+    m: map<Int, Int> = null;
+    get fun m(): map<Int, Int> {
+        return self.m;
+    }
+    receive() {
+        while (true) {
+            self.m.set(1, 2);
+        }
+    }
+}

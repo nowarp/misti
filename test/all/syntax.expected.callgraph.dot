@@ -23,39 +23,30 @@ digraph "CallGraph" {
     node_31 [label="fun funcWithMultipleEffects()
 [AccessDatetime,PrgUse,PrgSeedInit]"];
     node_32 [label="receive()"];
-    node_33 [label="dump"];
-    node_34 [label="emptyMap"];
-    node_35 [label="m::set"];
-    node_36 [label="s::loadRefEx"];
+    node_33 [label="get fun m(): map<Int, Int>
+[StateRead<m}>]"];
+    node_34 [label="receive()
+[StateRead<m}>]"];
+    node_35 [label="dump"];
+    node_36 [label="emptyMap"];
     node_37 [label="getA"];
     node_38 [label="sender"];
     node_39 [label="beginCell"];
     node_40 [label="newAddress"];
-    node_41 [label="storeAddress"];
-    node_42 [label="s::loadAddress"];
-    node_43 [label="now"];
-    node_44 [label="nativeRandomizeLt"];
-    node_45 [label="beginString"];
-    node_46 [label="a::append"];
-    node_17 -> node_33;
-    node_18 -> node_34;
-    node_19 -> node_33;
-    node_20 -> node_34;
-    node_20 -> node_35;
-    node_20 -> node_35;
-    node_20 -> node_35;
-    node_21 -> node_36;
+    node_41 [label="now"];
+    node_42 [label="nativeRandomizeLt"];
+    node_43 [label="beginString"];
+    node_17 -> node_35;
+    node_18 -> node_36;
+    node_19 -> node_35;
+    node_20 -> node_36;
     node_24 -> node_37;
     node_26 -> node_38;
     node_26 -> node_39;
     node_27 -> node_15;
     node_29 -> node_40;
-    node_29 -> node_41;
-    node_29 -> node_41;
-    node_30 -> node_42;
-    node_31 -> node_43;
+    node_31 -> node_41;
     node_31 -> node_12;
-    node_31 -> node_44;
-    node_32 -> node_45;
-    node_32 -> node_46;
+    node_31 -> node_42;
+    node_32 -> node_43;
 }

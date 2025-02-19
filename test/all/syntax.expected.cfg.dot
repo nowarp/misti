@@ -158,5 +158,16 @@ digraph "syntax" {
         "EffectTest__receive_internal_fallback_2037_125" [label="a.append(\"f\")",style=filled,fillcolor="#66A7DB"];
         "EffectTest__receive_internal_fallback_2037_124" -> "EffectTest__receive_internal_fallback_2037_125";
     }
+    subgraph "cluster_A__m" {
+        label="A__m";
+        "A__m_126" [label="return self.m",style=filled,fillcolor="#66A7DB"];
+    }
+    subgraph "cluster_A__receive_internal_fallback_2083" {
+        label="A__receive_internal_fallback_2083";
+        "A__receive_internal_fallback_2083_127" [label="while (true)"];
+        "A__receive_internal_fallback_2083_128" [label="self.m.set(1, 2)"];
+        "A__receive_internal_fallback_2083_127" -> "A__receive_internal_fallback_2083_128";
+        "A__receive_internal_fallback_2083_128" -> "A__receive_internal_fallback_2083_127";
+    }
 "121" -> "26";
 }

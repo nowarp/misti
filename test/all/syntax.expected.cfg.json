@@ -957,6 +957,64 @@
           }
         }
       ]
+    },
+    {
+      "name": "A",
+      "methods": [
+        {
+          "name": "A.m",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 126,
+                "stmtID": 2071,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        },
+        {
+          "name": "A.receive_internal_fallback_2083",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 127,
+                "stmtID": 2082,
+                "srcEdges": [
+                  110
+                ],
+                "dstEdges": [
+                  109
+                ]
+              },
+              {
+                "id": 128,
+                "stmtID": 2081,
+                "srcEdges": [
+                  109
+                ],
+                "dstEdges": [
+                  110
+                ]
+              }
+            ],
+            "edges": [
+              {
+                "id": 109,
+                "src": 127,
+                "dst": 128
+              },
+              {
+                "id": 110,
+                "src": 128,
+                "dst": 127
+              }
+            ]
+          }
+        }
+      ]
     }
   ]
 }

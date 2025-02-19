@@ -34,6 +34,15 @@ test/all/syntax.tact:143:13:
 Help: Consider removing it if there is no logic error
 See: https://nowarp.io/tools/misti/docs/detectors/FalseCondition
 
+[MEDIUM] SuspiciousLoop: Infinite loop detected
+test/all/syntax.tact:166:16:
+  165 |     receive() {
+> 166 |         while (true) {
+                       ^
+  167 |             self.m.set(1, 2);
+Help: Avoid unbounded conditions in loops
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
+
 [LOW] ZeroAddress: Using zero address
 test/all/syntax.tact:130:35:
   129 |     fun funcWithStateWrite1() {
@@ -42,6 +51,16 @@ test/all/syntax.tact:130:35:
   131 |         self.b.storeAddress(self.addr);
 Help: Consider changing code to avoid using it. For example, you could pass the address during the deployment.
 See: https://nowarp.io/tools/misti/docs/detectors/ZeroAddress
+
+[LOW] UnboundMap: Map self.m could be unbound
+test/all/syntax.tact:161:5:
+  160 | contract A {
+> 161 |     m: map<Int, Int> = null;
+            ^
+  162 |     get fun m(): map<Int, Int> {
+There are operations adding elements to this map, but there is no API to remove them
+Help: Consider adding a method to remove elements or suppress this warning
+See: https://nowarp.io/tools/misti/docs/detectors/UnboundMap
 
 [INFO] DumpIsUsed: Found `dump` usage
 test/all/syntax.tact:41:35:

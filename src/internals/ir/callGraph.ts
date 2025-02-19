@@ -309,7 +309,7 @@ export class CallGraph {
   /**
    * Extracts the function name based on its type and optional contract name.
    * @param contractName The optional contract name.
-   * @returns The function name, or `undefined` if it cannot be determined.
+   * @returns Fully qualified function name.
    */
   private getFunctionName(
     func: SupportedFunDefs,
@@ -421,14 +421,17 @@ export class CallGraph {
     currentContractName?: string,
   ) {
     // Connect CG nodes
-    if (expr.kind === "static_call" || expr.kind === "method_call") {
+    if (
+      expr.kind === "static_call" ||
+      (expr.kind === "method_call" && isSelf(expr.self))
+    ) {
       const functionName = this.getFunctionCallName(expr, currentContractName);
       if (functionName) {
         const calleeId = this.findOrAddFunction(functionName);
         this.addEdge(callerId, calleeId);
       } else {
         this.logger.warn(
-          `Call expression missing function name at caller ${callerId}`,
+          `Call expression missing function name at caller: ${prettyPrint(expr)}`,
         );
       }
     }
@@ -467,8 +470,8 @@ export class CallGraph {
   ): string | undefined {
     if (expr.kind === "static_call") {
       return expr.function.text;
-    } else if (expr.kind === "method_call") {
-      const methodName = expr.method?.text;
+    } else if (expr.kind === "method_call" && isSelf(expr.self)) {
+      const methodName = expr.method.text;
       if (methodName) {
         let contractName = currentContractName;
         if (expr.self.kind === "id") {
