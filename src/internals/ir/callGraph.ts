@@ -361,7 +361,7 @@ export class CallGraph {
               const funcNode = this.getNode(funcNodeId);
               if (!funcNode) continue;
               func.statements.forEach((stmt) => {
-                this.processStatement(stmt, funcNodeId);
+                this.processStatement(stmt, funcNodeId, idText(contract.name));
               });
             }
           }
