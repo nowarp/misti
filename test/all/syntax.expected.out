@@ -1,45 +1,45 @@
 [MEDIUM] NeverAccessedVariables: Variable value is never accessed
-test/all/syntax.tact:114:9:
-  113 |     fun funcWithStateRead() {
-> 114 |         let value = self.addr;
+test/all/syntax.tact:125:9:
+  124 |     fun funcWithStateRead() {
+> 125 |         let value = self.addr;
                 ^
-  115 |     }
+  126 |     }
 Help: Consider removing the variable
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
 [MEDIUM] NeverAccessedVariables: Variable currentTime is never accessed
-test/all/syntax.tact:128:9:
-  127 |     fun funcWithMultipleEffects() {
-> 128 |         let currentTime: Int = now();
+test/all/syntax.tact:141:9:
+  140 |     fun funcWithMultipleEffects() {
+> 141 |         let currentTime: Int = now();
                 ^
-  129 |         let randValue: Int = random(1, 100);
+  142 |         let randValue: Int = random(1, 100);
 Help: Consider removing the variable
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
 [MEDIUM] NeverAccessedVariables: Variable randValue is never accessed
-test/all/syntax.tact:129:9:
-  128 |         let currentTime: Int = now();
-> 129 |         let randValue: Int = random(1, 100);
+test/all/syntax.tact:142:9:
+  141 |         let currentTime: Int = now();
+> 142 |         let randValue: Int = random(1, 100);
                 ^
-  130 |         if (1 > 42) {
+  143 |         if (1 > 42) {
 Help: Consider removing the variable
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
 [MEDIUM] FalseCondition: Condition always evaluates to false
-test/all/syntax.tact:130:13:
-  129 |         let randValue: Int = random(1, 100);
-> 130 |         if (1 > 42) {
+test/all/syntax.tact:143:13:
+  142 |         let randValue: Int = random(1, 100);
+> 143 |         if (1 > 42) {
                     ^
-  131 |             nativeRandomizeLt();
+  144 |             nativeRandomizeLt();
 Help: Consider removing it if there is no logic error
 See: https://nowarp.io/tools/misti/docs/detectors/FalseCondition
 
 [LOW] ZeroAddress: Using zero address
-test/all/syntax.tact:119:35:
-  118 |     fun funcWithStateWrite1() {
-> 119 |         self.addr = newAddress(0, 0);
+test/all/syntax.tact:130:35:
+  129 |     fun funcWithStateWrite1() {
+> 130 |         self.addr = newAddress(0, 0);
                                           ^
-  120 |     }
+  131 |         self.b.storeAddress(self.addr);
 Help: Consider changing code to avoid using it. For example, you could pass the address during the deployment.
 See: https://nowarp.io/tools/misti/docs/detectors/ZeroAddress
 
@@ -179,10 +179,10 @@ Help: Consider using augmented assignment instead: sum += value
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
 
 [INFO] AsmIsUsed: asm function is used
-test/all/syntax.tact:143:1:
-  142 | // Checks if we add asm functions to IR entries correctly
-> 143 | asm(-> 1 0) extends mutates fun loadRefEx(self: Slice): Cell { LDREF }
+test/all/syntax.tact:156:1:
+  155 | // Checks if we add asm functions to IR entries correctly
+> 156 | asm(-> 1 0) extends mutates fun loadRefEx(self: Slice): Cell { LDREF }
         ^
-  144 | fun callAsm(s: Slice): Cell { return s.loadRefEx(); }
+  157 | fun callAsm(s: Slice): Cell { return s.loadRefEx(); }
 Help: Using TVM assembly is a potentially dangerous operation that requires additional review
 See: https://nowarp.io/tools/misti/docs/detectors/AsmIsUsed

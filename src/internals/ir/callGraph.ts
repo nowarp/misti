@@ -1,21 +1,21 @@
 import { unreachable } from "../util";
 import { AstStore } from "./astStore";
 import { IdxGenerator } from "./indices";
-import { MistiContext } from "../../";
+import { InternalException, MistiContext } from "../../";
 import { Logger } from "../../internals/logger";
 import {
-  isSelfAccess,
   isSendCall,
   isSelf,
   DATETIME_FUNCTIONS,
   PRG_INIT_FUNCTIONS,
   PRG_NATIVE_USE_FUNCTIONS,
   PRG_SAFE_USE_FUNCTIONS,
+  getMethodCallsChain,
   MAP_MUTATING_METHODS,
   STRING_MUTATING_METHODS,
   BUILDER_MUTATING_METHODS,
 } from "../tact";
-import { findInExpressions, forEachExpression } from "../tact/iterators";
+import { foldExpressions, forEachExpression } from "../tact/iterators";
 import {
   AstFunctionDef,
   AstReceiver,
@@ -29,6 +29,8 @@ import {
   idText,
   AstModule,
   AstAsmFunctionDef,
+  tryExtractPath,
+  isSelfId,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/grammar";
 import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
@@ -42,9 +44,7 @@ type SupportedFunDefs =
   | AstContractInit
   | AstAsmFunctionDef;
 
-/**
- * Effects flags for callgraph functions
- */
+/** Effects flags for callgraph nodes. */
 export enum Effect {
   /** Uses functions that send funds. */
   Send = 1 << 0,
@@ -78,6 +78,8 @@ export class CGEdge {
   }
 }
 
+export type StateKind = "read" | "write";
+
 /**
  * Represents a node in the call graph, corresponding to a function or method.
  */
@@ -88,6 +90,7 @@ export class CGNode {
   public astId: AstNode["id"] | undefined;
   public loc: SrcInfo | undefined;
   public effects: number = 0;
+  public stateAccess: Map<StateKind, Set<string>> = new Map();
 
   /**
    * @param node The AST node of the function. Can be `undefined` for call nodes.
@@ -99,6 +102,9 @@ export class CGNode {
     public name: string,
     private logger: Logger,
   ) {
+    this.stateAccess.set("read", new Set());
+    this.stateAccess.set("write", new Set());
+
     this.idx = IdxGenerator.next("cg_node") as CGNodeId;
     if (node === undefined) {
       this.logger.debug(`CGNode created without AST ID for function "${name}"`);
@@ -108,8 +114,23 @@ export class CGNode {
     }
   }
 
-  public addEffect(effect: Effect) {
+  /**
+   * @param fields Names of contract fields accessed or modified by the effect.
+   */
+  public addEffect(effect: Effect, fields?: string[]) {
     this.effects |= effect;
+    if (fields !== undefined) {
+      const status =
+        effect === Effect.StateRead
+          ? "read"
+          : effect === Effect.StateWrite
+            ? "write"
+            : undefined;
+      if (status === undefined) {
+        throw InternalException.make(`Unknown effect: ${effect}`);
+      }
+      fields.forEach((f) => this.stateAccess.get(status)!.add(f));
+    }
   }
 
   public hasEffect(effect: Effect): boolean {
@@ -373,8 +394,9 @@ export class CallGraph {
   ) {
     const funcNode = this.getNode(callerId);
     if (!funcNode) return;
-    if (isContractStateWrite(stmt)) {
-      funcNode.addEffect(Effect.StateWrite);
+    const modifiedFields = findStateWriteNames(stmt);
+    if (modifiedFields !== undefined) {
+      funcNode.addEffect(Effect.StateWrite, modifiedFields);
     }
     if (
       stmt.kind === "statement_assign" ||
@@ -427,7 +449,10 @@ export class CallGraph {
         funcNode.addEffect(Effect.PrgSeedInit);
     }
     if (isSendCall(expr)) funcNode.addEffect(Effect.Send);
-    if (isContractStateRead(expr)) funcNode.addEffect(Effect.StateRead);
+    const readFieldName = findFieldName(expr);
+    if (readFieldName !== undefined) {
+      funcNode.addEffect(Effect.StateRead, [readFieldName]);
+    }
   }
 
   /**
@@ -496,41 +521,67 @@ export class CallGraph {
 }
 
 /**
- * Helper function to determine if an expression is a contract state read.
+ * Returns name of the field if `expr` represents its read access e.g.:
+ * - `self.<field>`
+ * - `self.<field_struct>.<whatever_field_access>`
+ *
+ * It is called from a recursive AST iterator, thus, we don't have to implement
+ * recursion inside.
  */
-function isContractStateRead(expr: AstExpression): boolean {
+function findFieldName(expr: AstExpression): string | undefined {
   if (expr.kind === "field_access") {
-    const fieldAccess = expr;
-    if (fieldAccess.aggregate.kind === "id") {
-      const idExpr = fieldAccess.aggregate;
-      if (idExpr.text === "self") {
-        return true;
-      }
-    }
+    const path = tryExtractPath(expr);
+    return path !== null && path.length > 1 && isSelfId(path[0])
+      ? idText(path[1])
+      : undefined;
   }
-  return false;
+  return undefined;
+}
+
+function isMutatingMethod(method: string): boolean {
+  return (
+    MAP_MUTATING_METHODS.has(method) ||
+    STRING_MUTATING_METHODS.has(method) ||
+    BUILDER_MUTATING_METHODS.has(method)
+  );
 }
 
 /**
- * Helper function to determine if a statement is a contract state write.
+ * Returns name of the field from patterns like:
+ * - `self.<field>.<mutating_method>()`
+ * - `self.<field>.<whatever>.<mutating_method>().<whatever>`
  */
-function isContractStateWrite(stmt: AstStatement): boolean {
+function findFieldMutatingState(expr: AstMethodCall): string | undefined {
+  const chain = getMethodCallsChain(expr);
+  return chain !== undefined &&
+    chain.calls.length > 1 &&
+    isSelf(chain.self) &&
+    chain.calls.some((m) => isMutatingMethod(idText(m.method)))
+    ? findFieldName(chain.self)
+    : undefined;
+}
+
+/**
+ * Returns names of fields if `expr` represents their modification.
+ */
+function findStateWriteNames(stmt: AstStatement): string[] | undefined {
   if (
     stmt.kind === "statement_assign" ||
     stmt.kind === "statement_augmentedassign"
   ) {
-    return isSelfAccess(stmt.path);
+    const name = findFieldName(stmt.path);
+    return name ? [name] : undefined;
   }
-  return (
-    null !==
-    findInExpressions(
-      stmt,
-      (expr) =>
-        expr.kind === "method_call" &&
-        isSelf(expr.self) &&
-        (MAP_MUTATING_METHODS.has(idText(expr.method)) ||
-          STRING_MUTATING_METHODS.has(idText(expr.method)) ||
-          BUILDER_MUTATING_METHODS.has(idText(expr.method))),
-    )
+  const methodAccesses = foldExpressions(
+    stmt,
+    (acc, expr) => {
+      if (expr.kind === "method_call") {
+        const fieldName = findFieldMutatingState(expr);
+        if (fieldName) methodAccesses.add(fieldName);
+      }
+      return acc;
+    },
+    new Set<string>(),
   );
+  return methodAccesses.size !== 0 ? Array.from(methodAccesses) : undefined;
 }

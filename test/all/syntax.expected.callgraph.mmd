@@ -11,13 +11,13 @@ graph TD
     node_24["fun test(): Int"]
     node_25["external()"]
     node_26["init()
-[StateWrite]"]
+[StateWrite<addr,b,s}>]"]
     node_27["fun funcWithSend()
-[Send,StateRead]"]
+[Send,StateRead<addr}>]"]
     node_28["fun funcWithStateRead()
-[StateRead]"]
+[StateRead<addr}>]"]
     node_29["fun funcWithStateWrite1()
-[StateWrite]"]
+[StateRead<b,addr,s}>,StateWrite<addr}>]"]
     node_30["fun funcWithStateWrite2(s: Slice): Address"]
     node_31["fun funcWithMultipleEffects()
 [AccessDatetime,PrgUse,PrgSeedInit]"]
@@ -28,12 +28,14 @@ graph TD
     node_36["s::loadRefEx"]
     node_37["getA"]
     node_38["sender"]
-    node_39["newAddress"]
-    node_40["s::loadAddress"]
-    node_41["now"]
-    node_42["nativeRandomizeLt"]
-    node_43["beginString"]
-    node_44["a::append"]
+    node_39["beginCell"]
+    node_40["newAddress"]
+    node_41["storeAddress"]
+    node_42["s::loadAddress"]
+    node_43["now"]
+    node_44["nativeRandomizeLt"]
+    node_45["beginString"]
+    node_46["a::append"]
     node_17 --> node_33
     node_18 --> node_34
     node_19 --> node_33
@@ -44,11 +46,14 @@ graph TD
     node_21 --> node_36
     node_24 --> node_37
     node_26 --> node_38
+    node_26 --> node_39
     node_27 --> node_15
-    node_29 --> node_39
-    node_30 --> node_40
-    node_31 --> node_41
+    node_29 --> node_40
+    node_29 --> node_41
+    node_29 --> node_41
+    node_30 --> node_42
+    node_31 --> node_43
     node_31 --> node_12
-    node_31 --> node_42
-    node_32 --> node_43
-    node_32 --> node_44
+    node_31 --> node_44
+    node_32 --> node_45
+    node_32 --> node_46

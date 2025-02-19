@@ -648,7 +648,7 @@
         "nodes": [
           {
             "id": 107,
-            "stmtID": 2008,
+            "stmtID": 2055,
             "srcEdges": [],
             "dstEdges": []
           }
@@ -719,36 +719,32 @@
       "name": "EffectTest",
       "methods": [
         {
-          "name": "EffectTest.init_1991",
+          "name": "EffectTest.init_2038",
           "cfg": {
             "nodes": [
               {
                 "id": 110,
-                "stmtID": 1912,
-                "srcEdges": [],
-                "dstEdges": []
-              }
-            ],
-            "edges": []
-          }
-        },
-        {
-          "name": "EffectTest.funcWithSend",
-          "cfg": {
-            "nodes": [
-              {
-                "id": 111,
-                "stmtID": 1918,
+                "stmtID": 1923,
                 "srcEdges": [],
                 "dstEdges": [
                   100
                 ]
               },
               {
-                "id": 112,
-                "stmtID": 1931,
+                "id": 111,
+                "stmtID": 1929,
                 "srcEdges": [
                   100
+                ],
+                "dstEdges": [
+                  101
+                ]
+              },
+              {
+                "id": 112,
+                "stmtID": 1939,
+                "srcEdges": [
+                  101
                 ],
                 "dstEdges": []
               }
@@ -756,8 +752,43 @@
             "edges": [
               {
                 "id": 100,
+                "src": 110,
+                "dst": 111
+              },
+              {
+                "id": 101,
                 "src": 111,
                 "dst": 112
+              }
+            ]
+          }
+        },
+        {
+          "name": "EffectTest.funcWithSend",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 113,
+                "stmtID": 1945,
+                "srcEdges": [],
+                "dstEdges": [
+                  102
+                ]
+              },
+              {
+                "id": 114,
+                "stmtID": 1958,
+                "srcEdges": [
+                  102
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 102,
+                "src": 113,
+                "dst": 114
               }
             ]
           }
@@ -767,8 +798,8 @@
           "cfg": {
             "nodes": [
               {
-                "id": 113,
-                "stmtID": 1938,
+                "id": 115,
+                "stmtID": 1965,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -781,13 +812,44 @@
           "cfg": {
             "nodes": [
               {
-                "id": 114,
-                "stmtID": 1948,
+                "id": 116,
+                "stmtID": 1975,
                 "srcEdges": [],
+                "dstEdges": [
+                  103
+                ]
+              },
+              {
+                "id": 117,
+                "stmtID": 1984,
+                "srcEdges": [
+                  103
+                ],
+                "dstEdges": [
+                  104
+                ]
+              },
+              {
+                "id": 118,
+                "stmtID": 1995,
+                "srcEdges": [
+                  104
+                ],
                 "dstEdges": []
               }
             ],
-            "edges": []
+            "edges": [
+              {
+                "id": 103,
+                "src": 116,
+                "dst": 117
+              },
+              {
+                "id": 104,
+                "src": 117,
+                "dst": 118
+              }
+            ]
           }
         },
         {
@@ -795,8 +857,8 @@
           "cfg": {
             "nodes": [
               {
-                "id": 115,
-                "stmtID": 1958,
+                "id": 119,
+                "stmtID": 2005,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -809,87 +871,87 @@
           "cfg": {
             "nodes": [
               {
-                "id": 116,
-                "stmtID": 1965,
+                "id": 120,
+                "stmtID": 2012,
                 "srcEdges": [],
                 "dstEdges": [
-                  101
+                  105
                 ]
               },
               {
-                "id": 117,
-                "stmtID": 1972,
+                "id": 121,
+                "stmtID": 2019,
                 "srcEdges": [
-                  101
+                  105
                 ],
                 "dstEdges": [
-                  102
+                  106
                 ]
               },
               {
-                "id": 118,
-                "stmtID": 1979,
+                "id": 122,
+                "stmtID": 2026,
                 "srcEdges": [
-                  102
+                  106
                 ],
                 "dstEdges": [
-                  103
+                  107
                 ]
               },
               {
-                "id": 119,
-                "stmtID": 1978,
+                "id": 123,
+                "stmtID": 2025,
                 "srcEdges": [
-                  103
+                  107
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 101,
-                "src": 116,
-                "dst": 117
+                "id": 105,
+                "src": 120,
+                "dst": 121
               },
               {
-                "id": 102,
-                "src": 117,
-                "dst": 118
+                "id": 106,
+                "src": 121,
+                "dst": 122
               },
               {
-                "id": 103,
-                "src": 118,
-                "dst": 119
+                "id": 107,
+                "src": 122,
+                "dst": 123
               }
             ]
           }
         },
         {
-          "name": "EffectTest.receive_internal_fallback_1990",
+          "name": "EffectTest.receive_internal_fallback_2037",
           "cfg": {
             "nodes": [
               {
-                "id": 120,
-                "stmtID": 1984,
+                "id": 124,
+                "stmtID": 2031,
                 "srcEdges": [],
                 "dstEdges": [
-                  104
+                  108
                 ]
               },
               {
-                "id": 121,
-                "stmtID": 1989,
+                "id": 125,
+                "stmtID": 2036,
                 "srcEdges": [
-                  104
+                  108
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 104,
-                "src": 120,
-                "dst": 121
+                "id": 108,
+                "src": 124,
+                "dst": 125
               }
             ]
           }
