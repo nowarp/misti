@@ -3,38 +3,36 @@ digraph "CallGraph" {
     node_13 [label="inline fun contractAddress(s: StateInit): Address"];
     node_15 [label="fun send(params: SendParameters): Int"];
     node_17 [label="init(owner: Address, content: Cell, max_supply: Int)
-[StateWrite<totalSupply,max_supply,owner,mintable,content}>]"];
+[StateWrite<totalSupply,max_supply,owner,mintable,content>]"];
     node_18 [label="receive(msg: Mint)
-[StateRead<owner,mintable}>]"];
+[StateRead<owner,mintable>]"];
     node_19 [label="receive('Mint: 100')
-[StateRead<mintable,owner}>]"];
+[StateRead<mintable,owner>]"];
     node_20 [label="receive('Owner: MintClose')
-[StateRead<owner}>,StateWrite<mintable}>]"];
+[StateRead<owner>,StateWrite<mintable>]"];
     node_21 [label="init(master: Address, owner: Address)
-[StateWrite<balance,owner,master}>]"];
+[StateWrite<balance,owner,master>]"];
     node_22 [label="receive(msg: TokenTransfer)
-[Send,StateRead<owner,gasConsumption,minTonsForStorage,balance,master}>,StateWrite<balance}>]"];
+[Send,StateRead<owner,gasConsumption,minTonsForStorage,balance,master>,StateWrite<balance>]"];
     node_23 [label="receive(msg: TokenTransferInternal)
-[Send,StateRead<master,balance,owner}>,StateWrite<balance}>]"];
+[Send,StateRead<master,balance,owner>,StateWrite<balance>]"];
     node_24 [label="get fun msgValue(value: Int): Int
-[StateRead<minTonsForStorage}>]"];
+[StateRead<minTonsForStorage>]"];
     node_25 [label="receive(msg: TokenBurn)
-[Send,StateRead<owner,balance,gasConsumption,minTonsForStorage,master}>,StateWrite<balance}>]"];
+[Send,StateRead<owner,balance,gasConsumption,minTonsForStorage,master>,StateWrite<balance>]"];
     node_26 [label="bounced(msg: Slice)
-[StateWrite<balance}>]"];
+[StateWrite<balance>]"];
     node_27 [label="get fun get_wallet_data(): JettonWalletData
-[StateRead<balance,owner,master}>]"];
+[StateRead<balance,owner,master>]"];
     node_28 [label="context"];
     node_29 [label="require"];
-    node_30 [label="mint"];
+    node_30 [label="SampleJetton::mint"];
     node_31 [label="ctx::readForwardFee"];
     node_32 [label="min"];
     node_33 [label="ton"];
-    node_34 [label="toCell"];
-    node_35 [label="msgValue"];
-    node_36 [label="myBalance"];
-    node_37 [label="msg::loadUint"];
-    node_38 [label="msg::loadCoins"];
+    node_34 [label="myBalance"];
+    node_35 [label="msg::loadUint"];
+    node_36 [label="msg::loadCoins"];
     node_18 -> node_28;
     node_18 -> node_29;
     node_18 -> node_29;
@@ -54,18 +52,15 @@ digraph "CallGraph" {
     node_22 -> node_29;
     node_22 -> node_13;
     node_22 -> node_15;
-    node_22 -> node_34;
     node_23 -> node_28;
     node_23 -> node_29;
     node_23 -> node_13;
     node_23 -> node_29;
     node_23 -> node_15;
-    node_23 -> node_34;
-    node_23 -> node_35;
+    node_23 -> node_24;
     node_23 -> node_31;
     node_23 -> node_15;
-    node_23 -> node_34;
-    node_24 -> node_36;
+    node_24 -> node_34;
     node_24 -> node_32;
     node_25 -> node_28;
     node_25 -> node_29;
@@ -73,9 +68,8 @@ digraph "CallGraph" {
     node_25 -> node_31;
     node_25 -> node_29;
     node_25 -> node_15;
-    node_25 -> node_34;
-    node_26 -> node_37;
-    node_26 -> node_37;
-    node_26 -> node_38;
+    node_26 -> node_35;
+    node_26 -> node_35;
+    node_26 -> node_36;
     node_26 -> node_29;
 }

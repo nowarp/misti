@@ -169,10 +169,10 @@ function getEffectsTooltip(node: CGNode): string {
     Array.from(node.stateAccess.get(status)!).join(",");
   if (effects & Effect.Send) effectsList.push("Send");
   if (effects & Effect.StateRead) {
-    effectsList.push(`StateRead<${getFieldsString("read")}}>`);
+    effectsList.push(`StateRead<${getFieldsString("read")}>`);
   }
   if (effects & Effect.StateWrite) {
-    effectsList.push(`StateWrite<${getFieldsString("write")}}>`);
+    effectsList.push(`StateWrite<${getFieldsString("write")}>`);
   }
   if (effects & Effect.AccessDatetime) effectsList.push("AccessDatetime");
   if (effects & Effect.PrgUse) effectsList.push("PrgUse");
