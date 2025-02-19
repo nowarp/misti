@@ -349,10 +349,7 @@ export class CallGraph {
             declaration.kind === "contract_init" ||
             declaration.kind === "receiver"
           ) {
-            const func = declaration as
-              | AstFunctionDef
-              | AstContractInit
-              | AstReceiver;
+            const func = declaration;
             const funcNodeId = this.astIdToNodeId.get(func.id);
             if (funcNodeId !== undefined) {
               const funcNode = this.getNode(funcNodeId);
