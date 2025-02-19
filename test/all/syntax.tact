@@ -97,11 +97,22 @@ fun testLoops() {
     }
 }
 
+struct S {
+    b: Builder;
+}
+
 // Test callgraph effects
 contract EffectTest {
     addr: Address;
+    b: Builder;
+    s: S;
+
     // Effect.StateWrite
-    init() { self.addr = sender(); }
+    init() {
+        self.addr = sender();
+        self.b = beginCell();
+        self.s = S{ b: beginCell() };
+    }
 
     // Effect.Send + Effect.StateRead
     fun funcWithSend() {
@@ -117,6 +128,8 @@ contract EffectTest {
     // Effect.StateWrite
     fun funcWithStateWrite1() {
         self.addr = newAddress(0, 0);
+        self.b.storeAddress(self.addr);
+        self.s.b.storeAddress(self.addr);
     }
     fun funcWithStateWrite2(s: Slice): Address {
         return s.loadAddress();

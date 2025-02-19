@@ -2,7 +2,12 @@ import { Tool } from "./tool";
 import { ToolOutput } from "../cli/result";
 import { MistiContext } from "../internals/context";
 import { CompilationUnit, AstStore } from "../internals/ir";
-import { CallGraph, CGNode, Effect } from "../internals/ir/callGraph";
+import {
+  CallGraph,
+  CGNode,
+  Effect,
+  StateKind,
+} from "../internals/ir/callGraph";
 import { unreachable } from "../internals/util";
 import JSONbig from "json-bigint";
 
@@ -90,7 +95,7 @@ class MermaidDumper {
         /"/g,
         "'",
       );
-      const effects = getEffectsTooltip(node.effects);
+      const effects = getEffectsTooltip(node);
       diagram += `    ${nodeId}["${label}${effects}"]\n`;
     });
     callGraph.getEdges().forEach((edge) => {
@@ -118,7 +123,7 @@ class GraphvizDumper {
         /"/g,
         "'",
       );
-      const effects = getEffectsTooltip(node.effects);
+      const effects = getEffectsTooltip(node);
       dot += `    ${nodeId} [label="${label}${effects}"];\n`;
     });
     callGraph.getEdges().forEach((edge) => {
@@ -156,12 +161,19 @@ class JSONDumper {
   }
 }
 
-function getEffectsTooltip(effects: number): string {
+function getEffectsTooltip(node: CGNode): string {
+  const effects = node.effects;
   if (effects === 0) return "";
   const effectsList = [];
+  const getFieldsString = (status: StateKind): string =>
+    Array.from(node.stateAccess.get(status)!).join(",");
   if (effects & Effect.Send) effectsList.push("Send");
-  if (effects & Effect.StateRead) effectsList.push("StateRead");
-  if (effects & Effect.StateWrite) effectsList.push("StateWrite");
+  if (effects & Effect.StateRead) {
+    effectsList.push(`StateRead<${getFieldsString("read")}}>`);
+  }
+  if (effects & Effect.StateWrite) {
+    effectsList.push(`StateWrite<${getFieldsString("write")}}>`);
+  }
   if (effects & Effect.AccessDatetime) effectsList.push("AccessDatetime");
   if (effects & Effect.PrgUse) effectsList.push("PrgUse");
   if (effects & Effect.PrgSeedInit) effectsList.push("PrgSeedInit");

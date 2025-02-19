@@ -2,27 +2,27 @@ graph TD
     node_13["inline fun contractAddress(s: StateInit): Address"]
     node_15["fun send(params: SendParameters): Int"]
     node_17["init(owner: Address, content: Cell, max_supply: Int)
-[StateWrite]"]
+[StateWrite<totalSupply,max_supply,owner,mintable,content}>]"]
     node_18["receive(msg: Mint)
-[StateRead]"]
+[StateRead<owner,mintable}>]"]
     node_19["receive('Mint: 100')
-[StateRead]"]
+[StateRead<mintable,owner}>]"]
     node_20["receive('Owner: MintClose')
-[StateRead,StateWrite]"]
+[StateRead<owner}>,StateWrite<mintable}>]"]
     node_21["init(master: Address, owner: Address)
-[StateWrite]"]
+[StateWrite<balance,owner,master}>]"]
     node_22["receive(msg: TokenTransfer)
-[Send,StateRead,StateWrite]"]
+[Send,StateRead<owner,gasConsumption,minTonsForStorage,balance,master}>,StateWrite<balance}>]"]
     node_23["receive(msg: TokenTransferInternal)
-[Send,StateRead,StateWrite]"]
+[Send,StateRead<master,balance,owner}>,StateWrite<balance}>]"]
     node_24["get fun msgValue(value: Int): Int
-[StateRead]"]
+[StateRead<minTonsForStorage}>]"]
     node_25["receive(msg: TokenBurn)
-[Send,StateRead,StateWrite]"]
+[Send,StateRead<owner,balance,gasConsumption,minTonsForStorage,master}>,StateWrite<balance}>]"]
     node_26["bounced(msg: Slice)
-[StateWrite]"]
+[StateWrite<balance}>]"]
     node_27["get fun get_wallet_data(): JettonWalletData
-[StateRead]"]
+[StateRead<balance,owner,master}>]"]
     node_28["context"]
     node_29["require"]
     node_30["mint"]
