@@ -420,10 +420,6 @@ export class CallGraph {
       if (functionName) {
         const calleeId = this.findOrAddFunction(functionName);
         this.addEdge(callerId, calleeId);
-      } else {
-        this.logger.debug(
-          `Call expression missing function name at caller: ${pp(expr)}`,
-        );
       }
     }
 
