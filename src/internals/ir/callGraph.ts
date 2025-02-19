@@ -115,7 +115,7 @@ export class CGNode {
   }
 
   /**
-   * @param fields Names of contract fileds accessed or modified by the effect.
+   * @param fields Names of contract fields accessed or modified by the effect.
    */
   public addEffect(effect: Effect, fields?: string[]) {
     this.effects |= effect;
