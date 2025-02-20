@@ -15,6 +15,8 @@ interface DumpCallGraphOptions extends Record<string, unknown> {
   format: "dot" | "json" | "mmd";
 }
 
+const STDLIB_COLOR = "#F0F8FF";
+
 /**
  * Checks if the node represents any information to be shown on graphic dumps.
  */
@@ -88,6 +90,7 @@ class MermaidDumper {
       return 'graph TD\n    empty["Empty Call Graph"]';
     }
     let diagram = "graph TD\n";
+    let styles = "";
     callGraph.getNodes().forEach((node) => {
       if (!shouldBeShown(node)) return;
       const nodeId = `node_${node.idx}`;
@@ -97,13 +100,16 @@ class MermaidDumper {
       );
       const effects = getEffectsTooltip(node);
       diagram += `    ${nodeId}["${label}${effects}"]\n`;
+      if (node.loc?.origin === "stdlib") {
+        styles += `    style ${nodeId} fill:${STDLIB_COLOR},stroke:#000,stroke-width:1px;\n`;
+      }
     });
     callGraph.getEdges().forEach((edge) => {
       const srcId = `node_${edge.src}`;
       const dstId = `node_${edge.dst}`;
       diagram += `    ${srcId} --> ${dstId}\n`;
     });
-    return diagram;
+    return diagram + styles;
   }
 }
 
@@ -124,7 +130,11 @@ class GraphvizDumper {
         "'",
       );
       const effects = getEffectsTooltip(node);
-      dot += `    ${nodeId} [label="${label}${effects}"];\n`;
+      if (node.loc?.origin === "stdlib") {
+        dot += `    ${nodeId} [label="${label}${effects}" style=filled fillcolor="${STDLIB_COLOR}"];\n`;
+      } else {
+        dot += `    ${nodeId} [label="${label}${effects}"];\n`;
+      }
     });
     callGraph.getEdges().forEach((edge) => {
       const srcId = `node_${edge.src}`;

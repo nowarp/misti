@@ -1,7 +1,7 @@
 digraph "CallGraph" {
     node [shape=box];
-    node_13 [label="inline fun contractAddress(s: StateInit): Address"];
-    node_15 [label="fun send(params: SendParameters): Int"];
+    node_13 [label="inline fun contractAddress(s: StateInit): Address" style=filled fillcolor="#F0F8FF"];
+    node_15 [label="fun send(params: SendParameters): Int" style=filled fillcolor="#F0F8FF"];
     node_17 [label="init(owner: Address, content: Cell, max_supply: Int)
 [StateWrite<totalSupply,max_supply,owner,mintable,content>]"];
     node_18 [label="receive(msg: Mint)

@@ -1,7 +1,7 @@
 digraph "CallGraph" {
     node [shape=box];
-    node_12 [label="inline fun random(min: Int, max: Int): Int"];
-    node_15 [label="fun send(params: SendParameters): Int"];
+    node_12 [label="inline fun random(min: Int, max: Int): Int" style=filled fillcolor="#F0F8FF"];
+    node_15 [label="fun send(params: SendParameters): Int" style=filled fillcolor="#F0F8FF"];
     node_17 [label="fun test_try(a: Int)"];
     node_18 [label="fun test_loops()"];
     node_19 [label="fun testTryCatch(a: Int)"];
