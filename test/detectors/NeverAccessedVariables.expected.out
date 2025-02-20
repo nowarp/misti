@@ -4,7 +4,7 @@ test/detectors/NeverAccessedVariables.tact:31:5:
 > 31 |     f2: Int as uint256 = 0;
            ^
   32 |     foreachmap: map<Address, Address>;
-Help: Consider creating a constant instead of field
+Help: Consider removing the field
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
 [MEDIUM] NeverAccessedVariables: Write-only variable: a

@@ -200,7 +200,7 @@ export class NeverAccessedVariables extends DataflowDetector {
         return acc;
       }
       const err = this.makeWarning(`Field ${name} is never used`, ref, {
-        suggestion: "Consider creating a constant instead of field",
+        suggestion: "Consider removing the field",
       });
       acc.push(err);
       return acc;
