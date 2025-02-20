@@ -7,8 +7,6 @@ import { AstDetector } from "../detector";
 import {
   AstStatement,
   AstExpression,
-  AstStaticCall,
-  AstMethodCall,
   AstContract,
   SrcInfo,
 } from "@tact-lang/compiler/dist/grammar/ast";
@@ -107,8 +105,8 @@ export class SendInLoop extends AstDetector {
       stmt,
       (acc: MistiTactWarning[], expr: AstExpression) => {
         if (expr.kind === "static_call" || expr.kind === "method_call") {
-          const calleeName = callGraph.getFunctionCallName(
-            expr as AstStaticCall | AstMethodCall,
+          const calleeName = CallGraph.getFunctionCallName(
+            expr,
             currentContractName,
           );
           if (calleeName === undefined) {

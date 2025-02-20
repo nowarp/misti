@@ -13,14 +13,13 @@ import {
   FunctionName,
   ImportGraph,
   ProjectName,
-  AstStore,
 } from "..";
+import { AstStoreBuilder } from "./astStore";
+import { TactCallGraphBuilder } from "./callgraph";
 import { MistiContext } from "../../context";
 import { InternalException } from "../../exceptions";
 import { formatPosition } from "../../tact";
 import { unreachable } from "../../util";
-import { CallGraph } from "../callGraph";
-import { AstStoreBuilder } from "./astStore";
 import {
   AstContractDeclaration,
   AstExpression,
@@ -55,17 +54,6 @@ function generateReceiveName(receive: AstReceiver): string {
   }
 }
 
-export class TactCallGraphBuilder {
-  /**
-   * Builds a CallGraph for the provided AST Store.
-   * @param astStore The AstStore containing AST nodes and function definitions.
-   * @returns A CallGraph instance built from the AST nodes.
-   */
-  static make(ctx: MistiContext, astStore: AstStore): CallGraph {
-    const callGraph = new CallGraph(ctx);
-    return callGraph.build(astStore);
-  }
-}
 /**
  * Represents a stateful object which is responsible for constructing the IR of a Tact project.
  *
@@ -112,7 +100,7 @@ export class TactIRBuilder {
     const functions = this.createFunctions();
     const contracts = this.createContracts();
     const tactASTStore = AstStoreBuilder.make(this.ctx, this.ast).build();
-    const callGraph = TactCallGraphBuilder.make(this.ctx, tactASTStore);
+    const callGraph = TactCallGraphBuilder.make(this.ctx, tactASTStore).build();
     return new CompilationUnit(
       this.projectName,
       AstStoreBuilder.make(this.ctx, this.ast).build(),
