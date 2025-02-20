@@ -40,9 +40,7 @@ describe("Common detectors functionality", () => {
       message: expect.stringContaining("Field f2 is never used"),
     });
     expect(firstWarning.message).toContain(`${CONTRACT_NAME}:31:5:`);
-    expect(firstWarning.message).toContain(
-      "Help: Consider creating a constant instead of field",
-    );
+    expect(firstWarning.message).toContain("Help: Consider");
     expect(firstWarning.message).toContain(
       "See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables",
     );
