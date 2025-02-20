@@ -22,7 +22,7 @@ misti path/to/src/contracts
 See [Misti Configuration](https://nowarp.io/tools/misti/docs/tutorial/getting-started/) for available options, or [Developing Misti](https://nowarp.io/tools/misti/docs/next/hacking/developing-misti) for advanced instructions. Blueprint users should refer to the [appropriate documentation page](https://nowarp.io/tools/misti/docs/tutorial/blueprint).
 
 ## Resources
-- **[nowarp.io](https://nowarp.io)**: We are doing other stuff beyond Misti.
+- **[nowarp.io](https://nowarp.io)**: We are doing other TON Security stuff beyond Misti.
 - **[Documentation](https://nowarp.io/tools/misti/docs)**: Comprehensive guide on detectors, architecture, and development.
 - **[API Reference](https://nowarp.io/tools/misti/api)**: Useful for contributors or developers creating custom detectors.
 - **[Blueprint Plugin](https://github.com/nowarp/blueprint-misti)**: A plugin for the Blueprint Framework to enhance your workflow.
