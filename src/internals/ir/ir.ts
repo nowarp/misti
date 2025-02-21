@@ -191,7 +191,7 @@ export abstract class TraitContract {
   ) {
     this.idx = idx
       ? idx
-      : (IdxGenerator.next("ir_traitcontract") as TraitContractIdx);
+      : (IdxGenerator.next("ir_trait_contract") as TraitContractIdx);
   }
 
   /**
