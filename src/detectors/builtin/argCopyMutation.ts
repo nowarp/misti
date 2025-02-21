@@ -60,14 +60,19 @@ export class ArgCopyMutation extends AstDetector {
       if (fun.kind === "contract_init" || fun.kind === "function_def") {
         this.collectMutations(fun).forEach((argMutationStatements, argName) => {
           // If all the return statements use the modified argument, it won't be reported
-          if (
-            fun.kind === "function_def" &&
-            this.usedInAllReturns(
-              argName,
-              returnStatements.get(idText(fun.name) as FunctionName)!,
-            )
-          ) {
-            return;
+          if (fun.kind === "function_def") {
+            const funReturns = returnStatements.get(
+              idText(fun.name) as FunctionName,
+            )!;
+            if (funReturns === undefined) {
+              this.ctx.logger.error(
+                `Cannot find return statements: ${idText(fun.name)}`,
+              );
+              return;
+            }
+            if (this.usedInAllReturns(argName, funReturns)) {
+              return; // OK
+            }
           }
           const occurrencesStr =
             argMutationStatements.length > 1
@@ -123,25 +128,29 @@ export class ArgCopyMutation extends AstDetector {
   private collectReturnStatements(
     cu: CompilationUnit,
   ): Map<FunctionName, AstStatement[]> {
-    return cu.foldCFGs(new Map<FunctionName, AstStatement[]>(), (acc, cfg) => {
-      acc.set(
-        cfg.name,
-        cfg.getExitNodes().reduce((acc, bb) => {
-          const stmt = cu.ast.getStatement(bb.stmtID);
-          if (!stmt) {
-            throw InternalException.make(
-              `Cannot find a statement for BB #${bb.idx}`,
-            );
-          }
-          // Filter out throw statements
-          if (stmt.kind === "statement_return") {
-            acc.push(stmt);
-          }
-          return acc;
-        }, [] as AstStatement[]),
-      );
-      return acc;
-    });
+    return cu.foldCFGs(
+      new Map<FunctionName, AstStatement[]>(),
+      (acc, cfg) => {
+        acc.set(
+          cfg.name,
+          cfg.getExitNodes().reduce((acc, bb) => {
+            const stmt = cu.ast.getStatement(bb.stmtID);
+            if (!stmt) {
+              throw InternalException.make(
+                `Cannot find a statement for BB #${bb.idx}`,
+              );
+            }
+            // Filter out throw statements
+            if (stmt.kind === "statement_return") {
+              acc.push(stmt);
+            }
+            return acc;
+          }, [] as AstStatement[]),
+        );
+        return acc;
+      },
+      { includeStdlib: false },
+    );
   }
 
   /**

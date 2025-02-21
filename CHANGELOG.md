@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CellBounds`: Infinite recursion: PR [#272](https://github.com/nowarp/misti/pull/272)
 - Callgraph: Incorrect processing of `Effect.StateWrite` for cells: PR [#279](https://github.com/nowarp/misti/pull/279)
 - Callgraph: Incorrect handling of getter methods: PR [#282](https://github.com/nowarp/misti/pull/282)
+- `ArgCopyMutation`: Incorrect handling of `return` in traits: Issue [#290](https://github.com/nowarp/misti/issues/290)
 
 ## [0.6.2] - 2024-12-25
 
