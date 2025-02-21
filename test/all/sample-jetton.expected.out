@@ -1,3 +1,13 @@
+[HIGH] ExitCodeUsage: Value is outside allowed range
+node_modules/@tact-lang/compiler/stdlib/libs/ownable.tact:16:27:
+  15 |     fun requireOwner() {
+> 16 |         nativeThrowUnless(132, sender() == self.owner);
+                                 ^
+  17 |     }
+Exit codes 0-255 are reserved. Used value: 132
+Help: Use a value between 256 and 65535
+See: https://nowarp.io/tools/misti/docs/detectors/ExitCodeUsage
+
 [MEDIUM] NeverAccessedVariables: Variable queryId is never accessed
 test/all/sample-jetton.tact:312:9:
   311 |         let op: Int = msg.loadUint(32);

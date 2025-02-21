@@ -69,7 +69,7 @@ export class CompilationUnit {
   public findCfgByIdx(idx: CfgIdx): Cfg | undefined {
     const funCfg = this.functions.get(idx);
     if (funCfg) return funCfg;
-    return Array.from(this.contracts.values())
+    return Array.from(this.getContractsTraits().values())
       .map((contract) => contract.methods.get(idx))
       .find((cfg) => cfg !== undefined);
   }
@@ -90,7 +90,7 @@ export class CompilationUnit {
     contractName: ContractName,
     methodName: FunctionName,
   ): Cfg | undefined {
-    const contract = Array.from(this.contracts.values()).find(
+    const contract = Array.from(this.getContractsTraits().values()).find(
       (contract) => contract.name === contractName,
     );
     if (!contract) {
@@ -117,7 +117,7 @@ export class CompilationUnit {
       }
       callback(cfg);
     });
-    this.contracts.forEach((contract) => {
+    this.getContractsTraits({ includeStdlib }).forEach((contract) => {
       contract.methods.forEach((cfg, _) => {
         callback(cfg);
       });
@@ -132,12 +132,16 @@ export class CompilationUnit {
    *                 and returns a new accumulator value.
    * @returns The final accumulated value.
    */
-  public foldCFGs<T>(init: T, callback: (acc: T, cfg: Cfg) => T): T {
+  public foldCFGs<T>(
+    init: T,
+    callback: (acc: T, cfg: Cfg) => T,
+    { includeStdlib = true }: Partial<{ includeStdlib: boolean }> = {},
+  ): T {
     let acc = init;
     this.functions.forEach((cfg) => {
       acc = callback(acc, cfg);
     });
-    this.contracts.forEach((contract) => {
+    this.getContractsTraits({ includeStdlib }).forEach((contract) => {
       contract.methods.forEach((cfg) => {
         acc = callback(acc, cfg);
       });
@@ -155,6 +159,7 @@ export class CompilationUnit {
   public forEachBasicBlock(
     astStore: AstStore,
     callback: (cfg: Cfg, node: BasicBlock, stmt: AstStatement) => void,
+    { includeStdlib = true }: Partial<{ includeStdlib: boolean }> = {},
   ) {
     // Iterate over all functions' CFGs
     this.functions.forEach((cfg, _) => {
@@ -164,7 +169,7 @@ export class CompilationUnit {
     });
 
     // Iterate over all contracts and their methods' CFGs
-    this.contracts.forEach((contract) => {
+    this.getContractsTraits({ includeStdlib }).forEach((contract) => {
       contract.methods.forEach((cfg, _) => {
         cfg.forEachBasicBlock(astStore, (stmt, node) => {
           callback(cfg, node, stmt);
