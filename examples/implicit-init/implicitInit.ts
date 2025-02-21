@@ -31,15 +31,18 @@ export class ImplicitInit extends AstDetector {
   severity = Severity.INFO;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
-    return Array.from(cu.contracts).reduce((foundErrors, [_, contract]) => {
-      if (!cu.findMethodCFGByName(contract.name, "init" as FunctionName)) {
-        const err = this.makeWarning(
-          `Contract ${contract.name} doesn't define an init function`,
-          contract.ref,
-        );
-        foundErrors.push(err);
-      }
-      return foundErrors;
-    }, [] as MistiTactWarning[]);
+    return Array.from(cu.getContracts()).reduce(
+      (foundErrors, [_, contract]) => {
+        if (!cu.findMethodCFGByName(contract.name, "init" as FunctionName)) {
+          const err = this.makeWarning(
+            `Contract ${contract.name} doesn't define an init function`,
+            contract.loc,
+          );
+          foundErrors.push(err);
+        }
+        return foundErrors;
+      },
+      [] as MistiTactWarning[],
+    );
   }
 }

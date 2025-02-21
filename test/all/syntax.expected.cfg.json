@@ -666,7 +666,7 @@
           "cfg": {
             "nodes": [
               {
-                "id": 108,
+                "id": 125,
                 "stmtID": 1662,
                 "srcEdges": [],
                 "dstEdges": []
@@ -697,7 +697,7 @@
           "cfg": {
             "nodes": [
               {
-                "id": 109,
+                "id": 128,
                 "stmtID": 1720,
                 "srcEdges": [],
                 "dstEdges": []
@@ -723,42 +723,42 @@
           "cfg": {
             "nodes": [
               {
-                "id": 110,
+                "id": 129,
                 "stmtID": 1923,
                 "srcEdges": [],
                 "dstEdges": [
-                  100
+                  114
                 ]
               },
               {
-                "id": 111,
+                "id": 130,
                 "stmtID": 1929,
                 "srcEdges": [
-                  100
+                  114
                 ],
                 "dstEdges": [
-                  101
+                  115
                 ]
               },
               {
-                "id": 112,
+                "id": 131,
                 "stmtID": 1939,
                 "srcEdges": [
-                  101
+                  115
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 100,
-                "src": 110,
-                "dst": 111
+                "id": 114,
+                "src": 129,
+                "dst": 130
               },
               {
-                "id": 101,
-                "src": 111,
-                "dst": 112
+                "id": 115,
+                "src": 130,
+                "dst": 131
               }
             ]
           }
@@ -768,27 +768,27 @@
           "cfg": {
             "nodes": [
               {
-                "id": 113,
+                "id": 132,
                 "stmtID": 1945,
                 "srcEdges": [],
                 "dstEdges": [
-                  102
+                  116
                 ]
               },
               {
-                "id": 114,
+                "id": 133,
                 "stmtID": 1958,
                 "srcEdges": [
-                  102
+                  116
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 102,
-                "src": 113,
-                "dst": 114
+                "id": 116,
+                "src": 132,
+                "dst": 133
               }
             ]
           }
@@ -798,7 +798,7 @@
           "cfg": {
             "nodes": [
               {
-                "id": 115,
+                "id": 134,
                 "stmtID": 1965,
                 "srcEdges": [],
                 "dstEdges": []
@@ -812,42 +812,42 @@
           "cfg": {
             "nodes": [
               {
-                "id": 116,
+                "id": 135,
                 "stmtID": 1975,
                 "srcEdges": [],
                 "dstEdges": [
-                  103
+                  117
                 ]
               },
               {
-                "id": 117,
+                "id": 136,
                 "stmtID": 1984,
                 "srcEdges": [
-                  103
+                  117
                 ],
                 "dstEdges": [
-                  104
+                  118
                 ]
               },
               {
-                "id": 118,
+                "id": 137,
                 "stmtID": 1995,
                 "srcEdges": [
-                  104
+                  118
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 103,
-                "src": 116,
-                "dst": 117
+                "id": 117,
+                "src": 135,
+                "dst": 136
               },
               {
-                "id": 104,
-                "src": 117,
-                "dst": 118
+                "id": 118,
+                "src": 136,
+                "dst": 137
               }
             ]
           }
@@ -857,7 +857,7 @@
           "cfg": {
             "nodes": [
               {
-                "id": 119,
+                "id": 138,
                 "stmtID": 2005,
                 "srcEdges": [],
                 "dstEdges": []
@@ -871,57 +871,57 @@
           "cfg": {
             "nodes": [
               {
-                "id": 120,
+                "id": 139,
                 "stmtID": 2012,
                 "srcEdges": [],
                 "dstEdges": [
-                  105
+                  119
                 ]
               },
               {
-                "id": 121,
+                "id": 140,
                 "stmtID": 2019,
                 "srcEdges": [
-                  105
+                  119
                 ],
                 "dstEdges": [
-                  106
+                  120
                 ]
               },
               {
-                "id": 122,
+                "id": 141,
                 "stmtID": 2026,
                 "srcEdges": [
-                  106
+                  120
                 ],
                 "dstEdges": [
-                  107
+                  121
                 ]
               },
               {
-                "id": 123,
+                "id": 142,
                 "stmtID": 2025,
                 "srcEdges": [
-                  107
+                  121
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 105,
-                "src": 120,
-                "dst": 121
+                "id": 119,
+                "src": 139,
+                "dst": 140
               },
               {
-                "id": 106,
-                "src": 121,
-                "dst": 122
+                "id": 120,
+                "src": 140,
+                "dst": 141
               },
               {
-                "id": 107,
-                "src": 122,
-                "dst": 123
+                "id": 121,
+                "src": 141,
+                "dst": 142
               }
             ]
           }
@@ -931,27 +931,27 @@
           "cfg": {
             "nodes": [
               {
-                "id": 124,
+                "id": 143,
                 "stmtID": 2031,
                 "srcEdges": [],
                 "dstEdges": [
-                  108
+                  122
                 ]
               },
               {
-                "id": 125,
+                "id": 144,
                 "stmtID": 2036,
                 "srcEdges": [
-                  108
+                  122
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 108,
-                "src": 124,
-                "dst": 125
+                "id": 122,
+                "src": 143,
+                "dst": 144
               }
             ]
           }
@@ -966,7 +966,7 @@
           "cfg": {
             "nodes": [
               {
-                "id": 126,
+                "id": 145,
                 "stmtID": 2071,
                 "srcEdges": [],
                 "dstEdges": []
@@ -980,41 +980,91 @@
           "cfg": {
             "nodes": [
               {
-                "id": 127,
+                "id": 146,
                 "stmtID": 2082,
                 "srcEdges": [
-                  110
+                  124
                 ],
                 "dstEdges": [
-                  109
+                  123
                 ]
               },
               {
-                "id": 128,
+                "id": 147,
                 "stmtID": 2081,
                 "srcEdges": [
-                  109
+                  123
                 ],
                 "dstEdges": [
-                  110
+                  124
                 ]
               }
             ],
             "edges": [
               {
-                "id": 109,
-                "src": 127,
-                "dst": 128
+                "id": 123,
+                "src": 146,
+                "dst": 147
               },
               {
-                "id": 110,
-                "src": 128,
-                "dst": 127
+                "id": 124,
+                "src": 147,
+                "dst": 146
               }
             ]
           }
         }
       ]
+    },
+    {
+      "name": "BaseTrait",
+      "methods": []
+    },
+    {
+      "name": "T",
+      "methods": []
+    },
+    {
+      "name": "Z",
+      "methods": [
+        {
+          "name": "Z.getter",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 126,
+                "stmtID": 1681,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "TParent",
+      "methods": [
+        {
+          "name": "TParent.getA",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 127,
+                "stmtID": 1701,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "TChild",
+      "methods": []
     }
   ]
 }

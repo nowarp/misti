@@ -10,72 +10,72 @@
           "cfg": {
             "nodes": [
               {
-                "id": 68,
+                "id": 90,
                 "stmtID": 1796,
                 "srcEdges": [],
                 "dstEdges": [
-                  57
+                  73
                 ]
               },
               {
-                "id": 69,
+                "id": 91,
                 "stmtID": 1801,
                 "srcEdges": [
-                  57
+                  73
                 ],
                 "dstEdges": [
-                  58
+                  74
                 ]
               },
               {
-                "id": 70,
+                "id": 92,
                 "stmtID": 1806,
                 "srcEdges": [
-                  58
+                  74
                 ],
                 "dstEdges": [
-                  59
+                  75
                 ]
               },
               {
-                "id": 71,
+                "id": 93,
                 "stmtID": 1811,
                 "srcEdges": [
-                  59
+                  75
                 ],
                 "dstEdges": [
-                  60
+                  76
                 ]
               },
               {
-                "id": 72,
+                "id": 94,
                 "stmtID": 1816,
                 "srcEdges": [
-                  60
+                  76
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 57,
-                "src": 68,
-                "dst": 69
+                "id": 73,
+                "src": 90,
+                "dst": 91
               },
               {
-                "id": 58,
-                "src": 69,
-                "dst": 70
+                "id": 74,
+                "src": 91,
+                "dst": 92
               },
               {
-                "id": 59,
-                "src": 70,
-                "dst": 71
+                "id": 75,
+                "src": 92,
+                "dst": 93
               },
               {
-                "id": 60,
-                "src": 71,
-                "dst": 72
+                "id": 76,
+                "src": 93,
+                "dst": 94
               }
             ]
           }
@@ -85,57 +85,57 @@
           "cfg": {
             "nodes": [
               {
-                "id": 73,
+                "id": 95,
                 "stmtID": 1825,
                 "srcEdges": [],
                 "dstEdges": [
-                  61
+                  77
                 ]
               },
               {
-                "id": 74,
+                "id": 96,
                 "stmtID": 1836,
                 "srcEdges": [
-                  61
+                  77
                 ],
                 "dstEdges": [
-                  62
+                  78
                 ]
               },
               {
-                "id": 75,
+                "id": 97,
                 "stmtID": 1843,
                 "srcEdges": [
-                  62
+                  78
                 ],
                 "dstEdges": [
-                  63
+                  79
                 ]
               },
               {
-                "id": 76,
+                "id": 98,
                 "stmtID": 1856,
                 "srcEdges": [
-                  63
+                  79
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 61,
-                "src": 73,
-                "dst": 74
+                "id": 77,
+                "src": 95,
+                "dst": 96
               },
               {
-                "id": 62,
-                "src": 74,
-                "dst": 75
+                "id": 78,
+                "src": 96,
+                "dst": 97
               },
               {
-                "id": 63,
-                "src": 75,
-                "dst": 76
+                "id": 79,
+                "src": 97,
+                "dst": 98
               }
             ]
           }
@@ -145,42 +145,42 @@
           "cfg": {
             "nodes": [
               {
-                "id": 77,
+                "id": 99,
                 "stmtID": 1863,
                 "srcEdges": [],
                 "dstEdges": [
-                  64
+                  80
                 ]
               },
               {
-                "id": 78,
+                "id": 100,
                 "stmtID": 1870,
                 "srcEdges": [
-                  64
+                  80
                 ],
                 "dstEdges": [
-                  65
+                  81
                 ]
               },
               {
-                "id": 79,
+                "id": 101,
                 "stmtID": 1881,
                 "srcEdges": [
-                  65
+                  81
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 64,
-                "src": 77,
-                "dst": 78
+                "id": 80,
+                "src": 99,
+                "dst": 100
               },
               {
-                "id": 65,
-                "src": 78,
-                "dst": 79
+                "id": 81,
+                "src": 100,
+                "dst": 101
               }
             ]
           }
@@ -190,42 +190,42 @@
           "cfg": {
             "nodes": [
               {
-                "id": 80,
+                "id": 102,
                 "stmtID": 1888,
                 "srcEdges": [],
                 "dstEdges": [
-                  66
+                  82
                 ]
               },
               {
-                "id": 81,
+                "id": 103,
                 "stmtID": 1899,
                 "srcEdges": [
-                  66
+                  82
                 ],
                 "dstEdges": [
-                  67
+                  83
                 ]
               },
               {
-                "id": 82,
+                "id": 104,
                 "stmtID": 1904,
                 "srcEdges": [
-                  67
+                  83
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 66,
-                "src": 80,
-                "dst": 81
+                "id": 82,
+                "src": 102,
+                "dst": 103
               },
               {
-                "id": 67,
-                "src": 81,
-                "dst": 82
+                "id": 83,
+                "src": 103,
+                "dst": 104
               }
             ]
           }
@@ -240,42 +240,42 @@
           "cfg": {
             "nodes": [
               {
-                "id": 83,
+                "id": 123,
                 "stmtID": 2348,
                 "srcEdges": [],
                 "dstEdges": [
-                  68
+                  95
                 ]
               },
               {
-                "id": 84,
+                "id": 124,
                 "stmtID": 2353,
                 "srcEdges": [
-                  68
+                  95
                 ],
                 "dstEdges": [
-                  69
+                  96
                 ]
               },
               {
-                "id": 85,
+                "id": 125,
                 "stmtID": 2358,
                 "srcEdges": [
-                  69
+                  96
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 68,
-                "src": 83,
-                "dst": 84
+                "id": 95,
+                "src": 123,
+                "dst": 124
               },
               {
-                "id": 69,
-                "src": 84,
-                "dst": 85
+                "id": 96,
+                "src": 124,
+                "dst": 125
               }
             ]
           }
@@ -285,147 +285,147 @@
           "cfg": {
             "nodes": [
               {
-                "id": 86,
+                "id": 126,
                 "stmtID": 2367,
                 "srcEdges": [],
                 "dstEdges": [
-                  70
+                  97
                 ]
               },
               {
-                "id": 87,
+                "id": 127,
                 "stmtID": 2378,
                 "srcEdges": [
-                  70
+                  97
                 ],
                 "dstEdges": [
-                  71
+                  98
                 ]
               },
               {
-                "id": 88,
+                "id": 128,
                 "stmtID": 2388,
                 "srcEdges": [
-                  71
+                  98
                 ],
                 "dstEdges": [
-                  72
+                  99
                 ]
               },
               {
-                "id": 89,
+                "id": 129,
                 "stmtID": 2402,
                 "srcEdges": [
-                  72
+                  99
                 ],
                 "dstEdges": [
-                  73
+                  100
                 ]
               },
               {
-                "id": 90,
+                "id": 130,
                 "stmtID": 2416,
                 "srcEdges": [
-                  73
+                  100
                 ],
                 "dstEdges": [
-                  74
+                  101
                 ]
               },
               {
-                "id": 91,
+                "id": 131,
                 "stmtID": 2427,
                 "srcEdges": [
-                  74
+                  101
                 ],
                 "dstEdges": [
-                  75
+                  102
                 ]
               },
               {
-                "id": 92,
+                "id": 132,
                 "stmtID": 2436,
                 "srcEdges": [
-                  75
+                  102
                 ],
                 "dstEdges": [
-                  76
+                  103
                 ]
               },
               {
-                "id": 93,
+                "id": 133,
                 "stmtID": 2447,
                 "srcEdges": [
-                  76
+                  103
                 ],
                 "dstEdges": [
-                  77
+                  104
                 ]
               },
               {
-                "id": 94,
+                "id": 134,
                 "stmtID": 2453,
                 "srcEdges": [
-                  77
+                  104
                 ],
                 "dstEdges": [
-                  78
+                  105
                 ]
               },
               {
-                "id": 95,
+                "id": 135,
                 "stmtID": 2516,
                 "srcEdges": [
-                  78
+                  105
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 70,
-                "src": 86,
-                "dst": 87
+                "id": 97,
+                "src": 126,
+                "dst": 127
               },
               {
-                "id": 71,
-                "src": 87,
-                "dst": 88
+                "id": 98,
+                "src": 127,
+                "dst": 128
               },
               {
-                "id": 72,
-                "src": 88,
-                "dst": 89
+                "id": 99,
+                "src": 128,
+                "dst": 129
               },
               {
-                "id": 73,
-                "src": 89,
-                "dst": 90
+                "id": 100,
+                "src": 129,
+                "dst": 130
               },
               {
-                "id": 74,
-                "src": 90,
-                "dst": 91
+                "id": 101,
+                "src": 130,
+                "dst": 131
               },
               {
-                "id": 75,
-                "src": 91,
-                "dst": 92
+                "id": 102,
+                "src": 131,
+                "dst": 132
               },
               {
-                "id": 76,
-                "src": 92,
-                "dst": 93
+                "id": 103,
+                "src": 132,
+                "dst": 133
               },
               {
-                "id": 77,
-                "src": 93,
-                "dst": 94
+                "id": 104,
+                "src": 133,
+                "dst": 134
               },
               {
-                "id": 78,
-                "src": 94,
-                "dst": 95
+                "id": 105,
+                "src": 134,
+                "dst": 135
               }
             ]
           }
@@ -435,192 +435,192 @@
           "cfg": {
             "nodes": [
               {
-                "id": 96,
+                "id": 136,
                 "stmtID": 2525,
                 "srcEdges": [],
                 "dstEdges": [
-                  79
+                  106
                 ]
               },
               {
-                "id": 97,
+                "id": 137,
                 "stmtID": 2555,
                 "srcEdges": [
-                  79
+                  106
                 ],
                 "dstEdges": [
-                  80
+                  107
                 ]
               },
               {
-                "id": 98,
+                "id": 138,
                 "stmtID": 2543,
                 "srcEdges": [
-                  80
+                  107
                 ],
                 "dstEdges": [
-                  81
+                  108
                 ]
               },
               {
-                "id": 99,
+                "id": 139,
                 "stmtID": 2554,
                 "srcEdges": [
-                  81
+                  108
                 ],
                 "dstEdges": [
-                  82
+                  109
                 ]
               },
               {
-                "id": 100,
+                "id": 140,
                 "stmtID": 2566,
                 "srcEdges": [
-                  82
+                  109
                 ],
                 "dstEdges": [
-                  83
+                  110
                 ]
               },
               {
-                "id": 101,
+                "id": 141,
                 "stmtID": 2575,
                 "srcEdges": [
-                  83
+                  110
                 ],
                 "dstEdges": [
-                  84
+                  111
                 ]
               },
               {
-                "id": 102,
+                "id": 142,
                 "stmtID": 2625,
                 "srcEdges": [
-                  84
+                  111
                 ],
                 "dstEdges": [
-                  85
+                  112
                 ]
               },
               {
-                "id": 103,
+                "id": 143,
                 "stmtID": 2624,
                 "srcEdges": [
-                  85
+                  112
                 ],
                 "dstEdges": [
-                  86
+                  113
                 ]
               },
               {
-                "id": 104,
+                "id": 144,
                 "stmtID": 2634,
                 "srcEdges": [
-                  86
+                  113
                 ],
                 "dstEdges": [
-                  87
+                  114
                 ]
               },
               {
-                "id": 105,
+                "id": 145,
                 "stmtID": 2640,
                 "srcEdges": [
-                  87
+                  114
                 ],
                 "dstEdges": [
-                  88
+                  115
                 ]
               },
               {
-                "id": 106,
+                "id": 146,
                 "stmtID": 2649,
                 "srcEdges": [
-                  88
+                  115
                 ],
                 "dstEdges": [
-                  89
+                  116
                 ]
               },
               {
-                "id": 107,
+                "id": 147,
                 "stmtID": 2686,
                 "srcEdges": [
-                  89
+                  116
                 ],
                 "dstEdges": [
-                  90
+                  117
                 ]
               },
               {
-                "id": 108,
+                "id": 148,
                 "stmtID": 2685,
                 "srcEdges": [
-                  90
+                  117
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 79,
-                "src": 96,
-                "dst": 97
+                "id": 106,
+                "src": 136,
+                "dst": 137
               },
               {
-                "id": 80,
-                "src": 97,
-                "dst": 98
+                "id": 107,
+                "src": 137,
+                "dst": 138
               },
               {
-                "id": 81,
-                "src": 98,
-                "dst": 99
+                "id": 108,
+                "src": 138,
+                "dst": 139
               },
               {
-                "id": 82,
-                "src": 99,
-                "dst": 100
+                "id": 109,
+                "src": 139,
+                "dst": 140
               },
               {
-                "id": 83,
-                "src": 100,
-                "dst": 101
+                "id": 110,
+                "src": 140,
+                "dst": 141
               },
               {
-                "id": 84,
-                "src": 101,
-                "dst": 102
+                "id": 111,
+                "src": 141,
+                "dst": 142
               },
               {
-                "id": 85,
-                "src": 102,
-                "dst": 103
+                "id": 112,
+                "src": 142,
+                "dst": 143
               },
               {
-                "id": 86,
-                "src": 103,
-                "dst": 104
+                "id": 113,
+                "src": 143,
+                "dst": 144
               },
               {
-                "id": 87,
-                "src": 104,
-                "dst": 105
+                "id": 114,
+                "src": 144,
+                "dst": 145
               },
               {
-                "id": 88,
-                "src": 105,
-                "dst": 106
+                "id": 115,
+                "src": 145,
+                "dst": 146
               },
               {
-                "id": 89,
-                "src": 106,
-                "dst": 107
+                "id": 116,
+                "src": 146,
+                "dst": 147
               },
               {
-                "id": 90,
-                "src": 107,
-                "dst": 108
+                "id": 117,
+                "src": 147,
+                "dst": 148
               }
             ]
           }
@@ -630,57 +630,57 @@
           "cfg": {
             "nodes": [
               {
-                "id": 109,
+                "id": 149,
                 "stmtID": 2699,
                 "srcEdges": [],
                 "dstEdges": [
-                  91
+                  118
                 ]
               },
               {
-                "id": 110,
+                "id": 150,
                 "stmtID": 2712,
                 "srcEdges": [
-                  91
+                  118
                 ],
                 "dstEdges": [
-                  92
+                  119
                 ]
               },
               {
-                "id": 111,
+                "id": 151,
                 "stmtID": 2719,
                 "srcEdges": [
-                  92
+                  119
                 ],
                 "dstEdges": [
-                  93
+                  120
                 ]
               },
               {
-                "id": 112,
+                "id": 152,
                 "stmtID": 2721,
                 "srcEdges": [
-                  93
+                  120
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 91,
-                "src": 109,
-                "dst": 110
+                "id": 118,
+                "src": 149,
+                "dst": 150
               },
               {
-                "id": 92,
-                "src": 110,
-                "dst": 111
+                "id": 119,
+                "src": 150,
+                "dst": 151
               },
               {
-                "id": 93,
-                "src": 111,
-                "dst": 112
+                "id": 120,
+                "src": 151,
+                "dst": 152
               }
             ]
           }
@@ -690,102 +690,102 @@
           "cfg": {
             "nodes": [
               {
-                "id": 113,
+                "id": 153,
                 "stmtID": 2730,
                 "srcEdges": [],
                 "dstEdges": [
-                  94
+                  121
                 ]
               },
               {
-                "id": 114,
+                "id": 154,
                 "stmtID": 2741,
                 "srcEdges": [
-                  94
+                  121
                 ],
                 "dstEdges": [
-                  95
+                  122
                 ]
               },
               {
-                "id": 115,
+                "id": 155,
                 "stmtID": 2752,
                 "srcEdges": [
-                  95
+                  122
                 ],
                 "dstEdges": [
-                  96
+                  123
                 ]
               },
               {
-                "id": 116,
+                "id": 156,
                 "stmtID": 2761,
                 "srcEdges": [
-                  96
+                  123
                 ],
                 "dstEdges": [
-                  97
+                  124
                 ]
               },
               {
-                "id": 117,
+                "id": 157,
                 "stmtID": 2767,
                 "srcEdges": [
-                  97
+                  124
                 ],
                 "dstEdges": [
-                  98
+                  125
                 ]
               },
               {
-                "id": 118,
+                "id": 158,
                 "stmtID": 2786,
                 "srcEdges": [
-                  98
+                  125
                 ],
                 "dstEdges": [
-                  99
+                  126
                 ]
               },
               {
-                "id": 119,
+                "id": 159,
                 "stmtID": 2831,
                 "srcEdges": [
-                  99
+                  126
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 94,
-                "src": 113,
-                "dst": 114
+                "id": 121,
+                "src": 153,
+                "dst": 154
               },
               {
-                "id": 95,
-                "src": 114,
-                "dst": 115
+                "id": 122,
+                "src": 154,
+                "dst": 155
               },
               {
-                "id": 96,
-                "src": 115,
-                "dst": 116
+                "id": 123,
+                "src": 155,
+                "dst": 156
               },
               {
-                "id": 97,
-                "src": 116,
-                "dst": 117
+                "id": 124,
+                "src": 156,
+                "dst": 157
               },
               {
-                "id": 98,
-                "src": 117,
-                "dst": 118
+                "id": 125,
+                "src": 157,
+                "dst": 158
               },
               {
-                "id": 99,
-                "src": 118,
-                "dst": 119
+                "id": 126,
+                "src": 158,
+                "dst": 159
               }
             ]
           }
@@ -795,72 +795,72 @@
           "cfg": {
             "nodes": [
               {
-                "id": 120,
+                "id": 160,
                 "stmtID": 2842,
                 "srcEdges": [],
                 "dstEdges": [
-                  100
+                  127
                 ]
               },
               {
-                "id": 121,
+                "id": 161,
                 "stmtID": 2849,
                 "srcEdges": [
-                  100
+                  127
                 ],
                 "dstEdges": [
-                  101
+                  128
                 ]
               },
               {
-                "id": 122,
+                "id": 162,
                 "stmtID": 2855,
                 "srcEdges": [
-                  101
+                  128
                 ],
                 "dstEdges": [
-                  102
+                  129
                 ]
               },
               {
-                "id": 123,
+                "id": 163,
                 "stmtID": 2866,
                 "srcEdges": [
-                  102
+                  129
                 ],
                 "dstEdges": [
-                  103
+                  130
                 ]
               },
               {
-                "id": 124,
+                "id": 164,
                 "stmtID": 2875,
                 "srcEdges": [
-                  103
+                  130
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 100,
-                "src": 120,
-                "dst": 121
+                "id": 127,
+                "src": 160,
+                "dst": 161
               },
               {
-                "id": 101,
-                "src": 121,
-                "dst": 122
+                "id": 128,
+                "src": 161,
+                "dst": 162
               },
               {
-                "id": 102,
-                "src": 122,
-                "dst": 123
+                "id": 129,
+                "src": 162,
+                "dst": 163
               },
               {
-                "id": 103,
-                "src": 123,
-                "dst": 124
+                "id": 130,
+                "src": 163,
+                "dst": 164
               }
             ]
           }
@@ -870,13 +870,374 @@
           "cfg": {
             "nodes": [
               {
-                "id": 125,
+                "id": 165,
                 "stmtID": 2908,
                 "srcEdges": [],
                 "dstEdges": []
               }
             ],
             "edges": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "BaseTrait",
+      "methods": []
+    },
+    {
+      "name": "Ownable",
+      "methods": [
+        {
+          "name": "Ownable.requireOwner",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 85,
+                "stmtID": 1687,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        },
+        {
+          "name": "Ownable.owner",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 86,
+                "stmtID": 1694,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "OwnableTransferable",
+      "methods": [
+        {
+          "name": "OwnableTransferable.receive_internal_simple_1734",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 87,
+                "stmtID": 1708,
+                "srcEdges": [],
+                "dstEdges": [
+                  71
+                ]
+              },
+              {
+                "id": 88,
+                "stmtID": 1715,
+                "srcEdges": [
+                  71
+                ],
+                "dstEdges": [
+                  72
+                ]
+              },
+              {
+                "id": 89,
+                "stmtID": 1733,
+                "srcEdges": [
+                  72
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 71,
+                "src": 87,
+                "dst": 88
+              },
+              {
+                "id": 72,
+                "src": 88,
+                "dst": 89
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jetton",
+      "methods": [
+        {
+          "name": "Jetton.receive_internal_simple_1939",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 105,
+                "stmtID": 1931,
+                "srcEdges": [],
+                "dstEdges": [
+                  84
+                ]
+              },
+              {
+                "id": 106,
+                "stmtID": 1938,
+                "srcEdges": [
+                  84
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 84,
+                "src": 105,
+                "dst": 106
+              }
+            ]
+          }
+        },
+        {
+          "name": "Jetton.receive_internal_simple_2000",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 107,
+                "stmtID": 1949,
+                "srcEdges": [],
+                "dstEdges": [
+                  85
+                ]
+              },
+              {
+                "id": 108,
+                "stmtID": 1960,
+                "srcEdges": [
+                  85
+                ],
+                "dstEdges": [
+                  86
+                ]
+              },
+              {
+                "id": 109,
+                "stmtID": 1999,
+                "srcEdges": [
+                  86
+                ],
+                "dstEdges": [
+                  87
+                ]
+              },
+              {
+                "id": 110,
+                "stmtID": 1998,
+                "srcEdges": [
+                  87
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 85,
+                "src": 107,
+                "dst": 108
+              },
+              {
+                "id": 86,
+                "src": 108,
+                "dst": 109
+              },
+              {
+                "id": 87,
+                "src": 109,
+                "dst": 110
+              }
+            ]
+          }
+        },
+        {
+          "name": "Jetton.mint",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 111,
+                "stmtID": 2023,
+                "srcEdges": [],
+                "dstEdges": [
+                  88
+                ]
+              },
+              {
+                "id": 112,
+                "stmtID": 2032,
+                "srcEdges": [
+                  88
+                ],
+                "dstEdges": [
+                  89
+                ]
+              },
+              {
+                "id": 113,
+                "stmtID": 2039,
+                "srcEdges": [
+                  89
+                ],
+                "dstEdges": [
+                  90
+                ]
+              },
+              {
+                "id": 114,
+                "stmtID": 2094,
+                "srcEdges": [
+                  90
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 88,
+                "src": 111,
+                "dst": 112
+              },
+              {
+                "id": 89,
+                "src": 112,
+                "dst": 113
+              },
+              {
+                "id": 90,
+                "src": 113,
+                "dst": 114
+              }
+            ]
+          }
+        },
+        {
+          "name": "Jetton.requireWallet",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 115,
+                "stmtID": 2104,
+                "srcEdges": [],
+                "dstEdges": [
+                  91
+                ]
+              },
+              {
+                "id": 116,
+                "stmtID": 2111,
+                "srcEdges": [
+                  91
+                ],
+                "dstEdges": [
+                  92
+                ]
+              },
+              {
+                "id": 117,
+                "stmtID": 2122,
+                "srcEdges": [
+                  92
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 91,
+                "src": 115,
+                "dst": 116
+              },
+              {
+                "id": 92,
+                "src": 116,
+                "dst": 117
+              }
+            ]
+          }
+        },
+        {
+          "name": "Jetton.getJettonWalletInit",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 118,
+                "stmtID": 2134,
+                "srcEdges": [],
+                "dstEdges": []
+              }
+            ],
+            "edges": []
+          }
+        },
+        {
+          "name": "Jetton.get_jetton_data",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 119,
+                "stmtID": 2147,
+                "srcEdges": [],
+                "dstEdges": [
+                  93
+                ]
+              },
+              {
+                "id": 120,
+                "stmtID": 2173,
+                "srcEdges": [
+                  93
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 93,
+                "src": 119,
+                "dst": 120
+              }
+            ]
+          }
+        },
+        {
+          "name": "Jetton.get_wallet_address",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 121,
+                "stmtID": 2186,
+                "srcEdges": [],
+                "dstEdges": [
+                  94
+                ]
+              },
+              {
+                "id": 122,
+                "stmtID": 2190,
+                "srcEdges": [
+                  94
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 94,
+                "src": 121,
+                "dst": 122
+              }
+            ]
           }
         }
       ]

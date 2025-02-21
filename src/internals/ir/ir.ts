@@ -11,7 +11,7 @@ import { ImportGraph } from "./imports";
 import { IdxGenerator } from "./indices";
 import { AstStatement, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 
-export type ContractIdx = number & { readonly __brand: unique symbol };
+export type TraitContractIdx = number & { readonly __brand: unique symbol };
 
 /**
  * Represents a Compilation Unit, encapsulating the information necessary for
@@ -24,16 +24,43 @@ export class CompilationUnit {
    * @param ast The AST of the project.
    * @param imports A graph showing the connections between project files.
    * @param functions A mapping from unique IDs of free functions to their CFGs.
-   * @param contracts A mapping from unique IDs of contract entries to contracts.
+   * @param contracts A mapping contract ids to their entries.
+   * @param traits A mapping trait ids to their entries.
    */
   constructor(
-    public projectName: ProjectName,
-    public ast: AstStore,
-    public imports: ImportGraph,
-    public functions: Map<CfgIdx, Cfg>,
-    public contracts: Map<ContractIdx, Contract>,
-    public callGraph: CallGraph,
+    public readonly projectName: ProjectName,
+    public readonly ast: AstStore,
+    public readonly imports: ImportGraph,
+    public readonly callGraph: CallGraph,
+    public readonly functions: Map<CfgIdx, Cfg>,
+    private readonly contracts: Map<TraitContractIdx, Contract>,
+    private readonly traits: Map<TraitContractIdx, Trait>,
   ) {}
+
+  public getContracts(): Map<TraitContractIdx, Contract> {
+    return this.contracts;
+  }
+  public getTraits({
+    includeStdlib = true,
+  }: Partial<{ includeStdlib: boolean }> = {}): Map<TraitContractIdx, Trait> {
+    if (includeStdlib) return this.traits;
+    return new Map(
+      [...this.traits].filter(([_, t]) => t.loc.origin !== "stdlib"),
+    );
+  }
+  public getContractsTraits({
+    includeStdlib = true,
+  }: Partial<{ includeStdlib: boolean }> = {}): Map<
+    TraitContractIdx,
+    TraitContract
+  > {
+    const contracts = this.getContracts();
+    const traits = this.getTraits({ includeStdlib });
+    const merged = new Map<TraitContractIdx, TraitContract>();
+    for (const [key, contract] of contracts) merged.set(key, contract);
+    for (const [key, trait] of traits) merged.set(key, trait);
+    return merged;
+  }
 
   /**
    * Looks for a CFG with a specific index.
@@ -80,7 +107,7 @@ export class CompilationUnit {
    *
    * @param callback The function to apply to each Cfg.
    */
-  forEachCFG(
+  public forEachCFG(
     callback: (cfg: Cfg) => void,
     { includeStdlib = true }: Partial<{ includeStdlib: boolean }> = {},
   ) {
@@ -105,7 +132,7 @@ export class CompilationUnit {
    *                 and returns a new accumulator value.
    * @returns The final accumulated value.
    */
-  foldCFGs<T>(init: T, callback: (acc: T, cfg: Cfg) => T): T {
+  public foldCFGs<T>(init: T, callback: (acc: T, cfg: Cfg) => T): T {
     let acc = init;
     this.functions.forEach((cfg) => {
       acc = callback(acc, cfg);
@@ -125,7 +152,7 @@ export class CompilationUnit {
    * @param astStore The store containing the AST nodes.
    * @param callback The function to apply to each BB within each Cfg.
    */
-  forEachBasicBlock(
+  public forEachBasicBlock(
     astStore: AstStore,
     callback: (cfg: Cfg, node: BasicBlock, stmt: AstStatement) => void,
   ) {
@@ -148,28 +175,45 @@ export class CompilationUnit {
 }
 
 /**
- * Represents an entry for a contract in the compilation unit which
- * encapsulates a collection of related methods and their configurations.
+ * Base class representing a common structure for contracts and traits.
  */
-export class Contract {
+export abstract class TraitContract {
   /**
-   * The unique identifier of this Contract among the compilation unit it belongs to.
+   * The unique identifier of this entity among the compilation unit it belongs to.
    */
-  public idx: ContractIdx;
+  public idx: TraitContractIdx;
 
-  /**
-   * Creates an instance of Contract.
-   * @param name The unique name identifying this contract within the project.
-   * @param methods A mapping of method ids to their CFGs.
-   * @param ref AST reference that corresponds to the contract definition.
-   * @param idx An optional unique index. If not set, a new one will be chosen automatically.
-   */
   constructor(
     public name: ContractName,
     public methods: Map<CfgIdx, Cfg>,
-    public ref: SrcInfo,
-    idx: ContractIdx | undefined = undefined,
+    public loc: SrcInfo,
+    idx: TraitContractIdx | undefined = undefined,
   ) {
-    this.idx = idx ? idx : (IdxGenerator.next("ir_contract") as ContractIdx);
+    this.idx = idx
+      ? idx
+      : (IdxGenerator.next("ir_traitcontract") as TraitContractIdx);
+  }
+
+  /**
+   * Determines if this is a contract or a trait.
+   */
+  abstract get kind(): "contract" | "trait";
+}
+
+/**
+ * Represents a smart contract with full implementation capabilities.
+ */
+export class Contract extends TraitContract {
+  get kind(): "contract" {
+    return "contract";
+  }
+}
+
+/**
+ * Represents a trait (interface with optional method implementations).
+ */
+export class Trait extends TraitContract {
+  get kind(): "trait" {
+    return "trait";
   }
 }
