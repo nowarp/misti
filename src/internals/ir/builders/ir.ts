@@ -1,5 +1,5 @@
 import {
-  ContractIdx,
+  TraitContractIdx,
   BasicBlock,
   BasicBlockIdx,
   BasicBlockKind,
@@ -13,6 +13,7 @@ import {
   FunctionName,
   ImportGraph,
   ProjectName,
+  Trait,
 } from "..";
 import { AstStoreBuilder } from "./astStore";
 import { TactCallGraphBuilder } from "./callgraph";
@@ -27,6 +28,8 @@ import {
   AstStatement,
   SrcInfo,
   isSelfId,
+  AstTraitDeclaration,
+  idText,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { AstStore as TactAstStore } from "@tact-lang/compiler/dist/grammar/store";
 
@@ -66,7 +69,8 @@ export class TactIRBuilder {
   private functionIndexes: Map<FunctionName, CfgIdx> = new Map();
 
   /**
-   * Keeps unique identifiers registered for building Cfg nodes for contract methods.
+   * Keeps unique identifiers registered for building CFG nodes for contract
+   * and trait methods.
    */
   private methodIndexes: Map<ContractName, Map<FunctionName, CfgIdx>> =
     new Map();
@@ -81,8 +85,8 @@ export class TactIRBuilder {
     private ast: TactAstStore,
     private imports: ImportGraph,
   ) {
-    this.registerFunctions();
-    this.registerContracts();
+    this.assignFunctionIndices();
+    this.assignMethodIndices();
   }
   public static make(
     ctx: MistiContext,
@@ -98,23 +102,24 @@ export class TactIRBuilder {
    */
   build(): CompilationUnit {
     const functions = this.createFunctions();
-    const contracts = this.createContracts();
+    const { contracts, traits } = this.createContractsAndTraits();
     const tactASTStore = AstStoreBuilder.make(this.ctx, this.ast).build();
     const callGraph = TactCallGraphBuilder.make(this.ctx, tactASTStore).build();
     return new CompilationUnit(
       this.projectName,
       AstStoreBuilder.make(this.ctx, this.ast).build(),
       this.imports,
+      callGraph,
       functions,
       contracts,
-      callGraph,
+      traits,
     );
   }
 
   /**
-   * Assign the unique Cfg indices to free function definitions.
+   * Assign unique CFG indices to free function definitions.
    */
-  private registerFunctions(): void {
+  private assignFunctionIndices(): void {
     this.functionIndexes = this.ast.functions.reduce((acc, fun) => {
       if (fun.kind == "function_def") {
         const funName = fun.name.text as FunctionName;
@@ -161,7 +166,7 @@ export class TactIRBuilder {
    * Extracts information from the contract AST entry if it is a method.
    */
   private getMethodInfo(
-    decl: AstContractDeclaration,
+    decl: AstContractDeclaration | AstTraitDeclaration,
     contractId: number,
   ): [
     FunctionName | undefined,
@@ -182,13 +187,15 @@ export class TactIRBuilder {
   }
 
   /**
-   * Assign the unique Cfg indices to contract methods.
+   * Assign unique CFG indices to contract and trait methods.
    */
-  private registerContracts(): void {
+  private assignMethodIndices(): void {
     this.methodIndexes = this.ast.types.reduce((acc, entry) => {
-      if (entry.kind == "contract") {
+      if (entry.kind == "contract" || entry.kind === "trait") {
         const contractName = entry.name.text as ContractName;
-        const methodsMap = entry.declarations.reduce((methodAcc, decl) => {
+        const methodsMap = (
+          entry.declarations as (AstContractDeclaration | AstTraitDeclaration)[]
+        ).reduce((methodAcc, decl) => {
           const [name, kind, _] = this.getMethodInfo(decl, entry.id);
           // NOTE: We don't create Cfg entries for asm functions.
           if (kind && name) {
@@ -210,37 +217,67 @@ export class TactIRBuilder {
   }
 
   /**
-   * Creates the complete CFGs for contract entries using the previously registered Cfg identifiers.
+   * Creates the complete CFGs for contract and trait methods saving them to
+   * Contract and Trait objects.
    */
-  private createContracts(): Map<ContractIdx, Contract> {
-    return this.ast.types.reduce((acc, entry) => {
-      if (entry.kind == "contract") {
-        const contractName = entry.name.text as ContractName;
-        const methodsMap = this.methodIndexes.get(contractName)!;
-        const methodCFGs = entry.declarations.reduce((methodAcc, decl) => {
-          const [name, kind, stmts] = this.getMethodInfo(decl, entry.id);
-          if (kind && name) {
-            const idx = methodsMap.get(name)!;
-            methodAcc.set(
-              idx,
-              this.createCFGFromStatements(
-                idx,
-                name,
-                decl.id,
-                "method",
-                entry.loc.origin,
-                stmts,
-                decl.loc,
-              ),
-            );
+  private createContractsAndTraits(): {
+    contracts: Map<TraitContractIdx, Contract>;
+    traits: Map<TraitContractIdx, Trait>;
+  } {
+    return this.ast.types.reduce(
+      (acc, entry) => {
+        if (entry.kind === "contract" || entry.kind === "trait") {
+          const name = idText(entry.name) as ContractName;
+          const methodsMap = this.methodIndexes.get(name)!;
+          const methodCFGs = (
+            entry.declarations as (
+              | AstContractDeclaration
+              | AstTraitDeclaration
+            )[]
+          ).reduce(
+            (methodAcc, decl: AstContractDeclaration | AstTraitDeclaration) => {
+              const [name, kind, stmts] = this.getMethodInfo(decl, entry.id);
+              if (kind && name) {
+                const idx = methodsMap.get(name)!;
+                methodAcc.set(
+                  idx,
+                  this.createCFGFromStatements(
+                    idx,
+                    name,
+                    decl.id,
+                    "method",
+                    entry.loc.origin,
+                    stmts,
+                    decl.loc,
+                  ),
+                );
+              }
+              return methodAcc;
+            },
+            new Map<CfgIdx, Cfg>(),
+          );
+          switch (entry.kind) {
+            case "contract": {
+              const contract = new Contract(name, methodCFGs, entry.loc);
+              acc.contracts.set(contract.idx, contract);
+              break;
+            }
+            case "trait": {
+              const trait = new Trait(name, methodCFGs, entry.loc);
+              acc.traits.set(trait.idx, trait);
+              break;
+            }
+            default:
+              unreachable(entry);
           }
-          return methodAcc;
-        }, new Map<CfgIdx, Cfg>());
-        const contract = new Contract(contractName, methodCFGs, entry.loc);
-        acc.set(contract.idx, contract);
-      }
-      return acc;
-    }, new Map<ContractIdx, Contract>());
+        }
+        return acc;
+      },
+      {
+        contracts: new Map<TraitContractIdx, Contract>(),
+        traits: new Map<TraitContractIdx, Trait>(),
+      },
+    );
   }
 
   /**

@@ -87,8 +87,8 @@ class MermaidDumper {
         return;
       diagram += this.dumpCfg(cu, cfg, cfg.name);
     });
-    cu.contracts.forEach((contract) => {
-      if (file && contract.ref.file !== file) return;
+    cu.getContractsTraits().forEach((contract) => {
+      if (file && contract.loc.file !== file) return;
       contract.methods.forEach((cfg) => {
         if (!dumpStdlib && cfg.origin == "stdlib") return;
         diagram += this.dumpCfg(cu, cfg, `${contract.name}__${cfg.name}`);
@@ -160,8 +160,8 @@ class GraphvizDumper {
       }
       graph += this.dumpCfg(cu, cfg, cfg.name);
     });
-    cu.contracts.forEach((contract) => {
-      if (file && contract.ref.file !== file) return;
+    cu.getContractsTraits().forEach((contract) => {
+      if (file && contract.loc.file !== file) return;
       contract.methods.forEach((cfg) => {
         if (!dumpStdlib && cfg.origin == "stdlib") return;
         graph += this.dumpCfg(cu, cfg, `${contract.name}__${cfg.name}`);
@@ -257,24 +257,26 @@ class JSONDumper {
         });
         return acc;
       }, []),
-      contracts: Array.from(cu.contracts).map(([_idx, contract]) => ({
-        name: contract.name,
-        methods: Array.from(contract.methods.entries()).reduce<
-          { name: string; cfg: object }[]
-        >((acc, [_, cfg]) => {
-          if (
-            (!dumpStdlib && cfg.origin == "stdlib") ||
-            (file && cfg.ref.file !== file)
-          ) {
+      contracts: Array.from(cu.getContractsTraits()).map(
+        ([_idx, contract]) => ({
+          name: contract.name,
+          methods: Array.from(contract.methods.entries()).reduce<
+            { name: string; cfg: object }[]
+          >((acc, [_, cfg]) => {
+            if (
+              (!dumpStdlib && cfg.origin == "stdlib") ||
+              (file && cfg.ref.file !== file)
+            ) {
+              return acc;
+            }
+            acc.push({
+              name: `${contract.name}.${cfg.name}`,
+              cfg: this.dumpCFG(cfg),
+            });
             return acc;
-          }
-          acc.push({
-            name: `${contract.name}.${cfg.name}`,
-            cfg: this.dumpCFG(cfg),
-          });
-          return acc;
-        }, []),
-      })),
+          }, []),
+        }),
+      ),
     };
     return JSONbig.stringify(data, null, 2);
   }

@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Callgraph: Add `asm` functions: PR [#277](https://github.com/nowarp/misti/pull/277)
 - Callgraph: Save field names used in `Effect.State{Read,Write}`: PR [#280](https://github.com/nowarp/misti/pull/280)
 - Callgraph: Highlight stdlib calls in dump: PR [#286](https://github.com/nowarp/misti/pull/286)
+- IR: Traits support: PR [#292](https://github.com/nowarp/misti/pull/292)
 
 ### Changed
 - Display `warn` logger messages to `stderr` instead of `stdout`: Issue [#259](https://github.com/nowarp/misti/issues/259)
