@@ -1,4 +1,6 @@
- contract C {
+import "@stdlib/ownable";
+
+ contract C with Ownable {
      owner: Address;
      init() { self.owner = sender(); }
 

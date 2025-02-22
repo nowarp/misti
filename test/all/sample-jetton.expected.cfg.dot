@@ -138,22 +138,6 @@ digraph "sample-jetton" {
         label="JettonDefaultWallet__get_wallet_data";
         "JettonDefaultWallet__get_wallet_data_165" [label="return JettonWalletData{balance: self.balance, owner: self.owner, master: self.master, walletCode: initOf JettonDefaultWallet(self.master, self.owner).code}",style=filled,fillcolor="#66A7DB"];
     }
-    subgraph "cluster_Ownable__requireOwner" {
-        label="Ownable__requireOwner";
-        "Ownable__requireOwner_85" [label="nativeThrowUnless(132, sender() == self.owner)",style=filled,fillcolor="#66A7DB"];
-    }
-    subgraph "cluster_Ownable__owner" {
-        label="Ownable__owner";
-        "Ownable__owner_86" [label="return self.owner",style=filled,fillcolor="#66A7DB"];
-    }
-    subgraph "cluster_OwnableTransferable__receive_internal_simple_1734" {
-        label="OwnableTransferable__receive_internal_simple_1734";
-        "OwnableTransferable__receive_internal_simple_1734_87" [label="self.requireOwner()"];
-        "OwnableTransferable__receive_internal_simple_1734_88" [label="self.owner = msg.newOwner"];
-        "OwnableTransferable__receive_internal_simple_1734_89" [label="self.reply(ChangeOwnerOk{queryId: msg.queryId, newOwner: msg.newOwner}.toCell())",style=filled,fillcolor="#66A7DB"];
-        "OwnableTransferable__receive_internal_simple_1734_87" -> "OwnableTransferable__receive_internal_simple_1734_88";
-        "OwnableTransferable__receive_internal_simple_1734_88" -> "OwnableTransferable__receive_internal_simple_1734_89";
-    }
     subgraph "cluster_Jetton__receive_internal_simple_1939" {
         label="Jetton__receive_internal_simple_1939";
         "Jetton__receive_internal_simple_1939_105" [label="self.requireOwner()"];

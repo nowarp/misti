@@ -30,8 +30,21 @@ import {
   isSelfId,
   AstTraitDeclaration,
   idText,
+  AstTrait,
+  AstContract,
 } from "@tact-lang/compiler/dist/grammar/ast";
+import { ItemOrigin } from "@tact-lang/compiler/dist/grammar/grammar";
 import { AstStore as TactAstStore } from "@tact-lang/compiler/dist/grammar/store";
+
+// Hack for https://github.com/tact-lang/tact/issues/1961
+// TODO: Remove this when updating to Tact 1.6 (issue #70)
+function hackOrigin(entry: AstContract | AstTrait): ItemOrigin {
+  return entry.kind === "trait" &&
+    entry.loc.file &&
+    entry.loc.file.includes("stdlib/libs")
+    ? "stdlib"
+    : entry.loc.origin;
+}
 
 /**
  * Generates a unique name used to identify receive functions in CFG.
@@ -246,7 +259,7 @@ export class TactIRBuilder {
                     name,
                     decl.id,
                     "method",
-                    entry.loc.origin,
+                    hackOrigin(entry),
                     stmts,
                     decl.loc,
                   ),
@@ -263,7 +276,10 @@ export class TactIRBuilder {
               break;
             }
             case "trait": {
-              const trait = new Trait(name, methodCFGs, entry.loc);
+              const trait = new Trait(name, methodCFGs, {
+                ...entry.loc,
+                origin: hackOrigin(entry),
+              } as SrcInfo);
               acc.traits.set(trait.idx, trait);
               break;
             }
@@ -299,7 +315,7 @@ export class TactIRBuilder {
    *
    * @param idx Unique Cfg identifier created on the function registration step.
    * @param name The name of the function or method being processed.
-   * @param name AST ID.
+   * @param id AST ID.
    * @param kind Indicates whether the input represents a function or a method.
    * @param origin Indicates whether the function was defined in users code or in standard library.
    * @param statements An array of AstStatement from the AST of the function or method.

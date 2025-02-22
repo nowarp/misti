@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Callgraph: Incorrect processing of `Effect.StateWrite` for cells: PR [#279](https://github.com/nowarp/misti/pull/279)
 - Callgraph: Incorrect handling of getter methods: PR [#282](https://github.com/nowarp/misti/pull/282)
 - `ArgCopyMutation`: Incorrect handling of `return` in traits: Issue [#290](https://github.com/nowarp/misti/issues/290)
+- Added workaround for incorrect `SrcInfo.origin` in standard traits: Issue [#299](https://github.com/nowarp/misti/issues/299)
 
 ## [0.6.2] - 2024-12-25
 

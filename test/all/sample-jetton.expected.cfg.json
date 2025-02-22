@@ -887,86 +887,11 @@
     },
     {
       "name": "Ownable",
-      "methods": [
-        {
-          "name": "Ownable.requireOwner",
-          "cfg": {
-            "nodes": [
-              {
-                "id": 85,
-                "stmtID": 1687,
-                "srcEdges": [],
-                "dstEdges": []
-              }
-            ],
-            "edges": []
-          }
-        },
-        {
-          "name": "Ownable.owner",
-          "cfg": {
-            "nodes": [
-              {
-                "id": 86,
-                "stmtID": 1694,
-                "srcEdges": [],
-                "dstEdges": []
-              }
-            ],
-            "edges": []
-          }
-        }
-      ]
+      "methods": []
     },
     {
       "name": "OwnableTransferable",
-      "methods": [
-        {
-          "name": "OwnableTransferable.receive_internal_simple_1734",
-          "cfg": {
-            "nodes": [
-              {
-                "id": 87,
-                "stmtID": 1708,
-                "srcEdges": [],
-                "dstEdges": [
-                  71
-                ]
-              },
-              {
-                "id": 88,
-                "stmtID": 1715,
-                "srcEdges": [
-                  71
-                ],
-                "dstEdges": [
-                  72
-                ]
-              },
-              {
-                "id": 89,
-                "stmtID": 1733,
-                "srcEdges": [
-                  72
-                ],
-                "dstEdges": []
-              }
-            ],
-            "edges": [
-              {
-                "id": 71,
-                "src": 87,
-                "dst": 88
-              },
-              {
-                "id": 72,
-                "src": 88,
-                "dst": 89
-              }
-            ]
-          }
-        }
-      ]
+      "methods": []
     },
     {
       "name": "Jetton",

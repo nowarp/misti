@@ -126,19 +126,6 @@ end
 subgraph JettonDefaultWallet__get_wallet_data
     JettonDefaultWallet__get_wallet_data_165["return JettonWalletData{balance: self.balance, owner: self.owner, master: self.master, walletCode: initOf JettonDefaultWallet(self.master, self.owner).code}"]:::exitNode
 end
-subgraph Ownable__requireOwner
-    Ownable__requireOwner_85["nativeThrowUnless(132, sender() == self.owner)"]:::exitNode
-end
-subgraph Ownable__owner
-    Ownable__owner_86["return self.owner"]:::exitNode
-end
-subgraph OwnableTransferable__receive_internal_simple_1734
-    OwnableTransferable__receive_internal_simple_1734_87["self.requireOwner()"]
-    OwnableTransferable__receive_internal_simple_1734_88["self.owner = msg.newOwner"]
-    OwnableTransferable__receive_internal_simple_1734_89["self.reply(ChangeOwnerOk{queryId: msg.queryId, newOwner: msg.newOwner}.toCell())"]:::exitNode
-    OwnableTransferable__receive_internal_simple_1734_87 --> OwnableTransferable__receive_internal_simple_1734_88
-    OwnableTransferable__receive_internal_simple_1734_88 --> OwnableTransferable__receive_internal_simple_1734_89
-end
 subgraph Jetton__receive_internal_simple_1939
     Jetton__receive_internal_simple_1939_105["self.requireOwner()"]
     Jetton__receive_internal_simple_1939_106["self.content = msg.content"]:::exitNode
