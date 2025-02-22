@@ -15,7 +15,12 @@
 import { MistiContext } from "../internals/context";
 import { InternalException } from "../internals/exceptions";
 import { CompilationUnit } from "../internals/ir";
-import { MistiTactWarning, Severity, makeDocURL } from "../internals/warnings";
+import {
+  MistiTactWarning,
+  Severity,
+  makeDocURL,
+  severityToString,
+} from "../internals/warnings";
 import {
   SouffleAsyncExecutor,
   SouffleContext,
@@ -108,7 +113,7 @@ export abstract class Detector {
   ): MistiTactWarning {
     if (data.severity && data.severity < this.minSeverity) {
       throw InternalException.make(
-        `${this.id}: Cannot raise ${data.severity} warning with minimum severity ${this.minSeverity}`,
+        `${this.id}: Cannot raise ${severityToString(data.severity)} warning with minimum severity ${severityToString(this.minSeverity)}`,
       );
     }
     return MistiTactWarning.make(
