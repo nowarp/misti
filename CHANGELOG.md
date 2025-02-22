@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Support Node version 23: PR [#301](https://github.com/nowarp/misti/pull/301)
 - Support absolute paths in warning suppressions: PR [#257](https://github.com/nowarp/misti/pull/257)
 - `UnprotectedCall` detector: PR [#235](https://github.com/nowarp/misti/pull/235)
 - `SuspiciousLoop` detector: PR [#206](https://github.com/nowarp/misti/pull/206)
