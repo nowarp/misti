@@ -35,7 +35,7 @@ import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
  * ```
  */
 export class ShortCircuitCondition extends AstDetector {
-  severity = Severity.LOW;
+  minSeverity = Severity.LOW;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.ast.getFunctions()).reduce(

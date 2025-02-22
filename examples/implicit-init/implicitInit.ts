@@ -28,7 +28,7 @@ import { MistiTactWarning, Severity } from "../../src/internals/warnings";
  * ```
  */
 export class ImplicitInit extends AstDetector {
-  severity = Severity.INFO;
+  minSeverity = Severity.INFO;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.getContracts()).reduce(

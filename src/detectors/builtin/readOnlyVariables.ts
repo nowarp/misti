@@ -41,7 +41,7 @@ import {
  * ```
  */
 export class ReadOnlyVariables extends SouffleDetector {
-  severity = Severity.MEDIUM;
+  minSeverity = Severity.MEDIUM;
 
   get shareImportedWarnings(): WarningsBehavior {
     // Read-only constants/fields from imported files will be reported iff they

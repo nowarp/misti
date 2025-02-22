@@ -71,7 +71,7 @@ const METHOD_CHAINS: Array<{
  * ```
  */
 export class PreferredStdlibApi extends AstDetector {
-  severity = Severity.INFO;
+  minSeverity = Severity.INFO;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {

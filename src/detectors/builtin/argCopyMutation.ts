@@ -52,7 +52,7 @@ import {
  * ```
  */
 export class ArgCopyMutation extends AstDetector {
-  severity = Severity.HIGH;
+  minSeverity = Severity.HIGH;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const returnStatements = this.collectReturnStatements(cu);

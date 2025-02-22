@@ -41,7 +41,7 @@ import {
  * ```
  */
 export class FalseCondition extends AstDetector {
-  severity = Severity.MEDIUM;
+  minSeverity = Severity.MEDIUM;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.ast.getFunctions()).reduce(

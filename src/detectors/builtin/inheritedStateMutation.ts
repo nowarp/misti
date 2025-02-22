@@ -54,7 +54,7 @@ import { AstStatement, AstNode } from "@tact-lang/compiler/dist/grammar/ast";
  * ```
  */
 export class InheritedStateMutation extends AstDetector {
-  severity = Severity.LOW;
+  minSeverity = Severity.LOW;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.ast.getContracts()).reduce((acc, contract) => {

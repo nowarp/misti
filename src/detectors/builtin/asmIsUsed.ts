@@ -17,7 +17,7 @@ import { AstDetector } from "../detector";
  * ```
  */
 export class AsmIsUsed extends AstDetector {
-  severity = Severity.INFO;
+  minSeverity = Severity.INFO;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {

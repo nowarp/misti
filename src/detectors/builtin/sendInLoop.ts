@@ -38,7 +38,7 @@ import {
  * ```
  */
 export class SendInLoop extends AstDetector {
-  severity = Severity.MEDIUM;
+  minSeverity = Severity.MEDIUM;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const processedLoopIds = new Set<number>();

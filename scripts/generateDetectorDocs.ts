@@ -119,7 +119,7 @@ function extractSeverityValue(node: ClassDeclaration): Severity {
   for (const member of node.members) {
     if (
       member.kind === SyntaxKind.PropertyDeclaration &&
-      (member as PropertyDeclaration).name.getText() === "severity"
+      (member as PropertyDeclaration).name.getText() === "minSeverity"
     ) {
       const propertyDeclaration = member as PropertyDeclaration;
       if (propertyDeclaration.initializer) {
@@ -182,7 +182,7 @@ export function processDirectory(
     module: 1, // CommonJS
   });
 
-  console.log("| #  | Detector | Severity | Requires Soufflé | Enabled by default |");
+  console.log("| #  | Detector | Minimum Severity | Requires Soufflé | Enabled by default |");
   console.log("|----|-----------|-----------|--------------------|---------------------|");
 
   fileNames.forEach((fileName, index) => {

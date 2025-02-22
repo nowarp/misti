@@ -230,7 +230,7 @@ class UnprotectedCallTransfer implements Transfer<TaintState> {
  * ```
  */
 export class UnprotectedCall extends DataflowDetector {
-  severity = Severity.HIGH;
+  minSeverity = Severity.HIGH;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     let warnings: MistiTactWarning[] = [];

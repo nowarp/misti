@@ -45,7 +45,7 @@ import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
  * ```
  */
 export class DuplicatedCondition extends AstDetector {
-  severity = Severity.HIGH;
+  minSeverity = Severity.HIGH;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {

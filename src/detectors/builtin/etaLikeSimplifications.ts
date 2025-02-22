@@ -49,7 +49,7 @@ import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
  * ```
  */
 export class EtaLikeSimplifications extends AstDetector {
-  severity = Severity.LOW;
+  minSeverity = Severity.LOW;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const warnings: MistiTactWarning[] = [];

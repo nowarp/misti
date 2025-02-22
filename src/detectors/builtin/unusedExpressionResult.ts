@@ -39,7 +39,7 @@ const IGNORED_FUNCTIONS = new Set<string>(["send"]);
  * ```
  */
 export class UnusedExpressionResult extends AstDetector {
-  severity = Severity.MEDIUM;
+  minSeverity = Severity.MEDIUM;
 
   /**
    * Return types that the available free functions have.

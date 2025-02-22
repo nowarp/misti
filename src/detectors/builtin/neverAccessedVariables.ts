@@ -174,7 +174,7 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
  * ```
  */
 export class NeverAccessedVariables extends DataflowDetector {
-  severity = Severity.MEDIUM;
+  minSeverity = Severity.MEDIUM;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return [

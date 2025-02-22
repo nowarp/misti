@@ -32,7 +32,7 @@ import {
  * ```
  */
 export class SuspiciousLoop extends AstDetector {
-  severity = Severity.MEDIUM;
+  minSeverity = Severity.MEDIUM;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.ast.getProgramEntries()).reduce((acc, node) => {

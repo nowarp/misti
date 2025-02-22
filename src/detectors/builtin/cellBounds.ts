@@ -916,7 +916,7 @@ function deepCopyVariableStorage(storage: VariableStorage): VariableStorage {
  * 3. [Cells, Builders and Slices | Tact Docs](https://docs.tact-lang.org/ref/core-cells/)
  */
 export class CellBounds extends DataflowDetector {
-  severity = Severity.CRITICAL;
+  minSeverity = Severity.CRITICAL;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     let warnings: MistiTactWarning[] = [];

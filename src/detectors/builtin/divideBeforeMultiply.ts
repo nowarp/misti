@@ -45,7 +45,7 @@ import {
  * ```
  */
 export class DivideBeforeMultiply extends SouffleDetector {
-  severity = Severity.HIGH;
+  minSeverity = Severity.HIGH;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const program = this.createSouffleContext(cu);
