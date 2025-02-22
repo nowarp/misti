@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Callgraph: Hide unused stdlib functions from dump: PR [#276](https://github.com/nowarp/misti/pull/276)
 - NeverAccessedVariables: More informative warning message for unused fields: Issue [#274](https://github.com/nowarp/misti/issues/274)
 - Callgraph: Separate build logic to `src/internals/ir/builders/callgraph.ts`: PR [#287](https://github.com/nowarp/misti/pull/287)
+- SuspiciousMessageMode: Revisited warning messages and severities: Issue [#294](https://github.com/nowarp/misti/issues/294)
 
 ### Fixed
 - Souffle installation in CI: PR [#253](https://github.com/nowarp/misti/pull/253)

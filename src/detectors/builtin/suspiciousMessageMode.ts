@@ -40,7 +40,7 @@ import {
  * ```
  */
 export class SuspiciousMessageMode extends AstDetector {
-  minSeverity = Severity.MEDIUM;
+  minSeverity = Severity.LOW;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const warnings: MistiTactWarning[] = [];
@@ -75,11 +75,12 @@ export class SuspiciousMessageMode extends AstDetector {
     if (expr.kind === "number" && expr.value === 0n) {
       warnings.push(
         this.makeWarning(
-          "Setting `mode` to `0` is redundant as it has no effect.",
+          "Setting `mode` to `0` is redundant as it has no effect",
           expr.loc,
           {
+            severity: Severity.LOW,
             suggestion:
-              "Remove the `mode` field or set it to `SendDefaultMode`.",
+              "Use `SendDefaultMode` instead of `0`, or remove the `mode` field",
           },
         ),
       );
@@ -91,14 +92,26 @@ export class SuspiciousMessageMode extends AstDetector {
       switch (e.kind) {
         case "op_binary":
           const opBinary = e as AstOpBinary;
-          if (opBinary.op !== "|") {
+          if (opBinary.op === "+") {
             warnings.push(
               this.makeWarning(
-                "Mode expression should only contain the '|' operator",
+                "The `+` operator in mode expressions is deprecated",
+                e.loc,
+                {
+                  severity: Severity.LOW,
+                  suggestion:
+                    "Use the `|` operator (bitwise OR) to combine flags",
+                },
+              ),
+            );
+          } else if (opBinary.op !== "|") {
+            warnings.push(
+              this.makeWarning(
+                "Mode expression should only contain the `|` operator",
                 e.loc,
                 {
                   suggestion:
-                    "Use the '|' operator (bitwise OR) to combine flags",
+                    "Use the `|` operator (bitwise OR) to combine flags",
                 },
               ),
             );

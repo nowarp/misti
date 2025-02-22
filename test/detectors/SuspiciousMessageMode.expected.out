@@ -1,4 +1,4 @@
-[MEDIUM] SuspiciousMessageMode: Flag `SendRemainingValue` is used multiple times in the `mode` expression
+[LOW] SuspiciousMessageMode: Flag `SendRemainingValue` is used multiple times in the `mode` expression
 test/detectors/SuspiciousMessageMode.tact:16:40:
   15 |             value: 0,
 > 16 |             mode: SendRemainingValue | SendRemainingValue // Bad
@@ -7,16 +7,16 @@ test/detectors/SuspiciousMessageMode.tact:16:40:
 Help: Use each flag at most once in the mode expression
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 
-[MEDIUM] SuspiciousMessageMode: Mode expression should only contain the '|' operator
+[LOW] SuspiciousMessageMode: The `+` operator in mode expressions is deprecated
 test/detectors/SuspiciousMessageMode.tact:25:19:
   24 |             value: 0,
 > 25 |             mode: SendRemainingValue + SendIgnoreErrors // Bad
                          ^
   26 |         });
-Help: Use the '|' operator (bitwise OR) to combine flags
+Help: Use the `|` operator (bitwise OR) to combine flags
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 
-[MEDIUM] SuspiciousMessageMode: Integer literals should not be used in mode expression
+[LOW] SuspiciousMessageMode: Integer literals should not be used in mode expression
 test/detectors/SuspiciousMessageMode.tact:34:19:
   33 |             value: 0,
 > 34 |             mode: 64 // Bad: Integer literal instead of symbolic constant 
@@ -25,16 +25,16 @@ test/detectors/SuspiciousMessageMode.tact:34:19:
 Help: Replace `64` with `SendRemainingValue`
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 
-[MEDIUM] SuspiciousMessageMode: Mode expression should only contain the '|' operator
+[LOW] SuspiciousMessageMode: The `+` operator in mode expressions is deprecated
 test/detectors/SuspiciousMessageMode.tact:52:19:
   51 |             value: 0,
 > 52 |             mode: SendRemainingValue + SendRemainingValue + 64 // Bad: Duplicate flags, '+' operator, integer literal 
                          ^
   53 |         });
-Help: Use the '|' operator (bitwise OR) to combine flags
+Help: Use the `|` operator (bitwise OR) to combine flags
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 
-[MEDIUM] SuspiciousMessageMode: Flag `SendRemainingValue` is used multiple times in the `mode` expression
+[LOW] SuspiciousMessageMode: Flag `SendRemainingValue` is used multiple times in the `mode` expression
 test/detectors/SuspiciousMessageMode.tact:52:40:
   51 |             value: 0,
 > 52 |             mode: SendRemainingValue + SendRemainingValue + 64 // Bad: Duplicate flags, '+' operator, integer literal 
@@ -43,7 +43,7 @@ test/detectors/SuspiciousMessageMode.tact:52:40:
 Help: Use each flag at most once in the mode expression
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 
-[MEDIUM] SuspiciousMessageMode: Integer literals should not be used in mode expression
+[LOW] SuspiciousMessageMode: Integer literals should not be used in mode expression
 test/detectors/SuspiciousMessageMode.tact:52:61:
   51 |             value: 0,
 > 52 |             mode: SendRemainingValue + SendRemainingValue + 64 // Bad: Duplicate flags, '+' operator, integer literal 
@@ -52,29 +52,29 @@ test/detectors/SuspiciousMessageMode.tact:52:61:
 Help: Replace `64` with `SendRemainingValue`
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 
-[MEDIUM] SuspiciousMessageMode: Mode expression should only contain the '|' operator
+[LOW] SuspiciousMessageMode: Mode expression should only contain the `|` operator
 test/detectors/SuspiciousMessageMode.tact:61:19:
   60 |             value: 0,
 > 61 |             mode: -(SendRemainingValue * SendPayGasSeparately) - SendIgnoreErrors // Bad
                          ^
   62 |         });
-Help: Use the '|' operator (bitwise OR) to combine flags
+Help: Use the `|` operator (bitwise OR) to combine flags
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 
-[MEDIUM] SuspiciousMessageMode: Mode expression should only contain the '|' operator
+[LOW] SuspiciousMessageMode: Mode expression should only contain the `|` operator
 test/detectors/SuspiciousMessageMode.tact:61:21:
   60 |             value: 0,
 > 61 |             mode: -(SendRemainingValue * SendPayGasSeparately) - SendIgnoreErrors // Bad
                            ^
   62 |         });
-Help: Use the '|' operator (bitwise OR) to combine flags
+Help: Use the `|` operator (bitwise OR) to combine flags
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 
-[MEDIUM] SuspiciousMessageMode: Setting `mode` to `0` is redundant as it has no effect.
+[LOW] SuspiciousMessageMode: Setting `mode` to `0` is redundant as it has no effect
 test/detectors/SuspiciousMessageMode.tact:79:15:
   78 |         value: 0,
 > 79 |         mode: 0 // Bad: Should trigger warning about `mode: 0` being redundant
                      ^
   80 |     });
-Help: Remove the `mode` field or set it to `SendDefaultMode`.
+Help: Use `SendDefaultMode` instead of `0`, or remove the `mode` field
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
