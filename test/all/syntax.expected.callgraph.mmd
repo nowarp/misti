@@ -7,56 +7,60 @@ graph TD
     node_20["fun testLoops()"]
     node_21["fun callAsm(s: Slice): Cell"]
     node_22["override get fun getter(): Int"]
-    node_23["fun test()"]
-    node_24["fun test(): Int"]
-    node_25["external()"]
-    node_26["init()
+    node_23["get fun getter(): Int
+[StateRead<a>]"]
+    node_24["fun test()"]
+    node_25["fun getA(): Int
+[StateRead<a>]"]
+    node_26["fun test(): Int"]
+    node_27["external()"]
+    node_28["init()
 [StateWrite<addr,b,s>]"]
-    node_27["fun funcWithSend()
+    node_29["fun funcWithSend()
 [Send,StateRead<addr>]"]
-    node_28["fun funcWithStateRead()
+    node_30["fun funcWithStateRead()
 [StateRead<addr>]"]
-    node_29["fun funcWithStateWrite1()
+    node_31["fun funcWithStateWrite1()
 [StateRead<b,addr,s>,StateWrite<addr>]"]
-    node_30["fun funcWithStateWrite2(s: Slice): Address"]
-    node_31["fun funcWithMultipleEffects()
+    node_32["fun funcWithStateWrite2(s: Slice): Address"]
+    node_33["fun funcWithMultipleEffects()
 [AccessDatetime,PrgUse,PrgSeedInit]"]
-    node_32["receive()"]
-    node_33["get fun m(): map<Int, Int>
+    node_34["receive()"]
+    node_35["get fun m(): map<Int, Int>
 [StateRead<m>]"]
-    node_34["receive()
+    node_36["receive()
 [StateRead<m>]"]
-    node_35["dump"]
-    node_36["emptyMap"]
-    node_37["m::set"]
-    node_38["s::loadRefEx"]
-    node_39["TestContractT::getA"]
-    node_40["sender"]
-    node_41["beginCell"]
-    node_42["newAddress"]
-    node_43["s::loadAddress"]
-    node_44["now"]
-    node_45["nativeRandomizeLt"]
-    node_46["beginString"]
-    node_47["a::append"]
-    node_17 --> node_35
-    node_18 --> node_36
-    node_19 --> node_35
-    node_20 --> node_36
-    node_20 --> node_37
-    node_20 --> node_37
-    node_20 --> node_37
-    node_21 --> node_38
-    node_24 --> node_39
-    node_26 --> node_40
-    node_26 --> node_41
-    node_27 --> node_15
-    node_29 --> node_42
-    node_30 --> node_43
-    node_31 --> node_44
-    node_31 --> node_12
-    node_31 --> node_45
-    node_32 --> node_46
-    node_32 --> node_47
+    node_40["dump"]
+    node_41["emptyMap"]
+    node_42["m::set"]
+    node_43["s::loadRefEx"]
+    node_44["TestContractT::getA"]
+    node_45["sender"]
+    node_46["beginCell"]
+    node_47["newAddress"]
+    node_48["s::loadAddress"]
+    node_49["now"]
+    node_50["nativeRandomizeLt"]
+    node_51["beginString"]
+    node_52["a::append"]
+    node_17 --> node_40
+    node_18 --> node_41
+    node_19 --> node_40
+    node_20 --> node_41
+    node_20 --> node_42
+    node_20 --> node_42
+    node_20 --> node_42
+    node_21 --> node_43
+    node_26 --> node_44
+    node_28 --> node_45
+    node_28 --> node_46
+    node_29 --> node_15
+    node_31 --> node_47
+    node_32 --> node_48
+    node_33 --> node_49
+    node_33 --> node_12
+    node_33 --> node_50
+    node_34 --> node_51
+    node_34 --> node_52
     style node_12 fill:#F0F8FF,stroke:#000,stroke-width:1px;
     style node_15 fill:#F0F8FF,stroke:#000,stroke-width:1px;

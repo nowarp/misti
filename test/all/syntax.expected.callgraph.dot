@@ -8,55 +8,59 @@ digraph "CallGraph" {
     node_20 [label="fun testLoops()"];
     node_21 [label="fun callAsm(s: Slice): Cell"];
     node_22 [label="override get fun getter(): Int"];
-    node_23 [label="fun test()"];
-    node_24 [label="fun test(): Int"];
-    node_25 [label="external()"];
-    node_26 [label="init()
+    node_23 [label="get fun getter(): Int
+[StateRead<a>]"];
+    node_24 [label="fun test()"];
+    node_25 [label="fun getA(): Int
+[StateRead<a>]"];
+    node_26 [label="fun test(): Int"];
+    node_27 [label="external()"];
+    node_28 [label="init()
 [StateWrite<addr,b,s>]"];
-    node_27 [label="fun funcWithSend()
+    node_29 [label="fun funcWithSend()
 [Send,StateRead<addr>]"];
-    node_28 [label="fun funcWithStateRead()
+    node_30 [label="fun funcWithStateRead()
 [StateRead<addr>]"];
-    node_29 [label="fun funcWithStateWrite1()
+    node_31 [label="fun funcWithStateWrite1()
 [StateRead<b,addr,s>,StateWrite<addr>]"];
-    node_30 [label="fun funcWithStateWrite2(s: Slice): Address"];
-    node_31 [label="fun funcWithMultipleEffects()
+    node_32 [label="fun funcWithStateWrite2(s: Slice): Address"];
+    node_33 [label="fun funcWithMultipleEffects()
 [AccessDatetime,PrgUse,PrgSeedInit]"];
-    node_32 [label="receive()"];
-    node_33 [label="get fun m(): map<Int, Int>
+    node_34 [label="receive()"];
+    node_35 [label="get fun m(): map<Int, Int>
 [StateRead<m>]"];
-    node_34 [label="receive()
+    node_36 [label="receive()
 [StateRead<m>]"];
-    node_35 [label="dump"];
-    node_36 [label="emptyMap"];
-    node_37 [label="m::set"];
-    node_38 [label="s::loadRefEx"];
-    node_39 [label="TestContractT::getA"];
-    node_40 [label="sender"];
-    node_41 [label="beginCell"];
-    node_42 [label="newAddress"];
-    node_43 [label="s::loadAddress"];
-    node_44 [label="now"];
-    node_45 [label="nativeRandomizeLt"];
-    node_46 [label="beginString"];
-    node_47 [label="a::append"];
-    node_17 -> node_35;
-    node_18 -> node_36;
-    node_19 -> node_35;
-    node_20 -> node_36;
-    node_20 -> node_37;
-    node_20 -> node_37;
-    node_20 -> node_37;
-    node_21 -> node_38;
-    node_24 -> node_39;
-    node_26 -> node_40;
-    node_26 -> node_41;
-    node_27 -> node_15;
-    node_29 -> node_42;
-    node_30 -> node_43;
-    node_31 -> node_44;
-    node_31 -> node_12;
-    node_31 -> node_45;
-    node_32 -> node_46;
-    node_32 -> node_47;
+    node_40 [label="dump"];
+    node_41 [label="emptyMap"];
+    node_42 [label="m::set"];
+    node_43 [label="s::loadRefEx"];
+    node_44 [label="TestContractT::getA"];
+    node_45 [label="sender"];
+    node_46 [label="beginCell"];
+    node_47 [label="newAddress"];
+    node_48 [label="s::loadAddress"];
+    node_49 [label="now"];
+    node_50 [label="nativeRandomizeLt"];
+    node_51 [label="beginString"];
+    node_52 [label="a::append"];
+    node_17 -> node_40;
+    node_18 -> node_41;
+    node_19 -> node_40;
+    node_20 -> node_41;
+    node_20 -> node_42;
+    node_20 -> node_42;
+    node_20 -> node_42;
+    node_21 -> node_43;
+    node_26 -> node_44;
+    node_28 -> node_45;
+    node_28 -> node_46;
+    node_29 -> node_15;
+    node_31 -> node_47;
+    node_32 -> node_48;
+    node_33 -> node_49;
+    node_33 -> node_12;
+    node_33 -> node_50;
+    node_34 -> node_51;
+    node_34 -> node_52;
 }

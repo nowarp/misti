@@ -34,6 +34,7 @@ import {
   AstNode,
   AstReceiver,
   AstStatement,
+  AstTraitDeclaration,
   idText,
   isSelfId,
   tryExtractPath,
@@ -71,11 +72,11 @@ export class TactCallGraphBuilder {
     this.astStore
       .getProgramEntries({ includeStdlib: true })
       .forEach((entry) => {
-        if (entry.kind === "contract") {
+        if (entry.kind === "contract" || entry.kind === "trait") {
           const contract = entry;
           const contractName = contract.name.text;
-          contract.declarations.forEach((declaration) => {
-            this.addContractDeclarationToGraph(declaration, contractName);
+          contract.declarations.forEach((decl) => {
+            this.addContractDeclarationToGraph(decl, contractName);
           });
         } else if (entry.kind === "function_def") {
           const func = entry;
@@ -97,7 +98,7 @@ export class TactCallGraphBuilder {
    * @param contractName The name of the contract the declaration belongs to.
    */
   private addContractDeclarationToGraph(
-    declaration: AstContractDeclaration,
+    declaration: AstContractDeclaration | AstTraitDeclaration,
     contractName: string,
   ) {
     switch (declaration.kind) {
@@ -160,9 +161,8 @@ export class TactCallGraphBuilder {
    */
   private analyzeFunctionCalls() {
     for (const entry of this.astStore.getProgramEntries()) {
-      if (entry.kind === "contract") {
-        const contract = entry;
-        for (const declaration of contract.declarations) {
+      if (entry.kind === "contract" || entry.kind === "trait") {
+        for (const declaration of entry.declarations) {
           if (
             declaration.kind === "function_def" ||
             declaration.kind === "contract_init" ||
@@ -174,7 +174,7 @@ export class TactCallGraphBuilder {
               const funcNode = this.nodeMap.get(funcNodeId);
               if (!funcNode) continue;
               func.statements.forEach((stmt) => {
-                this.processStatement(stmt, funcNodeId, idText(contract.name));
+                this.processStatement(stmt, funcNodeId, idText(entry.name));
               });
             }
           }
