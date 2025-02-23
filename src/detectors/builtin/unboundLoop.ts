@@ -43,7 +43,7 @@ import {
  * ```
  */
 export class UnboundLoop extends SouffleDetector {
-  minSeverity = Severity.HIGH;
+  severity = Severity.HIGH;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const program = this.createSouffleContext(cu);

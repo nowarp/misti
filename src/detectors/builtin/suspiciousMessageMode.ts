@@ -40,7 +40,7 @@ import {
  * ```
  */
 export class SuspiciousMessageMode extends AstDetector {
-  minSeverity = Severity.LOW;
+  severity = { min: Severity.LOW, max: Severity.MEDIUM };
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const warnings: MistiTactWarning[] = [];
@@ -110,6 +110,7 @@ export class SuspiciousMessageMode extends AstDetector {
                 "Mode expression should only contain the `|` operator",
                 e.loc,
                 {
+                  severity: Severity.MEDIUM,
                   suggestion:
                     "Use the `|` operator (bitwise OR) to combine flags",
                 },
@@ -125,6 +126,7 @@ export class SuspiciousMessageMode extends AstDetector {
                 `Flag \`${flagName}\` is used multiple times in the \`mode\` expression`,
                 e.loc,
                 {
+                  severity: Severity.MEDIUM,
                   suggestion:
                     "Use each flag at most once in the mode expression",
                 },
@@ -145,6 +147,7 @@ export class SuspiciousMessageMode extends AstDetector {
               "Integer literals should not be used in mode expression",
               e.loc,
               {
+                severity: Severity.MEDIUM,
                 suggestion,
               },
             ),

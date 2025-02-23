@@ -27,7 +27,7 @@ const REPLACEMENTS: Record<string, string> = {
  * ```
  */
 export class OptimalMathFunction extends AstDetector {
-  minSeverity = Severity.LOW;
+  severity = Severity.LOW;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {

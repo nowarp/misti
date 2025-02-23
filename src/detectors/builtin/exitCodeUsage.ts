@@ -205,7 +205,7 @@ class ExitCodeTransfer implements Transfer<VariableState> {
  * 1. [Exit Codes | Tact Docs](https://docs.tact-lang.org/book/exit-codes)
  */
 export class ExitCodeUsage extends DataflowDetector {
-  minSeverity = Severity.HIGH;
+  severity = Severity.HIGH;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const warnings: MistiTactWarning[] = [];

@@ -30,6 +30,7 @@ export class Driver {
   detectors: Detector[] = [];
   tools: Tool<any>[] = [];
   outputPath: string;
+  /** List of detectors explicitly disabled by the user. */
   disabledDetectors: Set<string>;
   colorizeOutput: boolean;
   fs: VirtualFileSystem;
@@ -261,7 +262,7 @@ export class Driver {
    */
   async initializeDetectors(): Promise<void> {
     const detectorPromises = this.ctx.config.detectors.reduce<
-      Promise<Detector>[]
+      Promise<Detector | null>[]
     >((acc, config) => {
       if (this.disabledDetectors.has(config.className)) {
         this.ctx.logger.debug(`Suppressed detector: ${config.className}`);
@@ -269,6 +270,7 @@ export class Driver {
       }
       acc.push(
         (async () => {
+          let DetectorClass;
           if (config.modulePath) {
             let module;
             try {
@@ -277,19 +279,14 @@ export class Driver {
               module = await import(
                 relativePath.replace(path.extname(relativePath), "")
               );
+              DetectorClass = module[config.className];
             } catch (error) {
               this.ctx.logger.error(
                 `Failed to import module: ${config.modulePath}`,
               );
               this.ctx.logger.error(`${error}`);
+              return null;
             }
-            const DetectorClass = module[config.className];
-            if (!DetectorClass) {
-              throw ExecutionException.make(
-                `Detector class ${config.className} not found in module ${config.modulePath}`,
-              );
-            }
-            return new DetectorClass(this.ctx) as Detector;
           } else {
             const detector = await findBuiltInDetector(
               this.ctx,
@@ -302,11 +299,25 @@ export class Driver {
             }
             return detector;
           }
+          if (!DetectorClass) {
+            throw ExecutionException.make(
+              `Detector class ${config.className} not found in module ${config.modulePath}`,
+            );
+          }
+          if (DetectorClass.maxSeverity < this.minSeverity) {
+            this.ctx.logger.debug(
+              `Skipping detector ${config.className} - max severity ${DetectorClass.maxSeverity} < min severity ${this.minSeverity}`,
+            );
+            return null;
+          }
+          return new DetectorClass(this.ctx) as Detector;
         })(),
       );
       return acc;
     }, []);
-    this.detectors = await Promise.all(detectorPromises);
+    this.detectors = (await Promise.all(detectorPromises)).filter(
+      (detector): detector is Detector => detector !== null,
+    );
     this.ctx.logger.debug(
       `Enabled detectors (${this.detectors.length}): ${this.detectors.map((d) => d.id).join(", ")}`,
     );

@@ -34,7 +34,7 @@ import {
  * ```
  */
 export class FieldDoubleInit extends AstDetector {
-  minSeverity = Severity.MEDIUM;
+  severity = Severity.MEDIUM;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.ast.getContracts()).reduce(
