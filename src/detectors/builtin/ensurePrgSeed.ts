@@ -39,7 +39,7 @@ import { AstStaticCall, idText } from "@tact-lang/compiler/dist/grammar/ast";
  * ```
  */
 export class EnsurePrgSeed extends AstDetector {
-  minSeverity = Severity.MEDIUM;
+  severity = Severity.MEDIUM;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const randomCalls = cu.ast.getProgramEntries().reduce(

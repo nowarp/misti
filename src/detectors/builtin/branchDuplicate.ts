@@ -42,7 +42,7 @@ import {
  * ```
  */
 export class BranchDuplicate extends AstDetector {
-  minSeverity = Severity.HIGH;
+  severity = Severity.HIGH;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {

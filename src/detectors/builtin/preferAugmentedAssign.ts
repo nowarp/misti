@@ -53,7 +53,7 @@ const DontSuggestKinds = new Set<string>([
  * ```
  */
 export class PreferAugmentedAssign extends AstDetector {
-  minSeverity = Severity.INFO;
+  severity = Severity.INFO;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {

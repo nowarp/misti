@@ -50,7 +50,7 @@ const MAP_DEL_OPERATIONS = new Set<string>(["del"]);
  * ```
  */
 export class UnboundMap extends AstDetector {
-  minSeverity = Severity.LOW;
+  severity = Severity.LOW;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.ast.getContracts()).reduce(

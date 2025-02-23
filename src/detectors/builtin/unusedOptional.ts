@@ -51,7 +51,7 @@ type UnusedVarInfo = { name: AstId; originalType: AstType };
  * ```
  */
 export class UnusedOptional extends AstDetector {
-  minSeverity = Severity.LOW;
+  severity = Severity.LOW;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const freeFunctionWarnings = Array.from(cu.ast.getProgramEntries()).reduce(

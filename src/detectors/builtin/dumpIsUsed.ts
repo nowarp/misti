@@ -33,7 +33,7 @@ import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
  * ```
  */
 export class DumpIsUsed extends AstDetector {
-  minSeverity = Severity.INFO;
+  severity = Severity.INFO;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {

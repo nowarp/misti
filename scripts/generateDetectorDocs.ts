@@ -1,5 +1,9 @@
 import { DetectorKind } from "../src/detectors/detector";
-import { Severity, parseSeverity, severityToString } from "../src/internals/warnings";
+import {
+  Severity,
+  parseSeverity,
+  severityToString,
+} from "../src/internals/warnings";
 import { PropertyDeclaration } from "typescript";
 import {
   ClassDeclaration,
@@ -34,7 +38,7 @@ declare module "typescript" {
 type DetectorDoc = {
   className: string;
   kind: DetectorKind;
-  severity: Severity;
+  severity: { min: Severity; max: Severity };
   markdown: string;
   enabledByDefault: boolean;
 };
@@ -115,18 +119,37 @@ function extractKindValue(
   return undefined;
 }
 
-function extractSeverityValue(node: ClassDeclaration): Severity {
+function parseMinMax(input: string): { min: string; max: string } | undefined {
+  const regex = /{\s*min:\s*Severity\.(\w+),\s*max:\s*Severity\.(\w+)\s*}/;
+  const match = input.match(regex);
+  return match ? { min: match[1], max: match[2] } : undefined;
+}
+
+function extractSeverityValue(node: ClassDeclaration): {
+  min: Severity;
+  max: Severity;
+} {
   for (const member of node.members) {
     if (
       member.kind === SyntaxKind.PropertyDeclaration &&
-      (member as PropertyDeclaration).name.getText() === "minSeverity"
+      (member as PropertyDeclaration).name.getText() === "severity"
     ) {
       const propertyDeclaration = member as PropertyDeclaration;
       if (propertyDeclaration.initializer) {
-        const severityValue = propertyDeclaration.initializer
-          .getText()
-          .split(".")[1];
-        return parseSeverity(severityValue);
+        const initText = propertyDeclaration.initializer.getText();
+        const result = parseMinMax(initText);
+        if (result) {
+          return {
+            min: parseSeverity(result.min),
+            max: parseSeverity(result.max),
+          };
+        } else {
+          const severityValue = propertyDeclaration.initializer
+            .getText()
+            .split(".")[1];
+          const value = parseSeverity(severityValue);
+          return { min: value, max: value };
+        }
       }
     }
   }
@@ -151,8 +174,8 @@ export function processFile(
         const docComment = getJSDocComments(node);
         const kind = extractKindValue(node, checker)!;
         const severity = extractSeverityValue(node);
-        const enabledByDefault = BuiltInDetectors[className]?.enabledByDefault ?? false;
-
+        const enabledByDefault =
+          BuiltInDetectors[className]?.enabledByDefault ?? false;
         const markdown = `# ${className}\n${docComment}\n`;
         results.push({ className, markdown, kind, severity, enabledByDefault });
       }
@@ -182,21 +205,28 @@ export function processDirectory(
     module: 1, // CommonJS
   });
 
-  console.log("| #  | Detector | Minimum Severity | Requires Soufflé | Enabled by default |");
-  console.log("|----|-----------|-----------|--------------------|---------------------|");
-
-  fileNames.forEach((fileName, index) => {
+  console.log(
+    "| #  | Detector | Severity | Requires Soufflé | Enabled by default |",
+  );
+  console.log(
+    "|----|----------|----------|------------------|--------------------|",
+  );
+  fileNames.forEach((fileName, idx) => {
     processFile(fileName, program).forEach(
       ({ className, markdown, kind, severity, enabledByDefault }) => {
         const markdownPath = `${className}.md`;
         const dest = path.join(outputDirectory, markdownPath);
-
         const requiresSouffle = kind === "souffle" ? "✔" : "";
         const enabledByDefaultStr = enabledByDefault ? "✔" : "";
+        const severityStr = (() => {
+          const { min, max } = severity;
+          const fmt = (s: Severity) =>
+            capitalize(severityToString(s, { brackets: false }));
+          return min === max ? fmt(min) : `${fmt(min)}—${fmt(max)}`;
+        })();
         console.log(
-          `| ${index + 1}  | [${className}](./detectors/${markdownPath}) | ${capitalize(severityToString(severity, { brackets: false }))} | ${requiresSouffle} | ${enabledByDefaultStr} |`
+          `| ${idx + 1}  | [${className}](./detectors/${markdownPath}) | ${severityStr} | ${requiresSouffle} | ${enabledByDefaultStr} |`,
         );
-
         fs.outputFileSync(dest, markdown);
       },
     );

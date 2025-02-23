@@ -172,7 +172,7 @@ class StringReceiversOverlapTransfer implements Transfer<TaintState> {
  * ```
  */
 export class StringReceiversOverlap extends DataflowDetector {
-  minSeverity = Severity.HIGH;
+  severity = Severity.HIGH;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const stringReceivers = this.getStringReceiverNames(cu);
