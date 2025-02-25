@@ -106,3 +106,15 @@ fun refs_num_ok(c: Cell, copt: Cell?) {
     b1.storeRef(c);
     c1 = b1.endCell();
 }
+
+fun data_ok() {
+    // Should NOT trigger data underflow warning
+    beginCell()
+        .storeUint(2, 2)
+        .storeUint(0, 1)
+        .storeUint(0, 8)
+        .storeUint(0, 256) // 267 total bits stored
+        .endCell()
+        .asSlice()
+        .loadAddress(); // 267 bits loaded
+}

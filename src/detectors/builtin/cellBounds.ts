@@ -136,6 +136,7 @@ interface CellUnderflowState {
 type CallAnalysisResult = {
   variable: VariableRhs;
   storageUpdates: VariableStorage;
+  modifyingUpdate?: VariableStorage;
   intermediates: VariableRhs[];
 };
 
@@ -340,15 +341,27 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
   ): void {
     const variable = this.retrieveVariable(out, self);
     if (variable) {
-      const result = this.analyzeCalls(out, variable, calls);
-
-      // Apply the accumulated storage updates to the variable
-      result.variable.value.storage = this.combineStorageUpdates(
-        result.variable.value.storage,
-        result.storageUpdates,
+      const result = this.analyzeCalls(
+        out,
+        variable,
+        variable.value.storage,
+        calls,
       );
-
-      // Assign the final variable to the LHS of the assignment/definition.
+      // Apply modifying updates to the original variable if it's known
+      if (variable.kind === "known" && result.modifyingUpdate) {
+        const originalVar = getVariableFromState(
+          out,
+          variable.value.name,
+          variable.value.kind,
+        );
+        if (originalVar) {
+          originalVar.storage = this.combineStorageUpdates(
+            originalVar.storage,
+            result.modifyingUpdate,
+          );
+        }
+      }
+      // Assign the final variable to the LHS of the assignment/definition
       this.createVariable(out, assignmentTarget, result.variable);
     }
   }
@@ -357,37 +370,139 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
    * Analyzes effects on storage after calling the given methods.
    *
    * @param out The output state
-   * @param variable The variable being called on (could be known or unknown)
+   * @param currentVar The variable being called on (could be known or unknown)
+   * @param currentStorage The current accumulated storage state
    * @param calls The list of method calls
    */
   private analyzeCalls(
     out: CellUnderflowState,
-    variable: VariableRhs,
+    currentVar: VariableRhs,
+    currentStorage: VariableStorage,
     calls: AstMethodCall[],
   ): CallAnalysisResult {
     if (calls.length === 0) {
+      const finalVar =
+        currentVar.kind === "known"
+          ? {
+              kind: "known" as const,
+              value: {
+                ...currentVar.value,
+                storage: deepCopyVariableStorage(currentStorage),
+              },
+            }
+          : {
+              kind: "unknown" as const,
+              value: {
+                ...currentVar.value,
+                storage: deepCopyVariableStorage(currentStorage),
+              },
+            };
       return {
-        variable,
+        variable: finalVar,
         storageUpdates: createEmptyVariableStorage(),
+        modifyingUpdate: undefined,
         intermediates: [],
       };
     }
-
     const call = calls[0];
     const methodName = idText(call.method);
-
-    // Calculate storage updates without mutating the variable
-    const storageUpdate = this.calculateStorage(out, variable, call);
-
-    // Transform type if needed
+    const storageUpdate = this.calculateStorage(out, currentVar, call);
+    // Determine if this method modifies the variable in place
+    let modifyingUpdate: VariableStorage | undefined;
+    if (this.isModifyingMethod(currentVar.value.kind, methodName)) {
+      modifyingUpdate = storageUpdate;
+    }
+    // Determine if the type changes
     const newKind = this.determineNewVariableKind(
-      variable.value.kind,
+      currentVar.value.kind,
       methodName,
     );
-
-    return newKind !== variable.value.kind
-      ? this.handleTypeChange(out, variable, calls, storageUpdate, newKind)
-      : this.handleSameType(out, variable, calls, storageUpdate);
+    let newVariable: VariableRhs;
+    let nextStorage: VariableStorage;
+    if (newKind !== currentVar.value.kind) {
+      let returnedStorage: VariableStorage;
+      // Handle specific type-changing methods
+      if (
+        methodName === "loadRef" &&
+        currentVar.value.kind === VariableKind.Slice
+      ) {
+        // loadRef, the new Cell has undecidable storage
+        returnedStorage = createUndecidableVariableStorage();
+        // Apply the storage update (loaded_refs = 1) to the original Slice
+        modifyingUpdate = storageUpdate;
+      } else if (
+        (methodName === "endCell" || methodName === "asCell") &&
+        currentVar.value.kind === VariableKind.Builder
+      ) {
+        // Builder to Cell, preserve stored values and reset loaded to 0
+        returnedStorage = {
+          refsNum: { ...currentStorage.refsNum, loaded: Interval.fromNum(0) },
+          dataSize: { ...currentStorage.dataSize, loaded: Interval.fromNum(0) },
+        };
+      } else if (
+        (methodName === "asSlice" || methodName === "beginParse") &&
+        currentVar.value.kind === VariableKind.Cell
+      ) {
+        // Cell to Slice, preserve stored values and reset loaded to 0
+        returnedStorage = {
+          refsNum: { ...currentStorage.refsNum, loaded: Interval.fromNum(0) },
+          dataSize: { ...currentStorage.dataSize, loaded: Interval.fromNum(0) },
+        };
+      } else {
+        // Other type-changing methods, set storage to undecidable
+        returnedStorage = createUndecidableVariableStorage();
+      }
+      newVariable = {
+        kind: "unknown" as const,
+        value: {
+          kind: newKind,
+          storage: returnedStorage,
+        } as UnknownVariable,
+      };
+      nextStorage = returnedStorage;
+    } else {
+      // known/unknown status while updating storage
+      if (currentVar.kind === "known") {
+        newVariable = {
+          kind: "known" as const,
+          value: {
+            ...currentVar.value,
+            name: currentVar.value.name,
+            loc: currentVar.value.loc,
+            storage: deepCopyVariableStorage(currentStorage),
+          },
+        };
+      } else {
+        newVariable = {
+          kind: "unknown" as const,
+          value: {
+            ...currentVar.value,
+            storage: deepCopyVariableStorage(currentStorage),
+          },
+        };
+      }
+      nextStorage = this.combineStorageUpdates(currentStorage, storageUpdate);
+    }
+    const result = this.analyzeCalls(
+      out,
+      newVariable,
+      nextStorage,
+      calls.slice(1),
+    );
+    const combinedModifyingUpdate = modifyingUpdate
+      ? result.modifyingUpdate
+        ? this.combineStorageUpdates(modifyingUpdate, result.modifyingUpdate)
+        : modifyingUpdate
+      : result.modifyingUpdate;
+    return {
+      variable: result.variable,
+      storageUpdates: result.storageUpdates,
+      modifyingUpdate: combinedModifyingUpdate,
+      intermediates:
+        newKind !== currentVar.value.kind
+          ? [newVariable, ...result.intermediates]
+          : result.intermediates,
+    };
   }
 
   /**
@@ -421,68 +536,17 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
   }
 
   /**
-   * Handles the case when a variable's type changes after a method call.
-   * Creates a new variable of the new type and processes remaining calls.
+   * Determines if a method modifies the variable in place (e.g., store* on Builders, load* on Slices).
    *
-   * @param out Current dataflow state
-   * @param variable Original variable being transformed
-   * @param calls List of method calls to process
-   * @param storageUpdate Current storage updates
-   * @param newKind New type for the variable
+   * @param kind The kind of the variable
+   * @param methodName The name of the method being called
+   * @returns True if the method modifies the variable in place, false otherwise
    */
-  private handleTypeChange(
-    out: CellUnderflowState,
-    variable: VariableRhs,
-    calls: AstMethodCall[],
-    storageUpdate: VariableStorage,
-    newKind: VariableKind,
-  ): CallAnalysisResult {
-    const newVariable: VariableRhs = {
-      kind: "unknown",
-      value: {
-        kind: newKind,
-        storage: variable.value.storage, // Storage will be updated later
-      } as UnknownVariable,
-    };
-    const result = this.analyzeCalls(out, newVariable, calls.slice(1));
-    newVariable.value.storage = this.combineStorageUpdates(
-      storageUpdate,
-      result.storageUpdates,
+  private isModifyingMethod(kind: VariableKind, methodName: string): boolean {
+    return (
+      (kind === VariableKind.Slice && methodName.startsWith("load")) ||
+      (kind === VariableKind.Builder && methodName.startsWith("store"))
     );
-    return {
-      variable: result.variable,
-      storageUpdates: this.combineStorageUpdates(
-        storageUpdate,
-        result.storageUpdates,
-      ),
-      intermediates: [newVariable, ...result.intermediates],
-    };
-  }
-
-  /**
-   * Handles the case when a variable's type remains the same after a method call.
-   * Continues processing remaining calls with the same variable.
-   *
-   * @param out Current dataflow state
-   * @param variable Variable being processed
-   * @param calls List of method calls to process
-   * @param storageUpdate Current storage updates
-   */
-  private handleSameType(
-    out: CellUnderflowState,
-    variable: VariableRhs,
-    calls: AstMethodCall[],
-    storageUpdate: VariableStorage,
-  ): CallAnalysisResult {
-    const result = this.analyzeCalls(out, variable, calls.slice(1));
-    return {
-      variable: result.variable,
-      storageUpdates: this.combineStorageUpdates(
-        storageUpdate,
-        result.storageUpdates,
-      ),
-      intermediates: result.intermediates,
-    };
   }
 
   /**
@@ -806,7 +870,12 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       const variable = this.retrieveVariable(out, self);
       if (!variable) return;
 
-      const result = this.analyzeCalls(out, variable, calls);
+      const result = this.analyzeCalls(
+        out,
+        variable,
+        variable.value.storage,
+        calls,
+      );
 
       // Collect intermediate variables
       result.intermediates.forEach((intermediateVar) => {
