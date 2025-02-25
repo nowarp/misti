@@ -2,41 +2,41 @@ graph TD
     node_6["inline fun emptySlice(): Slice"]
     node_13["inline fun contractAddress(s: StateInit): Address"]
     node_15["fun send(params: SendParameters): Int"]
-    node_20["fun requireOwner()"]
-    node_21["get fun owner(): Address"]
-    node_22["receive(msg: ChangeOwner)"]
-    node_23["init(owner: Address, content: Cell, max_supply: Int)
+    node_20["fun Ownable::requireOwner()"]
+    node_21["get fun Ownable::owner(): Address"]
+    node_22["OwnableTransferable::receive(msg: ChangeOwner)"]
+    node_23["SampleJetton::init(owner: Address, content: Cell, max_supply: Int)
 [StateWrite<totalSupply,max_supply,owner,mintable,content>]"]
-    node_24["receive(msg: Mint)
+    node_24["SampleJetton::receive(msg: Mint)
 [StateRead<owner,mintable>]"]
-    node_25["receive('Mint: 100')
+    node_25["SampleJetton::receive('Mint: 100')
 [StateRead<mintable,owner>]"]
-    node_26["receive('Owner: MintClose')
+    node_26["SampleJetton::receive('Owner: MintClose')
 [StateRead<owner>,StateWrite<mintable>]"]
-    node_27["receive(msg: TokenUpdateContent)
+    node_27["Jetton::receive(msg: TokenUpdateContent)
 [StateWrite<content>]"]
-    node_28["receive(msg: TokenBurnNotification)
+    node_28["Jetton::receive(msg: TokenBurnNotification)
 [Send,StateWrite<totalSupply>]"]
-    node_29["fun mint(to: Address, amount: Int, response_destination: Address)
+    node_29["fun Jetton::mint(to: Address, amount: Int, response_destination: Address)
 [Send,StateRead<totalSupply,max_supply>,StateWrite<totalSupply>]"]
-    node_30["fun requireWallet(owner: Address)"]
-    node_31["virtual fun getJettonWalletInit(address: Address): StateInit"]
-    node_32["get fun get_jetton_data(): JettonData
+    node_30["fun Jetton::requireWallet(owner: Address)"]
+    node_31["virtual fun Jetton::getJettonWalletInit(address: Address): StateInit"]
+    node_32["get fun Jetton::get_jetton_data(): JettonData
 [StateRead<totalSupply,mintable,owner,content>]"]
-    node_33["get fun get_wallet_address(owner: Address): Address"]
-    node_34["init(master: Address, owner: Address)
+    node_33["get fun Jetton::get_wallet_address(owner: Address): Address"]
+    node_34["JettonDefaultWallet::init(master: Address, owner: Address)
 [StateWrite<balance,owner,master>]"]
-    node_35["receive(msg: TokenTransfer)
+    node_35["JettonDefaultWallet::receive(msg: TokenTransfer)
 [Send,StateRead<owner,gasConsumption,minTonsForStorage,balance,master>,StateWrite<balance>]"]
-    node_36["receive(msg: TokenTransferInternal)
+    node_36["JettonDefaultWallet::receive(msg: TokenTransferInternal)
 [Send,StateRead<master,balance,owner>,StateWrite<balance>]"]
-    node_37["get fun msgValue(value: Int): Int
+    node_37["get fun JettonDefaultWallet::msgValue(value: Int): Int
 [StateRead<minTonsForStorage>]"]
-    node_38["receive(msg: TokenBurn)
+    node_38["JettonDefaultWallet::receive(msg: TokenBurn)
 [Send,StateRead<owner,balance,gasConsumption,minTonsForStorage,master>,StateWrite<balance>]"]
-    node_39["bounced(msg: Slice)
+    node_39["JettonDefaultWallet::bounced(msg: Slice)
 [StateWrite<balance>]"]
-    node_40["get fun get_wallet_data(): JettonWalletData
+    node_40["get fun JettonDefaultWallet::get_wallet_data(): JettonWalletData
 [StateRead<balance,owner,master>]"]
     node_41["context"]
     node_42["require"]

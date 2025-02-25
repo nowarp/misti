@@ -7,29 +7,29 @@ digraph "CallGraph" {
     node_19 [label="fun testTryCatch(a: Int)"];
     node_20 [label="fun testLoops()"];
     node_21 [label="fun callAsm(s: Slice): Cell"];
-    node_22 [label="override get fun getter(): Int"];
-    node_23 [label="get fun getter(): Int
+    node_22 [label="override get fun TestContract::getter(): Int"];
+    node_23 [label="get fun Z::getter(): Int
 [StateRead<a>]"];
-    node_24 [label="fun test()"];
-    node_25 [label="fun getA(): Int
+    node_24 [label="fun TestContractF::test()"];
+    node_25 [label="fun TParent::getA(): Int
 [StateRead<a>]"];
-    node_26 [label="fun test(): Int"];
-    node_27 [label="external()"];
-    node_28 [label="init()
+    node_26 [label="fun TestContractT::test(): Int"];
+    node_27 [label="TestContractT::external()"];
+    node_28 [label="EffectTest::init()
 [StateWrite<addr,b,s>]"];
-    node_29 [label="fun funcWithSend()
+    node_29 [label="fun EffectTest::funcWithSend()
 [Send,StateRead<addr>]"];
-    node_30 [label="fun funcWithStateRead()
+    node_30 [label="fun EffectTest::funcWithStateRead()
 [StateRead<addr>]"];
-    node_31 [label="fun funcWithStateWrite1()
+    node_31 [label="fun EffectTest::funcWithStateWrite1()
 [StateRead<b,addr,s>,StateWrite<addr>]"];
-    node_32 [label="fun funcWithStateWrite2(s: Slice): Address"];
-    node_33 [label="fun funcWithMultipleEffects()
+    node_32 [label="fun EffectTest::funcWithStateWrite2(s: Slice): Address"];
+    node_33 [label="fun EffectTest::funcWithMultipleEffects()
 [AccessDatetime,PrgUse,PrgSeedInit]"];
-    node_34 [label="receive()"];
-    node_35 [label="get fun m(): map<Int, Int>
+    node_34 [label="EffectTest::receive()"];
+    node_35 [label="get fun A::m(): map<Int, Int>
 [StateRead<m>]"];
-    node_36 [label="receive()
+    node_36 [label="A::receive()
 [StateRead<m>]"];
     node_40 [label="dump"];
     node_41 [label="emptyMap"];
