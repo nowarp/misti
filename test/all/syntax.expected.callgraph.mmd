@@ -6,8 +6,8 @@ graph TD
     node_19["fun testTryCatch(a: Int)"]
     node_20["fun testLoops()"]
     node_21["fun callAsm(s: Slice): Cell"]
-    node_22["TestContract::override get fun getter(): Int"]
-    node_23["Z::get fun getter(): Int
+    node_22["override get fun TestContract::getter(): Int"]
+    node_23["get fun Z::getter(): Int
 [StateRead<a>]"]
     node_24["fun TestContractF::test()"]
     node_25["fun TParent::getA(): Int
@@ -26,7 +26,7 @@ graph TD
     node_33["fun EffectTest::funcWithMultipleEffects()
 [AccessDatetime,PrgUse,PrgSeedInit]"]
     node_34["EffectTest::receive()"]
-    node_35["A::get fun m(): map<Int, Int>
+    node_35["get fun A::m(): map<Int, Int>
 [StateRead<m>]"]
     node_36["A::receive()
 [StateRead<m>]"]

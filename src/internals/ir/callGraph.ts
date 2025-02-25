@@ -122,10 +122,18 @@ export class CGNode {
     let signature = pp(fun).split("{")[0].replace(/\s+/g, " ").trim();
     const parts = this.name.split("::");
     if (parts.length > 1 && !signature.includes("::")) {
-      if (signature.startsWith("fun ")) {
-        signature = "fun " + parts[0] + "::" + signature.substring(4);
+      const contractName = parts[0];
+      if (signature.includes(" fun ")) {
+        const lastFunIndex = signature.lastIndexOf(" fun ") + 5;
+        signature =
+          signature.substring(0, lastFunIndex) +
+          contractName +
+          "::" +
+          signature.substring(lastFunIndex);
+      } else if (signature.startsWith("fun ")) {
+        signature = "fun " + contractName + "::" + signature.substring(4);
       } else {
-        signature = parts[0] + "::" + signature;
+        signature = contractName + "::" + signature;
       }
     }
     return signature;
