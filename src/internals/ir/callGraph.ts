@@ -122,7 +122,11 @@ export class CGNode {
     let signature = pp(fun).split("{")[0].replace(/\s+/g, " ").trim();
     const parts = this.name.split("::");
     if (parts.length > 1 && !signature.includes("::")) {
-      signature = parts[0] + "::" + signature;
+      if (signature.startsWith("fun ")) {
+        signature = "fun " + parts[0] + "::" + signature.substring(4);
+      } else {
+        signature = parts[0] + "::" + signature;
+      }
     }
     return signature;
   }

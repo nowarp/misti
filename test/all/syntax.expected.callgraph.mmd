@@ -9,21 +9,21 @@ graph TD
     node_22["TestContract::override get fun getter(): Int"]
     node_23["Z::get fun getter(): Int
 [StateRead<a>]"]
-    node_24["TestContractF::fun test()"]
-    node_25["TParent::fun getA(): Int
+    node_24["fun TestContractF::test()"]
+    node_25["fun TParent::getA(): Int
 [StateRead<a>]"]
-    node_26["TestContractT::fun test(): Int"]
+    node_26["fun TestContractT::test(): Int"]
     node_27["TestContractT::external()"]
     node_28["EffectTest::init()
 [StateWrite<addr,b,s>]"]
-    node_29["EffectTest::fun funcWithSend()
+    node_29["fun EffectTest::funcWithSend()
 [Send,StateRead<addr>]"]
-    node_30["EffectTest::fun funcWithStateRead()
+    node_30["fun EffectTest::funcWithStateRead()
 [StateRead<addr>]"]
-    node_31["EffectTest::fun funcWithStateWrite1()
+    node_31["fun EffectTest::funcWithStateWrite1()
 [StateRead<b,addr,s>,StateWrite<addr>]"]
-    node_32["EffectTest::fun funcWithStateWrite2(s: Slice): Address"]
-    node_33["EffectTest::fun funcWithMultipleEffects()
+    node_32["fun EffectTest::funcWithStateWrite2(s: Slice): Address"]
+    node_33["fun EffectTest::funcWithMultipleEffects()
 [AccessDatetime,PrgUse,PrgSeedInit]"]
     node_34["EffectTest::receive()"]
     node_35["A::get fun m(): map<Int, Int>

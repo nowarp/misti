@@ -2,7 +2,7 @@ graph TD
     node_6["inline fun emptySlice(): Slice"]
     node_13["inline fun contractAddress(s: StateInit): Address"]
     node_15["fun send(params: SendParameters): Int"]
-    node_20["Ownable::fun requireOwner()"]
+    node_20["fun Ownable::requireOwner()"]
     node_21["Ownable::get fun owner(): Address"]
     node_22["OwnableTransferable::receive(msg: ChangeOwner)"]
     node_23["SampleJetton::init(owner: Address, content: Cell, max_supply: Int)
@@ -17,9 +17,9 @@ graph TD
 [StateWrite<content>]"]
     node_28["Jetton::receive(msg: TokenBurnNotification)
 [Send,StateWrite<totalSupply>]"]
-    node_29["Jetton::fun mint(to: Address, amount: Int, response_destination: Address)
+    node_29["fun Jetton::mint(to: Address, amount: Int, response_destination: Address)
 [Send,StateRead<totalSupply,max_supply>,StateWrite<totalSupply>]"]
-    node_30["Jetton::fun requireWallet(owner: Address)"]
+    node_30["fun Jetton::requireWallet(owner: Address)"]
     node_31["Jetton::virtual fun getJettonWalletInit(address: Address): StateInit"]
     node_32["Jetton::get fun get_jetton_data(): JettonData
 [StateRead<totalSupply,mintable,owner,content>]"]
