@@ -390,6 +390,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: false,
   },
+  StateMutationInGetter: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/stateMutationInGetter").then(
+        (module) => new module.StateMutationInGetter(ctx),
+      ),
+    enabledByDefault: false,
+  },
   UnusedExpressionResult: {
     loader: (ctx: MistiContext) =>
       import("./builtin/unusedExpressionResult").then(
