@@ -5,7 +5,7 @@ import {
   forEachExpression,
   foldStatements,
   collectMutations,
-  isSelf
+  isSelf,
 } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
@@ -21,21 +21,21 @@ import {
  * An optional detector that identifies cases where a state-mutating function is called within a getter method.
  *
  * ## Why is it important?
- * While getter methods are generally expected to be pure functions that don’t modify state, 
- * they sometimes contain state-modifying logic (directly or indirectly). This can lead to 
- * misunderstandings for developers who assume getters are read-only. This detector is intended 
+ * While getter methods are generally expected to be pure functions that don’t modify state,
+ * they sometimes contain state-modifying logic (directly or indirectly). This can lead to
+ * misunderstandings for developers who assume getters are read-only. This detector is intended
  * for auditors to highlight such cases as potential design concerns.
  *
  * ## Example
  * ```tact
  * contract Example {
  *   value: Int = 0;
- *   
+ *
  *   get fun getValue(): Int {
  *     self.updateCounter(); // Suspicious: calls a function that modifies state
  *     return self.value;
  *   }
- *   
+ *
  *   fun updateCounter() {
  *     self.value = self.value + 1; // Modifies state
  *   }
@@ -49,7 +49,7 @@ import {
  *   get fun getValue(): Int {
  *     return self.value; // OK: Pure getter
  *   }
- *   
+ *
  *   fun getAndIncrement(): Int {
  *     let current = self.value;
  *     self.value = self.value + 1;
@@ -121,7 +121,8 @@ export class StateMutationInGetter extends AstDetector {
               {
                 extraDescription:
                   "Getter methods typically shouldn't contain state-modifying logic as this may confuse developers who expect them to be read-only",
-                suggestion: "Consider moving state-modifying logic to a non-getter function for clarity",
+                suggestion:
+                  "Consider moving state-modifying logic to a non-getter function for clarity",
               },
             ),
           );
@@ -153,7 +154,8 @@ export class StateMutationInGetter extends AstDetector {
             {
               extraDescription:
                 "Getter methods typically shouldn't call state-modifying functions as this may confuse developers who expect them to be read-only",
-              suggestion: "Consider moving state-modifying logic to a non-getter function for clarity",
+              suggestion:
+                "Consider moving state-modifying logic to a non-getter function for clarity",
             },
           ),
         );
@@ -185,7 +187,8 @@ export class StateMutationInGetter extends AstDetector {
                 {
                   extraDescription:
                     "Getter methods typically shouldn't call state-modifying methods as this may confuse developers who expect them to be read-only",
-                  suggestion: "Consider moving state-modifying logic to a non-getter function for clarity",
+                  suggestion:
+                    "Consider moving state-modifying logic to a non-getter function for clarity",
                 },
               ),
             );
