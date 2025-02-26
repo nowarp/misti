@@ -1,19 +1,19 @@
-[LOW] StateMutationInGetter: Getter directly mutates contract state
+[INFO] StateMutationInGetter: Getter contains direct state mutation logic
 test/detectors/StateMutationInGetter.tact:11:9:
   10 |     get fun badDirectMutation(): Int {
 > 11 |         self.value = self.value + 1; // BAD Direct state mutation
                ^
   12 |         return self.value;
-Getter methods should not modify state directly or indirectly
-Help: Move state-modifying logic to a non-getter function
+Getter methods typically shouldn't contain state-modifying logic as this may confuse developers who expect them to be read-only
+Help: Consider moving state-modifying logic to a non-getter function for clarity
 See: https://nowarp.io/tools/misti/docs/detectors/StateMutationInGetter
 
-[LOW] StateMutationInGetter: Getter calls state-mutating method: updateCounter
+[INFO] StateMutationInGetter: Getter calls state-mutating method: updateCounter
 test/detectors/StateMutationInGetter.tact:17:9:
   16 |     get fun badIndirectMutation(): Int {
 > 17 |         self.updateCounter(); // BAD
                ^
   18 |         return self.value;
-Getter methods should not modify state directly or indirectly
-Help: Move state-modifying logic to a non-getter function
+Getter methods typically shouldn't call state-modifying methods as this may confuse developers who expect them to be read-only
+Help: Consider moving state-modifying logic to a non-getter function for clarity
 See: https://nowarp.io/tools/misti/docs/detectors/StateMutationInGetter

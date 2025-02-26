@@ -1,9 +1,11 @@
 import { CompilationUnit } from "../../internals/ir";
 import { Effect } from "../../internals/ir/callGraph";
+import { CallGraph } from "../../internals/ir/callGraph";
 import {
   forEachExpression,
   foldStatements,
   collectMutations,
+  isSelf
 } from "../../internals/tact";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
@@ -18,22 +20,22 @@ import {
 /**
  * An optional detector that identifies cases where a state-mutating function is called within a getter method.
  *
- * ## Why is it bad?
- * Getter methods are expected to be pure functions that don't modify state. When a getter
- * modifies state (directly or by calling other functions that do), it violates this principle
- * and can lead to unexpected behavior, race conditions, and increased gas costs. Functions
- * that modify state should be explicitly marked as such, not disguised as getters.
+ * ## Why is it important?
+ * While getter methods are generally expected to be pure functions that don’t modify state, 
+ * they sometimes contain state-modifying logic (directly or indirectly). This can lead to 
+ * misunderstandings for developers who assume getters are read-only. This detector is intended 
+ * for auditors to highlight such cases as potential design concerns.
  *
  * ## Example
  * ```tact
  * contract Example {
  *   value: Int = 0;
- *
+ *   
  *   get fun getValue(): Int {
- *     self.updateCounter(); // Bad: Calls a function that modifies state
+ *     self.updateCounter(); // Suspicious: calls a function that modifies state
  *     return self.value;
  *   }
- *
+ *   
  *   fun updateCounter() {
  *     self.value = self.value + 1; // Modifies state
  *   }
@@ -44,11 +46,10 @@ import {
  * ```tact
  * contract Example {
  *   value: Int = 0;
- *
  *   get fun getValue(): Int {
  *     return self.value; // OK: Pure getter
  *   }
- *
+ *   
  *   fun getAndIncrement(): Int {
  *     let current = self.value;
  *     self.value = self.value + 1;
@@ -58,11 +59,10 @@ import {
  * ```
  */
 export class StateMutationInGetter extends AstDetector {
-  severity = Severity.LOW;
+  severity = Severity.INFO;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const warnings: MistiTactWarning[] = [];
-
     for (const contract of cu.ast.getContracts()) {
       for (const decl of contract.declarations) {
         if (
@@ -78,7 +78,6 @@ export class StateMutationInGetter extends AstDetector {
         }
       }
     }
-
     return warnings;
   }
 
@@ -93,7 +92,6 @@ export class StateMutationInGetter extends AstDetector {
   ): void {
     // Direct state mutations
     this.checkDirectStateMutations(getter, warnings);
-
     // Indirect state mutations through function calls
     forEachExpression(getter, (expr: AstExpression) => {
       if (expr.kind === "static_call") {
@@ -118,13 +116,12 @@ export class StateMutationInGetter extends AstDetector {
         if (mutations && mutations.mutatedFields.length > 0) {
           acc.push(
             this.makeWarning(
-              "Getter directly mutates contract state",
+              "Getter contains direct state mutation logic",
               stmt.loc,
               {
                 extraDescription:
-                  "Getter methods should not modify state directly or indirectly",
-                suggestion:
-                  "Move state-modifying logic to a non-getter function",
+                  "Getter methods typically shouldn't contain state-modifying logic as this may confuse developers who expect them to be read-only",
+                suggestion: "Consider moving state-modifying logic to a non-getter function for clarity",
               },
             ),
           );
@@ -146,7 +143,6 @@ export class StateMutationInGetter extends AstDetector {
   ): void {
     const calleeName = idText(call.function);
     const calleeNodeId = cu.callGraph.getNodeIdByName(calleeName);
-
     if (calleeNodeId !== undefined) {
       const calleeNode = cu.callGraph.getNode(calleeNodeId);
       if (calleeNode && calleeNode.hasEffect(Effect.StateWrite)) {
@@ -156,8 +152,8 @@ export class StateMutationInGetter extends AstDetector {
             call.loc,
             {
               extraDescription:
-                "Getter methods should not modify state directly or indirectly",
-              suggestion: "Move state-modifying logic to a non-getter function",
+                "Getter methods typically shouldn't call state-modifying functions as this may confuse developers who expect them to be read-only",
+              suggestion: "Consider moving state-modifying logic to a non-getter function for clarity",
             },
           ),
         );
@@ -174,26 +170,26 @@ export class StateMutationInGetter extends AstDetector {
     contractName: string,
     warnings: MistiTactWarning[],
   ): void {
-    // For self.method() calls check the contract's method
-    if (call.self.kind === "id" && idText(call.self) === "self") {
+    if (isSelf(call.self)) {
       const methodName = idText(call.method);
-      const fullMethodName = `${contractName}::${methodName}`;
-      const calleeNodeId = cu.callGraph.getNodeIdByName(fullMethodName);
-      if (calleeNodeId !== undefined) {
-        const calleeNode = cu.callGraph.getNode(calleeNodeId);
-        if (calleeNode && calleeNode.hasEffect(Effect.StateWrite)) {
-          warnings.push(
-            this.makeWarning(
-              `Getter calls state-mutating method: ${methodName}`,
-              call.loc,
-              {
-                extraDescription:
-                  "Getter methods should not modify state directly or indirectly",
-                suggestion:
-                  "Move state-modifying logic to a non-getter function",
-              },
-            ),
-          );
+      const calleeName = CallGraph.getFunctionCallName(call, contractName);
+      if (calleeName !== undefined) {
+        const calleeNodeId = cu.callGraph.getNodeIdByName(calleeName);
+        if (calleeNodeId !== undefined) {
+          const calleeNode = cu.callGraph.getNode(calleeNodeId);
+          if (calleeNode && calleeNode.hasEffect(Effect.StateWrite)) {
+            warnings.push(
+              this.makeWarning(
+                `Getter calls state-mutating method: ${methodName}`,
+                call.loc,
+                {
+                  extraDescription:
+                    "Getter methods typically shouldn't call state-modifying methods as this may confuse developers who expect them to be read-only",
+                  suggestion: "Consider moving state-modifying logic to a non-getter function for clarity",
+                },
+              ),
+            );
+          }
         }
       }
     }
