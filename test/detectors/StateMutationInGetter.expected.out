@@ -4,8 +4,7 @@ test/detectors/StateMutationInGetter.tact:11:9:
 > 11 |         self.value = self.value + 1; // BAD Direct state mutation
                ^
   12 |         return self.value;
-Getter methods typically shouldn't contain state-modifying logic as this may confuse developers who expect them to be read-only
-Help: Consider moving state-modifying logic to a non-getter function for clarity
+Help: Consider moving state-modifying logic to a non-getter function for clarity.
 See: https://nowarp.io/tools/misti/docs/detectors/StateMutationInGetter
 
 [INFO] StateMutationInGetter: Getter calls state-mutating method: updateCounter
@@ -14,6 +13,5 @@ test/detectors/StateMutationInGetter.tact:17:9:
 > 17 |         self.updateCounter(); // BAD
                ^
   18 |         return self.value;
-Getter methods typically shouldn't call state-modifying methods as this may confuse developers who expect them to be read-only
-Help: Consider moving state-modifying logic to a non-getter function for clarity
+Help: Consider moving state-modifying logic to a non-getter function for clarity.
 See: https://nowarp.io/tools/misti/docs/detectors/StateMutationInGetter

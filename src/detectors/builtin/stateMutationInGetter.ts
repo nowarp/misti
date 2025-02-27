@@ -119,10 +119,8 @@ export class StateMutationInGetter extends AstDetector {
               "Getter contains direct state mutation logic",
               stmt.loc,
               {
-                extraDescription:
-                  "Getter methods typically shouldn't contain state-modifying logic as this may confuse developers who expect them to be read-only",
                 suggestion:
-                  "Consider moving state-modifying logic to a non-getter function for clarity",
+                  "Consider moving state-modifying logic to a non-getter function for clarity.",
               },
             ),
           );
@@ -152,10 +150,8 @@ export class StateMutationInGetter extends AstDetector {
             `Getter calls state-mutating function: ${calleeName}`,
             call.loc,
             {
-              extraDescription:
-                "Getter methods typically shouldn't call state-modifying functions as this may confuse developers who expect them to be read-only",
               suggestion:
-                "Consider moving state-modifying logic to a non-getter function for clarity",
+                "Consider moving state-modifying logic to a non-getter function for clarity.",
             },
           ),
         );
@@ -185,10 +181,8 @@ export class StateMutationInGetter extends AstDetector {
                 `Getter calls state-mutating method: ${methodName}`,
                 call.loc,
                 {
-                  extraDescription:
-                    "Getter methods typically shouldn't call state-modifying methods as this may confuse developers who expect them to be read-only",
                   suggestion:
-                    "Consider moving state-modifying logic to a non-getter function for clarity",
+                    "Consider moving state-modifying logic to a non-getter function for clarity.",
                 },
               ),
             );
