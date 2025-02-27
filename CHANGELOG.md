@@ -9,11 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `StateMutationInGetter` detector: PR [#306](https://github.com/nowarp/misti/pull/306)
-- CGNodes display function signatures with contract name: PR [#305](https://github.com/nowarp/misti/pull/305)
-- Support Node version 23: PR [#301](https://github.com/nowarp/misti/pull/301)
-- Support absolute paths in warning suppressions: PR [#257](https://github.com/nowarp/misti/pull/257)
 - `UnprotectedCall` detector: PR [#235](https://github.com/nowarp/misti/pull/235)
 - `SuspiciousLoop` detector: PR [#206](https://github.com/nowarp/misti/pull/206)
+- Display function signatures with contract name on CallGraph dump: PR [#305](https://github.com/nowarp/misti/pull/305)
+- Support Node version 23: PR [#301](https://github.com/nowarp/misti/pull/301)
+- Support absolute paths in warning suppressions: PR [#257](https://github.com/nowarp/misti/pull/257)
 - File-scoped CFG dumps: Issue [#241](https://github.com/nowarp/misti/issues/241)
 - CLI option to disable Soufflé: Issue [#260](https://github.com/nowarp/misti/issues/260)
 - Save logs to JSON output: PR [#275](https://github.com/nowarp/misti/pull/275)
