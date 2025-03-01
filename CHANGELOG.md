@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Callgraph: Incorrect handling of getter methods: PR [#282](https://github.com/nowarp/misti/pull/282)
 - `ArgCopyMutation`: Incorrect handling of `return` in traits: Issue [#290](https://github.com/nowarp/misti/issues/290)
 - Added workaround for incorrect `SrcInfo.origin` in standard traits: Issue [#299](https://github.com/nowarp/misti/issues/299)
+- `SendInLoop`: Remove redundant error logs when accessing patterns like `self.<map_field>.set()`
 
 ## [0.6.2] - 2024-12-25
 

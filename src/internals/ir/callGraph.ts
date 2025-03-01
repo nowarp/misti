@@ -234,7 +234,7 @@ export class CallGraph {
    * Derives the function call name from a static or method call expression.
    * @param expr The call expression.
    * @param currentContractName The name of the current contract, if available.
-   * @returns The fully qualified function name, or `undefined` if it cannot be determined.
+   * @returns The fully qualified function name, or `undefined` if it is irrelevant.
    */
   public static getFunctionCallName(
     expr: AstStaticCall | AstMethodCall,
@@ -261,6 +261,6 @@ export class CallGraph {
       }
       // TODO: Support method call chains: #242
     }
-    return undefined;
+    return undefined; // e.g. self.<map_field>.set()
   }
 }
