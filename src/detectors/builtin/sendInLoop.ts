@@ -10,6 +10,7 @@ import {
   AstContract,
   SrcInfo,
 } from "@tact-lang/compiler/dist/grammar/ast";
+import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
 /**
  * An optional detector that identifies send functions being called inside loops,
@@ -111,7 +112,7 @@ export class SendInLoop extends AstDetector {
           );
           if (calleeName === undefined) {
             this.ctx.logger.error(
-              `Cannot retrieve function name for AST node: #${expr.id}`,
+              `Cannot retrieve function name for AST node: ${prettyPrint(expr)} (#${expr.id})`,
             );
             return acc;
           }
