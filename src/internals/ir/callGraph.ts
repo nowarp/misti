@@ -249,9 +249,7 @@ export class CallGraph {
         if (currentContractName !== undefined) {
           return `${currentContractName}::${methodName}`;
         } else {
-          throw InternalException.make(
-            `Cannot process ${pp(expr)} without current contract name`,
-          );
+          return methodName;
         }
       }
       // <struct/contract>.<method>()
