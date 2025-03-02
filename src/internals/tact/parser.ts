@@ -47,13 +47,14 @@ export function parseTactProject(
   try {
     let ctx = new CompilerContext();
     ctx = enableFeatures(ctx, mistiCtx.logger, projectConfig);
+    const astFactory = getAstFactory();
     ctx = precompile(
       ctx,
       projectVfs,
       stdlibVfs,
       projectConfig.path,
-      getParser(getAstFactory(), "old"),
-      getAstFactory(),
+      getParser(astFactory, "old"),
+      astFactory,
     );
     return getRawAST(ctx);
   } catch (error: unknown) {
