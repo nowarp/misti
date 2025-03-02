@@ -84,7 +84,7 @@ export const DEFAULT_STDLIB_PATH_ELEMENTS = [
 export function getStdlibPath() {
   return path.join(
     path.dirname(require.resolve("@tact-lang/compiler/package.json")),
-    "src",
+    "dist",
     "stdlib",
     "stdlib",
   );
@@ -106,7 +106,6 @@ export function definedInStdlib(
       ? DEFAULT_STDLIB_PATH_ELEMENTS
       : stdlibPath.split("/").filter((part) => part !== "");
   const filePath = typeof locOrPath === "string" ? locOrPath : locOrPath.file;
-
   return (
     filePath !== null &&
     (filePath.startsWith("@stdlib") || hasSubdirs(filePath, pathElements))
