@@ -71,9 +71,13 @@ export const STRING_MUTATING_METHODS = new Set<string>(["append"]);
  * A mandatory part of the file path to stdlib if using the default path.
  */
 export const DEFAULT_STDLIB_PATH_ELEMENTS = [
-  "node_modules",
-  "@tact-lang",
-  "compiler",
+  ...path
+    .dirname(require.resolve("@tact-lang/compiler/package.json"))
+    .split(path.sep)
+    .filter(Boolean)
+    .slice(-2),
+  "dist",
+  "stdlib",
   "stdlib",
 ];
 
@@ -104,7 +108,7 @@ export function definedInStdlib(
   const pathElements =
     stdlibPath === undefined
       ? DEFAULT_STDLIB_PATH_ELEMENTS
-      : stdlibPath.split("/").filter((part) => part !== "");
+      : stdlibPath.split(path.sep).filter((part) => part !== "");
   const filePath = typeof locOrPath === "string" ? locOrPath : locOrPath.file;
   return (
     filePath !== null &&

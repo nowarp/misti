@@ -77,23 +77,20 @@ export class ImportGraphBuilder {
     nodes.push(node);
 
     imports.reduce((acc, importNode) => {
-      const importPath = importAsString(importNode.importPath.path);
-      let resolvedPath = path.resolve(
-        path.dirname(filePath),
-        this.resolveStdlibPath(importPath),
-      );
+      let importPath =
+        importNode.importPath.type === "stdlib"
+          ? this.resolveStdlibPath(importAsString(importNode.importPath.path))
+          : path.resolve(
+              path.dirname(filePath),
+              importAsString(importNode.importPath.path),
+            );
       // TODO: We should use a Tact API function call when this is fixed:
       //       https://github.com/tact-lang/tact/issues/982
-      resolvedPath =
-        resolvedPath.endsWith(".tact") || resolvedPath.endsWith(".fc")
-          ? resolvedPath
-          : resolvedPath + ".tact";
-      const targetNodeIdx = this.processFile(
-        resolvedPath,
-        nodes,
-        edges,
-        visited,
-      );
+      importPath =
+        importPath.endsWith(".tact") || importPath.endsWith(".fc")
+          ? importPath
+          : importPath + ".tact";
+      const targetNodeIdx = this.processFile(importPath, nodes, edges, visited);
       const edge = new ImportEdge(node.idx, targetNodeIdx, importNode.loc);
       edges.push(edge);
       node.outEdges.add(edge.idx);
@@ -122,12 +119,7 @@ export class ImportGraphBuilder {
    * TODO: Should be replaced when https://github.com/tact-lang/tact/issues/982 is implemented.
    */
   private resolveStdlibPath(importPath: string): string {
-    const stdlibPrefix = "@stdlib/";
-    if (!importPath.startsWith(stdlibPrefix)) {
-      return importPath;
-    }
-    const libraryName = `${importPath.substring(stdlibPrefix.length)}.tact`;
-    return path.resolve(this.getStdlibLibsPath(), libraryName);
+    return path.resolve(this.getStdlibLibsPath(), importPath);
   }
 
   /**
