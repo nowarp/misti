@@ -8,18 +8,18 @@ import {
 import { Interval, Num } from "../../internals/numbers";
 import { WideningWorklistSolver } from "../../internals/solver";
 import { evalToType } from "../../internals/tact";
-import { findInExpressions } from "../../internals/tact/iterators";
-import { Transfer } from "../../internals/transfer";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { DataflowDetector } from "../detector";
 import {
   AstStatement,
-  idText,
   AstExpression,
   AstStatementAssign,
   AstStatementLet,
   AstNumber,
-} from "@tact-lang/compiler/dist/grammar/ast";
+  idText,
+} from "../../internals/tact/imports";
+import { findInExpressions } from "../../internals/tact/iterators";
+import { Transfer } from "../../internals/transfer";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { DataflowDetector } from "../detector";
 
 /**
  * The minimum allowed value for user-defined exit codes.
@@ -264,7 +264,7 @@ export class ExitCodeUsage extends DataflowDetector {
     arg: AstExpression,
     warnings: MistiTactWarning[],
   ): void {
-    const value = evalToType(arg, "bigint");
+    const value = evalToType(arg, "number");
     if (
       value !== undefined &&
       value !== null &&

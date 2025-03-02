@@ -5,15 +5,15 @@ import {
   nodesAreEqual,
   collectConditions,
 } from "../../internals/tact";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { AstDetector } from "../detector";
 import {
   AstStatement,
   AstConditional,
-  AstCondition,
+  AstStatementCondition,
+  prettyPrint,
   AstExpression,
-} from "@tact-lang/compiler/dist/grammar/ast";
-import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
+} from "../../internals/tact/imports";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { AstDetector } from "../detector";
 
 /**
  * A detector that finds duplicated conditions appearing in conditional expressions.
@@ -81,7 +81,7 @@ export class DuplicatedCondition extends AstDetector {
 
   private checkConditionalStatement(
     acc: MistiTactWarning[],
-    stmt: AstCondition,
+    stmt: AstStatementCondition,
   ): MistiTactWarning[] {
     const allConditions = collectConditions(stmt);
     return this.checkConditions(acc, allConditions);

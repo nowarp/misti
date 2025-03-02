@@ -1,11 +1,8 @@
 import { CompilationUnit } from "../../internals/ir";
 import { collectFields } from "../../internals/tact";
+import { AstContract, AstContractInit } from "../../internals/tact/imports";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
-import {
-  AstContract,
-  AstContractInit,
-} from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
  * A detector that highlights cases where a field is initialized both in the

@@ -1,19 +1,20 @@
 import { CompilationUnit } from "../../internals/ir";
 import {
-  evalsToValue,
+  evalsToLiteral,
   foldStatements,
   forEachExpression,
   collectConditions,
+  MakeLiteral,
 } from "../../internals/tact";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { AstDetector } from "../detector";
 import {
   AstContractInit,
   AstExpression,
   AstFunctionDef,
   AstReceiver,
   SrcInfo,
-} from "@tact-lang/compiler/dist/grammar/ast";
+} from "../../internals/tact/imports";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { AstDetector } from "../detector";
 
 /**
  * A detector that highlights conditions that evaluate to a constant `true` or `false`
@@ -106,7 +107,7 @@ export class FalseCondition extends AstDetector {
   }
 
   private constEvalToZero = (expr: AstExpression): boolean =>
-    evalsToValue(expr, "bigint", 0n);
+    evalsToLiteral(expr, MakeLiteral.number(0n));
   private constEvalToFalse = (expr: AstExpression): boolean =>
-    evalsToValue(expr, "boolean", false);
+    evalsToLiteral(expr, MakeLiteral.boolean(false));
 }

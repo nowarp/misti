@@ -1,13 +1,13 @@
 import { CompilationUnit } from "../../internals/ir";
 import { forEachExpression } from "../../internals/tact";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { AstDetector } from "../detector";
 import {
   AstExpression,
   AstStructInstance,
-  idText,
   AstOpBinary,
-} from "@tact-lang/compiler/dist/grammar/ast";
+} from "../../internals/tact/imports";
+import { idText } from "../../internals/tact/imports";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { AstDetector } from "../detector";
 
 /**
  * Detects suspicious usage of the `mode` field in `SendParameters` struct instances.

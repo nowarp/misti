@@ -7,9 +7,9 @@
  * @packageDocumentation
  */
 
+import { SrcInfo } from "../../internals/tact/imports";
 import { MistiContext } from "../context";
 import { hasSubdirs } from "../util";
-import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import path from "path";
 
 /**
@@ -84,6 +84,8 @@ export const DEFAULT_STDLIB_PATH_ELEMENTS = [
 export function getStdlibPath() {
   return path.join(
     path.dirname(require.resolve("@tact-lang/compiler/package.json")),
+    "src",
+    "stdlib",
     "stdlib",
   );
 }

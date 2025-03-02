@@ -1,12 +1,9 @@
 import { CompilationUnit } from "../../internals/ir";
 import { collectFields, forEachExpression, isSelf } from "../../internals/tact";
+import { AstContract, AstFieldDecl } from "../../internals/tact/imports";
+import { idText } from "../../internals/tact/imports";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
-import {
-  AstContract,
-  AstFieldDecl,
-  idText,
-} from "@tact-lang/compiler/dist/grammar/ast";
 
 type FieldName = string;
 

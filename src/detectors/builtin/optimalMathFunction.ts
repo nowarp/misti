@@ -1,9 +1,16 @@
 import { CompilationUnit } from "../../internals/ir";
-import { foldExpressions, evalsToValue } from "../../internals/tact";
+import {
+  foldExpressions,
+  evalsToLiteral,
+  MakeLiteral,
+} from "../../internals/tact";
+import {
+  AstExpression,
+  idText,
+  prettyPrint,
+} from "../../internals/tact/imports";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
-import { AstExpression, idText } from "@tact-lang/compiler/dist/grammar/ast";
-import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
 const REPLACEMENTS: Record<string, string> = {
   log: "log2",
@@ -53,7 +60,7 @@ export class OptimalMathFunction extends AstDetector {
       if (
         suggestedFun &&
         expr.args.length === 2 &&
-        evalsToValue(expr.args[1], "bigint", 2n)
+        evalsToLiteral(expr.args[1], MakeLiteral.number(2n))
       ) {
         const firstArg = expr.args[0]!;
         acc.push(

@@ -1,26 +1,26 @@
-import { evalConstantExpression } from "@tact-lang/compiler/dist/constEval";
-import { CompilerContext } from "@tact-lang/compiler/dist/context";
-import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
 import {
-  Value,
-  StructValue,
-  CommentValue,
-} from "@tact-lang/compiler/dist/types/types";
-import { Address, Cell, Slice } from "@ton/core";
+  CompilerContext,
+  AstExpression,
+  evalConstantExpression,
+  getAstUtil,
+  getAstFactory,
+  AstLiteral,
+  dummySrcInfo,
+} from "../../internals/tact/imports";
 
 /**
- * A type that can be used to check the type of a constant expression.
+ * Supported literal kinds:
+ * https://github.com/tact-lang/tact/blob/0a6c6880144642105948e0b8361cf3f54cdec001/src/optimizer/interpreter.ts#L99
  */
-export type ExpectedType =
-  | "bigint"
+export type LiteralKind =
+  | "address"
   | "boolean"
-  | "string"
+  | "cell"
   | "null"
-  | "Address"
-  | "Cell"
-  | "Slice"
-  | "CommentValue"
-  | "StructValue";
+  | "number"
+  | "simplified_string"
+  | "slice"
+  | "struct_value";
 
 /**
  * Evaluates a constant expression and returns its value.
@@ -28,9 +28,10 @@ export type ExpectedType =
  * @param expr The AST expression to evaluate.
  * @returns The evaluated constant value, or undefined if evaluation fails.
  */
-export function evalExpr(expr: AstExpression): Value | undefined {
+export function evalExpr(expr: AstExpression): AstLiteral | undefined {
   try {
-    return evalConstantExpression(expr, new CompilerContext());
+    const util = getAstUtil(getAstFactory());
+    return evalConstantExpression(expr, new CompilerContext(), util);
   } catch {
     return undefined;
   }
@@ -41,36 +42,35 @@ export function evalExpr(expr: AstExpression): Value | undefined {
  * the expected type.
  *
  * @param expr The expression to evaluate.
- * @param expectedType The expected type name as a string.
+ * @param expectedKind The expected kind of the result.
  * @returns The evaluated value if it matches the expected type, undefined otherwise.
  */
 export function evalToType(
   expr: AstExpression,
-  expectedType: ExpectedType,
-): Value | undefined {
-  const value = evalExpr(expr);
-  return value !== undefined && checkType(value, expectedType)
-    ? value
-    : undefined;
+  expectedKind: LiteralKind,
+): AstLiteral | undefined {
+  const lit = evalExpr(expr);
+  return lit !== undefined && lit.kind === expectedKind ? lit : undefined;
 }
 
 /**
- * Evaluates the given expression to a constant value and checks if it matches
+ * Evaluates the given expression to a literal and checks if it matches
  * the expected type and value.
  *
  * @param expr The expression to evaluate.
- * @param expectedType The expected type name as a string.
- * @param expectedValue The expected value.
+ * @param expectedKind The expected kind of the result.
+ * @param expected The expected result.
  * @returns True if the expression can be evaluated to a constant value that
  *          matches the expected type and value, false otherwise.
  */
-export function evalsToValue(
+export function evalsToLiteral(
   expr: AstExpression,
-  expectedType: ExpectedType,
-  expectedValue: Value,
+  expected: AstLiteral,
 ): boolean {
-  const value = evalToType(expr, expectedType);
-  return value !== undefined && value === expectedValue;
+  const result = evalExpr(expr);
+  return (
+    result !== undefined && result.kind === expected.kind && result === expected
+  );
 }
 
 /**
@@ -83,44 +83,20 @@ export function evalsToValue(
  */
 export function evalsToPredicate(
   expr: AstExpression,
-  predicate: (value: any) => boolean,
+  predicate: (lit: any) => boolean,
 ): boolean {
-  const value = evalExpr(expr);
-  return value !== undefined && predicate(value);
+  const lit = evalExpr(expr);
+  return lit !== undefined && predicate(lit);
 }
 
-function checkType(value: Value, expectedType: string): boolean {
-  switch (expectedType) {
-    case "bigint":
-      return typeof value === "bigint";
-    case "boolean":
-      return typeof value === "boolean";
-    case "string":
-      return typeof value === "string";
-    case "null":
-      return value === null;
-    case "Address":
-      return value instanceof Address;
-    case "Cell":
-      return value instanceof Cell;
-    case "Slice":
-      return value instanceof Slice;
-    case "CommentValue":
-      return value instanceof CommentValue;
-    case "StructValue":
-      return isStructValue(value);
-    default:
-      return false;
+/**
+ * Wraps an OOP API into into something a sane developer might actually want to use.
+ */
+export class MakeLiteral {
+  public static boolean(value: boolean) {
+    return getAstUtil(getAstFactory()).makeBooleanLiteral(value, dummySrcInfo);
   }
-}
-
-function isStructValue(value: any): value is StructValue {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    !(value instanceof CommentValue) &&
-    !Address.isAddress(value) &&
-    !(value instanceof Cell) &&
-    !(value instanceof Slice)
-  );
+  public static number(value: bigint) {
+    return getAstUtil(getAstFactory()).makeNumberLiteral(value, dummySrcInfo);
+  }
 }

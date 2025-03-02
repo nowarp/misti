@@ -1,6 +1,7 @@
 import { TACT_VERSION, MISTI_VERSION } from "../version";
-import { AstNode, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
-import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
+import { AstNode } from "./tact/imports";
+import { SrcInfo } from "./tact/imports";
+import { prettyPrint } from "./tact/imports";
 import * as fs from "fs";
 import JSONbig from "json-bigint";
 import * as path from "path";

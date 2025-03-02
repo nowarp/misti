@@ -1,11 +1,11 @@
-import { InternalException } from "../exceptions";
-import { unreachable } from "../util";
 import {
   AstExpression,
   AstNode,
   AstStatement,
   tryExtractPath,
-} from "@tact-lang/compiler/dist/grammar/ast";
+} from "../../internals/tact/imports";
+import { InternalException } from "../exceptions";
+import { unreachable } from "../util";
 
 export function extractPath(path: AstExpression): string {
   const result = tryExtractPath(path);
@@ -68,6 +68,12 @@ export function forEachExpression(
       case "number":
       case "boolean":
       case "id":
+      case "code_of":
+      case "address":
+      case "cell":
+      case "struct_value":
+      case "simplified_string":
+      case "slice":
       case "null":
         // Primitives and non-composite expressions don't require further traversal
         break;
@@ -85,6 +91,7 @@ export function forEachExpression(
         break;
       case "statement_let":
       case "statement_expression":
+      case "statement_destruct":
         traverseExpression(stmt.expression);
         break;
       case "statement_return":
@@ -95,7 +102,6 @@ export function forEachExpression(
         if (!flatStmts) stmt.trueStatements.forEach(traverseStatement);
         if (!flatStmts && stmt.falseStatements)
           stmt.falseStatements.forEach(traverseStatement);
-        if (!flatStmts && stmt.elseif) traverseStatement(stmt.elseif);
         break;
       case "statement_while":
       case "statement_until":
@@ -106,15 +112,19 @@ export function forEachExpression(
         traverseExpression(stmt.iterations);
         if (!flatStmts) stmt.statements.forEach(traverseStatement);
         break;
-      case "statement_try":
       case "statement_foreach":
         if (!flatStmts) stmt.statements.forEach(traverseStatement);
         break;
-      case "statement_try_catch":
+      case "statement_try":
         if (!flatStmts) {
           stmt.statements.forEach(traverseStatement);
-          stmt.catchStatements.forEach(traverseStatement);
+          if (stmt.catchBlock) {
+            stmt.catchBlock.catchStatements.forEach(traverseStatement);
+          }
         }
+        break;
+      case "statement_block":
+        if (!flatStmts) stmt.statements.forEach(traverseStatement);
         break;
       default:
         unreachable(stmt);
@@ -150,7 +160,7 @@ export function forEachExpression(
         traverseExpression(node.initializer);
         break;
       case "import":
-        traverseExpression(node.path);
+        // Do nothing; imports would be processed separately anyway
         break;
       case "statement_assign":
       case "statement_augmentedassign":
@@ -162,7 +172,8 @@ export function forEachExpression(
       case "statement_until":
       case "statement_repeat":
       case "statement_try":
-      case "statement_try_catch":
+      case "statement_block":
+      case "statement_destruct":
       case "statement_foreach":
         traverseStatement(node);
         break;
@@ -175,6 +186,10 @@ export function forEachExpression(
       case "init_of":
       case "conditional":
       case "string":
+      case "address":
+      case "simplified_string":
+      case "cell":
+      case "slice":
       case "number":
       case "boolean":
       case "id":
@@ -190,6 +205,18 @@ export function forEachExpression(
       case "bounced_message_type":
       case "func_id":
       case "function_decl":
+      case "code_of":
+      case "destruct_mapping":
+      case "destruct_end":
+      case "struct_value":
+      case "struct_field_value":
+      case "internal":
+      case "external":
+      case "bounce":
+      case "simple":
+      case "fallback":
+      case "comment":
+      case "function_attribute":
       case "optional_type":
       case "constant_decl":
       case "asm_function_def":
@@ -258,6 +285,12 @@ export function findInExpressions(
       case "number":
       case "boolean":
       case "id":
+      case "code_of":
+      case "address":
+      case "cell":
+      case "struct_value":
+      case "simplified_string":
+      case "slice":
       case "null":
         // Primitives and non-composite expressions don't require further traversal
         return null;
@@ -274,6 +307,7 @@ export function findInExpressions(
           traverseExpression(stmt.path) || traverseExpression(stmt.expression)
         );
       case "statement_let":
+      case "statement_destruct":
       case "statement_expression":
         return traverseExpression(stmt.expression);
       case "statement_return":
@@ -290,8 +324,12 @@ export function findInExpressions(
                 (found, s) => found || traverseStatement(s),
                 null,
               )
-            : null) ||
-          (stmt.elseif ? traverseStatement(stmt.elseif) : null)
+            : null)
+        );
+      case "statement_block":
+        return stmt.statements.reduce<AstExpression | null>(
+          (found, s) => found || traverseStatement(s),
+          null,
         );
       case "statement_while":
       case "statement_until":
@@ -311,21 +349,22 @@ export function findInExpressions(
           )
         );
       case "statement_try":
+        const bodyResult = stmt.statements.reduce<AstExpression | null>(
+          (found, s) => found || traverseStatement(s),
+          null,
+        );
+        if (bodyResult) return bodyResult;
+        if (stmt.catchBlock) {
+          return stmt.catchBlock.catchStatements.reduce<AstExpression | null>(
+            (found, s) => found || traverseStatement(s),
+            null,
+          );
+        }
+        return null;
       case "statement_foreach":
         return stmt.statements.reduce<AstExpression | null>(
           (found, s) => found || traverseStatement(s),
           null,
-        );
-      case "statement_try_catch":
-        return (
-          stmt.statements.reduce<AstExpression | null>(
-            (found, s) => found || traverseStatement(s),
-            null,
-          ) ||
-          stmt.catchStatements.reduce<AstExpression | null>(
-            (found, s) => found || traverseStatement(s),
-            null,
-          )
         );
       default:
         unreachable(stmt);
@@ -365,7 +404,7 @@ export function findInExpressions(
       case "constant_def":
         return traverseExpression(node.initializer);
       case "import":
-        return traverseExpression(node.path);
+        return null; // Imports are handles elsewhere
       case "statement_assign":
       case "statement_augmentedassign":
       case "statement_let":
@@ -376,7 +415,8 @@ export function findInExpressions(
       case "statement_until":
       case "statement_repeat":
       case "statement_try":
-      case "statement_try_catch":
+      case "statement_destruct":
+      case "statement_block":
       case "statement_foreach":
         return traverseStatement(node);
       case "op_binary":
@@ -390,6 +430,10 @@ export function findInExpressions(
       case "string":
       case "number":
       case "boolean":
+      case "address":
+      case "simplified_string":
+      case "cell":
+      case "slice":
       case "id":
       case "null":
         return traverseExpression(node);
@@ -404,6 +448,18 @@ export function findInExpressions(
       case "optional_type":
       case "constant_decl":
       case "asm_function_def":
+      case "code_of":
+      case "destruct_mapping":
+      case "destruct_end":
+      case "struct_value":
+      case "struct_field_value":
+      case "internal":
+      case "external":
+      case "bounce":
+      case "simple":
+      case "fallback":
+      case "comment":
+      case "function_attribute":
         // Do nothing
         return null;
       default:
@@ -481,11 +537,17 @@ export function foldExpressions<T>(
         acc = traverseExpression(acc, expr.elseBranch);
         break;
       case "string":
+      case "simplified_string":
+      case "struct_value":
       case "number":
       case "boolean":
       case "id":
+      case "cell":
+      case "slice":
+      case "address":
       case "null":
-        // Primitives and non-composite expressions don't require further traversal
+      case "code_of":
+        // Literals and non-composite expressions don't require further traversal
         break;
       default:
         unreachable(expr);
@@ -495,6 +557,7 @@ export function foldExpressions<T>(
 
   function traverseStatement(acc: T, stmt: AstStatement): T {
     switch (stmt.kind) {
+      case "statement_destruct":
       case "statement_let":
       case "statement_expression":
         acc = traverseExpression(acc, stmt.expression);
@@ -516,7 +579,6 @@ export function foldExpressions<T>(
           stmt.falseStatements.forEach((st) => {
             acc = traverseStatement(acc, st);
           });
-        if (stmt.elseif) acc = traverseStatement(acc, stmt.elseif);
         break;
       case "statement_while":
       case "statement_until":
@@ -535,17 +597,19 @@ export function foldExpressions<T>(
         stmt.statements.forEach((st) => {
           acc = traverseStatement(acc, st);
         });
-        break;
-      case "statement_try_catch":
-        stmt.statements.forEach((st) => {
-          acc = traverseStatement(acc, st);
-        });
-        stmt.catchStatements.forEach((st) => {
-          acc = traverseStatement(acc, st);
-        });
+        if (stmt.catchBlock) {
+          stmt.catchBlock.catchStatements.forEach((st) => {
+            acc = traverseStatement(acc, st);
+          });
+        }
         break;
       case "statement_foreach":
         acc = traverseExpression(acc, stmt.map);
+        stmt.statements.forEach((st) => {
+          acc = traverseStatement(acc, st);
+        });
+        break;
+      case "statement_block":
         stmt.statements.forEach((st) => {
           acc = traverseStatement(acc, st);
         });
@@ -591,8 +655,7 @@ export function foldExpressions<T>(
         acc = traverseExpression(acc, node.initializer);
         break;
       case "import":
-        acc = traverseExpression(acc, node.path);
-        break;
+        break; // Imports should be handled elsewhere
       case "statement_let":
       case "statement_assign":
       case "statement_augmentedassign":
@@ -603,8 +666,9 @@ export function foldExpressions<T>(
       case "statement_until":
       case "statement_repeat":
       case "statement_try":
-      case "statement_try_catch":
       case "statement_foreach":
+      case "statement_destruct":
+      case "statement_block":
         acc = traverseStatement(acc, node);
         break;
       case "field_access":
@@ -619,6 +683,10 @@ export function foldExpressions<T>(
       case "number":
       case "boolean":
       case "id":
+      case "address":
+      case "simplified_string":
+      case "cell":
+      case "slice":
       case "null":
         acc = traverseExpression(acc, node);
         break;
@@ -633,7 +701,24 @@ export function foldExpressions<T>(
       case "function_decl":
       case "optional_type":
       case "constant_decl":
+      case "address":
+      case "cell":
+      case "struct_value":
+      case "simplified_string":
+      case "slice":
       case "asm_function_def":
+      case "code_of":
+      case "destruct_mapping":
+      case "destruct_end":
+      case "struct_value":
+      case "struct_field_value":
+      case "internal":
+      case "external":
+      case "bounce":
+      case "simple":
+      case "fallback":
+      case "comment":
+      case "function_attribute":
         // Do nothing
         break;
       default:
@@ -659,6 +744,7 @@ export function forEachStatement(
 
     switch (stmt.kind) {
       case "statement_let":
+      case "statement_destruct":
       case "statement_assign":
       case "statement_augmentedassign":
       case "statement_expression":
@@ -669,18 +755,19 @@ export function forEachStatement(
         stmt.trueStatements.forEach(traverseStatement);
         if (stmt.falseStatements)
           stmt.falseStatements.forEach(traverseStatement);
-        if (stmt.elseif) traverseStatement(stmt.elseif);
         break;
       case "statement_while":
       case "statement_until":
       case "statement_repeat":
-      case "statement_try":
       case "statement_foreach":
+      case "statement_block":
         stmt.statements.forEach(traverseStatement);
         break;
-      case "statement_try_catch":
+      case "statement_try":
         stmt.statements.forEach(traverseStatement);
-        stmt.catchStatements.forEach(traverseStatement);
+        if (stmt.catchBlock) {
+          stmt.catchBlock.catchStatements.forEach(traverseStatement);
+        }
         break;
       default:
         unreachable(stmt);
@@ -711,8 +798,9 @@ export function forEachStatement(
       case "statement_until":
       case "statement_repeat":
       case "statement_try":
-      case "statement_try_catch":
       case "statement_foreach":
+      case "statement_destruct":
+      case "statement_block":
         traverseStatement(node);
         break;
       case "op_binary":
@@ -724,6 +812,10 @@ export function forEachStatement(
       case "init_of":
       case "conditional":
       case "string":
+      case "address":
+      case "simplified_string":
+      case "cell":
+      case "slice":
       case "number":
       case "boolean":
       case "id":
@@ -745,6 +837,18 @@ export function forEachStatement(
       case "import":
       case "primitive_type_decl":
       case "asm_function_def":
+      case "code_of":
+      case "destruct_mapping":
+      case "destruct_end":
+      case "struct_value":
+      case "struct_field_value":
+      case "internal":
+      case "external":
+      case "bounce":
+      case "simple":
+      case "fallback":
+      case "comment":
+      case "function_attribute":
         // Do nothing
         break;
       default:
@@ -776,6 +880,7 @@ export function foldStatements<T>(
 
     switch (stmt.kind) {
       case "statement_let":
+      case "statement_destruct":
       case "statement_assign":
       case "statement_augmentedassign":
       case "statement_expression":
@@ -788,20 +893,21 @@ export function foldStatements<T>(
           stmt.falseStatements.forEach(
             (st) => (acc = traverseStatement(acc, st)),
           );
-        if (stmt.elseif) acc = traverseStatement(acc, stmt.elseif);
         break;
       case "statement_while":
       case "statement_until":
       case "statement_repeat":
-      case "statement_try":
       case "statement_foreach":
+      case "statement_block":
         stmt.statements.forEach((st) => (acc = traverseStatement(acc, st)));
         break;
-      case "statement_try_catch":
+      case "statement_try":
         stmt.statements.forEach((st) => (acc = traverseStatement(acc, st)));
-        stmt.catchStatements.forEach(
-          (st) => (acc = traverseStatement(acc, st)),
-        );
+        if (stmt.catchBlock) {
+          stmt.catchBlock.catchStatements.forEach(
+            (st) => (acc = traverseStatement(acc, st)),
+          );
+        }
         break;
       default:
         unreachable(stmt);
@@ -839,7 +945,8 @@ export function foldStatements<T>(
       case "statement_until":
       case "statement_repeat":
       case "statement_try":
-      case "statement_try_catch":
+      case "statement_destruct":
+      case "statement_block":
       case "statement_foreach":
         acc = traverseStatement(acc, node);
         break;
@@ -872,6 +979,24 @@ export function foldStatements<T>(
       case "field_decl":
       case "import":
       case "primitive_type_decl":
+      case "address":
+      case "cell":
+      case "struct_value":
+      case "simplified_string":
+      case "slice":
+      case "asm_function_def":
+      case "code_of":
+      case "destruct_mapping":
+      case "destruct_end":
+      case "struct_value":
+      case "struct_field_value":
+      case "internal":
+      case "external":
+      case "bounce":
+      case "simple":
+      case "fallback":
+      case "comment":
+      case "function_attribute":
       case "asm_function_def":
         // Do nothing
         break;

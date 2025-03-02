@@ -9,7 +9,7 @@ import { CallGraph } from "./callGraph";
 import { BasicBlock, Cfg } from "./cfg";
 import { ImportGraph } from "./imports";
 import { IdxGenerator } from "./indices";
-import { AstStatement, SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
+import { AstStatement, SrcInfo } from "../../internals/tact/imports";
 
 export type TraitContractIdx = number & { readonly __brand: unique symbol };
 

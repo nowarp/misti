@@ -20,7 +20,6 @@ import { TactCallGraphBuilder } from "./callgraph";
 import { MistiContext } from "../../context";
 import { InternalException } from "../../exceptions";
 import { formatPosition } from "../../tact";
-import { unreachable } from "../../util";
 import {
   AstContractDeclaration,
   AstExpression,
@@ -32,9 +31,10 @@ import {
   idText,
   AstTrait,
   AstContract,
-} from "@tact-lang/compiler/dist/grammar/ast";
-import { ItemOrigin } from "@tact-lang/compiler/dist/grammar/grammar";
-import { AstStore as TactAstStore } from "@tact-lang/compiler/dist/grammar/store";
+} from "../../tact/imports";
+import { ItemOrigin } from "../../tact/imports";
+import { AstStore as TactAstStore } from "../../tact/imports";
+import { unreachable } from "../../util";
 
 // Hack for https://github.com/tact-lang/tact/issues/1961
 // TODO: Remove this when updating to Tact 1.6 (issue #70)
@@ -51,20 +51,26 @@ function hackOrigin(entry: AstContract | AstTrait): ItemOrigin {
  */
 function generateReceiveName(receive: AstReceiver): string {
   switch (receive.selector.kind) {
-    case "internal-simple":
-      return `receive_internal_simple_${receive.id}`;
-    case "internal-fallback":
-      return `receive_internal_fallback_${receive.id}`;
-    case "internal-comment":
-      return `receive_internal_comment_${receive.id}_${receive.selector.comment.value}`;
+    case "internal":
+      if (receive.selector.subKind.kind === "simple") {
+        return `receive_internal_simple_${receive.id}`;
+      } else if (receive.selector.subKind.kind === "fallback") {
+        return `receive_internal_fallback_${receive.id}`;
+      } else if (receive.selector.subKind.kind === "comment") {
+        return `receive_internal_comment_${receive.id}_${receive.selector.subKind.comment.value}`;
+      }
+      unreachable(receive.selector.subKind);
+    case "external":
+      if (receive.selector.subKind.kind === "simple") {
+        return `receive_external_simple_${receive.id}`;
+      } else if (receive.selector.subKind.kind === "fallback") {
+        return `receive_external_fallback_${receive.id}`;
+      } else if (receive.selector.subKind.kind === "comment") {
+        return `receive_external_comment_${receive.id}_${receive.selector.subKind.comment.value}`;
+      }
+      unreachable(receive.selector.subKind);
     case "bounce":
       return `receive_bounce_${receive.id}`;
-    case "external-simple":
-      return `receive_external_simple_${receive.id}`;
-    case "external-fallback":
-      return `receive_external_fallback_${receive.id}`;
-    case "external-comment":
-      return `receive_external_comment_${receive.id}_${receive.selector.comment.value}`;
     default:
       unreachable(receive.selector);
   }
@@ -186,17 +192,28 @@ export class TactIRBuilder {
     FunctionKind | undefined,
     AstStatement[] | null,
   ] {
-    return decl.kind === "function_def"
-      ? [decl.name.text as FunctionName, "method", decl.statements]
-      : decl.kind === "contract_init"
-        ? [`init_${contractId}` as FunctionName, "method", decl.statements]
-        : decl.kind === "receiver"
-          ? [
-              generateReceiveName(decl) as FunctionName,
-              "receive",
-              decl.statements,
-            ]
-          : [undefined, undefined, null];
+    switch (decl.kind) {
+      case "function_def":
+        return [
+          decl.name.text as FunctionName,
+          "method",
+          decl.statements as AstStatement[],
+        ];
+      case "contract_init":
+        return [
+          `init_${contractId}` as FunctionName,
+          "method",
+          decl.statements as AstStatement[],
+        ];
+      case "receiver":
+        return [
+          generateReceiveName(decl) as FunctionName,
+          "receive",
+          decl.statements as AstStatement[],
+        ];
+      default:
+        return [undefined, undefined, null];
+    }
   }
 
   /**
@@ -328,7 +345,7 @@ export class TactIRBuilder {
     id: number,
     kind: "function" | "method" | "receive",
     origin: "user" | "stdlib",
-    statements: AstStatement[] | null,
+    statements: readonly AstStatement[] | null,
     ref: SrcInfo,
   ): Cfg {
     const [bbs, edges] =
@@ -413,11 +430,18 @@ export class TactIRBuilder {
         this.collectFunctionCalls(expr.thenBranch, parentCalls);
         this.collectFunctionCalls(expr.elseBranch, parentCalls);
         break;
+      case "code_of":
+        break;
       case "string":
       case "number":
       case "boolean":
       case "null":
       case "id":
+      case "cell":
+      case "struct_value":
+      case "simplified_string":
+      case "address":
+      case "slice":
         break;
       default:
         unreachable(expr);
@@ -458,7 +482,7 @@ export class TactIRBuilder {
    * @returns A tuple containing the arrays of BasicBlock and Edge objects representing the Cfg derived from the statements.
    */
   processStatements(
-    statements: AstStatement[],
+    statements: readonly AstStatement[],
     bbs: BasicBlock[] = [],
     edges: Edge[] = [],
     lastBBIdxes: BasicBlockIdx[] = [],
@@ -476,6 +500,7 @@ export class TactIRBuilder {
 
       if (
         stmt.kind === "statement_let" ||
+        stmt.kind === "statement_destruct" ||
         stmt.kind === "statement_expression" ||
         stmt.kind === "statement_assign" ||
         stmt.kind === "statement_augmentedassign"
@@ -537,10 +562,7 @@ export class TactIRBuilder {
         }
         // Connect condition with the statement after loop.
         lastBBIdxes = [newBB.idx];
-      } else if (
-        stmt.kind === "statement_try" ||
-        stmt.kind === "statement_try_catch"
-      ) {
+      } else if (stmt.kind === "statement_try") {
         // Process the try branch.
         const [tryBBs, tryEdges] = this.processStatements(
           stmt.statements,
@@ -556,9 +578,9 @@ export class TactIRBuilder {
           tryBBs.length > 0 ? [tryBBs[tryBBs.length - 1].idx] : [newBB.idx];
 
         // Handle the `catch` clause.
-        if (stmt.kind === "statement_try_catch") {
+        if (stmt.catchBlock) {
           const [catchBBs, catchEdges] = this.processStatements(
-            stmt.catchStatements,
+            stmt.catchBlock.catchStatements,
             bbs,
             edges,
             [newBB.idx],
@@ -573,6 +595,15 @@ export class TactIRBuilder {
       } else if (stmt.kind === "statement_return") {
         // No need to connect return statements to subsequent basic blocks
         lastBBIdxes = [];
+      } else if (stmt.kind === "statement_block") {
+        const [catchBBs, catchEdges] = this.processStatements(
+          stmt.statements,
+          bbs,
+          edges,
+          [newBB.idx],
+        );
+        bbs = catchBBs;
+        edges = catchEdges;
       } else {
         unreachable(stmt);
       }

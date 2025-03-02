@@ -5,14 +5,14 @@ import {
   nodesAreEqual,
   statementsAreEqual,
 } from "../../internals/tact";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { AstDetector } from "../detector";
 import {
-  AstCondition,
+  AstStatementCondition,
   AstExpression,
   AstStatement,
-  SrcInfo,
-} from "@tact-lang/compiler/dist/grammar/ast";
+} from "../../internals/tact/imports";
+import { SrcInfo } from "../../internals/tact/imports";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { AstDetector } from "../detector";
 
 /**
  * Detector that reports duplicated code in conditional branches.
@@ -104,20 +104,27 @@ export class BranchDuplicate extends AstDetector {
     return acc;
   }
 
-  private collectAllBranches(cond: AstCondition): AstStatement[][] {
-    const branches: AstStatement[][] = [];
-    let current: AstCondition | null = cond;
+  private collectAllBranches(
+    cond: AstStatementCondition,
+  ): (readonly AstStatement[])[] {
+    const branches: (readonly AstStatement[])[] = [];
+    let current: AstStatementCondition | null = cond;
     while (current !== null) {
       if (current.trueStatements.length > 0) {
         branches.push(current.trueStatements);
       }
-      if (
-        current.falseStatements !== null &&
-        current.falseStatements.length > 0
-      ) {
-        branches.push(current.falseStatements);
+      if (current.falseStatements && current.falseStatements.length > 0) {
+        if (
+          current.falseStatements.length === 1 &&
+          current.falseStatements[0].kind === "statement_condition"
+        ) {
+          // else if
+          current = current.falseStatements[0];
+        } else {
+          // else
+          branches.push(current.falseStatements);
+        }
       }
-      current = current.elseif;
     }
     return branches;
   }

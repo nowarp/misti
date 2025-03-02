@@ -1,5 +1,6 @@
 import { SolverResults } from "./results";
 import { Solver } from "./solver";
+import { SrcInfo } from "../../internals/tact/imports";
 import { MistiContext } from "../context";
 import { InternalException } from "../exceptions";
 import { BasicBlockIdx, Cfg, CompilationUnit } from "../ir";
@@ -10,7 +11,6 @@ import {
   SouffleSyncExecutor,
   relation,
 } from "@nowarp/souffle";
-import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import JSONbig from "json-bigint";
 
 /**

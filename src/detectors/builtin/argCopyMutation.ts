@@ -5,17 +5,17 @@ import {
   collectMutations,
   mutationNames,
   funName,
+  hasInExpressions,
 } from "../../internals/tact";
-import { hasInExpressions } from "../../internals/tact/iterators";
-import { intersectLists } from "../../internals/util";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { AstDetector } from "../detector";
 import {
   AstStatement,
   AstFunctionDef,
   AstContractInit,
   idText,
-} from "@tact-lang/compiler/dist/grammar/ast";
+} from "../../internals/tact/imports";
+import { intersectLists } from "../../internals/util";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { AstDetector } from "../detector";
 
 /**
  * A detector that highlights cases where function argument mutations are ineffective

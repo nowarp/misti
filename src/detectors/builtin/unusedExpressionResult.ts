@@ -1,16 +1,16 @@
 import { CompilationUnit } from "../../internals/ir";
 import { forEachStatement, isSelf } from "../../internals/tact";
-import { unreachable } from "../../internals/util";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { AstDetector } from "../detector";
 import {
   AstExpression,
   AstStatementExpression,
   AstNode,
   AstType,
-  idText,
-} from "@tact-lang/compiler/dist/grammar/ast";
-import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
+} from "../../internals/tact/imports";
+import { idText } from "../../internals/tact/imports";
+import { prettyPrint } from "../../internals/tact/imports";
+import { unreachable } from "../../internals/util";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { AstDetector } from "../detector";
 
 /**
  * Suppressed functions which result typically could be ignored.
@@ -106,7 +106,9 @@ export class UnusedExpressionResult extends AstDetector {
       );
     switch (expr.kind) {
       case "struct_instance":
+      case "struct_value":
       case "init_of":
+      case "code_of":
         break; // do nothing
       case "op_binary":
       case "op_unary":
@@ -116,6 +118,10 @@ export class UnusedExpressionResult extends AstDetector {
       case "boolean":
       case "null":
       case "string":
+      case "simplified_string":
+      case "address":
+      case "cell":
+      case "slice":
         warnings.push(warn());
         break;
       case "method_call":

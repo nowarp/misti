@@ -1,5 +1,4 @@
 import { ExecutionException } from "./exceptions";
-import { ILogger } from "@tact-lang/compiler/dist/logger";
 
 export enum LogLevel {
   DEBUG,
@@ -15,7 +14,7 @@ export type LogFunction = (message: string) => void;
 /**
  * Provides a customizable logging mechanism across different levels of verbosity.
  */
-export class Logger implements ILogger {
+export class Logger {
   private logFunctions: Map<LogLevel, LogFunction | undefined>;
   private jsonLogs: Map<LogLevel, string[]>;
 

@@ -8,6 +8,7 @@ import {
 import { JoinSemilattice } from "../../internals/lattice";
 import { WorklistSolver } from "../../internals/solver/";
 import {
+  AstNodeId,
   foldExpressions,
   getMethodCallsChain,
   isSelf,
@@ -15,23 +16,22 @@ import {
   SEND_FUNCTIONS,
   SEND_METHODS,
 } from "../../internals/tact";
+import {
+  AstExpression,
+  AstId,
+  AstStatement,
+  AstTypedParameter,
+} from "../../internals/tact/imports";
+import { prettyPrint } from "../../internals/tact/imports";
+import { idText } from "../../internals/tact/imports";
 import { Transfer } from "../../internals/transfer";
 import { unreachable, mergeLists } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";
-import {
-  AstExpression,
-  AstId,
-  AstNode,
-  AstStatement,
-  AstTypedParameter,
-  idText,
-} from "@tact-lang/compiler/dist/grammar/ast";
-import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
 class ArgTaint {
-  readonly id: AstNode["id"];
-  readonly parents: AstNode["id"][];
+  readonly id: AstNodeId;
+  readonly parents: AstNodeId[];
   readonly name: string;
   // Poor man's path-sensitivity: we don't care about path contexts; we only
   // need to set this flag and ensure the transfer function maintains
@@ -43,7 +43,7 @@ class ArgTaint {
     {
       parents = [],
       unprotected = true,
-    }: Partial<{ parents: AstNode["id"][]; unprotected: boolean }> = {},
+    }: Partial<{ parents: AstNodeId[]; unprotected: boolean }> = {},
   ) {
     this.id = node.id;
     this.name = idText(node);
@@ -113,10 +113,16 @@ function findTaints(
     case "static_call":
       break;
     case "struct_instance":
+    case "struct_value":
     case "field_access":
     case "init_of":
+    case "code_of":
       break;
     case "string":
+    case "simplified_string":
+    case "address":
+    case "cell":
+    case "slice":
     case "number":
     case "boolean":
     case "null":
@@ -266,9 +272,13 @@ export class UnprotectedCall extends DataflowDetector {
         return f.params.map(taintOfTypedParam);
       case "receiver":
         switch (f.selector.kind) {
-          case "internal-simple":
+          case "internal":
+          case "external":
+            if (f.selector.subKind.kind === "simple") {
+              return [taintOfTypedParam(f.selector.subKind.param)];
+            }
+            return [];
           case "bounce":
-          case "external-simple":
             return [taintOfTypedParam(f.selector.param)];
           default:
             return [];
@@ -344,7 +354,7 @@ export class UnprotectedCall extends DataflowDetector {
     );
   }
 
-  private hasCallsToCheck(cu: CompilationUnit, id: AstNode["id"]): boolean {
+  private hasCallsToCheck(cu: CompilationUnit, id: AstNodeId): boolean {
     const cgIdx = cu.callGraph.getNodeIdByAstId(id);
     if (cgIdx === undefined) {
       this.ctx.logger.warn(`Cannot find a CG node for AST ID: #${id}`);
