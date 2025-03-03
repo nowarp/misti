@@ -331,13 +331,11 @@ export function srcInfoToString(loc: SrcInfo): string {
     lineNum: number;
     colNum: number;
   };
-  const lcStr = `${lc}`;
-  const lcLines = lcStr.split("\n");
-  lcLines.shift();
+  const msg = loc.interval.getLineAndColumnMessage();
   const shownPath = loc.file
     ? path.relative(process.cwd(), loc.file) + ":"
     : "";
-  return `${shownPath}${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
+  return `${shownPath}${lc.lineNum}:${lc.colNum}:\n${msg}`;
 }
 
 /**

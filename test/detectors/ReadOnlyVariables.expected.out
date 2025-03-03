@@ -1,5 +1,6 @@
 [MEDIUM] ReadOnlyVariables: Read-only variable
 test/detectors/ReadOnlyVariables.tact:7:9:
+  6 | fun test2() {
 > 7 |     let a: Int = 10; // warning: read-only variable
               ^
   8 |     repeat (a) { /* do nothing */ }
@@ -8,6 +9,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/ReadOnlyVariables
 
 [MEDIUM] ReadOnlyVariables: Read-only variable
 test/detectors/ReadOnlyVariables.tact:13:9:
+  12 | fun test3() {
 > 13 |     let a: Int = 42; // warning: read-only variable
                ^
   14 |     if (a == 42) {}
@@ -16,6 +18,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/ReadOnlyVariables
 
 [MEDIUM] ReadOnlyVariables: Read-only variable
 test/detectors/ReadOnlyVariables.tact:18:9:
+  17 | fun test4() {
 > 18 |     let a: Int = 10; // warning: read-only variable
                ^
   19 |     if (a == 42) { /* do nothing */ }

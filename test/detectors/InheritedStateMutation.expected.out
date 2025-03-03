@@ -1,5 +1,6 @@
 [LOW] InheritedStateMutation: Inherited trait field balance is mutated
 test/detectors/InheritedStateMutation.tact:25:5:
+  24 |     // Bad cases
 > 25 |     self.balance = 100;
            ^~~~~~~~~~~~~~~~~~~
   26 |     self.balance -= 100;
@@ -9,6 +10,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/InheritedStateMutation
 
 [LOW] InheritedStateMutation: Inherited trait field balance is mutated
 test/detectors/InheritedStateMutation.tact:26:5:
+  25 |     self.balance = 100;
 > 26 |     self.balance -= 100;
            ^~~~~~~~~~~~~~~~~~~~
   27 |     self.m.set(3, 3);
@@ -18,6 +20,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/InheritedStateMutation
 
 [LOW] InheritedStateMutation: Inherited trait field m is mutated
 test/detectors/InheritedStateMutation.tact:27:5:
+  26 |     self.balance -= 100;
 > 27 |     self.m.set(3, 3);
            ^~~~~~~~~~~~~~~~~
   28 |     self.m.del(3);
@@ -27,6 +30,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/InheritedStateMutation
 
 [LOW] InheritedStateMutation: Inherited trait field m is mutated
 test/detectors/InheritedStateMutation.tact:28:5:
+  27 |     self.m.set(3, 3);
 > 28 |     self.m.del(3);
            ^~~~~~~~~~~~~~
   29 |     self.a.x = 42;
@@ -36,6 +40,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/InheritedStateMutation
 
 [LOW] InheritedStateMutation: Inherited trait field a is mutated
 test/detectors/InheritedStateMutation.tact:29:5:
+  28 |     self.m.del(3);
 > 29 |     self.a.x = 42;
            ^~~~~~~~~~~~~~
   30 |     self.a.x += 42;
@@ -45,6 +50,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/InheritedStateMutation
 
 [LOW] InheritedStateMutation: Inherited trait field a is mutated
 test/detectors/InheritedStateMutation.tact:30:5:
+  29 |     self.a.x = 42;
 > 30 |     self.a.x += 42;
            ^~~~~~~~~~~~~~~
   31 |     self.a.m.set(3, 3);
@@ -54,6 +60,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/InheritedStateMutation
 
 [LOW] InheritedStateMutation: Inherited trait field a is mutated
 test/detectors/InheritedStateMutation.tact:31:5:
+  30 |     self.a.x += 42;
 > 31 |     self.a.m.set(3, 3);
            ^~~~~~~~~~~~~~~~~~~
   32 |     self.a.m.del(3);
@@ -63,6 +70,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/InheritedStateMutation
 
 [LOW] InheritedStateMutation: Inherited trait field a is mutated
 test/detectors/InheritedStateMutation.tact:32:5:
+  31 |     self.a.m.set(3, 3);
 > 32 |     self.a.m.del(3);
            ^~~~~~~~~~~~~~~~
   33 |   }

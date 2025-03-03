@@ -1,5 +1,6 @@
 [LOW] UnboundMap: Map self.m_bad could be unbound
 test/detectors/UnboundMap.tact:2:5:
+  1 | contract C {
 > 2 |     m_bad: map<Int, Int> = emptyMap(); // Bad
           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   3 |     m_ok: map<Int, Int> = emptyMap(); // OK

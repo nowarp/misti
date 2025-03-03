@@ -1,5 +1,6 @@
 [HIGH] DuplicatedCondition: Condition A > 5 appears at 10:9 and 12:16
 test/detectors/DuplicatedCondition.tact:10:9:
+   9 |     // Bad: conditional statements
 > 10 |     if (A > 5) {
                ^~~~~
   11 |         a = 1;
@@ -8,6 +9,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/DuplicatedCondition
 
 [HIGH] DuplicatedCondition: Condition A > 5 appears at 6:10 and 6:21
 test/detectors/DuplicatedCondition.tact:6:10:
+  5 |     // Bad: ternary operations
 > 6 |     a = (A > 5) ? ((A > 5) ? 1 : 2) : 3;
                ^~~~~
   7 |     a = (A > 5) ? 3 : ((A > 5) ? 1 : 2);
@@ -16,6 +18,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/DuplicatedCondition
 
 [HIGH] DuplicatedCondition: Condition A > 5 appears at 7:10 and 7:25
 test/detectors/DuplicatedCondition.tact:7:10:
+  6 |     a = (A > 5) ? ((A > 5) ? 1 : 2) : 3;
 > 7 |     a = (A > 5) ? 3 : ((A > 5) ? 1 : 2);
                ^~~~~
   8 | 

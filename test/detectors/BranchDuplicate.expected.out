@@ -1,5 +1,6 @@
 [HIGH] BranchDuplicate: Duplicated code in conditional branches is detected
 test/detectors/BranchDuplicate.tact:4:9:
+  3 |     if (a == 42) {
 > 4 |         a = 43; // Bad
               ^~~~~~~
   5 |     } else {
@@ -9,6 +10,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/BranchDuplicate
 
 [HIGH] BranchDuplicate: Duplicated code in conditional branches is detected
 test/detectors/BranchDuplicate.tact:12:24:
+  11 |     let a: Int = 42;
 > 12 |     return (a == 42) ? a + 43 : a + 43; // Bad
                               ^~~~~~
   13 | }
@@ -18,6 +20,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/BranchDuplicate
 
 [HIGH] BranchDuplicate: Duplicated code in conditional branches is detected
 test/detectors/BranchDuplicate.tact:33:9:
+  32 |     } else if (a == 43) {
 > 33 |         a = 43; // Bad
                ^~~~~~~
   34 |     } else if (a == 43) {
@@ -27,6 +30,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/BranchDuplicate
 
 [HIGH] BranchDuplicate: Duplicated code in conditional branches is detected
 test/detectors/BranchDuplicate.tact:43:9:
+  42 |     } else if (a == 43) {
 > 43 |         a = 43; // Bad
                ^~~~~~~
   44 |     } else if (a == 44) {
@@ -36,6 +40,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/BranchDuplicate
 
 [HIGH] BranchDuplicate: Duplicated code in conditional branches is detected
 test/detectors/BranchDuplicate.tact:45:9:
+  44 |     } else if (a == 44) {
 > 45 |         a = 43; // Bad
                ^~~~~~~
   46 |     } else if (a == 45) {

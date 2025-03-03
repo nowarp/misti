@@ -1,5 +1,6 @@
 [CRITICAL] CellBounds: Reference count might go below 0
 test/detectors/CellBounds.tact:11:9:
+  10 | fun refs_underflow(c: Cell) {
 > 11 |     let s1 = beginCell()
                ^~
   12 |                .storeRef(c)
@@ -9,6 +10,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
 
 [CRITICAL] CellBounds: Reference count might go below 0
 test/detectors/CellBounds.tact:16:9:
+  15 |     let ref1 = s1.loadRef(); // OK
 > 16 |     let ref2 = s1.loadRef(); // Bad: Cell Underflow
                ^~~~
   17 | 
@@ -18,6 +20,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
 
 [CRITICAL] CellBounds: Reference count might go below 0
 test/detectors/CellBounds.tact:18:5:
+  17 | 
 > 18 |     beginCell() // Bad: Cell Underflow
            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   19 |       .endCell()
@@ -27,6 +30,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
 
 [CRITICAL] CellBounds: Reference count might go below 0
 test/detectors/CellBounds.tact:25:9:
+  24 |     let st1 = S {a: 1 , b: 2};
 > 25 |     let c1 = st1.toCell().asSlice().loadRef(); // Bad: Cell Underflow
                ^~
   26 |     st1.toCell().asSlice().loadRef(); // Bad: Cell Underflow
@@ -36,6 +40,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
 
 [CRITICAL] CellBounds: Reference count might go below 0
 test/detectors/CellBounds.tact:26:5:
+  25 |     let c1 = st1.toCell().asSlice().loadRef(); // Bad: Cell Underflow
 > 26 |     st1.toCell().asSlice().loadRef(); // Bad: Cell Underflow
            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   27 | }
@@ -45,6 +50,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
 
 [CRITICAL] CellBounds: Too many references stored in cell
 test/detectors/CellBounds.tact:36:9:
+  35 |                .storeRef(c); // OK: Builder storing 4 references
 > 36 |     let c1 = beginCell() // Bad: We got 5 references
                ^~
   37 |                .storeBuilder(b1)
@@ -54,6 +60,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
 
 [CRITICAL] CellBounds: Too many references stored in cell
 test/detectors/CellBounds.tact:41:9:
+  40 | 
 > 41 |     let c2 = // Bad: 4+ refs
                ^~
   42 |     beginCell()
@@ -63,6 +70,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
 
 [CRITICAL] CellBounds: Too many references stored in cell
 test/detectors/CellBounds.tact:55:4:
+  54 |    b2 = b2.storeRef(c);
 > 55 |    b2 = b2.storeRef(c); // Bad: 4+ refs
           ^~
   56 |    let c3 = b2.endCell(); // Bad: 4+ refs
@@ -72,6 +80,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
 
 [CRITICAL] CellBounds: Too many references stored in cell
 test/detectors/CellBounds.tact:58:8:
+  57 | 
 > 58 |    let b3 = b2;
               ^~
   59 |    let c4 = b3.endCell(); // Bad: 4+ refs
@@ -81,6 +90,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
 
 [CRITICAL] CellBounds: Data size exceeds cell capacity
 test/detectors/CellBounds.tact:67:5:
+  66 |     b1 = b1.storeInt(42, 256+1);
 > 67 |     b1 = b1.storeInt(42, 257); // Bad: 1023+ bits
            ^~
   68 |     let c1 = b1.endCell(); // Bad: 1023+ bits
@@ -90,6 +100,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
 
 [CRITICAL] CellBounds: Data size exceeds cell capacity
 test/detectors/CellBounds.tact:75:5:
+  74 |            .storeInt(1, 210); // Total size: 981
 > 75 |     b2 = b2.storeCoins(40000000000); // Bad: 44 + 981 = 1025 => overflow
            ^~
   76 |     c1 = b2.endCell(); // Bad
@@ -99,6 +110,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
 
 [CRITICAL] CellBounds: Data size exceeds cell capacity
 test/detectors/CellBounds.tact:84:5:
+  83 |     let b3 = beginCell();
 > 84 |     b3 = b3.storeBuilder(b_1000_bits) // Bad: 1025 bits
            ^~
   85 |            .storeInt(1, 25);

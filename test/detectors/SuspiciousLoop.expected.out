@@ -1,5 +1,6 @@
 [MEDIUM] SuspiciousLoop: Infinite loop detected
 test/detectors/SuspiciousLoop.tact:10:16:
+   9 |         let i: Int = 0;
 > 10 |         while (true) { i = i + 1; } // Bad
                       ^~~~
   11 |         do { i = i + 1; } until (true); // Bad
@@ -8,6 +9,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
 
 [MEDIUM] SuspiciousLoop: Infinite loop detected
 test/detectors/SuspiciousLoop.tact:11:34:
+  10 |         while (true) { i = i + 1; } // Bad
 > 11 |         do { i = i + 1; } until (true); // Bad
                                         ^~~~
   12 |         do { i = i + 1; } until (TRUE); // TODO: Unsupported in consteval
@@ -16,6 +18,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
 
 [MEDIUM] SuspiciousLoop: Loop condition is always false
 test/detectors/SuspiciousLoop.tact:30:16:
+  29 |         let a: Int = 0;
 > 30 |         while (false) { a = 1; } // Bad
                       ^~~~~
   31 |         while (false) { } // OK: Empty body

@@ -1,5 +1,6 @@
 [HIGH] StringReceiversOverlap: receive(msg: String) overlaps with receiver("msg")
 test/detectors/StringReceiversOverlap.tact:9:13:
+   8 |         // Simple cases
 >  9 |         if (msg == "test") {} // Bad
                    ^~~~~~~~~~~~~
   10 |         if ("test" != msg) {} // Bad
@@ -9,6 +10,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 [HIGH] StringReceiversOverlap: receive(msg: String) overlaps with receiver("msg")
 test/detectors/StringReceiversOverlap.tact:10:13:
+   9 |         if (msg == "test") {} // Bad
 > 10 |         if ("test" != msg) {} // Bad
                    ^~~~~~~~~~~~~
   11 |         if (("test" != msg) && WHATEVER) {} // Bad
@@ -18,6 +20,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 [HIGH] StringReceiversOverlap: receive(msg: String) overlaps with receiver("msg")
 test/detectors/StringReceiversOverlap.tact:11:13:
+  10 |         if ("test" != msg) {} // Bad
 > 11 |         if (("test" != msg) && WHATEVER) {} // Bad
                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~
   12 |         if ((WHATEVER || WHATEVER) && ("test" != msg)) {} // Bad
@@ -27,6 +30,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 [HIGH] StringReceiversOverlap: receive(msg: String) overlaps with receiver("msg")
 test/detectors/StringReceiversOverlap.tact:12:13:
+  11 |         if (("test" != msg) && WHATEVER) {} // Bad
 > 12 |         if ((WHATEVER || WHATEVER) && ("test" != msg)) {} // Bad
                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   13 | 
@@ -36,6 +40,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 [HIGH] StringReceiversOverlap: receive(msg: String) overlaps with receiver("msg")
 test/detectors/StringReceiversOverlap.tact:17:13:
+  16 |         let bar = foo;
 > 17 |         if ("test" == bar) {} // Bad
                    ^~~~~~~~~~~~~
   18 | 
@@ -45,6 +50,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 [HIGH] StringReceiversOverlap: receive(msg: String) overlaps with receiver("msg")
 test/detectors/StringReceiversOverlap.tact:22:13:
+  21 |         let test2 = test1;
 > 22 |         if (test2 == msg) {} // Bad
                    ^~~~~~~~~~~~
   23 | 
@@ -54,6 +60,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 [HIGH] StringReceiversOverlap: receive(msg: String) overlaps with receiver("msg")
 test/detectors/StringReceiversOverlap.tact:25:13:
+  24 |         // Combining tainted cases
 > 25 |         if (test2 != bar) {} // Bad
                    ^~~~~~~~~~~~
   26 |         if (bar == test2) {} // Bad
@@ -63,6 +70,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 [HIGH] StringReceiversOverlap: receive(msg: String) overlaps with receiver("msg")
 test/detectors/StringReceiversOverlap.tact:26:13:
+  25 |         if (test2 != bar) {} // Bad
 > 26 |         if (bar == test2) {} // Bad
                    ^~~~~~~~~~~~
   27 | 

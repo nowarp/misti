@@ -1,5 +1,6 @@
 [INFO] StateMutationInGetter: Getter contains direct state mutation logic
 test/detectors/StateMutationInGetter.tact:11:9:
+  10 |     get fun badDirectMutation(): Int {
 > 11 |         self.value = self.value + 1; // BAD Direct state mutation
                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
   12 |         return self.value;
@@ -8,6 +9,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/StateMutationInGetter
 
 [INFO] StateMutationInGetter: Getter calls state-mutating method: updateCounter
 test/detectors/StateMutationInGetter.tact:17:9:
+  16 |     get fun badIndirectMutation(): Int {
 > 17 |         self.updateCounter(); // BAD
                ^~~~~~~~~~~~~~~~~~~~
   18 |         return self.value;

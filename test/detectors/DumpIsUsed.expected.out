@@ -1,5 +1,6 @@
 [INFO] DumpIsUsed: Found `dump` usage
 test/detectors/DumpIsUsed.tact:4:5:
+  3 |     let a: Int = 42;
 > 4 |     dump(a);
           ^~~~~~~
   5 | 
