@@ -15,6 +15,7 @@
 import { MistiContext } from "../internals/context";
 import { InternalException } from "../internals/exceptions";
 import { CompilationUnit } from "../internals/ir";
+import { SrcInfo } from "../internals/tact/imports";
 import {
   MistiTactWarning,
   Severity,
@@ -27,7 +28,6 @@ import {
   SouffleFact,
   comment,
 } from "@nowarp/souffle";
-import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import JSONbig from "json-bigint";
 
 export type WarningsBehavior = "union" | "intersect";

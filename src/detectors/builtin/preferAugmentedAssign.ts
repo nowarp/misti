@@ -1,13 +1,13 @@
 import { CompilationUnit } from "../../internals/ir";
 import { foldStatements } from "../../internals/tact";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { AstDetector } from "../detector";
 import {
   AstExpression,
   AstStatement,
+  prettyPrint,
   tryExtractPath,
-} from "@tact-lang/compiler/dist/grammar/ast";
-import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
+} from "../../internals/tact/imports";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { AstDetector } from "../detector";
 
 const AstAugmentedAssignOperations = new Set<string>([
   "+",

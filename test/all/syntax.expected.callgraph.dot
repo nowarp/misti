@@ -1,66 +1,66 @@
 digraph "CallGraph" {
     node [shape=box];
-    node_12 [label="inline fun random(min: Int, max: Int): Int" style=filled fillcolor="#F0F8FF"];
-    node_15 [label="fun send(params: SendParameters): Int" style=filled fillcolor="#F0F8FF"];
-    node_17 [label="fun test_try(a: Int)"];
-    node_18 [label="fun test_loops()"];
-    node_19 [label="fun testTryCatch(a: Int)"];
-    node_20 [label="fun testLoops()"];
-    node_21 [label="fun callAsm(s: Slice): Cell"];
-    node_22 [label="override get fun TestContract::getter(): Int"];
-    node_23 [label="get fun Z::getter(): Int
+    node_10 [label="inline fun random(min: Int, max: Int): Int" style=filled fillcolor="#F0F8FF"];
+    node_17 [label="inline fun newAddress(chain: Int, hash: Int): Address" style=filled fillcolor="#F0F8FF"];
+    node_22 [label="fun test_try(a: Int)"];
+    node_23 [label="fun test_loops()"];
+    node_24 [label="fun testTryCatch(a: Int)"];
+    node_25 [label="fun testLoops()"];
+    node_26 [label="fun callAsm(s: Slice): Cell"];
+    node_27 [label="override get fun TestContract::getter(): Int"];
+    node_28 [label="get fun Z::getter(): Int
 [StateRead<a>]"];
-    node_24 [label="fun TestContractF::test()"];
-    node_25 [label="fun TParent::getA(): Int
+    node_29 [label="fun TestContractF::test()"];
+    node_30 [label="fun TParent::getA(): Int
 [StateRead<a>]"];
-    node_26 [label="fun TestContractT::test(): Int"];
-    node_27 [label="TestContractT::external()"];
-    node_28 [label="EffectTest::init()
+    node_31 [label="fun TestContractT::test(): Int"];
+    node_32 [label="TestContractT::external()"];
+    node_33 [label="EffectTest::init()
 [StateWrite<addr,b,s>]"];
-    node_29 [label="fun EffectTest::funcWithSend()
+    node_34 [label="fun EffectTest::funcWithSend()
 [Send,StateRead<addr>]"];
-    node_30 [label="fun EffectTest::funcWithStateRead()
+    node_35 [label="fun EffectTest::funcWithStateRead()
 [StateRead<addr>]"];
-    node_31 [label="fun EffectTest::funcWithStateWrite1()
+    node_36 [label="fun EffectTest::funcWithStateWrite1()
 [StateRead<b,addr,s>,StateWrite<addr>]"];
-    node_32 [label="fun EffectTest::funcWithStateWrite2(s: Slice): Address"];
-    node_33 [label="fun EffectTest::funcWithMultipleEffects()
+    node_37 [label="fun EffectTest::funcWithStateWrite2(s: Slice): Address"];
+    node_38 [label="fun EffectTest::funcWithMultipleEffects()
 [AccessDatetime,PrgUse,PrgSeedInit]"];
-    node_34 [label="EffectTest::receive()"];
-    node_35 [label="get fun A::m(): map<Int, Int>
+    node_39 [label="EffectTest::receive()"];
+    node_40 [label="get fun A::m(): map<Int, Int>
 [StateRead<m>]"];
-    node_36 [label="A::receive()
+    node_41 [label="A::receive()
 [StateRead<m>]"];
-    node_40 [label="dump"];
-    node_41 [label="emptyMap"];
-    node_42 [label="m::set"];
-    node_43 [label="s::loadRefEx"];
-    node_44 [label="TestContractT::getA"];
-    node_45 [label="sender"];
-    node_46 [label="beginCell"];
-    node_47 [label="newAddress"];
-    node_48 [label="s::loadAddress"];
-    node_49 [label="now"];
-    node_50 [label="nativeRandomizeLt"];
-    node_51 [label="beginString"];
-    node_52 [label="a::append"];
-    node_17 -> node_40;
-    node_18 -> node_41;
-    node_19 -> node_40;
-    node_20 -> node_41;
-    node_20 -> node_42;
-    node_20 -> node_42;
-    node_20 -> node_42;
-    node_21 -> node_43;
-    node_26 -> node_44;
-    node_28 -> node_45;
-    node_28 -> node_46;
-    node_29 -> node_15;
-    node_31 -> node_47;
-    node_32 -> node_48;
-    node_33 -> node_49;
-    node_33 -> node_12;
+    node_45 [label="dump"];
+    node_46 [label="emptyMap"];
+    node_47 [label="m::set"];
+    node_48 [label="s::loadRefEx"];
+    node_49 [label="TestContractT::getA"];
+    node_50 [label="sender"];
+    node_51 [label="beginCell"];
+    node_52 [label="send"];
+    node_53 [label="s::loadAddress"];
+    node_54 [label="now"];
+    node_55 [label="nativeRandomizeLt"];
+    node_56 [label="beginString"];
+    node_57 [label="a::append"];
+    node_22 -> node_45;
+    node_23 -> node_46;
+    node_24 -> node_45;
+    node_25 -> node_46;
+    node_25 -> node_47;
+    node_25 -> node_47;
+    node_25 -> node_47;
+    node_26 -> node_48;
+    node_31 -> node_49;
     node_33 -> node_50;
-    node_34 -> node_51;
+    node_33 -> node_51;
     node_34 -> node_52;
+    node_36 -> node_17;
+    node_37 -> node_53;
+    node_38 -> node_54;
+    node_38 -> node_10;
+    node_38 -> node_55;
+    node_39 -> node_56;
+    node_39 -> node_57;
 }

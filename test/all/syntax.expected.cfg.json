@@ -7,83 +7,83 @@
         "nodes": [
           {
             "id": 68,
-            "stmtID": 1732,
+            "stmtID": 2064,
             "srcEdges": [],
             "dstEdges": [
-              57
+              51
             ]
           },
           {
             "id": 69,
-            "stmtID": 1731,
+            "stmtID": 2063,
             "srcEdges": [
-              57
+              51
             ],
             "dstEdges": [
-              58
+              52
             ]
           },
           {
             "id": 70,
-            "stmtID": 1733,
+            "stmtID": 2065,
             "srcEdges": [
-              58
+              52
             ],
             "dstEdges": [
-              59
+              53
             ]
           },
           {
             "id": 71,
-            "stmtID": 1742,
+            "stmtID": 2074,
             "srcEdges": [
-              59
+              53
             ],
             "dstEdges": [
-              60,
-              61
+              54,
+              55
             ]
           },
           {
             "id": 72,
-            "stmtID": 1736,
+            "stmtID": 2068,
             "srcEdges": [
-              60
+              54
             ],
             "dstEdges": []
           },
           {
             "id": 73,
-            "stmtID": 1741,
+            "stmtID": 2073,
             "srcEdges": [
-              61
+              55
             ],
             "dstEdges": []
           }
         ],
         "edges": [
           {
-            "id": 57,
+            "id": 51,
             "src": 68,
             "dst": 69
           },
           {
-            "id": 58,
+            "id": 52,
             "src": 69,
             "dst": 70
           },
           {
-            "id": 59,
+            "id": 53,
             "src": 70,
             "dst": 71
           },
           {
-            "id": 60,
+            "id": 54,
             "src": 71,
             "dst": 72
           },
           {
-            "id": 61,
+            "id": 55,
             "src": 71,
             "dst": 73
           }
@@ -96,15 +96,69 @@
         "nodes": [
           {
             "id": 74,
-            "stmtID": 1748,
+            "stmtID": 2080,
             "srcEdges": [],
             "dstEdges": [
-              62
+              56
             ]
           },
           {
             "id": 75,
-            "stmtID": 1752,
+            "stmtID": 2084,
+            "srcEdges": [
+              56
+            ],
+            "dstEdges": [
+              57
+            ]
+          },
+          {
+            "id": 76,
+            "stmtID": 2098,
+            "srcEdges": [
+              57,
+              60
+            ],
+            "dstEdges": [
+              58,
+              61
+            ]
+          },
+          {
+            "id": 77,
+            "stmtID": 2092,
+            "srcEdges": [
+              58
+            ],
+            "dstEdges": [
+              59
+            ]
+          },
+          {
+            "id": 78,
+            "stmtID": 2097,
+            "srcEdges": [
+              59
+            ],
+            "dstEdges": [
+              60
+            ]
+          },
+          {
+            "id": 79,
+            "stmtID": 2112,
+            "srcEdges": [
+              61,
+              64
+            ],
+            "dstEdges": [
+              62,
+              65
+            ]
+          },
+          {
+            "id": 80,
+            "stmtID": 2106,
             "srcEdges": [
               62
             ],
@@ -113,201 +167,147 @@
             ]
           },
           {
-            "id": 76,
-            "stmtID": 1766,
-            "srcEdges": [
-              63,
-              66
-            ],
-            "dstEdges": [
-              64,
-              67
-            ]
-          },
-          {
-            "id": 77,
-            "stmtID": 1760,
-            "srcEdges": [
-              64
-            ],
-            "dstEdges": [
-              65
-            ]
-          },
-          {
-            "id": 78,
-            "stmtID": 1765,
-            "srcEdges": [
-              65
-            ],
-            "dstEdges": [
-              66
-            ]
-          },
-          {
-            "id": 79,
-            "stmtID": 1780,
-            "srcEdges": [
-              67,
-              70
-            ],
-            "dstEdges": [
-              68,
-              71
-            ]
-          },
-          {
-            "id": 80,
-            "stmtID": 1774,
-            "srcEdges": [
-              68
-            ],
-            "dstEdges": [
-              69
-            ]
-          },
-          {
             "id": 81,
-            "stmtID": 1779,
+            "stmtID": 2111,
             "srcEdges": [
-              69
+              63
             ],
             "dstEdges": [
-              70
+              64
             ]
           },
           {
             "id": 82,
-            "stmtID": 1792,
+            "stmtID": 2124,
             "srcEdges": [
-              71,
-              74
+              65,
+              68
             ],
             "dstEdges": [
-              72,
-              75
+              66,
+              69
             ]
           },
           {
             "id": 83,
-            "stmtID": 1786,
+            "stmtID": 2118,
             "srcEdges": [
-              72
+              66
             ],
             "dstEdges": [
-              73
+              67
             ]
           },
           {
             "id": 84,
-            "stmtID": 1791,
+            "stmtID": 2123,
             "srcEdges": [
-              73
+              67
             ],
             "dstEdges": [
-              74
+              68
             ]
           },
           {
             "id": 85,
-            "stmtID": 1799,
+            "stmtID": 2131,
             "srcEdges": [
-              75
+              69
             ],
             "dstEdges": [
-              76
+              70
             ]
           },
           {
             "id": 86,
-            "stmtID": 1803,
+            "stmtID": 2135,
             "srcEdges": [
-              76,
-              77
+              70,
+              71
             ],
             "dstEdges": [
-              77
+              71
             ]
           }
         ],
         "edges": [
           {
-            "id": 62,
+            "id": 56,
             "src": 74,
             "dst": 75
           },
           {
-            "id": 63,
+            "id": 57,
             "src": 75,
             "dst": 76
           },
           {
-            "id": 64,
+            "id": 58,
             "src": 76,
             "dst": 77
           },
           {
-            "id": 65,
+            "id": 59,
             "src": 77,
             "dst": 78
           },
           {
-            "id": 66,
+            "id": 60,
             "src": 78,
             "dst": 76
           },
           {
-            "id": 67,
+            "id": 61,
             "src": 76,
             "dst": 79
           },
           {
-            "id": 68,
+            "id": 62,
             "src": 79,
             "dst": 80
           },
           {
-            "id": 69,
+            "id": 63,
             "src": 80,
             "dst": 81
           },
           {
-            "id": 70,
+            "id": 64,
             "src": 81,
             "dst": 79
           },
           {
-            "id": 71,
+            "id": 65,
             "src": 79,
             "dst": 82
           },
           {
-            "id": 72,
+            "id": 66,
             "src": 82,
             "dst": 83
           },
           {
-            "id": 73,
+            "id": 67,
             "src": 83,
             "dst": 84
           },
           {
-            "id": 74,
+            "id": 68,
             "src": 84,
             "dst": 82
           },
           {
-            "id": 75,
+            "id": 69,
             "src": 82,
             "dst": 85
           },
           {
-            "id": 76,
+            "id": 70,
             "src": 85,
             "dst": 86
           },
           {
-            "id": 77,
+            "id": 71,
             "src": 86,
             "dst": 86
           }
@@ -320,38 +320,38 @@
         "nodes": [
           {
             "id": 87,
-            "stmtID": 1817,
+            "stmtID": 2149,
             "srcEdges": [],
             "dstEdges": [
-              78,
-              79
+              72,
+              73
             ]
           },
           {
             "id": 88,
-            "stmtID": 1811,
+            "stmtID": 2143,
             "srcEdges": [
-              78
+              72
             ],
             "dstEdges": []
           },
           {
             "id": 89,
-            "stmtID": 1816,
+            "stmtID": 2148,
             "srcEdges": [
-              79
+              73
             ],
             "dstEdges": []
           }
         ],
         "edges": [
           {
-            "id": 78,
+            "id": 72,
             "src": 87,
             "dst": 88
           },
           {
-            "id": 79,
+            "id": 73,
             "src": 87,
             "dst": 89
           }
@@ -364,15 +364,69 @@
         "nodes": [
           {
             "id": 90,
-            "stmtID": 1823,
+            "stmtID": 2155,
             "srcEdges": [],
             "dstEdges": [
-              80
+              74
             ]
           },
           {
             "id": 91,
-            "stmtID": 1827,
+            "stmtID": 2159,
+            "srcEdges": [
+              74
+            ],
+            "dstEdges": [
+              75
+            ]
+          },
+          {
+            "id": 92,
+            "stmtID": 2173,
+            "srcEdges": [
+              75,
+              78
+            ],
+            "dstEdges": [
+              76,
+              79
+            ]
+          },
+          {
+            "id": 93,
+            "stmtID": 2167,
+            "srcEdges": [
+              76
+            ],
+            "dstEdges": [
+              77
+            ]
+          },
+          {
+            "id": 94,
+            "stmtID": 2172,
+            "srcEdges": [
+              77
+            ],
+            "dstEdges": [
+              78
+            ]
+          },
+          {
+            "id": 95,
+            "stmtID": 2187,
+            "srcEdges": [
+              79,
+              82
+            ],
+            "dstEdges": [
+              80,
+              83
+            ]
+          },
+          {
+            "id": 96,
+            "stmtID": 2181,
             "srcEdges": [
               80
             ],
@@ -381,84 +435,80 @@
             ]
           },
           {
-            "id": 92,
-            "stmtID": 1841,
-            "srcEdges": [
-              81,
-              84
-            ],
-            "dstEdges": [
-              82,
-              85
-            ]
-          },
-          {
-            "id": 93,
-            "stmtID": 1835,
-            "srcEdges": [
-              82
-            ],
-            "dstEdges": [
-              83
-            ]
-          },
-          {
-            "id": 94,
-            "stmtID": 1840,
-            "srcEdges": [
-              83
-            ],
-            "dstEdges": [
-              84
-            ]
-          },
-          {
-            "id": 95,
-            "stmtID": 1855,
-            "srcEdges": [
-              85,
-              88
-            ],
-            "dstEdges": [
-              86,
-              89
-            ]
-          },
-          {
-            "id": 96,
-            "stmtID": 1849,
-            "srcEdges": [
-              86
-            ],
-            "dstEdges": [
-              87
-            ]
-          },
-          {
             "id": 97,
-            "stmtID": 1854,
+            "stmtID": 2186,
             "srcEdges": [
-              87
+              81
             ],
             "dstEdges": [
-              88
+              82
             ]
           },
           {
             "id": 98,
-            "stmtID": 1867,
+            "stmtID": 2199,
             "srcEdges": [
-              89,
-              92
+              83,
+              86
             ],
             "dstEdges": [
-              90,
-              93
+              84,
+              87
             ]
           },
           {
             "id": 99,
-            "stmtID": 1861,
+            "stmtID": 2193,
+            "srcEdges": [
+              84
+            ],
+            "dstEdges": [
+              85
+            ]
+          },
+          {
+            "id": 100,
+            "stmtID": 2198,
+            "srcEdges": [
+              85
+            ],
+            "dstEdges": [
+              86
+            ]
+          },
+          {
+            "id": 101,
+            "stmtID": 2206,
+            "srcEdges": [
+              87
+            ],
+            "dstEdges": [
+              88
+            ]
+          },
+          {
+            "id": 102,
+            "stmtID": 2212,
+            "srcEdges": [
+              88
+            ],
+            "dstEdges": [
+              89
+            ]
+          },
+          {
+            "id": 103,
+            "stmtID": 2218,
+            "srcEdges": [
+              89
+            ],
+            "dstEdges": [
+              90
+            ]
+          },
+          {
+            "id": 104,
+            "stmtID": 2224,
             "srcEdges": [
               90
             ],
@@ -467,175 +517,125 @@
             ]
           },
           {
-            "id": 100,
-            "stmtID": 1866,
+            "id": 105,
+            "stmtID": 2233,
             "srcEdges": [
-              91
+              91,
+              93
             ],
             "dstEdges": [
               92
             ]
           },
           {
-            "id": 101,
-            "stmtID": 1874,
-            "srcEdges": [
-              93
-            ],
-            "dstEdges": [
-              94
-            ]
-          },
-          {
-            "id": 102,
-            "stmtID": 1880,
-            "srcEdges": [
-              94
-            ],
-            "dstEdges": [
-              95
-            ]
-          },
-          {
-            "id": 103,
-            "stmtID": 1886,
-            "srcEdges": [
-              95
-            ],
-            "dstEdges": [
-              96
-            ]
-          },
-          {
-            "id": 104,
-            "stmtID": 1892,
-            "srcEdges": [
-              96
-            ],
-            "dstEdges": [
-              97
-            ]
-          },
-          {
-            "id": 105,
-            "stmtID": 1901,
-            "srcEdges": [
-              97,
-              99
-            ],
-            "dstEdges": [
-              98
-            ]
-          },
-          {
             "id": 106,
-            "stmtID": 1900,
+            "stmtID": 2232,
             "srcEdges": [
-              98
+              92
             ],
             "dstEdges": [
-              99
+              93
             ]
           }
         ],
         "edges": [
           {
-            "id": 80,
+            "id": 74,
             "src": 90,
             "dst": 91
           },
           {
-            "id": 81,
+            "id": 75,
             "src": 91,
             "dst": 92
           },
           {
-            "id": 82,
+            "id": 76,
             "src": 92,
             "dst": 93
           },
           {
-            "id": 83,
+            "id": 77,
             "src": 93,
             "dst": 94
           },
           {
-            "id": 84,
+            "id": 78,
             "src": 94,
             "dst": 92
           },
           {
-            "id": 85,
+            "id": 79,
             "src": 92,
             "dst": 95
           },
           {
-            "id": 86,
+            "id": 80,
             "src": 95,
             "dst": 96
           },
           {
-            "id": 87,
+            "id": 81,
             "src": 96,
             "dst": 97
           },
           {
-            "id": 88,
+            "id": 82,
             "src": 97,
             "dst": 95
           },
           {
-            "id": 89,
+            "id": 83,
             "src": 95,
             "dst": 98
           },
           {
-            "id": 90,
+            "id": 84,
             "src": 98,
             "dst": 99
           },
           {
-            "id": 91,
+            "id": 85,
             "src": 99,
             "dst": 100
           },
           {
-            "id": 92,
+            "id": 86,
             "src": 100,
             "dst": 98
           },
           {
-            "id": 93,
+            "id": 87,
             "src": 98,
             "dst": 101
           },
           {
-            "id": 94,
+            "id": 88,
             "src": 101,
             "dst": 102
           },
           {
-            "id": 95,
+            "id": 89,
             "src": 102,
             "dst": 103
           },
           {
-            "id": 96,
+            "id": 90,
             "src": 103,
             "dst": 104
           },
           {
-            "id": 97,
+            "id": 91,
             "src": 104,
             "dst": 105
           },
           {
-            "id": 98,
+            "id": 92,
             "src": 105,
             "dst": 106
           },
           {
-            "id": 99,
+            "id": 93,
             "src": 106,
             "dst": 105
           }
@@ -648,7 +648,7 @@
         "nodes": [
           {
             "id": 107,
-            "stmtID": 2055,
+            "stmtID": 2389,
             "srcEdges": [],
             "dstEdges": []
           }
@@ -667,7 +667,7 @@
             "nodes": [
               {
                 "id": 125,
-                "stmtID": 1662,
+                "stmtID": 1992,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -698,7 +698,7 @@
             "nodes": [
               {
                 "id": 128,
-                "stmtID": 1720,
+                "stmtID": 2050,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -707,7 +707,7 @@
           }
         },
         {
-          "name": "TestContractT.receive_external_fallback_1722",
+          "name": "TestContractT.receive_external_fallback_2054",
           "cfg": {
             "nodes": [],
             "edges": []
@@ -719,44 +719,44 @@
       "name": "EffectTest",
       "methods": [
         {
-          "name": "EffectTest.init_2038",
+          "name": "EffectTest.init_2372",
           "cfg": {
             "nodes": [
               {
                 "id": 129,
-                "stmtID": 1923,
+                "stmtID": 2255,
                 "srcEdges": [],
                 "dstEdges": [
-                  114
+                  108
                 ]
               },
               {
                 "id": 130,
-                "stmtID": 1929,
+                "stmtID": 2261,
                 "srcEdges": [
-                  114
+                  108
                 ],
                 "dstEdges": [
-                  115
+                  109
                 ]
               },
               {
                 "id": 131,
-                "stmtID": 1939,
+                "stmtID": 2271,
                 "srcEdges": [
-                  115
+                  109
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 114,
+                "id": 108,
                 "src": 129,
                 "dst": 130
               },
               {
-                "id": 115,
+                "id": 109,
                 "src": 130,
                 "dst": 131
               }
@@ -769,24 +769,24 @@
             "nodes": [
               {
                 "id": 132,
-                "stmtID": 1945,
+                "stmtID": 2277,
                 "srcEdges": [],
                 "dstEdges": [
-                  116
+                  110
                 ]
               },
               {
                 "id": 133,
-                "stmtID": 1958,
+                "stmtID": 2290,
                 "srcEdges": [
-                  116
+                  110
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 116,
+                "id": 110,
                 "src": 132,
                 "dst": 133
               }
@@ -799,7 +799,7 @@
             "nodes": [
               {
                 "id": 134,
-                "stmtID": 1965,
+                "stmtID": 2297,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -813,39 +813,39 @@
             "nodes": [
               {
                 "id": 135,
-                "stmtID": 1975,
+                "stmtID": 2307,
                 "srcEdges": [],
                 "dstEdges": [
-                  117
+                  111
                 ]
               },
               {
                 "id": 136,
-                "stmtID": 1984,
+                "stmtID": 2316,
                 "srcEdges": [
-                  117
+                  111
                 ],
                 "dstEdges": [
-                  118
+                  112
                 ]
               },
               {
                 "id": 137,
-                "stmtID": 1995,
+                "stmtID": 2327,
                 "srcEdges": [
-                  118
+                  112
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 117,
+                "id": 111,
                 "src": 135,
                 "dst": 136
               },
               {
-                "id": 118,
+                "id": 112,
                 "src": 136,
                 "dst": 137
               }
@@ -858,7 +858,7 @@
             "nodes": [
               {
                 "id": 138,
-                "stmtID": 2005,
+                "stmtID": 2337,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -872,54 +872,54 @@
             "nodes": [
               {
                 "id": 139,
-                "stmtID": 2012,
+                "stmtID": 2344,
                 "srcEdges": [],
                 "dstEdges": [
-                  119
+                  113
                 ]
               },
               {
                 "id": 140,
-                "stmtID": 2019,
+                "stmtID": 2351,
                 "srcEdges": [
-                  119
+                  113
                 ],
                 "dstEdges": [
-                  120
+                  114
                 ]
               },
               {
                 "id": 141,
-                "stmtID": 2026,
+                "stmtID": 2358,
                 "srcEdges": [
-                  120
+                  114
                 ],
                 "dstEdges": [
-                  121
+                  115
                 ]
               },
               {
                 "id": 142,
-                "stmtID": 2025,
+                "stmtID": 2357,
                 "srcEdges": [
-                  121
+                  115
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 119,
+                "id": 113,
                 "src": 139,
                 "dst": 140
               },
               {
-                "id": 120,
+                "id": 114,
                 "src": 140,
                 "dst": 141
               },
               {
-                "id": 121,
+                "id": 115,
                 "src": 141,
                 "dst": 142
               }
@@ -927,29 +927,29 @@
           }
         },
         {
-          "name": "EffectTest.receive_internal_fallback_2037",
+          "name": "EffectTest.receive_internal_fallback_2371",
           "cfg": {
             "nodes": [
               {
                 "id": 143,
-                "stmtID": 2031,
+                "stmtID": 2365,
                 "srcEdges": [],
                 "dstEdges": [
-                  122
+                  116
                 ]
               },
               {
                 "id": 144,
-                "stmtID": 2036,
+                "stmtID": 2370,
                 "srcEdges": [
-                  122
+                  116
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 122,
+                "id": 116,
                 "src": 143,
                 "dst": 144
               }
@@ -967,7 +967,7 @@
             "nodes": [
               {
                 "id": 145,
-                "stmtID": 2071,
+                "stmtID": 2405,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -976,38 +976,38 @@
           }
         },
         {
-          "name": "A.receive_internal_fallback_2083",
+          "name": "A.receive_internal_fallback_2419",
           "cfg": {
             "nodes": [
               {
                 "id": 146,
-                "stmtID": 2082,
+                "stmtID": 2418,
                 "srcEdges": [
-                  124
+                  118
                 ],
                 "dstEdges": [
-                  123
+                  117
                 ]
               },
               {
                 "id": 147,
-                "stmtID": 2081,
+                "stmtID": 2417,
                 "srcEdges": [
-                  123
+                  117
                 ],
                 "dstEdges": [
-                  124
+                  118
                 ]
               }
             ],
             "edges": [
               {
-                "id": 123,
+                "id": 117,
                 "src": 146,
                 "dst": 147
               },
               {
-                "id": 124,
+                "id": 118,
                 "src": 147,
                 "dst": 146
               }
@@ -1033,7 +1033,7 @@
             "nodes": [
               {
                 "id": 126,
-                "stmtID": 1681,
+                "stmtID": 2011,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -1052,7 +1052,7 @@
             "nodes": [
               {
                 "id": 127,
-                "stmtID": 1701,
+                "stmtID": 2031,
                 "srcEdges": [],
                 "dstEdges": []
               }

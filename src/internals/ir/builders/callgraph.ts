@@ -13,7 +13,22 @@ import {
   PRG_NATIVE_USE_FUNCTIONS,
   PRG_INIT_FUNCTIONS,
   isSendCall,
+  AstNodeId,
 } from "../../tact/";
+import {
+  AstAsmFunctionDef,
+  AstContractDeclaration,
+  AstContractInit,
+  AstExpression,
+  AstFunctionDef,
+  AstMethodCall,
+  AstReceiver,
+  AstStatement,
+  AstTraitDeclaration,
+  idText,
+  isSelfId,
+  tryExtractPath,
+} from "../../tact/imports";
 import { unreachable } from "../../util";
 import { AstStore } from "../astStore";
 import {
@@ -24,21 +39,6 @@ import {
   CGNodeId,
   Effect,
 } from "../callGraph";
-import {
-  AstAsmFunctionDef,
-  AstContractDeclaration,
-  AstContractInit,
-  AstExpression,
-  AstFunctionDef,
-  AstMethodCall,
-  AstNode,
-  AstReceiver,
-  AstStatement,
-  AstTraitDeclaration,
-  idText,
-  isSelfId,
-  tryExtractPath,
-} from "@tact-lang/compiler/dist/grammar/ast";
 
 type SupportedFunDefs =
   | AstFunctionDef
@@ -48,7 +48,7 @@ type SupportedFunDefs =
 
 export class TactCallGraphBuilder {
   private nodeMap: Map<CGNodeId, CGNode> = new Map();
-  private astIdToNodeId: Map<AstNode["id"], CGNodeId> = new Map();
+  private astIdToNodeId: Map<AstNodeId, CGNodeId> = new Map();
   private nameToNodeId: Map<string, CGNodeId> = new Map();
   private edgesMap: Map<CGEdgeId, CGEdge> = new Map();
   private readonly logger: Logger;

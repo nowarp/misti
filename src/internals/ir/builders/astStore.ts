@@ -1,11 +1,9 @@
 import { AstStore, ContractName, FunctionName } from "..";
 import { MistiContext } from "../../context";
 import { InternalException } from "../../exceptions";
-import { definedInStdlib } from "../../tact/stdlib";
-import { unreachable } from "../../util";
+import { AstNodeId } from "../../tact";
 import {
   AstAsmFunctionDef,
-  AstNode,
   AstConstantDef,
   AstContract,
   AstContractInit,
@@ -18,33 +16,35 @@ import {
   AstStructDecl,
   AstTrait,
   AstTypeDecl,
-  SrcInfo,
+  AstStore as TactAstStore,
   idText,
-} from "@tact-lang/compiler/dist/grammar/ast";
-import { AstStore as TactAstStore } from "@tact-lang/compiler/dist/grammar/store";
+  SrcInfo,
+} from "../../tact/imports";
+import { definedInStdlib } from "../../tact/stdlib";
+import { unreachable } from "../../util";
 
 /**
  * Transforms AstStore to AstStore.
  */
 export class AstStoreBuilder {
-  private programEntries: Map<string, Set<AstNode["id"]>> = new Map();
-  private stdlibIds = new Set<AstNode["id"]>();
+  private programEntries: Map<string, Set<AstNodeId>> = new Map();
+  private stdlibIds = new Set<AstNodeId>();
   /** Items defined within contracts and traits */
-  private contractEntries = new Map<AstContract["id"], Set<AstNode["id"]>>();
-  private functionNames = new Map<AstNode["id"], FunctionName>();
+  private contractEntries = new Map<AstContract["id"], Set<AstNodeId>>();
+  private functionNames = new Map<AstNodeId, FunctionName>();
   private functions = new Map<
-    AstNode["id"],
+    AstNodeId,
     AstFunctionDef | AstReceiver | AstContractInit
   >();
-  private constants = new Map<AstNode["id"], AstConstantDef>();
-  private contracts = new Map<AstNode["id"], AstContract>();
-  private nativeFunctions = new Map<AstNode["id"], AstNativeFunctionDecl>();
-  private asmFunctions = new Map<AstNode["id"], AstAsmFunctionDef>();
-  private primitives = new Map<AstNode["id"], AstPrimitiveTypeDecl>();
-  private structs = new Map<AstNode["id"], AstStructDecl>();
-  private messages = new Map<AstNode["id"], AstMessageDecl>();
-  private traits = new Map<AstNode["id"], AstTrait>();
-  private statements = new Map<AstNode["id"], AstStatement>();
+  private constants = new Map<AstNodeId, AstConstantDef>();
+  private contracts = new Map<AstNodeId, AstContract>();
+  private nativeFunctions = new Map<AstNodeId, AstNativeFunctionDecl>();
+  private asmFunctions = new Map<AstNodeId, AstAsmFunctionDef>();
+  private primitives = new Map<AstNodeId, AstPrimitiveTypeDecl>();
+  private structs = new Map<AstNodeId, AstStructDecl>();
+  private messages = new Map<AstNodeId, AstMessageDecl>();
+  private traits = new Map<AstNodeId, AstTrait>();
+  private statements = new Map<AstNodeId, AstStatement>();
 
   private constructor(
     private ctx: MistiContext,
@@ -224,6 +224,7 @@ export class AstStoreBuilder {
     this.statements.set(stmt.id, stmt);
     switch (stmt.kind) {
       case "statement_let":
+      case "statement_destruct":
       case "statement_return":
       case "statement_expression":
       case "statement_assign":
@@ -232,32 +233,26 @@ export class AstStoreBuilder {
       case "statement_condition":
         stmt.trueStatements.forEach((s) => this.processStmt(s));
         stmt.falseStatements?.forEach((s) => this.processStmt(s));
-        if (stmt.elseif) {
-          this.processStmt(stmt.elseif);
-        }
         break;
       case "statement_while":
       case "statement_until":
       case "statement_repeat":
       case "statement_foreach":
+      case "statement_block":
         stmt.statements.forEach((s) => this.processStmt(s));
         break;
       case "statement_try":
         stmt.statements.forEach((s) => this.processStmt(s));
-        break;
-      case "statement_try_catch":
-        stmt.statements.forEach((s) => this.processStmt(s));
-        stmt.catchStatements.forEach((s) => this.processStmt(s));
+        if (stmt.catchBlock) {
+          stmt.catchBlock.catchStatements.forEach((s) => this.processStmt(s));
+        }
         break;
       default:
         unreachable(stmt);
     }
   }
 
-  private addContractEntry(
-    contractId: AstNode["id"],
-    nodeId: AstNode["id"],
-  ): void {
+  private addContractEntry(contractId: AstNodeId, nodeId: AstNodeId): void {
     this.contractEntries.set(
       contractId,
       (this.contractEntries.get(contractId) || new Set()).add(nodeId),

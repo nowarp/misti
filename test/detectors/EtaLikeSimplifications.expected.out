@@ -2,7 +2,7 @@
 test/detectors/EtaLikeSimplifications.tact:4:9:
   3 |     fun redundantIf(condition: Bool): Bool {
 > 4 |         if (condition) {
-              ^
+              ^~~~~~~~~~~~~~~~
   5 |             return true;
 Help: return condition;
 See: https://nowarp.io/tools/misti/docs/detectors/EtaLikeSimplifications
@@ -11,7 +11,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/EtaLikeSimplifications
 test/detectors/EtaLikeSimplifications.tact:13:16:
   12 |     fun redundantComparison(a: Bool): Bool {
 > 13 |         return a == true;
-                      ^
+                      ^~~~~~~~~
   14 |     }
 Help: a
 See: https://nowarp.io/tools/misti/docs/detectors/EtaLikeSimplifications
@@ -20,7 +20,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/EtaLikeSimplifications
 test/detectors/EtaLikeSimplifications.tact:18:16:
   17 |     fun redundantTernary(b: Bool): Bool {
 > 18 |         return b ? true : false;
-                      ^
+                      ^~~~~~~~~~~~~~~~
   19 |     }
 Help: b
 See: https://nowarp.io/tools/misti/docs/detectors/EtaLikeSimplifications

@@ -5,8 +5,7 @@ import {
   ImportEdgeIdx,
   ImportNodeIdx,
 } from "../src/internals/ir/imports";
-import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
-import { ItemOrigin } from "@tact-lang/compiler/dist/grammar/grammar";
+import { SrcInfo, ItemOrigin } from "../src/internals/tact/imports";
 
 describe("ImportGraph", () => {
   let node1: ImportNode;

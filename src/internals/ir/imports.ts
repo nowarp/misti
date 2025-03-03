@@ -1,7 +1,7 @@
 import { IdxGenerator } from "./indices";
+import { SrcInfo } from "../../internals/tact/imports";
+import { ItemOrigin } from "../../internals/tact/imports";
 import { VirtualFileSystem } from "../../vfs/virtualFileSystem";
-import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
-import { ItemOrigin } from "@tact-lang/compiler/dist/grammar/grammar";
 import path from "path";
 
 export type ImportNodeIdx = number & { readonly __brand: unique symbol };

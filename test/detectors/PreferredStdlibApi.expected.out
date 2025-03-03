@@ -2,7 +2,7 @@
 test/detectors/PreferredStdlibApi.tact:7:29:
   6 |     receive(msg: Msg) {
 > 7 |         let slice1: Slice = emptyCell().asSlice();  // Bad: use emptySlice()
-                                  ^
+                                  ^~~~~~~~~~~~~~~~~~~~~
   8 |         let cell1: Cell = beginCell().endCell();    // Bad: use emptyCell()
 Use `emptySlice()` instead of chaining `emptyCell().asSlice()`
 Help: This chain should be replaced with: emptySlice()
@@ -12,7 +12,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
 test/detectors/PreferredStdlibApi.tact:8:27:
   7 |         let slice1: Slice = emptyCell().asSlice();  // Bad: use emptySlice()
 > 8 |         let cell1: Cell = beginCell().endCell();    // Bad: use emptyCell()
-                                ^
+                                ^~~~~~~~~~~~~~~~~~~~~
   9 |         let pkg: Slice = msg.whatever;
 Use `emptyCell()` instead of chaining `beginCell().endCell()`
 Help: This chain should be replaced with: emptyCell()
@@ -22,7 +22,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
 test/detectors/PreferredStdlibApi.tact:13:9:
   12 |         let body: Cell = pkg.loadRef();
 > 13 |         nativeSendMessage(body, mode); // Bad: prefer `send`
-               ^
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   14 |     }
 Prefer `send` to make the call more explicit and reduce low-level operations
 Help: nativeSendMessage should be replaced with a safer alternative: send
@@ -32,7 +32,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
 test/detectors/PreferredStdlibApi.tact:17:16:
   16 |     fun getInt(): Int {
 > 17 |         return nativeRandom(); // Bad: prefer `randomInt`
-                      ^
+                      ^~~~~~~~~~~~~~
   18 |     }
 Prefer `randomInt` since `nativeRandom` requires additional initialization of PRG before use
 Help: nativeRandom should be replaced with a safer alternative: randomInt

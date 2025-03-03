@@ -2,7 +2,7 @@
 test/detectors/DivideBeforeMultiply.tact:5:21:
   4 |   let c: Int = 2;
 > 5 |   let result: Int = a / b * c; // Error: Division before multiplication
-                          ^
+                          ^~~~~
   6 |   return result;
 Performing division before multiplication can lead to unexpected results due to precision loss and rounding errors
 Help: Consider rearranging the operations: division should follow multiplication
@@ -12,7 +12,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/DivideBeforeMultiply
 test/detectors/DivideBeforeMultiply.tact:18:16:
   17 | fun test3(): Int {
 > 18 |   let a: Int = 10 / 3; // Division operation
-                      ^
+                      ^~~~~~
   19 |   let c: Int = 2;
 Performing division before multiplication can lead to unexpected results due to precision loss and rounding errors
 Help: Consider rearranging the operations: division should follow multiplication

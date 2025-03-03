@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Tact 1.6 support: PR [#314](https://github.com/nowarp/misti/pull/314)
 - `StateMutationInGetter` detector: PR [#306](https://github.com/nowarp/misti/pull/306)
 - `UnprotectedCall` detector: PR [#235](https://github.com/nowarp/misti/pull/235)
 - `SuspiciousLoop` detector: PR [#206](https://github.com/nowarp/misti/pull/206)
@@ -32,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Callgraph: Separate build logic to `src/internals/ir/builders/callgraph.ts`: PR [#287](https://github.com/nowarp/misti/pull/287)
 - SuspiciousMessageMode: Revisited warning messages and severities: Issue [#294](https://github.com/nowarp/misti/issues/294)
 - Driver+Detector: Optimize warning suppressions based on severity: PR [#303](https://github.com/nowarp/misti/pull/303)
+- Consolidated all Tact imports in single file: PR [#314](https://github.com/nowarp/misti/pull/314)
+- Removed Tact parser hack from `ImportGraphBuilder`: PR [#314](https://github.com/nowarp/misti/pull/314)
 
 ### Fixed
 - Souffle installation in CI: PR [#253](https://github.com/nowarp/misti/pull/253)
@@ -43,7 +46,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Callgraph: Incorrect processing of `Effect.StateWrite` for cells: PR [#279](https://github.com/nowarp/misti/pull/279)
 - Callgraph: Incorrect handling of getter methods: PR [#282](https://github.com/nowarp/misti/pull/282)
 - `ArgCopyMutation`: Incorrect handling of `return` in traits: Issue [#290](https://github.com/nowarp/misti/issues/290)
-- Added workaround for incorrect `SrcInfo.origin` in standard traits: Issue [#299](https://github.com/nowarp/misti/issues/299)
 - `SendInLoop`: Remove redundant error logs when accessing patterns like `self.<map_field>.set()`
 
 ## [0.6.2] - 2024-12-25

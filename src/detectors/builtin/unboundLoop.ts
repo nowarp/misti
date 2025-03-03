@@ -5,15 +5,12 @@ import {
   forEachExpression,
   forEachStatement,
 } from "../../internals/tact";
+import { AstId, AstStatement } from "../../internals/tact/imports";
+import { SrcInfo } from "../../internals/tact/imports";
+import { isLiteral } from "../../internals/tact/imports";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { SouffleDetector } from "../detector";
 import { SouffleContext, atom, body, relation, rule } from "@nowarp/souffle";
-import {
-  AstId,
-  AstStatement,
-  SrcInfo,
-  isValue,
-} from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
  * A detector that analyzes loop conditions and control flow to ensure loops have proper termination criteria.
@@ -203,14 +200,14 @@ export class UnboundLoop extends SouffleDetector {
           } else if (
             cond.kind === "op_binary" &&
             cond.left.kind === "id" &&
-            isValue(cond.right)
+            isLiteral(cond.right)
           ) {
             // e.g.: while(a < 10)
             add(cond.left);
           } else if (
             cond.kind === "op_binary" &&
             cond.right.kind === "id" &&
-            isValue(cond.left)
+            isLiteral(cond.left)
           ) {
             // e.g.: while(10 > a)
             add(cond.right);

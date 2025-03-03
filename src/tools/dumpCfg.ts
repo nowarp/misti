@@ -1,9 +1,8 @@
 import { Tool } from "./tool";
 import { ToolOutput } from "../cli/result";
 import { BasicBlock, Cfg, CompilationUnit } from "../internals/ir";
+import { AstStatement, prettyPrint } from "../internals/tact/imports";
 import { unreachable } from "../internals/util";
-import { AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
-import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 import JSONbig from "json-bigint";
 import path from "path";
 
@@ -336,6 +335,7 @@ function ppSummary(
       case "statement_expression":
       case "statement_assign":
       case "statement_augmentedassign":
+      case "statement_block":
         return prettyPrint(stmt);
       case "statement_condition":
         return `if (${prettyPrint(stmt.condition)})`;
@@ -346,13 +346,21 @@ function ppSummary(
       case "statement_repeat":
         return `repeat (${prettyPrint(stmt.iterations)})`;
       case "statement_try":
-        return "try";
-      case "statement_try_catch":
-        return `try ... catch (${prettyPrint(stmt.catchName)})`;
+        return (
+          `try` +
+          (stmt.catchBlock
+            ? ` ... catch (${prettyPrint(stmt.catchBlock.catchName)})`
+            : "")
+        );
       case "statement_foreach":
         return `foreach ((${prettyPrint(stmt.keyName)}, ${prettyPrint(
           stmt.valueName,
         )}) of ${prettyPrint(stmt.map)})`;
+      case "statement_destruct":
+        const localIds = Array.from(stmt.identifiers.values())
+          .map(([_, localId]) => prettyPrint(localId))
+          .join(", ");
+        return `{ ${localIds} } = ${prettyPrint(stmt.expression)}`;
       default:
         unreachable(stmt);
     }

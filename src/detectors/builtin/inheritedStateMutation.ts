@@ -5,10 +5,10 @@ import {
   collectMutations,
   mutationNames,
 } from "../../internals/tact";
+import { AstStatement, AstNode } from "../../internals/tact/imports";
 import { intersectLists } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
-import { AstStatement, AstNode } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
  * An optional detector that highlights all instances where inherited trait variables

@@ -1,6 +1,5 @@
 import { IdxGenerator } from "../src/internals/ir/indices";
 import { expect } from "@jest/globals";
-import { __DANGER_resetNodeId } from "@tact-lang/compiler/dist/grammar/ast";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -101,7 +100,6 @@ export function processTactProjects(
  * Resets IDs, making the names and IDs in the expected dump files consistent when adding new tests.
  */
 export function resetIds(): void {
-  __DANGER_resetNodeId();
   IdxGenerator.__reset();
 }
 

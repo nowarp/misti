@@ -11,7 +11,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/UnprotectedCall
 test/detectors/UnprotectedCall.tact:12:83:
   11 |         send(SendParameters{ to: a, value: 0, bounce: false, body: emptyCell() }); // Bad
 > 12 |         send(SendParameters{ to: newAddress(0, 0), value: 0, bounce: false, body: s1.asCell() }); // Bad
-                                                                                         ^
+                                                                                         ^~~~~~~~~~~
   13 |         self.m.set(a, 42); // Bad
 
 See: https://nowarp.io/tools/misti/docs/detectors/UnprotectedCall
@@ -38,7 +38,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/UnprotectedCall
 test/detectors/UnprotectedCall.tact:15:21:
   14 |         self.m.del(a); // Bad
 > 15 |         self.ms.del(i+1); // Bad
-                           ^
+                           ^~~
   16 |         self.ms.set(42, s1.asCell()); // Bad
 
 See: https://nowarp.io/tools/misti/docs/detectors/UnprotectedCall
@@ -47,7 +47,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/UnprotectedCall
 test/detectors/UnprotectedCall.tact:16:25:
   15 |         self.ms.del(i+1); // Bad
 > 16 |         self.ms.set(42, s1.asCell()); // Bad
-                               ^
+                               ^~~~~~~~~~~
   17 | 
 
 See: https://nowarp.io/tools/misti/docs/detectors/UnprotectedCall

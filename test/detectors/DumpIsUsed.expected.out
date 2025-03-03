@@ -2,7 +2,7 @@
 test/detectors/DumpIsUsed.tact:4:5:
   3 |     let a: Int = 42;
 > 4 |     dump(a);
-          ^
+          ^~~~~~~
   5 | 
 Help: Using `dump` in production code can sometimes indicate complex code that requires additional review
 See: https://nowarp.io/tools/misti/docs/detectors/DumpIsUsed

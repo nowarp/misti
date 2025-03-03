@@ -7,13 +7,10 @@
 import { AstStore } from "./astStore";
 import { IdxGenerator } from "./indices";
 import { FunctionName } from "./types";
+import { AstStatement, SrcInfo } from "../../internals/tact/imports";
+import { ItemOrigin } from "../../internals/tact/imports";
 import { InternalException } from "../exceptions";
-import {
-  AstNode,
-  AstStatement,
-  SrcInfo,
-} from "@tact-lang/compiler/dist/grammar/ast";
-import { ItemOrigin } from "@tact-lang/compiler/dist/grammar/grammar";
+import { AstNodeId } from "../tact";
 
 export type EdgeIdx = number & { readonly __brand: unique symbol };
 export type BasicBlockIdx = number & { readonly __brand: unique symbol };
@@ -122,7 +119,7 @@ export class Cfg {
    */
   constructor(
     public name: FunctionName,
-    public id: AstNode["id"],
+    public id: AstNodeId,
     public kind: FunctionKind,
     public origin: ItemOrigin,
     public nodes: BasicBlock[],

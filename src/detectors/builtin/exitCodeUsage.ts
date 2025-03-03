@@ -8,18 +8,18 @@ import {
 import { Interval, Num } from "../../internals/numbers";
 import { WideningWorklistSolver } from "../../internals/solver";
 import { evalToType } from "../../internals/tact";
-import { findInExpressions } from "../../internals/tact/iterators";
-import { Transfer } from "../../internals/transfer";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { DataflowDetector } from "../detector";
 import {
   AstStatement,
-  idText,
   AstExpression,
   AstStatementAssign,
   AstStatementLet,
   AstNumber,
-} from "@tact-lang/compiler/dist/grammar/ast";
+  idText,
+} from "../../internals/tact/imports";
+import { findInExpressions } from "../../internals/tact/iterators";
+import { Transfer } from "../../internals/transfer";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { DataflowDetector } from "../detector";
 
 /**
  * The minimum allowed value for user-defined exit codes.
@@ -264,16 +264,16 @@ export class ExitCodeUsage extends DataflowDetector {
     arg: AstExpression,
     warnings: MistiTactWarning[],
   ): void {
-    const value = evalToType(arg, "bigint");
+    const num = evalToType(arg, "number");
     if (
-      value !== undefined &&
-      value !== null &&
-      typeof value === "bigint" &&
-      (value < LOWER_BOUND || value > UPPER_BOUND)
+      num !== undefined &&
+      num !== null &&
+      num.kind === "number" &&
+      (num.value < LOWER_BOUND || num.value > UPPER_BOUND)
     ) {
       warnings.push(
         this.makeWarning(`Value is outside allowed range`, arg.loc, {
-          extraDescription: `Exit codes 0-255 are reserved. Used value: ${value}`,
+          extraDescription: `Exit codes 0-255 are reserved. Used value: ${num}`,
           suggestion: `Use a value between ${Number(LOWER_BOUND)} and ${Number(UPPER_BOUND)}`,
         }),
       );

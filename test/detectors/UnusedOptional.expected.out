@@ -2,7 +2,7 @@
 test/detectors/UnusedOptional.tact:15:5:
   14 |     // Bad: Unused field
 > 15 |     _f1: Int? = 12;
-           ^
+           ^~~~~~~~~~~~~~
   16 | 
 Help: Remove optional modifier: `_f1: Int`
 See: https://nowarp.io/tools/misti/docs/detectors/UnusedOptional
@@ -11,7 +11,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/UnusedOptional
 test/detectors/UnusedOptional.tact:31:13:
   30 |         // Bad: checking that the detector works in receivers
 > 31 |         let _a: Int? = 12;
-                   ^
+                   ^~
   32 |     }
 Help: Remove optional modifier: `let _a: Int`
 See: https://nowarp.io/tools/misti/docs/detectors/UnusedOptional
@@ -20,7 +20,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/UnusedOptional
 test/detectors/UnusedOptional.tact:42:13:
   41 |         // Bad: unused optionals will be reported
 > 42 |         let _a5: Int? = 12;
-                   ^
+                   ^~~
   43 |         let _a6: Int? = 12;
 Help: Remove optional modifier: `let _a5: Int`
 See: https://nowarp.io/tools/misti/docs/detectors/UnusedOptional
@@ -29,7 +29,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/UnusedOptional
 test/detectors/UnusedOptional.tact:43:13:
   42 |         let _a5: Int? = 12;
 > 43 |         let _a6: Int? = 12;
-                   ^
+                   ^~~
   44 |         _a6!!;
 Help: Remove optional modifier: `let _a6: Int`
 See: https://nowarp.io/tools/misti/docs/detectors/UnusedOptional

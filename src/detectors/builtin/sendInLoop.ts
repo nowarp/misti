@@ -1,15 +1,15 @@
 import { CompilationUnit } from "../../internals/ir";
 import { CallGraph, Effect } from "../../internals/ir/callGraph";
 import { forEachStatement, foldExpressions } from "../../internals/tact";
-import { isSendCall } from "../../internals/tact/util";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { AstDetector } from "../detector";
 import {
   AstStatement,
   AstExpression,
   AstContract,
   SrcInfo,
-} from "@tact-lang/compiler/dist/grammar/ast";
+} from "../../internals/tact/imports";
+import { isSendCall } from "../../internals/tact/util";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { AstDetector } from "../detector";
 
 /**
  * An optional detector that identifies send functions being called inside loops,

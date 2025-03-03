@@ -1,8 +1,10 @@
 import { CompilationUnit } from "../../internals/ir";
-import { forEachStatement, forEachExpression } from "../../internals/tact";
-import { evalToType, evalsToValue } from "../../internals/tact/";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { AstDetector } from "../detector";
+import {
+  forEachStatement,
+  forEachExpression,
+  MakeLiteral,
+} from "../../internals/tact";
+import { evalToType, evalsToLiteral } from "../../internals/tact/";
 import {
   AstNode,
   AstStatement,
@@ -10,8 +12,10 @@ import {
   AstOpBinary,
   AstStatementReturn,
   AstOpUnary,
-} from "@tact-lang/compiler/dist/grammar/ast";
-import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
+  prettyPrint,
+} from "../../internals/tact/imports";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { AstDetector } from "../detector";
 
 /**
  * Detects opportunities for simplifying code by eliminating redundant boolean expressions and statements.
@@ -147,10 +151,9 @@ export class EtaLikeSimplifications extends AstDetector {
     value?: boolean,
   ): boolean {
     if (expr == null) return false;
-    if (value === undefined) {
-      return evalToType(expr, "boolean") !== undefined;
-    }
-    return evalsToValue(expr, "boolean", value);
+    return value === undefined
+      ? evalToType(expr, "boolean") !== undefined
+      : evalsToLiteral(expr, MakeLiteral.boolean(value));
   }
 
   private getSimplifiedBooleanExpression(

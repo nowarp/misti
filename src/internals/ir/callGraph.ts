@@ -1,6 +1,6 @@
 import { AstStore } from "./astStore";
 import { IdxGenerator } from "./indices";
-import { InternalException, isSelf } from "../../";
+import { AstNodeId, InternalException, isSelf } from "../../";
 import { Logger } from "../../internals/logger";
 import { isExtensionFunction, getExtensionSelfType } from "../tact/util";
 import {
@@ -9,9 +9,9 @@ import {
   AstStaticCall,
   AstMethodCall,
   idText,
-} from "@tact-lang/compiler/dist/grammar/ast";
-import { SrcInfo } from "@tact-lang/compiler/dist/grammar/grammar";
-import { prettyPrint as pp } from "@tact-lang/compiler/dist/prettyPrinter";
+  SrcInfo,
+  prettyPrint as pp,
+} from "../../internals/tact/imports";
 
 export type CGNodeId = number & { readonly brand: unique symbol };
 export type CGEdgeId = number & { readonly brand: unique symbol };
@@ -59,7 +59,7 @@ export class CGNode {
   public idx: CGNodeId;
   public inEdges: Set<CGEdgeId> = new Set();
   public outEdges: Set<CGEdgeId> = new Set();
-  public astId: AstNode["id"] | undefined;
+  public astId: AstNodeId | undefined;
   public loc: SrcInfo | undefined;
   public effects: number = 0;
   public stateAccess: Map<StateKind, Set<string>> = new Map();
@@ -81,8 +81,16 @@ export class CGNode {
     if (node === undefined) {
       this.logger.debug(`CGNode created without AST ID for function "${name}"`);
     } else {
-      this.astId = node.id;
-      this.loc = node.loc;
+      if ("id" in node) {
+        this.astId = node.id;
+      } else {
+        throw InternalException.make(`Node without id: ${node.kind}`);
+      }
+      if ("loc" in node) {
+        this.loc = node.loc;
+      } else {
+        throw InternalException.make(`Node without loc: ${node.kind}`);
+      }
     }
   }
 
@@ -148,7 +156,7 @@ export class CGNode {
 export class CallGraph {
   constructor(
     private readonly nodeMap: Map<CGNodeId, CGNode>,
-    private readonly astIdToNodeId: Map<AstNode["id"], CGNodeId>,
+    private readonly astIdToNodeId: Map<AstNodeId, CGNodeId>,
     private readonly nameToNodeId: Map<string, CGNodeId>,
     private readonly edgesMap: Map<CGEdgeId, CGEdge>,
   ) {}
@@ -183,7 +191,7 @@ export class CallGraph {
    * @param astId The AST ID of the function definition.
    * @returns The corresponding node ID, or `undefined` if not found.
    */
-  public getNodeIdByAstId(astId: AstNode["id"]): CGNodeId | undefined {
+  public getNodeIdByAstId(astId: AstNodeId): CGNodeId | undefined {
     return this.astIdToNodeId.get(astId);
   }
 

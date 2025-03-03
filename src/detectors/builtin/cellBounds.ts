@@ -8,8 +8,19 @@ import {
   getConstantLoadSize,
   getMethodCallsChain,
   isStdlibCall,
-  srcInfoEq,
+  AstNodeId,
 } from "../../internals/tact/";
+import {
+  AstStatement,
+  AstStatementLet,
+  AstId,
+  AstExpression,
+  AstMethodCall,
+  AstStatementAssign,
+  idText,
+  SrcInfo,
+  srcInfoEqual,
+} from "../../internals/tact/imports";
 import { forEachExpression } from "../../internals/tact/iterators";
 import { Transfer } from "../../internals/transfer";
 import {
@@ -21,17 +32,6 @@ import {
 } from "../../internals/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";
-import {
-  AstStatement,
-  AstStatementLet,
-  AstId,
-  AstExpression,
-  SrcInfo,
-  idText,
-  AstMethodCall,
-  AstStatementAssign,
-  AstNode,
-} from "@tact-lang/compiler/dist/grammar/ast";
 
 type VariableName = string & { readonly __brand: unique symbol };
 enum VariableKind {
@@ -194,7 +194,7 @@ function variableEq(a: Variable, b: Variable): boolean {
   return (
     a.name === b.name &&
     a.kind === b.kind &&
-    srcInfoEq(a.loc, b.loc) &&
+    srcInfoEqual(a.loc, b.loc) &&
     variableStorageEq(a.storage, b.storage)
   );
 }
@@ -789,7 +789,7 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
     out: CellUnderflowState,
     stmt: AstStatement,
   ): void {
-    const processedCalls = new Set<AstNode["id"]>();
+    const processedCalls = new Set<AstNodeId>();
     forEachExpression(stmt, (expr) => {
       const callsChain = getMethodCallsChain(expr);
       if (callsChain === undefined) return;

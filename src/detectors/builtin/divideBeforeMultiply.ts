@@ -5,16 +5,16 @@ import {
   forEachExpression,
   forEachStatement,
 } from "../../internals/tact";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { SouffleDetector } from "../detector";
-import { SouffleContext, atom, body, relation, rule } from "@nowarp/souffle";
 import {
   AstExpression,
   AstNode,
   AstOpBinary,
   AstStatement,
-  SrcInfo,
-} from "@tact-lang/compiler/dist/grammar/ast";
+} from "../../internals/tact/imports";
+import { SrcInfo } from "../../internals/tact/imports";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { SouffleDetector } from "../detector";
+import { SouffleContext, atom, body, relation, rule } from "@nowarp/souffle";
 
 /**
  * A detector that identifies and corrects instances of division before multiplication to

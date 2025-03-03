@@ -1,14 +1,14 @@
 import { CompilationUnit } from "../../internals/ir";
 import {
-  evalsToValue,
+  evalsToLiteral,
   foldStatements,
   forEachExpression,
   findInExpressions,
+  MakeLiteral,
 } from "../../internals/tact";
+import { AstExpression, prettyPrint } from "../../internals/tact/imports";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
-import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
-import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
 
 /**
  * A detector that suggests optimizing boolean expressions to leverage short-circuit evaluation.
@@ -114,8 +114,8 @@ export class ShortCircuitCondition extends AstDetector {
   private isConstantExpression(expr: AstExpression | null): boolean {
     if (!expr) return false;
     return (
-      evalsToValue(expr, "boolean", true) ||
-      evalsToValue(expr, "boolean", false) ||
+      evalsToLiteral(expr, MakeLiteral.boolean(true)) ||
+      evalsToLiteral(expr, MakeLiteral.boolean(false)) ||
       expr.kind === "boolean" ||
       expr.kind === "number" ||
       expr.kind === "string" ||

@@ -5,14 +5,14 @@ import {
   forEachExpression,
   hasInExpressions,
 } from "../../internals/tact";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { SouffleDetector, WarningsBehavior } from "../detector";
-import { SouffleContext, atom, body, relation, rule } from "@nowarp/souffle";
 import {
   AstExpression,
   AstStatement,
   SrcInfo,
-} from "@tact-lang/compiler/dist/grammar/ast";
+} from "../../internals/tact/imports";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { SouffleDetector, WarningsBehavior } from "../detector";
+import { SouffleContext, atom, body, relation, rule } from "@nowarp/souffle";
 
 /**
  * A detector that identifies read-only variables and fields.

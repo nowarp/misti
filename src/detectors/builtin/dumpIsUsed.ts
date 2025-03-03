@@ -1,8 +1,8 @@
 import { CompilationUnit } from "../../internals/ir";
 import { foldExpressions, isPrimitiveLiteral } from "../../internals/tact";
+import { AstExpression } from "../../internals/tact/imports";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
-import { AstExpression } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
  * An optional detector that highlights all the `dump` debug prints.
