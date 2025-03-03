@@ -43,7 +43,12 @@ export const PRG_SAFE_USE_FUNCTIONS = new Set(["random", "randomInt"]);
  * Map methods that mutate state.
  * See: https://docs.tact-lang.org/book/maps/
  */
-export const MAP_MUTATING_METHODS = new Set<string>(["set", "del", "replace"]);
+export const MAP_MUTATING_METHODS = new Set<string>([
+  "set",
+  "del",
+  "replace",
+  "replaceGet",
+]);
 
 /**
  * Builder methods mutating state.
