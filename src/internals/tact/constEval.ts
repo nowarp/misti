@@ -6,7 +6,6 @@ import {
   getAstFactory,
   AstLiteral,
   dummySrcInfo,
-  prettyPrint,
   eqExpressions,
 } from "../../internals/tact/imports";
 
