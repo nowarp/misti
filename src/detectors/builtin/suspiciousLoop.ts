@@ -52,7 +52,10 @@ export class SuspiciousLoop extends AstDetector {
   private analyzeLoopStatement(stmt: AstStatement): MistiTactWarning[] {
     if (
       stmt.kind === "statement_repeat" &&
-      evalsToPredicate(stmt.iterations, (v) => v > 10_000n)
+      evalsToPredicate(
+        stmt.iterations,
+        (v) => v && "kind" in v && v.kind === "number" && v.value > 10_000n,
+      )
     ) {
       return [
         this.makeWarning("Potential high-cost loop", stmt.iterations.loc, {

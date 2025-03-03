@@ -16,6 +16,24 @@ test/detectors/SuspiciousLoop.tact:11:34:
 Help: Avoid unbounded conditions in loops
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
 
+[MEDIUM] SuspiciousLoop: Potential high-cost loop
+test/detectors/SuspiciousLoop.tact:16:17:
+  15 |     fun testRepeatHighCount() {
+> 16 |         repeat (10_001) { let x = 1; } // Bad
+                       ^~~~~~
+  17 |         repeat (A + B) { let x = 1; } // TODO: Unsupported in consteval
+Help: Avoid excessive iterations in loops
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
+
+[MEDIUM] SuspiciousLoop: Potential high-cost loop
+test/detectors/SuspiciousLoop.tact:24:21:
+  23 |         while (i < 10) {
+> 24 |             repeat (1_000_000) { i = i + 1; } // Bad
+                           ^~~~~~~~~
+  25 |         }
+Help: Avoid excessive iterations in loops
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
+
 [MEDIUM] SuspiciousLoop: Loop condition is always false
 test/detectors/SuspiciousLoop.tact:30:16:
   29 |         let a: Int = 0;
