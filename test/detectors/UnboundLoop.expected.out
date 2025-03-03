@@ -1,6 +1,5 @@
 [HIGH] UnboundLoop: Found unbounded loop
 test/detectors/UnboundLoop.tact:3:12:
-  2 |     let a: Int = 20; // read-only variable
 > 3 |     while (a > 10) { // ERROR: a is not changing within the loop
                  ^
   4 |     }
@@ -10,7 +9,6 @@ See: https://nowarp.io/tools/misti/docs/detectors/UnboundLoop
 
 [HIGH] UnboundLoop: Found unbounded loop
 test/detectors/UnboundLoop.tact:11:14:
-  10 |     do  { // ERROR: a is not changing within the loop
 > 11 |     } until (a > 10);
                     ^
   12 |     return a;
@@ -20,7 +18,6 @@ See: https://nowarp.io/tools/misti/docs/detectors/UnboundLoop
 
 [HIGH] UnboundLoop: Found unbounded loop
 test/detectors/UnboundLoop.tact:31:12:
-  30 |     let i: Int = 0;
 > 31 |     while (i > 0) {} // WARNING: unbound loop
                   ^
   32 | }
@@ -30,7 +27,6 @@ See: https://nowarp.io/tools/misti/docs/detectors/UnboundLoop
 
 [HIGH] UnboundLoop: Found unbounded loop
 test/detectors/UnboundLoop.tact:36:17:
-  35 |     let i: Int = 0;
 > 36 |     while (10 < i) {} // WARNING: unbound loop
                        ^
   37 | }
@@ -40,7 +36,6 @@ See: https://nowarp.io/tools/misti/docs/detectors/UnboundLoop
 
 [HIGH] UnboundLoop: Found unbounded loop
 test/detectors/UnboundLoop.tact:42:12:
-  41 |     let i: Bool = false;
 > 42 |     while (i) {} // WARNING: unbound loop
                   ^
   43 | }
@@ -50,7 +45,6 @@ See: https://nowarp.io/tools/misti/docs/detectors/UnboundLoop
 
 [HIGH] UnboundLoop: Found unbounded loop
 test/detectors/UnboundLoop.tact:47:13:
-  46 |     let i: Bool = true;
 > 47 |     while (!i) {} // WARNING: unbound loop
                    ^
   48 | }

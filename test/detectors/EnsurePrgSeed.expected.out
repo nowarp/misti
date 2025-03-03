@@ -1,8 +1,7 @@
 [MEDIUM] EnsurePrgSeed: PRG seed should be initialized before using nativeRandom
 test/detectors/EnsurePrgSeed.tact:4:16:
-  3 |         // Bad: Calling nativeRandom without PRG init
 > 4 |         return nativeRandom();
-                     ^
+                     ^~~~~~~~~~~~~~
   5 |     }
 Help: Use `nativePrepareRandom`, `nativeRandomize`, `nativeRandomizeLt` to initialize the PRG seed or choose the safer `randomInt` function
 See: https://nowarp.io/tools/misti/docs/detectors/EnsurePrgSeed

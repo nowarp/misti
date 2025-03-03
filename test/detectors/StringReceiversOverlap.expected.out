@@ -1,8 +1,7 @@
 [HIGH] StringReceiversOverlap: receive(msg: String) overlaps with receiver("msg")
 test/detectors/StringReceiversOverlap.tact:9:13:
-   8 |         // Simple cases
 >  9 |         if (msg == "test") {} // Bad
-                   ^
+                   ^~~~~~~~~~~~~
   10 |         if ("test" != msg) {} // Bad
 The highlighted condition might never be executed
 Help: Implement the desired logic in receiver("msg") and remove msg == "test"
@@ -10,9 +9,8 @@ See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 [HIGH] StringReceiversOverlap: receive(msg: String) overlaps with receiver("msg")
 test/detectors/StringReceiversOverlap.tact:10:13:
-   9 |         if (msg == "test") {} // Bad
 > 10 |         if ("test" != msg) {} // Bad
-                   ^
+                   ^~~~~~~~~~~~~
   11 |         if (("test" != msg) && WHATEVER) {} // Bad
 The highlighted condition might never be executed
 Help: Implement the desired logic in receiver("msg") and remove "test" != msg
@@ -20,9 +18,8 @@ See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 [HIGH] StringReceiversOverlap: receive(msg: String) overlaps with receiver("msg")
 test/detectors/StringReceiversOverlap.tact:11:13:
-  10 |         if ("test" != msg) {} // Bad
 > 11 |         if (("test" != msg) && WHATEVER) {} // Bad
-                   ^
+                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~
   12 |         if ((WHATEVER || WHATEVER) && ("test" != msg)) {} // Bad
 The highlighted condition might never be executed
 Help: Implement the desired logic in receiver("msg") and remove ("test" != msg) && WHATEVER
@@ -30,9 +27,8 @@ See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 [HIGH] StringReceiversOverlap: receive(msg: String) overlaps with receiver("msg")
 test/detectors/StringReceiversOverlap.tact:12:13:
-  11 |         if (("test" != msg) && WHATEVER) {} // Bad
 > 12 |         if ((WHATEVER || WHATEVER) && ("test" != msg)) {} // Bad
-                   ^
+                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   13 | 
 The highlighted condition might never be executed
 Help: Implement the desired logic in receiver("msg") and remove (WHATEVER || WHATEVER) && ("test" != msg)
@@ -40,9 +36,8 @@ See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 [HIGH] StringReceiversOverlap: receive(msg: String) overlaps with receiver("msg")
 test/detectors/StringReceiversOverlap.tact:17:13:
-  16 |         let bar = foo;
 > 17 |         if ("test" == bar) {} // Bad
-                   ^
+                   ^~~~~~~~~~~~~
   18 | 
 The highlighted condition might never be executed
 Help: Implement the desired logic in receiver("msg") and remove "test" == bar
@@ -50,9 +45,8 @@ See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 [HIGH] StringReceiversOverlap: receive(msg: String) overlaps with receiver("msg")
 test/detectors/StringReceiversOverlap.tact:22:13:
-  21 |         let test2 = test1;
 > 22 |         if (test2 == msg) {} // Bad
-                   ^
+                   ^~~~~~~~~~~~
   23 | 
 The highlighted condition might never be executed
 Help: Implement the desired logic in receiver("msg") and remove test2 == msg
@@ -60,9 +54,8 @@ See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 [HIGH] StringReceiversOverlap: receive(msg: String) overlaps with receiver("msg")
 test/detectors/StringReceiversOverlap.tact:25:13:
-  24 |         // Combining tainted cases
 > 25 |         if (test2 != bar) {} // Bad
-                   ^
+                   ^~~~~~~~~~~~
   26 |         if (bar == test2) {} // Bad
 The highlighted condition might never be executed
 Help: Implement the desired logic in receiver("msg") and remove test2 != bar
@@ -70,9 +63,8 @@ See: https://nowarp.io/tools/misti/docs/detectors/StringReceiversOverlap
 
 [HIGH] StringReceiversOverlap: receive(msg: String) overlaps with receiver("msg")
 test/detectors/StringReceiversOverlap.tact:26:13:
-  25 |         if (test2 != bar) {} // Bad
 > 26 |         if (bar == test2) {} // Bad
-                   ^
+                   ^~~~~~~~~~~~
   27 | 
 The highlighted condition might never be executed
 Help: Implement the desired logic in receiver("msg") and remove bar == test2

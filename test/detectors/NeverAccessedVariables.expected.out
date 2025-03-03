@@ -1,35 +1,31 @@
 [MEDIUM] NeverAccessedVariables: Field f2 is never used
 test/detectors/NeverAccessedVariables.tact:31:5:
-  30 |     f1: Address;
 > 31 |     f2: Int as uint256 = 0;
-           ^
+           ^~~~~~~~~~~~~~~~~~~~~~
   32 |     foreachmap: map<Address, Address>;
 Help: Consider removing the field
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
 [MEDIUM] NeverAccessedVariables: Write-only variable: a
 test/detectors/NeverAccessedVariables.tact:2:5:
-  1 | fun test1(): Int {
 > 2 |     let a: Int = 20;
-          ^
+          ^~~~~~~~~~~~~~~~
   3 |     if (true) { // Bad: write-only variable
 Help: The variable value should be accessed
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
 [MEDIUM] NeverAccessedVariables: Variable a is never accessed
 test/detectors/NeverAccessedVariables.tact:24:5:
-  23 | fun test4(): Int {
 > 24 |     let a: Int = 20; // never-accessed variable
-           ^
+           ^~~~~~~~~~~~~~~~
   25 |     let b: Int = 22; // read-only variable
 Help: Consider removing the variable
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
 [MEDIUM] NeverAccessedVariables: Variable test is never accessed
 test/detectors/NeverAccessedVariables.tact:71:9:
-  70 |     receive() {
 > 71 |         let test: Int = 123; // should be reported
-               ^
+               ^~~~~~~~~~~~~~~~~~~~
   72 |     }
 Help: Consider removing the variable
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
