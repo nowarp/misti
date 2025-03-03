@@ -109,16 +109,16 @@ digraph "syntax" {
         label="TestContractT__test";
         "TestContractT__test_128" [label="return self.getA()",style=filled,fillcolor="#66A7DB"];
     }
-    subgraph "cluster_TestContractT__receive_external_fallback_1722" {
-        label="TestContractT__receive_external_fallback_1722";
+    subgraph "cluster_TestContractT__receive_external_fallback_2054" {
+        label="TestContractT__receive_external_fallback_2054";
     }
-    subgraph "cluster_EffectTest__init_2038" {
-        label="EffectTest__init_2038";
-        "EffectTest__init_2038_129" [label="self.addr = sender()"];
-        "EffectTest__init_2038_130" [label="self.b = beginCell()"];
-        "EffectTest__init_2038_131" [label="self.s = S{b: beginCell()}",style=filled,fillcolor="#66A7DB"];
-        "EffectTest__init_2038_129" -> "EffectTest__init_2038_130";
-        "EffectTest__init_2038_130" -> "EffectTest__init_2038_131";
+    subgraph "cluster_EffectTest__init_2372" {
+        label="EffectTest__init_2372";
+        "EffectTest__init_2372_129" [label="self.addr = sender()"];
+        "EffectTest__init_2372_130" [label="self.b = beginCell()"];
+        "EffectTest__init_2372_131" [label="self.s = S{b: beginCell()}",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__init_2372_129" -> "EffectTest__init_2372_130";
+        "EffectTest__init_2372_130" -> "EffectTest__init_2372_131";
     }
     subgraph "cluster_EffectTest__funcWithSend" {
         label="EffectTest__funcWithSend";
@@ -152,22 +152,22 @@ digraph "syntax" {
         "EffectTest__funcWithMultipleEffects_140" -> "EffectTest__funcWithMultipleEffects_141";
         "EffectTest__funcWithMultipleEffects_141" -> "EffectTest__funcWithMultipleEffects_142";
     }
-    subgraph "cluster_EffectTest__receive_internal_fallback_2037" {
-        label="EffectTest__receive_internal_fallback_2037";
-        "EffectTest__receive_internal_fallback_2037_143" [label="let a = beginString()"];
-        "EffectTest__receive_internal_fallback_2037_144" [label="a.append(\"f\")",style=filled,fillcolor="#66A7DB"];
-        "EffectTest__receive_internal_fallback_2037_143" -> "EffectTest__receive_internal_fallback_2037_144";
+    subgraph "cluster_EffectTest__receive_internal_fallback_2371" {
+        label="EffectTest__receive_internal_fallback_2371";
+        "EffectTest__receive_internal_fallback_2371_143" [label="let a = beginString()"];
+        "EffectTest__receive_internal_fallback_2371_144" [label="a.append(\"f\")",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__receive_internal_fallback_2371_143" -> "EffectTest__receive_internal_fallback_2371_144";
     }
     subgraph "cluster_A__m" {
         label="A__m";
         "A__m_145" [label="return self.m",style=filled,fillcolor="#66A7DB"];
     }
-    subgraph "cluster_A__receive_internal_fallback_2083" {
-        label="A__receive_internal_fallback_2083";
-        "A__receive_internal_fallback_2083_146" [label="while (true)"];
-        "A__receive_internal_fallback_2083_147" [label="self.m.set(1, 2)"];
-        "A__receive_internal_fallback_2083_146" -> "A__receive_internal_fallback_2083_147";
-        "A__receive_internal_fallback_2083_147" -> "A__receive_internal_fallback_2083_146";
+    subgraph "cluster_A__receive_internal_fallback_2419" {
+        label="A__receive_internal_fallback_2419";
+        "A__receive_internal_fallback_2419_146" [label="while (true)"];
+        "A__receive_internal_fallback_2419_147" [label="self.m.set(1, 2)"];
+        "A__receive_internal_fallback_2419_146" -> "A__receive_internal_fallback_2419_147";
+        "A__receive_internal_fallback_2419_147" -> "A__receive_internal_fallback_2419_146";
     }
     subgraph "cluster_Z__getter" {
         label="Z__getter";
@@ -177,6 +177,6 @@ digraph "syntax" {
         label="TParent__getA";
         "TParent__getA_127" [label="return self.a",style=filled,fillcolor="#66A7DB"];
     }
-"140" -> "26";
-"122" -> "35";
+"135" -> "60";
+"140" -> "34";
 }
