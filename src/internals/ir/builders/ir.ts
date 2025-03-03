@@ -36,8 +36,12 @@ import { ItemOrigin } from "../../tact/imports";
 import { AstStore as TactAstStore } from "../../tact/imports";
 import { unreachable } from "../../util";
 
-// Hack for https://github.com/tact-lang/tact/issues/1961
-// TODO: Remove this when updating to Tact 1.6 (issue #70)
+/**
+ * Retrieves trait/contract definition location without typed AST.
+ * An alternative might be using `resolveTypes.getType()` to get the definition
+ * of the node, but it seems less effective since we don't store CompilerContext.
+ * See: https://github.com/tact-lang/tact/issues/1961
+ */
 function hackOrigin(entry: AstContract | AstTrait): ItemOrigin {
   return entry.kind === "trait" &&
     entry.loc.file &&
