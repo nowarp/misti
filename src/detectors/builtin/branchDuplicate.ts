@@ -123,7 +123,10 @@ export class BranchDuplicate extends AstDetector {
         } else {
           // else
           branches.push(current.falseStatements);
+          current = null;
         }
+      } else {
+        current = null;
       }
     }
     return branches;
