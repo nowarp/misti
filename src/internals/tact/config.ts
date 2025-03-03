@@ -1,11 +1,7 @@
+import { Config, Project, parseConfig } from "../../internals/tact/imports";
 import { VirtualFileSystem } from "../../vfs/virtualFileSystem";
 import { ExecutionException, throwZodError } from "../exceptions";
 import { ProjectName } from "../ir";
-import {
-  Config as TactConfig,
-  ConfigProject,
-  parseConfig,
-} from "@tact-lang/compiler/dist/config/parseConfig";
 import fs from "fs";
 import path from "path";
 
@@ -24,7 +20,7 @@ export class TactConfigManager {
      */
     private projectRoot: string,
     /** Tact config parsed with Zod. */
-    private config: TactConfig,
+    private config: Config,
   ) {}
 
   /**
@@ -36,7 +32,7 @@ export class TactConfigManager {
   public static fromConfig(tactConfigPath: string): TactConfigManager {
     return new TactConfigManager(
       path.resolve(path.dirname(tactConfigPath)),
-      this.readTactConfig(tactConfigPath),
+      this.readConfig(tactConfigPath),
     );
   }
 
@@ -68,7 +64,7 @@ export class TactConfigManager {
         absoluteContractPath,
       );
     }
-    const tactConfig: TactConfig = {
+    const tactConfig: Config = {
       projects: [
         {
           name: projectName,
@@ -84,7 +80,7 @@ export class TactConfigManager {
     return new TactConfigManager(path.resolve(projectRoot), tactConfig);
   }
 
-  public getConfig(): TactConfig {
+  public getConfig(): Config {
     return this.config;
   }
 
@@ -98,23 +94,21 @@ export class TactConfigManager {
   /**
    * Gets projects defined within the configuration file.
    */
-  public getProjects(): ConfigProject[] {
+  public getProjects(): readonly Project[] {
     return this.config.projects;
   }
 
   /**
    * Find the project config based on the provided name.
    */
-  public findProjectByName(
-    projectName: ProjectName,
-  ): ConfigProject | undefined {
+  public findProjectByName(projectName: ProjectName): Project | undefined {
     return this.config.projects.find((project) => projectName === project.name);
   }
 
   /**
    * Find the project config based on the provided path.
    */
-  public findProjectByPath(projectPath: string): ConfigProject | undefined {
+  public findProjectByPath(projectPath: string): Project | undefined {
     return this.config.projects.find(
       (project) => projectPath === this.resolveProjectPath(project.path),
     );
@@ -129,11 +123,11 @@ export class TactConfigManager {
 
   /**
    * Reads the Tact configuration file from the specified path, parses it, and returns
-   * the TactConfig object.
+   * the Config object.
    * @throws If the config file does not exist or cannot be parsed.
-   * @returns The parsed TactConfig object.
+   * @returns The parsed Config object.
    */
-  private static readTactConfig(tactConfigPath: string): TactConfig {
+  private static readConfig(tactConfigPath: string): Config {
     const resolvedPath = path.resolve(tactConfigPath);
     if (!fs.existsSync(resolvedPath)) {
       throw ExecutionException.make(

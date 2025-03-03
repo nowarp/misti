@@ -1,7 +1,7 @@
 import { getMistiAnnotation } from "./annotation";
 import { InternalException } from "./exceptions";
 import { srcInfoToString } from "./tact";
-import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
+import { SrcInfo } from "./tact/imports";
 
 /**
  * Enumerates the levels of severity that can be assigned to detected findings.

@@ -1,5 +1,5 @@
 import { BasicBlock } from "./ir";
-import { AstStatement } from "@tact-lang/compiler/dist/grammar/ast";
+import { AstStatement } from "./tact/imports";
 
 /**
  * Represents an interface for dataflow transfer functions.

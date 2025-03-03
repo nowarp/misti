@@ -7,9 +7,9 @@
  * @packageDocumentation
  */
 
+import { SrcInfo } from "../../internals/tact/imports";
 import { MistiContext } from "../context";
 import { hasSubdirs } from "../util";
-import { SrcInfo } from "@tact-lang/compiler/dist/grammar/ast";
 import path from "path";
 
 /**
@@ -43,7 +43,12 @@ export const PRG_SAFE_USE_FUNCTIONS = new Set(["random", "randomInt"]);
  * Map methods that mutate state.
  * See: https://docs.tact-lang.org/book/maps/
  */
-export const MAP_MUTATING_METHODS = new Set<string>(["set", "del", "replace"]);
+export const MAP_MUTATING_METHODS = new Set<string>([
+  "set",
+  "del",
+  "replace",
+  "replaceGet",
+]);
 
 /**
  * Builder methods mutating state.
@@ -71,9 +76,13 @@ export const STRING_MUTATING_METHODS = new Set<string>(["append"]);
  * A mandatory part of the file path to stdlib if using the default path.
  */
 export const DEFAULT_STDLIB_PATH_ELEMENTS = [
-  "node_modules",
-  "@tact-lang",
-  "compiler",
+  ...path
+    .dirname(require.resolve("@tact-lang/compiler/package.json"))
+    .split(path.sep)
+    .filter(Boolean)
+    .slice(-2),
+  "dist",
+  "stdlib",
   "stdlib",
 ];
 
@@ -84,6 +93,8 @@ export const DEFAULT_STDLIB_PATH_ELEMENTS = [
 export function getStdlibPath() {
   return path.join(
     path.dirname(require.resolve("@tact-lang/compiler/package.json")),
+    "dist",
+    "stdlib",
     "stdlib",
   );
 }
@@ -102,9 +113,8 @@ export function definedInStdlib(
   const pathElements =
     stdlibPath === undefined
       ? DEFAULT_STDLIB_PATH_ELEMENTS
-      : stdlibPath.split("/").filter((part) => part !== "");
+      : stdlibPath.split(path.sep).filter((part) => part !== "");
   const filePath = typeof locOrPath === "string" ? locOrPath : locOrPath.file;
-
   return (
     filePath !== null &&
     (filePath.startsWith("@stdlib") || hasSubdirs(filePath, pathElements))

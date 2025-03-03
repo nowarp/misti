@@ -2,7 +2,7 @@
 test/detectors/FieldDoubleInit.tact:5:9:
   4 |     init(x: Int) {
 > 5 |         self.a1 = x; // Should be highlighted
-              ^
+              ^~~~~~~~~~~~
   6 |         // @misti:suppress FieldDoubleInit
 Help: Consider initializing the field only in its declaration or in the `init` function
 See: https://nowarp.io/tools/misti/docs/detectors/FieldDoubleInit

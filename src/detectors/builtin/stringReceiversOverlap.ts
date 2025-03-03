@@ -2,17 +2,17 @@ import { BasicBlock, Cfg, CompilationUnit } from "../../internals/ir";
 import { JoinSemilattice } from "../../internals/lattice";
 import { WorklistSolver } from "../../internals/solver/";
 import { forEachExpression, forEachStatement } from "../../internals/tact";
-import { Transfer } from "../../internals/transfer";
-import { mergeSets, isSetSubsetOf } from "../../internals/util";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { DataflowDetector } from "../detector";
 import {
   AstExpression,
   AstReceiver,
   AstStatement,
   AstStatementLet,
-} from "@tact-lang/compiler/dist/grammar/ast";
-import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
+  prettyPrint,
+} from "../../internals/tact/imports";
+import { Transfer } from "../../internals/transfer";
+import { mergeSets, isSetSubsetOf } from "../../internals/util";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { DataflowDetector } from "../detector";
 
 interface TaintState {
   // Generic receiver's string argument name
@@ -316,10 +316,11 @@ export class StringReceiversOverlap extends DataflowDetector {
    * receiver: `receive(arg: String)`.
    */
   private findGenericReceiverArg(receiver: AstReceiver): string | undefined {
-    return receiver.selector.kind === "internal-simple" &&
-      receiver.selector.param.type.kind === "type_id" &&
-      receiver.selector.param.type.text === "String"
-      ? receiver.selector.param.name.text
+    return receiver.selector.kind === "internal" &&
+      receiver.selector.subKind.kind === "simple" &&
+      receiver.selector.subKind.param.type.kind === "type_id" &&
+      receiver.selector.subKind.param.type.text === "String"
+      ? receiver.selector.subKind.param.name.text
       : undefined;
   }
 
@@ -327,9 +328,10 @@ export class StringReceiversOverlap extends DataflowDetector {
     return Array.from(cu.ast.getFunctions()).reduce((acc, node) => {
       if (
         node.kind === "receiver" &&
-        node.selector.kind === "internal-comment"
+        node.selector.kind === "internal" &&
+        node.selector.subKind.kind === "comment"
       ) {
-        acc.add(node.selector.comment.value);
+        acc.add(node.selector.subKind.comment.value);
       }
       return acc;
     }, new Set<string>());

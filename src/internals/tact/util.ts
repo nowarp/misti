@@ -2,7 +2,7 @@ import { forEachExpression } from "./iterators";
 import { evalToType } from "../../internals/tact/";
 import { unreachable } from "../util";
 import { MAP_MUTATING_METHODS, BUILDER_MUTATING_METHODS } from "./stdlib";
-import { AstComparator } from "@tact-lang/compiler/dist/";
+import { ensureInt, srcInfoEqual } from "../../internals/tact/imports";
 import {
   AstExpression,
   AstId,
@@ -18,10 +18,10 @@ import {
   isSelfId,
   idText,
   tryExtractPath,
-  AstCondition,
-} from "@tact-lang/compiler/dist/grammar/ast";
-import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
-import { Interval as RawInterval } from "ohm-js";
+  AstStatementCondition,
+} from "../../internals/tact/imports";
+import { prettyPrint } from "../../internals/tact/imports";
+import JSONbig from "json-bigint";
 import * as path from "path";
 
 /**
@@ -207,13 +207,13 @@ export class SrcInfoSet<T> {
 
   has(item: [T, SrcInfo]): boolean {
     return this.items.some((existingItem) =>
-      srcInfoEq(existingItem[1], item[1]),
+      srcInfoEqual(existingItem[1], item[1]),
     );
   }
 
   delete(item: [T, SrcInfo]): boolean {
     const index = this.items.findIndex((existingItem) =>
-      srcInfoEq(existingItem[1], item[1]),
+      srcInfoEqual(existingItem[1], item[1]),
     );
     if (index !== -1) {
       this.items.splice(index, 1);
@@ -237,22 +237,27 @@ export function isPrimitiveLiteral(expr: AstExpression): boolean {
 /**
  * Checks if the AST of two nodes is equal using the Tact AST comparison API.
  */
-export function nodesAreEqual(
-  node1: AstExpression | AstStatement,
-  node2: AstExpression | AstStatement,
-): boolean {
-  return AstComparator.make({ sort: true, canonicalize: false }).compare(
-    node1,
-    node2,
+export function nodesAreEqual(node1: any, node2: any): boolean {
+  if (node1.kind !== node2.kind) return false;
+  const clean1 = JSONbig.parse(
+    JSONbig.stringify(node1, (key, value) =>
+      key === "id" || key === "loc" ? undefined : value,
+    ),
   );
+  const clean2 = JSONbig.parse(
+    JSONbig.stringify(node2, (key, value) =>
+      key === "id" || key === "loc" ? undefined : value,
+    ),
+  );
+  return JSONbig.stringify(clean1) === JSONbig.stringify(clean2);
 }
 
 /**
  * Checks if the AST of two lists of statements is equal using the Tact AST comparison API.
  */
 export function statementsAreEqual(
-  stmts1: AstStatement[],
-  stmts2: AstStatement[],
+  stmts1: readonly AstStatement[],
+  stmts2: readonly AstStatement[],
 ): boolean {
   if (stmts1.length !== stmts2.length) return false;
   return stmts1.every((stmt, i) => {
@@ -300,7 +305,7 @@ export function funName(
  * Collects all the conditions from the conditional, including `if` and `else if` statements.
  */
 export function collectConditions(
-  node: AstCondition,
+  node: AstStatementCondition,
   { nonEmpty = false }: Partial<{ nonEmpty: boolean }> = {},
 ): AstExpression[] {
   const conditions: AstExpression[] = nonEmpty
@@ -308,8 +313,12 @@ export function collectConditions(
       ? [node.condition]
       : []
     : [node.condition];
-  if (node.elseif) {
-    conditions.push(...collectConditions(node.elseif));
+  if (
+    node.falseStatements &&
+    node.falseStatements.length === 1 &&
+    node.falseStatements[0].kind === "statement_condition"
+  ) {
+    conditions.push(...collectConditions(node.falseStatements[0]));
   }
   return conditions;
 }
@@ -322,13 +331,11 @@ export function srcInfoToString(loc: SrcInfo): string {
     lineNum: number;
     colNum: number;
   };
-  const lcStr = `${lc}`;
-  const lcLines = lcStr.split("\n");
-  lcLines.shift();
+  const msg = loc.interval.getLineAndColumnMessage();
   const shownPath = loc.file
     ? path.relative(process.cwd(), loc.file) + ":"
     : "";
-  return `${shownPath}${lc.lineNum}:${lc.colNum}:\n${lcLines.join("\n")}`;
+  return `${shownPath}${lc.lineNum}:${lc.colNum}:\n${msg}`;
 }
 
 /**
@@ -445,19 +452,17 @@ export function getConstantStoreSize(call: AstMethodCall): bigint | undefined {
       if (call.args.length !== 1) return undefined;
       // The serialization size varies from 4 to 124 bits:
       // https://docs.tact-lang.org/book/integers/#serialization-coins
-      const value = evalToType(call.args[0], "bigint");
+      const value = evalToType(call.args[0], "number");
       if (value !== undefined) {
-        const numValue = Number(value);
-        if (!isNaN(numValue) && isFinite(numValue)) {
-          // We use the following logic from ton-core in order to compute the size:
-          // https://github.com/ton-org/ton-core/blob/00fa47e03c2a78c6dd9d09e517839685960bc2fd/src/boc/BitBuilder.ts#L212
-          const sizeBytes = Math.ceil(numValue.toString(2).length / 8);
-          const sizeBits = sizeBytes * 8;
-          // 44-bit unsigned big-endian integer storing the byte length of the
-          // value provided
-          const sizeLength = 4;
-          return BigInt(sizeBits + sizeLength);
-        }
+        const num = ensureInt(value);
+        // We use the following logic from ton-core in order to compute the size:
+        // https://github.com/ton-org/ton-core/blob/00fa47e03c2a78c6dd9d09e517839685960bc2fd/src/boc/BitBuilder.ts#L212
+        const sizeBytes = Math.ceil(num.value.toString(2).length / 8);
+        const sizeBits = sizeBytes * 8;
+        // 44-bit unsigned big-endian integer storing the byte length of the
+        // value provided
+        const sizeLength = 4;
+        return BigInt(sizeBits + sizeLength);
       }
       // TODO: Return an interval of possible values
       return undefined;
@@ -467,8 +472,8 @@ export function getConstantStoreSize(call: AstMethodCall): bigint | undefined {
     case "storeInt":
     case "storeUint": {
       if (call.args.length !== 2) return undefined;
-      const value = evalToType(call.args[1], "bigint");
-      return value === undefined ? undefined : (value as bigint);
+      const value = evalToType(call.args[1], "number");
+      return value === undefined ? undefined : ensureInt(value).value;
     }
     case "storeBuilder":
     case "storeSlice":
@@ -497,9 +502,9 @@ export function getConstantLoadSize(call: AstMethodCall): bigint | undefined {
     case "loadInt":
     case "loadUint": {
       if (call.args.length !== 1) return undefined;
-      const value = evalToType(call.args[0], "bigint");
+      const value = evalToType(call.args[0], "number");
       // TODO: Return an interval of possible values
-      return value === undefined ? undefined : (value as bigint);
+      return value === undefined ? undefined : ensureInt(value).value;
     }
     case "loadBuilder":
     case "loadSlice":
@@ -524,23 +529,5 @@ export function isSendCall(expr: AstExpression): boolean {
     (expr.kind === "method_call" &&
       isSelf(expr.self) &&
       SEND_METHODS.includes(expr.method.text))
-  );
-}
-
-export function srcInfoEq(a: SrcInfo, b: SrcInfo): boolean {
-  return (
-    a.file === b.file &&
-    a.contents === b.contents &&
-    a.origin === b.origin &&
-    intervalsEq(a.interval, b.interval)
-  );
-}
-
-export function intervalsEq(a: RawInterval, b: RawInterval): boolean {
-  return (
-    a.sourceString === b.sourceString &&
-    a.startIdx === b.startIdx &&
-    a.endIdx === b.endIdx &&
-    a.contents === b.contents
   );
 }

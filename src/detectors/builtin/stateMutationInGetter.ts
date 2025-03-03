@@ -7,15 +7,15 @@ import {
   collectMutations,
   isSelf,
 } from "../../internals/tact";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { AstDetector } from "../detector";
 import {
   AstFunctionDef,
   AstStaticCall,
   AstMethodCall,
   AstExpression,
   idText,
-} from "@tact-lang/compiler/dist/grammar/ast";
+} from "../../internals/tact/imports";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { AstDetector } from "../detector";
 
 /**
  * An optional detector that identifies cases where a state-mutating function is called within a getter method.

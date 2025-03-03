@@ -7,20 +7,20 @@ import {
   extractPath,
   forEachExpression,
 } from "../../internals/tact";
-import { Transfer } from "../../internals/transfer";
-import { mergeSets, isSetSubsetOf } from "../../internals/util";
-import { unreachable } from "../../internals/util";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { DataflowDetector, WarningsBehavior } from "../detector";
 import {
   AstExpression,
   AstId,
   AstNode,
   AstStatement,
   AstTrait,
-  SrcInfo,
-  isSelfId,
-} from "@tact-lang/compiler/dist/grammar/ast";
+} from "../../internals/tact/imports";
+import { idText, isSelfId } from "../../internals/tact/imports";
+import { SrcInfo } from "../../internals/tact/imports";
+import { Transfer } from "../../internals/transfer";
+import { mergeSets, isSetSubsetOf } from "../../internals/util";
+import { unreachable } from "../../internals/util";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { DataflowDetector, WarningsBehavior } from "../detector";
 
 type FieldName = string;
 type ConstantName = string;
@@ -84,13 +84,19 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
     const trackAccess = (node: AstStatement | AstExpression) => {
       forEachExpression(node, (expr) => {
         if (expr.kind === "id") {
-          outState.accessed.add(expr.text);
+          outState.accessed.add(idText(expr));
         }
       });
     };
     switch (stmt.kind) {
       case "statement_let":
         outState.declared.add([stmt.name.text, stmt.loc]);
+        trackAccess(stmt.expression);
+        break;
+      case "statement_destruct":
+        for (const [, ids] of stmt.identifiers) {
+          outState.declared.add([idText(ids[1]), stmt.loc]);
+        }
         trackAccess(stmt.expression);
         break;
       case "statement_return":
@@ -112,7 +118,6 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
           stmt.falseStatements.forEach((s) =>
             this.processStatements(outState, s),
           );
-        if (stmt.elseif !== null) this.processStatements(outState, stmt.elseif);
         break;
       case "statement_while":
       case "statement_until":
@@ -125,16 +130,18 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
         break;
       case "statement_try":
         stmt.statements.forEach((s) => this.processStatements(outState, s));
-        break;
-      case "statement_try_catch":
-        stmt.statements.forEach((s) => this.processStatements(outState, s));
-        stmt.catchStatements.forEach((s) =>
-          this.processStatements(outState, s),
-        );
+        if (stmt.catchBlock) {
+          stmt.catchBlock.catchStatements.forEach((s) =>
+            this.processStatements(outState, s),
+          );
+        }
         break;
       case "statement_foreach":
         trackAccess(stmt.map);
         stmt.statements.forEach((s) => this.processStatements(outState, s));
+        break;
+      case "statement_block":
+        // TODO: https://github.com/nowarp/misti/issues/41
         break;
       default:
         unreachable(stmt);
@@ -209,7 +216,7 @@ export class NeverAccessedVariables extends DataflowDetector {
 
   private collectDefinedFields(cu: CompilationUnit): Set<[FieldName, SrcInfo]> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const getFields = (declarations: any[]) =>
+    const getFields = (declarations: readonly any[]) =>
       declarations
         .filter((decl) => decl.kind === "field_decl")
         .map((decl) => [decl.name.text, decl.loc] as [FieldName, SrcInfo]);
@@ -230,7 +237,7 @@ export class NeverAccessedVariables extends DataflowDetector {
   private forEachTrait(
     ctx: MistiContext,
     cu: CompilationUnit,
-    traitIds: AstId[],
+    traitIds: readonly AstId[],
     callback: (trait: AstTrait) => void,
     visited: Set<number> = new Set<number>(),
   ): void {
@@ -262,7 +269,10 @@ export class NeverAccessedVariables extends DataflowDetector {
       return acc;
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const processDeclarations = (declarations: any[], acc: Set<FieldName>) => {
+    const processDeclarations = (
+      declarations: readonly any[],
+      acc: Set<FieldName>,
+    ) => {
       declarations.forEach((decl) => {
         if (
           decl.kind === "function_def" ||

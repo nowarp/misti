@@ -2,7 +2,7 @@
 test/detectors/ZeroAddress.tact:3:23:
   2 |     init() {
 > 3 |         newAddress(1, 0x000000000000000000000000000000000000000000000000);
-                            ^
+                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   4 |     }
 Help: Consider changing code to avoid using it. For example, you could pass the address during the deployment.
 See: https://nowarp.io/tools/misti/docs/detectors/ZeroAddress

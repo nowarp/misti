@@ -2,7 +2,7 @@
 test/detectors/UnusedExpressionResult.tact:5:5:
   4 |     fun1(); // OK
 > 5 |     fun2(); // Bad
-          ^
+          ^~~~~~
   6 |     1; // Bad
 Help: Remove the expression or assign its result
 See: https://nowarp.io/tools/misti/docs/detectors/UnusedExpressionResult
@@ -20,7 +20,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/UnusedExpressionResult
 test/detectors/UnusedExpressionResult.tact:7:5:
   6 |     1; // Bad
 > 7 |     1 == 1; // Bad
-          ^
+          ^~~~~~
   8 | 
 Help: Remove the expression or assign its result
 See: https://nowarp.io/tools/misti/docs/detectors/UnusedExpressionResult
@@ -29,7 +29,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/UnusedExpressionResult
 test/detectors/UnusedExpressionResult.tact:10:5:
    9 |     let a = 42;
 > 10 |     a == 43; // Bad
-           ^
+           ^~~~~~~
   11 | 
 Help: Remove the expression or assign its result
 See: https://nowarp.io/tools/misti/docs/detectors/UnusedExpressionResult
@@ -38,7 +38,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/UnusedExpressionResult
 test/detectors/UnusedExpressionResult.tact:27:9:
   26 |     fun test() {
 > 27 |         self.method1(); // Bad: Calling method returning Int
-               ^
+               ^~~~~~~~~~~~~~
   28 |     }
 Help: Remove the expression or assign its result
 See: https://nowarp.io/tools/misti/docs/detectors/UnusedExpressionResult
@@ -47,7 +47,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/UnusedExpressionResult
 test/detectors/UnusedExpressionResult.tact:39:9:
   38 |     fun test() {
 > 39 |         self.traitMethod1(); // Bad
-               ^
+               ^~~~~~~~~~~~~~~~~~~
   40 |         self.traitMethod2(); // OK
 Help: Remove the expression or assign its result
 See: https://nowarp.io/tools/misti/docs/detectors/UnusedExpressionResult
@@ -56,7 +56,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/UnusedExpressionResult
 test/detectors/UnusedExpressionResult.tact:41:9:
   40 |         self.traitMethod2(); // OK
 > 41 |         self.traitMethod3(); // Bad
-               ^
+               ^~~~~~~~~~~~~~~~~~~
   42 |     }
 Help: Remove the expression or assign its result
 See: https://nowarp.io/tools/misti/docs/detectors/UnusedExpressionResult

@@ -2,7 +2,7 @@
 test/detectors/SuspiciousMessageMode.tact:16:40:
   15 |             value: 0,
 > 16 |             mode: SendRemainingValue | SendRemainingValue // Bad
-                                              ^
+                                              ^~~~~~~~~~~~~~~~~~
   17 |         });
 Help: Use each flag at most once in the mode expression
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
@@ -11,7 +11,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 test/detectors/SuspiciousMessageMode.tact:34:19:
   33 |             value: 0,
 > 34 |             mode: 64 // Bad: Integer literal instead of symbolic constant 
-                         ^
+                         ^~
   35 |         });
 Help: Replace `64` with `SendRemainingValue`
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
@@ -20,7 +20,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 test/detectors/SuspiciousMessageMode.tact:52:40:
   51 |             value: 0,
 > 52 |             mode: SendRemainingValue + SendRemainingValue + 64 // Bad: Duplicate flags, '+' operator, integer literal 
-                                              ^
+                                              ^~~~~~~~~~~~~~~~~~
   53 |         });
 Help: Use each flag at most once in the mode expression
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
@@ -29,7 +29,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 test/detectors/SuspiciousMessageMode.tact:52:61:
   51 |             value: 0,
 > 52 |             mode: SendRemainingValue + SendRemainingValue + 64 // Bad: Duplicate flags, '+' operator, integer literal 
-                                                                   ^
+                                                                   ^~
   53 |         });
 Help: Replace `64` with `SendRemainingValue`
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
@@ -38,7 +38,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 test/detectors/SuspiciousMessageMode.tact:61:19:
   60 |             value: 0,
 > 61 |             mode: -(SendRemainingValue * SendPayGasSeparately) - SendIgnoreErrors // Bad
-                         ^
+                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   62 |         });
 Help: Use the `|` operator (bitwise OR) to combine flags
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
@@ -47,7 +47,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 test/detectors/SuspiciousMessageMode.tact:61:21:
   60 |             value: 0,
 > 61 |             mode: -(SendRemainingValue * SendPayGasSeparately) - SendIgnoreErrors // Bad
-                           ^
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   62 |         });
 Help: Use the `|` operator (bitwise OR) to combine flags
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
@@ -56,7 +56,7 @@ See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 test/detectors/SuspiciousMessageMode.tact:25:19:
   24 |             value: 0,
 > 25 |             mode: SendRemainingValue + SendIgnoreErrors // Bad
-                         ^
+                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   26 |         });
 Help: Use the `|` operator (bitwise OR) to combine flags
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
@@ -65,7 +65,16 @@ See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
 test/detectors/SuspiciousMessageMode.tact:52:19:
   51 |             value: 0,
 > 52 |             mode: SendRemainingValue + SendRemainingValue + 64 // Bad: Duplicate flags, '+' operator, integer literal 
-                         ^
+                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  53 |         });
+Help: Use the `|` operator (bitwise OR) to combine flags
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode
+
+[LOW] SuspiciousMessageMode: The `+` operator in mode expressions is deprecated
+test/detectors/SuspiciousMessageMode.tact:52:19:
+  51 |             value: 0,
+> 52 |             mode: SendRemainingValue + SendRemainingValue + 64 // Bad: Duplicate flags, '+' operator, integer literal 
+                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   53 |         });
 Help: Use the `|` operator (bitwise OR) to combine flags
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousMessageMode

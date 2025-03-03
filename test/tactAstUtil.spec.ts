@@ -3,8 +3,8 @@ import {
   AstExpression,
   AstId,
   AstFieldAccess,
-} from "@tact-lang/compiler/dist/grammar/ast";
-import { dummySrcInfo } from "@tact-lang/compiler/dist/grammar/grammar";
+  dummySrcInfo,
+} from "../src/internals/tact/imports";
 
 let idCounter = 0;
 function nextId(): number {

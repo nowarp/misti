@@ -5,7 +5,7 @@
  */
 
 import { srcInfoToString } from "./tact";
-import { SrcInfo } from "@tact-lang/compiler/dist/grammar/grammar";
+import { SrcInfo } from "./tact/imports";
 
 /**
  * Represents a Misti annotation.

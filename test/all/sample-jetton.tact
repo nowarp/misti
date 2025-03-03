@@ -14,8 +14,8 @@ struct JettonData {
 }
 
 contract SampleJetton with Jetton {
-    totalSupply: Int as coins;
-    max_supply: Int as coins;
+    totalSupply: Int;
+    max_supply: Int;
     owner: Address;
     content: Cell;
     mintable: Bool;

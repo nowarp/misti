@@ -4,11 +4,9 @@ import { FunctionName } from "./types";
 import {
   AstAsmFunctionDef,
   AstConstantDef,
-  idText,
   AstModule,
   AstType,
   AstContract,
-  SrcInfo,
   AstContractInit,
   AstFieldDecl,
   AstFunctionDef,
@@ -20,7 +18,10 @@ import {
   AstStatement,
   AstStructDecl,
   AstTrait,
-} from "@tact-lang/compiler/dist/grammar/ast";
+  SrcInfo,
+  idText,
+} from "../../internals/tact/imports";
+import { AstNodeId } from "../tact";
 
 export type AstStoreFunction = AstFunctionDef | AstReceiver | AstContractInit;
 
@@ -63,23 +64,23 @@ export class AstStore {
    * @param statements All executable statements within all functions of the project.
    */
   constructor(
-    private stdlibIds = new Set<AstNode["id"]>(),
-    private contractEntries = new Map<AstNode["id"], Set<AstNode["id"]>>(),
-    private programEntries: Map<Filename, Set<AstNode["id"]>>,
-    private functionNames: Map<AstNode["id"], FunctionName>,
-    private functions: Map<AstNode["id"], AstStoreFunction>,
-    private constants: Map<AstNode["id"], AstConstantDef>,
-    private contracts: Map<AstNode["id"], AstContract>,
-    private nativeFunctions: Map<AstNode["id"], AstNativeFunctionDecl>,
-    private asmFunctions: Map<AstNode["id"], AstAsmFunctionDef>,
-    private primitives: Map<AstNode["id"], AstPrimitiveTypeDecl>,
-    private structs: Map<AstNode["id"], AstStructDecl>,
-    private messages: Map<AstNode["id"], AstMessageDecl>,
-    private traits: Map<AstNode["id"], AstTrait>,
-    private statements: Map<AstNode["id"], AstStatement>,
+    private stdlibIds = new Set<AstNodeId>(),
+    private contractEntries = new Map<AstNodeId, Set<AstNodeId>>(),
+    private programEntries: Map<Filename, Set<AstNodeId>>,
+    private functionNames: Map<AstNodeId, FunctionName>,
+    private functions: Map<AstNodeId, AstStoreFunction>,
+    private constants: Map<AstNodeId, AstConstantDef>,
+    private contracts: Map<AstNodeId, AstContract>,
+    private nativeFunctions: Map<AstNodeId, AstNativeFunctionDecl>,
+    private asmFunctions: Map<AstNodeId, AstAsmFunctionDef>,
+    private primitives: Map<AstNodeId, AstPrimitiveTypeDecl>,
+    private structs: Map<AstNodeId, AstStructDecl>,
+    private messages: Map<AstNodeId, AstMessageDecl>,
+    private traits: Map<AstNodeId, AstTrait>,
+    private statements: Map<AstNodeId, AstStatement>,
   ) {}
 
-  public getFunctionName(defId: AstNode["id"]): FunctionName | undefined {
+  public getFunctionName(defId: AstNodeId): FunctionName | undefined {
     return this.functionNames.get(defId);
   }
 
@@ -139,8 +140,8 @@ export class AstStore {
    * - filename: Filters out nodes defined in the given file.
    * @returns An iterator for the items.
    */
-  public getItems<T extends { id: AstNode["id"]; loc: SrcInfo }>(
-    items: Map<AstNode["id"], T>,
+  public getItems<T extends { id: AstNodeId; loc: SrcInfo }>(
+    items: Map<AstNodeId, T>,
     { includeStdlib = false, filename }: AstItemParams = {},
   ): IterableIterator<T> {
     const filteredStdout = includeStdlib
@@ -232,11 +233,11 @@ export class AstStore {
    * @param id The unique identifier of the function or method.
    * @returns The function or method if found, otherwise undefined.
    */
-  public getFunction(id: AstNode["id"]): AstStoreFunction | undefined {
+  public getFunction(id: AstNodeId): AstStoreFunction | undefined {
     return this.functions.get(id);
   }
 
-  public hasFunction(id: AstNode["id"]): boolean {
+  public hasFunction(id: AstNodeId): boolean {
     return this.getFunction(id) !== undefined;
   }
 
@@ -245,11 +246,11 @@ export class AstStore {
    * @param id The unique identifier of the constant.
    * @returns The constant if found, otherwise undefined.
    */
-  public getConstant(id: AstNode["id"]): AstConstantDef | undefined {
+  public getConstant(id: AstNodeId): AstConstantDef | undefined {
     return this.constants.get(id);
   }
 
-  public hasConstant(id: AstNode["id"]): boolean {
+  public hasConstant(id: AstNodeId): boolean {
     return this.getConstant(id) !== undefined;
   }
 
@@ -258,11 +259,11 @@ export class AstStore {
    * @param id The unique identifier of the contract.
    * @returns The contract if found, otherwise undefined.
    */
-  public getContract(id: AstNode["id"]): AstContract | undefined {
+  public getContract(id: AstNodeId): AstContract | undefined {
     return this.contracts.get(id);
   }
 
-  public hasContract(id: AstNode["id"]): boolean {
+  public hasContract(id: AstNodeId): boolean {
     return this.getContract(id) !== undefined;
   }
 
@@ -271,13 +272,11 @@ export class AstStore {
    * @param id The unique identifier of the native function.
    * @returns The native function if found, otherwise undefined.
    */
-  public getNativeFunction(
-    id: AstNode["id"],
-  ): AstNativeFunctionDecl | undefined {
+  public getNativeFunction(id: AstNodeId): AstNativeFunctionDecl | undefined {
     return this.nativeFunctions.get(id);
   }
 
-  public hasNativeFunction(id: AstNode["id"]): boolean {
+  public hasNativeFunction(id: AstNodeId): boolean {
     return this.getNativeFunction(id) !== undefined;
   }
 
@@ -286,11 +285,11 @@ export class AstStore {
    * @param id The unique identifier of the asm function.
    * @returns The asm function if found, otherwise undefined.
    */
-  public getAsmFunction(id: AstNode["id"]): AstAsmFunctionDef | undefined {
+  public getAsmFunction(id: AstNodeId): AstAsmFunctionDef | undefined {
     return this.asmFunctions.get(id);
   }
 
-  public hasAsmFunction(id: AstNode["id"]): boolean {
+  public hasAsmFunction(id: AstNodeId): boolean {
     return this.getAsmFunction(id) !== undefined;
   }
 
@@ -299,11 +298,11 @@ export class AstStore {
    * @param id The unique identifier of the primitive type.
    * @returns The primitive type if found, otherwise undefined.
    */
-  public getPrimitive(id: AstNode["id"]): AstPrimitiveTypeDecl | undefined {
+  public getPrimitive(id: AstNodeId): AstPrimitiveTypeDecl | undefined {
     return this.primitives.get(id);
   }
 
-  public hasPrimitive(id: AstNode["id"]): boolean {
+  public hasPrimitive(id: AstNodeId): boolean {
     return this.getPrimitive(id) !== undefined;
   }
 
@@ -312,11 +311,11 @@ export class AstStore {
    * @param id The unique identifier of the struct.
    * @returns The struct if found, otherwise undefined.
    */
-  public getStruct(id: AstNode["id"]): AstStructDecl | undefined {
+  public getStruct(id: AstNodeId): AstStructDecl | undefined {
     return this.structs.get(id);
   }
 
-  public hasStruct(id: AstNode["id"]): boolean {
+  public hasStruct(id: AstNodeId): boolean {
     return this.getStruct(id) !== undefined;
   }
 
@@ -325,11 +324,11 @@ export class AstStore {
    * @param id The unique identifier of the message.
    * @returns The message if found, otherwise undefined.
    */
-  public getMessage(id: AstNode["id"]): AstMessageDecl | undefined {
+  public getMessage(id: AstNodeId): AstMessageDecl | undefined {
     return this.messages.get(id);
   }
 
-  public hasMessage(id: AstNode["id"]): boolean {
+  public hasMessage(id: AstNodeId): boolean {
     return this.getMessage(id) !== undefined;
   }
 
@@ -338,11 +337,11 @@ export class AstStore {
    * @param id The unique identifier of the trait.
    * @returns The trait if found, otherwise undefined.
    */
-  public getTrait(id: AstNode["id"]): AstTrait | undefined {
+  public getTrait(id: AstNodeId): AstTrait | undefined {
     return this.traits.get(id);
   }
 
-  public hasTrait(id: AstNode["id"]): boolean {
+  public hasTrait(id: AstNodeId): boolean {
     return this.getTrait(id) !== undefined;
   }
 
@@ -355,11 +354,11 @@ export class AstStore {
    * @param id The unique identifier of the statement.
    * @returns The statement if found, otherwise undefined.
    */
-  public getStatement(id: AstNode["id"]): AstStatement | undefined {
+  public getStatement(id: AstNodeId): AstStatement | undefined {
     return this.statements.get(id);
   }
 
-  public hasStatement(id: AstNode["id"]): boolean {
+  public hasStatement(id: AstNodeId): boolean {
     return this.getStatement(id) !== undefined;
   }
 
@@ -368,24 +367,21 @@ export class AstStore {
    * @param contractId The ID of the contract.
    * @returns An array of method IDs or undefined if no contract is found.
    */
-  public getMethods(contractId: AstNode["id"]): AstNode["id"][] | undefined {
+  public getMethods(contractId: AstNodeId): AstNodeId[] | undefined {
     const contract = this.getContract(contractId);
     if (!contract) {
       return undefined;
     }
-    return contract.declarations.reduce(
-      (result, decl) => {
-        if (
-          decl.kind === "function_def" ||
-          decl.kind === "contract_init" ||
-          decl.kind === "receiver"
-        ) {
-          result.push(decl.id);
-        }
-        return result;
-      },
-      [] as AstNode["id"][],
-    );
+    return contract.declarations.reduce((result, decl) => {
+      if (
+        decl.kind === "function_def" ||
+        decl.kind === "contract_init" ||
+        decl.kind === "receiver"
+      ) {
+        result.push(decl.id);
+      }
+      return result;
+    }, [] as AstNodeId[]);
   }
 
   /**
@@ -393,7 +389,7 @@ export class AstStore {
    * @param contractId The ID of the contract.
    * @returns The ID of the init function or undefined if the contract does not exist.
    */
-  public getInitId(contractId: AstNode["id"]): AstNode["id"] | undefined {
+  public getInitId(contractId: AstNodeId): AstNodeId | undefined {
     const contract = this.getContract(contractId);
     if (!contract) {
       return undefined;
@@ -409,22 +405,17 @@ export class AstStore {
    * @param contractId The ID of the contract.
    * @returns An array of constant IDs or undefined if no contract is found.
    */
-  public getContractConstants(
-    contractId: AstNode["id"],
-  ): AstNode["id"][] | undefined {
+  public getContractConstants(contractId: AstNodeId): AstNodeId[] | undefined {
     const contract = this.getContract(contractId);
     if (!contract) {
       return undefined;
     }
-    return contract.declarations.reduce(
-      (result, decl) => {
-        if (decl.kind === "constant_def") {
-          result.push(decl.id);
-        }
-        return result;
-      },
-      [] as AstNode["id"][],
-    );
+    return contract.declarations.reduce((result, decl) => {
+      if (decl.kind === "constant_def") {
+        result.push(decl.id);
+      }
+      return result;
+    }, [] as AstNodeId[]);
   }
 
   /**
@@ -432,9 +423,7 @@ export class AstStore {
    * @param contractId The ID of the contract.
    * @returns An array of AstFieldDecl or undefined if no contract is found.
    */
-  public getContractFields(
-    contractId: AstNode["id"],
-  ): AstFieldDecl[] | undefined {
+  public getContractFields(contractId: AstNodeId): AstFieldDecl[] | undefined {
     const contract = this.getContract(contractId);
     if (!contract) {
       return undefined;
@@ -452,9 +441,7 @@ export class AstStore {
    * @param contractId The ID of the contract.
    * @returns An array of AstFieldDecl or undefined if no contract or one its trait are found.
    */
-  public getInheritedFields(
-    contractId: AstNode["id"],
-  ): AstFieldDecl[] | undefined {
+  public getInheritedFields(contractId: AstNodeId): AstFieldDecl[] | undefined {
     const contract = this.getContract(contractId);
     if (!contract) {
       return undefined;
@@ -529,7 +516,9 @@ export class AstStore {
       }
     }
     return params.filename
-      ? result.filter((item) => item.loc.file === params.filename)
+      ? result.filter(
+          (item) => "loc" in item && item.loc.file === params.filename,
+        )
       : result;
   }
 
@@ -558,7 +547,7 @@ export class AstStore {
    * @param withTraits Include methods from directly or indirectly inherited traits.
    */
   public getMethodReturnTypes(
-    entryId: AstNode["id"],
+    entryId: AstNodeId,
     withTraits: boolean = true,
     visited = new Set<number>(),
   ): Map<FunctionName, AstType | null> {
@@ -603,7 +592,7 @@ export class AstStore {
   /**
    * Returns true iff `itemId` present in any of the contract/trait items.
    */
-  private isContractItem(itemId: AstNode["id"]): boolean {
+  private isContractItem(itemId: AstNodeId): boolean {
     if (this.isContractItemCache.has(itemId))
       return this.isContractItemCache.get(itemId)!;
     const result = [...this.contractEntries.values()].some((set) =>
@@ -612,7 +601,7 @@ export class AstStore {
     this.isContractItemCache.set(itemId, result);
     return result;
   }
-  private isContractItemCache = new Map<AstNode["id"], boolean>();
+  private isContractItemCache = new Map<AstNodeId, boolean>();
 
   private fileMatches = (node: { loc: SrcInfo }, filename: string): boolean =>
     node.loc.file !== null && node.loc.file === filename;

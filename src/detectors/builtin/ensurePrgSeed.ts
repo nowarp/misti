@@ -4,9 +4,9 @@ import {
   PRG_INIT_FUNCTIONS,
   PRG_NATIVE_USE_FUNCTIONS,
 } from "../../internals/tact";
+import { AstStaticCall, idText } from "../../internals/tact/imports";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
-import { AstStaticCall, idText } from "@tact-lang/compiler/dist/grammar/ast";
 
 /**
  * A detector that identifies all calls to `nativeRandom` and `nativeRandomInterval`

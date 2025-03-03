@@ -1,11 +1,8 @@
 import { CompilationUnit } from "../../internals/ir";
 import { foldExpressions } from "../../internals/tact";
+import { AstExpression, AstMethodCall } from "../../internals/tact/imports";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
-import {
-  AstExpression,
-  AstMethodCall,
-} from "@tact-lang/compiler/dist/grammar/ast";
 
 const REPLACEMENTS: Record<string, { replacement: string; rationale: string }> =
   {

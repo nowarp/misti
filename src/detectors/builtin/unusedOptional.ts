@@ -5,8 +5,6 @@ import {
   foldStatements,
   collectFields,
 } from "../../internals/tact";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
-import { AstDetector } from "../detector";
 import {
   AstExpression,
   AstContractInit,
@@ -17,10 +15,12 @@ import {
   AstFunctionDef,
   AstId,
   AstType,
-  idText,
   AstContract,
-} from "@tact-lang/compiler/dist/grammar/ast";
-import { prettyPrint } from "@tact-lang/compiler/dist/prettyPrinter";
+} from "../../internals/tact/imports";
+import { idText } from "../../internals/tact/imports";
+import { prettyPrint } from "../../internals/tact/imports";
+import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { AstDetector } from "../detector";
 
 type UnusedVarInfo = { name: AstId; originalType: AstType };
 
