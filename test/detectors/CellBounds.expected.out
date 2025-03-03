@@ -89,6 +89,15 @@ Help: Split your data across multiple cells - a single cell cannot store more th
 See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
 
 [CRITICAL] CellBounds: Data size exceeds cell capacity
+test/detectors/CellBounds.tact:75:5:
+> 75 |     b2 = b2.storeCoins(40000000000); // Bad: 44 + 981 = 1025 => overflow
+           ^~
+  76 |     c1 = b2.endCell(); // Bad
+The minimum data size stored (1025 bits) exceeds the maximum allowed (1023 bits)
+Help: Split your data across multiple cells - a single cell cannot store more than 1023 bits
+See: https://nowarp.io/tools/misti/docs/detectors/CellBounds
+
+[CRITICAL] CellBounds: Data size exceeds cell capacity
 test/detectors/CellBounds.tact:84:5:
 > 84 |     b3 = b3.storeBuilder(b_1000_bits) // Bad: 1025 bits
            ^~

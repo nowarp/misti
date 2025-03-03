@@ -456,17 +456,15 @@ export function getConstantStoreSize(call: AstMethodCall): bigint | undefined {
       // https://docs.tact-lang.org/book/integers/#serialization-coins
       const value = evalToType(call.args[0], "number");
       if (value !== undefined) {
-        const numValue = Number(value);
-        if (!isNaN(numValue) && isFinite(numValue)) {
-          // We use the following logic from ton-core in order to compute the size:
-          // https://github.com/ton-org/ton-core/blob/00fa47e03c2a78c6dd9d09e517839685960bc2fd/src/boc/BitBuilder.ts#L212
-          const sizeBytes = Math.ceil(numValue.toString(2).length / 8);
-          const sizeBits = sizeBytes * 8;
-          // 44-bit unsigned big-endian integer storing the byte length of the
-          // value provided
-          const sizeLength = 4;
-          return BigInt(sizeBits + sizeLength);
-        }
+        const num = ensureInt(value);
+        // We use the following logic from ton-core in order to compute the size:
+        // https://github.com/ton-org/ton-core/blob/00fa47e03c2a78c6dd9d09e517839685960bc2fd/src/boc/BitBuilder.ts#L212
+        const sizeBytes = Math.ceil(num.value.toString(2).length / 8);
+        const sizeBits = sizeBytes * 8;
+        // 44-bit unsigned big-endian integer storing the byte length of the
+        // value provided
+        const sizeLength = 4;
+        return BigInt(sizeBits + sizeLength);
       }
       // TODO: Return an interval of possible values
       return undefined;
