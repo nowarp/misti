@@ -1,1 +1,23 @@
-No errors found
+[MEDIUM] SuspiciousLoop: Infinite loop detected
+test/detectors/SuspiciousLoop.tact:10:16:
+> 10 |         while (true) { i = i + 1; } // Bad
+                      ^~~~
+  11 |         do { i = i + 1; } until (true); // Bad
+Help: Avoid unbounded conditions in loops
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
+
+[MEDIUM] SuspiciousLoop: Infinite loop detected
+test/detectors/SuspiciousLoop.tact:11:34:
+> 11 |         do { i = i + 1; } until (true); // Bad
+                                        ^~~~
+  12 |         do { i = i + 1; } until (TRUE); // TODO: Unsupported in consteval
+Help: Avoid unbounded conditions in loops
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
+
+[MEDIUM] SuspiciousLoop: Loop condition is always false
+test/detectors/SuspiciousLoop.tact:30:16:
+> 30 |         while (false) { a = 1; } // Bad
+                      ^~~~~
+  31 |         while (false) { } // OK: Empty body
+Help: The condition is always false; the body will never execute
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop

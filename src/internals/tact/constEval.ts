@@ -6,6 +6,8 @@ import {
   getAstFactory,
   AstLiteral,
   dummySrcInfo,
+  prettyPrint,
+  eqExpressions,
 } from "../../internals/tact/imports";
 
 /**
@@ -68,9 +70,7 @@ export function evalsToLiteral(
   expected: AstLiteral,
 ): boolean {
   const result = evalExpr(expr);
-  return (
-    result !== undefined && result.kind === expected.kind && result === expected
-  );
+  return result !== undefined && eqExpressions(result, expected);
 }
 
 /**
