@@ -2,13 +2,13 @@ import { AstStore } from "./astStore";
 import { IdxGenerator } from "./indices";
 import { InternalException, isSelf } from "../../";
 import { Logger } from "../../internals/logger";
+import { isExtensionFunction, getExtensionSelfType } from "../tact/util";
 import {
   AstNode,
   AstModule,
   AstStaticCall,
   AstMethodCall,
   idText,
-  AstFunctionDef,
 } from "@tact-lang/compiler/dist/grammar/ast";
 import { SrcInfo } from "@tact-lang/compiler/dist/grammar/grammar";
 import { prettyPrint as pp } from "@tact-lang/compiler/dist/prettyPrinter";
@@ -235,7 +235,7 @@ export class CallGraph {
    * Derives the function call name from a static or method call expression.
    * @param expr The call expression.
    * @param currentContractName The name of the current contract, if available.
-   * @param astStore An optional AstStore for retrieving additional information about extension functions.
+   * @param astStore AstStore for retrieving additional information about extension functions.
    * @returns The fully qualified function name, or `undefined` if it is irrelevant.
    */
   public static getFunctionCallName(
@@ -257,18 +257,19 @@ export class CallGraph {
             if (
               func.kind === "function_def" &&
               idText(func.name) === methodName &&
-              this.isExtensionFunction(func)
+              isExtensionFunction(func)
             ) {
-              const selfType = this.getExtensionSelfType(func);
+              const selfType = getExtensionSelfType(func);
               if (selfType) {
                 return `${selfType}::${methodName}`;
               }
               break;
             }
           }
-          return methodName;
         } else {
-          return methodName;
+          throw InternalException.make(
+            `Cannot process ${pp(expr)} without current contract name`,
+          );
         }
       }
       // <struct/contract>.<method>()
@@ -279,32 +280,5 @@ export class CallGraph {
       // TODO: Support method call chains: #242
     }
     return undefined; // e.g. self.<map_field>.set()
-  }
-
-  /**
-   * Checks if a function is an extension function with the "extends" attribute.
-   * @param func The function definition to check.
-   * @returns True if the function has the "extends" attribute.
-   */
-  public static isExtensionFunction(func: AstFunctionDef): boolean {
-    return func.attributes.some((attr) => attr.type === "extends");
-  }
-
-  /**
-   * Gets the type name of the self parameter from an extension function.
-   * @param func The extension function.
-   * @returns The type name of the self parameter or undefined if not found.
-   */
-  public static getExtensionSelfType(func: AstFunctionDef): string | undefined {
-    if (func.params.length > 0) {
-      const firstParam = func.params[0];
-      if (
-        firstParam.name.text === "self" &&
-        firstParam.type.kind === "type_id"
-      ) {
-        return firstParam.type.text;
-      }
-    }
-    return undefined;
   }
 }

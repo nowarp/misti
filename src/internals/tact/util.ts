@@ -544,3 +544,27 @@ export function intervalsEq(a: RawInterval, b: RawInterval): boolean {
     a.contents === b.contents
   );
 }
+
+/**
+ * Checks if a function is an extension function with the "extends" attribute.
+ * @param func The function definition to check.
+ * @returns True if the function has the "extends" attribute.
+ */
+export function isExtensionFunction(func: AstFunctionDef): boolean {
+  return func.attributes.some((attr) => attr.type === "extends");
+}
+
+/**
+ * Gets the type name of the self parameter from an extension function.
+ * @param func The extension function.
+ * @returns The type name of the self parameter or undefined if not found.
+ */
+export function getExtensionSelfType(func: AstFunctionDef): string | undefined {
+  if (func.params.length > 0) {
+    const firstParam = func.params[0];
+    if (firstParam.name.text === "self" && firstParam.type.kind === "type_id") {
+      return firstParam.type.text;
+    }
+  }
+  return undefined;
+}
