@@ -21,6 +21,7 @@ import {
   AstStatementCondition,
 } from "../../internals/tact/imports";
 import { prettyPrint } from "../../internals/tact/imports";
+import JSONbig from "json-bigint";
 import * as path from "path";
 
 /**
@@ -238,17 +239,17 @@ export function isPrimitiveLiteral(expr: AstExpression): boolean {
  */
 export function nodesAreEqual(node1: any, node2: any): boolean {
   if (node1.kind !== node2.kind) return false;
-  const clean1 = JSON.parse(
-    JSON.stringify(node1, (key, value) =>
+  const clean1 = JSONbig.parse(
+    JSONbig.stringify(node1, (key, value) =>
       key === "id" || key === "loc" ? undefined : value,
     ),
   );
-  const clean2 = JSON.parse(
-    JSON.stringify(node2, (key, value) =>
+  const clean2 = JSONbig.parse(
+    JSONbig.stringify(node2, (key, value) =>
       key === "id" || key === "loc" ? undefined : value,
     ),
   );
-  return JSON.stringify(clean1) === JSON.stringify(clean2);
+  return JSONbig.stringify(clean1) === JSONbig.stringify(clean2);
 }
 
 /**
