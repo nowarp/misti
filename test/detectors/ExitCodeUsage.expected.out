@@ -1,3 +1,23 @@
+[HIGH] ExitCodeUsage: Value is outside allowed range
+test/detectors/ExitCodeUsage.tact:16:28:
+  15 |          // Bad
+> 16 |          nativeThrowUnless(128, sender() == self.owner);
+                                  ^~~
+  17 | 
+Exit codes 0-255 are reserved. Used value: [object Object]
+Help: Use a value between 256 and 65535
+See: https://nowarp.io/tools/misti/docs/detectors/ExitCodeUsage
+
+[HIGH] ExitCodeUsage: Value is outside allowed range
+test/detectors/ExitCodeUsage.tact:19:28:
+  18 |          // Bad
+> 19 |          nativeThrowUnless(255, sender() == self.owner);
+                                  ^~~
+  20 | 
+Exit codes 0-255 are reserved. Used value: [object Object]
+Help: Use a value between 256 and 65535
+See: https://nowarp.io/tools/misti/docs/detectors/ExitCodeUsage
+
 [HIGH] ExitCodeUsage: Exit code variable "code1" has value outside allowed range
 test/detectors/ExitCodeUsage.tact:23:28:
   22 |          let code1: Int = 128;
