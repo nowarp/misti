@@ -238,7 +238,6 @@ export class TactCallGraphBuilder {
       const functionName = CallGraph.getFunctionCallName(
         expr,
         currentContractName,
-        this.astStore,
       );
       if (functionName) {
         const calleeId = this.findOrAddFunction(functionName);

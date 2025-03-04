@@ -2,7 +2,6 @@ import { AstStore } from "./astStore";
 import { IdxGenerator } from "./indices";
 import { AstNodeId, InternalException, isSelf } from "../../";
 import { Logger } from "../../internals/logger";
-import { isExtensionFunction, getExtensionSelfType } from "../tact/util";
 import {
   AstNode,
   AstModule,
@@ -243,13 +242,11 @@ export class CallGraph {
    * Derives the function call name from a static or method call expression.
    * @param expr The call expression.
    * @param currentContractName The name of the current contract, if available.
-   * @param astStore AstStore for retrieving additional information about extension functions.
    * @returns The fully qualified function name, or `undefined` if it is irrelevant.
    */
   public static getFunctionCallName(
     expr: AstStaticCall | AstMethodCall,
     currentContractName?: string,
-    astStore?: AstStore,
   ): string | undefined {
     if (expr.kind === "static_call") {
       return expr.function.text;
@@ -259,21 +256,6 @@ export class CallGraph {
       if (isSelf(expr.self)) {
         if (currentContractName !== undefined) {
           return `${currentContractName}::${methodName}`;
-        } else if (astStore) {
-          const functions = Array.from(astStore.getFunctions());
-          for (const func of functions) {
-            if (
-              func.kind === "function_def" &&
-              idText(func.name) === methodName &&
-              isExtensionFunction(func)
-            ) {
-              const selfType = getExtensionSelfType(func);
-              if (selfType) {
-                return `${selfType}::${methodName}`;
-              }
-              break;
-            }
-          }
         } else {
           throw InternalException.make(
             `Cannot process ${pp(expr)} without current contract name`,
