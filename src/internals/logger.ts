@@ -52,7 +52,7 @@ export class Logger {
   ): LogFunction {
     return (msg: string) => {
       if (this.saveJson) this.jsonLogs.get(level)?.push(msg);
-      baseFunc(msg);
+      else baseFunc(msg);
     };
   }
 

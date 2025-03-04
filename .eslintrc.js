@@ -53,7 +53,7 @@ module.exports = {
   // Suppress `no-console` for specific files
   "overrides": [
     {
-      "files": ["src/internals/logger.ts", "src/createDetector.ts", "src/main.ts", "test/**"],
+      "files": ["src/internals/logger.ts", "src/createDetector.ts", "src/main.ts", "test/**", "src/cli/cli.ts"],
       "rules": {
         "no-console": "off"
       }
