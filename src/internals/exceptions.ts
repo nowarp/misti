@@ -56,7 +56,11 @@ export class TactException {
    * Returns true if `stack` represents a syntax error.
    */
   static isParserError(stack: string | undefined): boolean {
-    return stack !== undefined && stack.includes("at throwParseError");
+    return (
+      stack !== undefined &&
+      (stack.includes("at throwParseError") ||
+        stack.includes("parser-error.js"))
+    );
   }
 
   /**
