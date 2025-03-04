@@ -106,3 +106,10 @@ fun refs_num_ok(c: Cell, copt: Cell?) {
     b1.storeRef(c);
     c1 = b1.endCell();
 }
+
+// Regression test for: https://github.com/nowarp/misti/issues/317
+fun useToString(a: Int): Int {
+    let stringBuilder: StringBuilder = beginString();
+    stringBuilder.append(a.toString());
+    return sha256(stringBuilder.toString());
+}

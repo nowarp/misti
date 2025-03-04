@@ -414,7 +414,12 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
       fromCell: { from: [VariableKind.Cell], to: VariableKind.StructMessage },
       fromSlice: { from: [VariableKind.Slice], to: VariableKind.StructMessage },
     };
-    const transform = typeTransforms[methodName];
+    const transform = Object.prototype.hasOwnProperty.call(
+      typeTransforms,
+      methodName,
+    )
+      ? typeTransforms[methodName]
+      : undefined;
     return transform && transform.from.includes(currentKind)
       ? transform.to
       : currentKind;

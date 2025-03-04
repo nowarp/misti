@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Callgraph: Incorrect handling of getter methods: PR [#282](https://github.com/nowarp/misti/pull/282)
 - `ArgCopyMutation`: Incorrect handling of `return` in traits: Issue [#290](https://github.com/nowarp/misti/issues/290)
 - `SendInLoop`: Remove redundant error logs when accessing patterns like `self.<map_field>.set()`
+- `CellBounds`: Accessing property of `Object.prototype` on `.toString` method in Tact: PR [#318](https://github.com/nowarp/misti/pull/318)
 
 ## [0.6.2] - 2024-12-25
 
