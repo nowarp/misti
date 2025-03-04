@@ -19,6 +19,7 @@ import {
   idText,
   tryExtractPath,
   AstStatementCondition,
+  AstFunctionAttributeName,
 } from "../../internals/tact/imports";
 import { prettyPrint } from "../../internals/tact/imports";
 import JSONbig from "json-bigint";
@@ -530,4 +531,30 @@ export function isSendCall(expr: AstExpression): boolean {
       isSelf(expr.self) &&
       SEND_METHODS.includes(expr.method.text))
   );
+}
+
+/**
+ * Checks if a function has the given attribute.
+ */
+export function functionHasAttribute(
+  fun: AstFunctionDef,
+  ...attrs: (AstFunctionAttributeName | "get")[]
+): boolean {
+  return fun.attributes.some((attr) =>
+    attr.kind === "function_attribute" ? attrs.includes(attr.type) : false,
+  );
+}
+
+/**
+ * Gets the type name of the self parameter from an `extends` function.
+ */
+export function getExtendsSelfType(fun: AstFunctionDef): string | undefined {
+  if (!functionHasAttribute(fun, "extends")) return undefined;
+  if (fun.params.length > 0) {
+    const firstParam = fun.params[0];
+    if (firstParam.name.text === "self" && firstParam.type.kind === "type_id") {
+      return firstParam.type.text;
+    }
+  }
+  return undefined;
 }

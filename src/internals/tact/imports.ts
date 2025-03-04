@@ -42,6 +42,7 @@ export {
   AstOptionalType,
   AstStatementExpression,
   AstLiteral,
+  AstFunctionAttributeName,
 } from "@tact-lang/compiler/dist/ast/ast";
 export { prettyPrint } from "@tact-lang/compiler/dist/ast/ast-printer";
 export {

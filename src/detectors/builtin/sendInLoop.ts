@@ -7,7 +7,7 @@ import {
   AstContract,
   SrcInfo,
 } from "../../internals/tact/imports";
-import { isSendCall } from "../../internals/tact/util";
+import { isSendCall, getExtendsSelfType } from "../../internals/tact/util";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
@@ -64,6 +64,9 @@ export class SendInLoop extends AstDetector {
             stmt,
             processedLoopIds,
             cu.callGraph,
+            entry.kind === "function_def"
+              ? getExtendsSelfType(entry)
+              : undefined,
           );
           allWarnings.push(...warnings);
         });

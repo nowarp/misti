@@ -48,7 +48,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ArgCopyMutation`: Incorrect handling of `return` in traits: Issue [#290](https://github.com/nowarp/misti/issues/290)
 - `SendInLoop`: Remove redundant error logs when accessing patterns like `self.<map_field>.set()`
 - `CellBounds`: Accessing property of `Object.prototype` on `.toString` method in Tact: PR [#318](https://github.com/nowarp/misti/pull/318)
-- Don't print error messages when `-o "json"` is set: PR [#2320](https://github.com/nowarp/misti/pull/320)
+- Don't print error messages when `-o "json"` is set: PR [#320](https://github.com/nowarp/misti/pull/320)
+- Callgraph: Crash on `extends` function with `self` argument: Issue [#309](https://github.com/nowarp/misti/issues/309)
 
 ## [0.6.2] - 2024-12-25
 

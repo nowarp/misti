@@ -14,6 +14,7 @@ import {
   PRG_INIT_FUNCTIONS,
   isSendCall,
   AstNodeId,
+  getExtendsSelfType,
 } from "../../tact/";
 import {
   AstAsmFunctionDef,
@@ -79,8 +80,8 @@ export class TactCallGraphBuilder {
             this.addContractDeclarationToGraph(decl, contractName);
           });
         } else if (entry.kind === "function_def") {
-          const func = entry;
-          this.addFunctionToGraph(func);
+          const contractName = getExtendsSelfType(entry);
+          this.addFunctionToGraph(entry, contractName);
         }
       });
     this.analyzeFunctionCalls();
@@ -180,13 +181,12 @@ export class TactCallGraphBuilder {
           }
         }
       } else if (entry.kind === "function_def") {
-        const func = entry;
-        const funcNodeId = this.astIdToNodeId.get(func.id);
+        const funcNodeId = this.astIdToNodeId.get(entry.id);
         if (funcNodeId !== undefined) {
           const funcNode = this.nodeMap.get(funcNodeId);
           if (!funcNode) continue;
-          func.statements.forEach((stmt) => {
-            this.processStatement(stmt, funcNodeId);
+          entry.statements.forEach((stmt) => {
+            this.processStatement(stmt, funcNodeId, getExtendsSelfType(entry));
           });
         }
       }

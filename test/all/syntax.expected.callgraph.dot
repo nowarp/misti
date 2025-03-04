@@ -7,60 +7,67 @@ digraph "CallGraph" {
     node_24 [label="fun testTryCatch(a: Int)"];
     node_25 [label="fun testLoops()"];
     node_26 [label="fun callAsm(s: Slice): Cell"];
-    node_27 [label="override get fun TestContract::getter(): Int"];
-    node_28 [label="get fun Z::getter(): Int
+    node_27 [label="extends fun String::toInt(self: String): Int"];
+    node_28 [label="override get fun TestContract::getter(): Int"];
+    node_29 [label="get fun Z::getter(): Int
 [StateRead<a>]"];
-    node_29 [label="fun TestContractF::test()"];
-    node_30 [label="fun TParent::getA(): Int
+    node_30 [label="fun TestContractF::test()"];
+    node_31 [label="fun TParent::getA(): Int
 [StateRead<a>]"];
-    node_31 [label="fun TestContractT::test(): Int"];
-    node_32 [label="TestContractT::external()"];
-    node_33 [label="EffectTest::init()
+    node_32 [label="fun TestContractT::test(): Int"];
+    node_33 [label="TestContractT::external()"];
+    node_34 [label="EffectTest::init()
 [StateWrite<addr,b,s>]"];
-    node_34 [label="fun EffectTest::funcWithSend()
+    node_35 [label="fun EffectTest::funcWithSend()
 [Send,StateRead<addr>]"];
-    node_35 [label="fun EffectTest::funcWithStateRead()
+    node_36 [label="fun EffectTest::funcWithStateRead()
 [StateRead<addr>]"];
-    node_36 [label="fun EffectTest::funcWithStateWrite1()
+    node_37 [label="fun EffectTest::funcWithStateWrite1()
 [StateRead<b,addr,s>,StateWrite<addr>]"];
-    node_37 [label="fun EffectTest::funcWithStateWrite2(s: Slice): Address"];
-    node_38 [label="fun EffectTest::funcWithMultipleEffects()
+    node_38 [label="fun EffectTest::funcWithStateWrite2(s: Slice): Address"];
+    node_39 [label="fun EffectTest::funcWithMultipleEffects()
 [AccessDatetime,PrgUse,PrgSeedInit]"];
-    node_39 [label="EffectTest::receive()"];
-    node_40 [label="get fun A::m(): map<Int, Int>
+    node_40 [label="EffectTest::receive()"];
+    node_41 [label="get fun A::m(): map<Int, Int>
 [StateRead<m>]"];
-    node_41 [label="A::receive()
+    node_42 [label="A::receive()
 [StateRead<m>]"];
-    node_45 [label="dump"];
-    node_46 [label="emptyMap"];
-    node_47 [label="m::set"];
-    node_48 [label="s::loadRefEx"];
-    node_49 [label="TestContractT::getA"];
-    node_50 [label="sender"];
-    node_51 [label="beginCell"];
-    node_52 [label="send"];
-    node_53 [label="s::loadAddress"];
-    node_54 [label="now"];
-    node_55 [label="nativeRandomizeLt"];
-    node_56 [label="beginString"];
-    node_57 [label="a::append"];
-    node_22 -> node_45;
-    node_23 -> node_46;
-    node_24 -> node_45;
-    node_25 -> node_46;
+    node_46 [label="dump"];
+    node_47 [label="emptyMap"];
+    node_48 [label="m::set"];
+    node_49 [label="s::loadRefEx"];
+    node_50 [label="String::asSlice"];
+    node_51 [label="string::empty"];
+    node_52 [label="string::loadUint"];
+    node_53 [label="TestContractT::getA"];
+    node_54 [label="sender"];
+    node_55 [label="beginCell"];
+    node_56 [label="send"];
+    node_57 [label="s::loadAddress"];
+    node_58 [label="now"];
+    node_59 [label="nativeRandomizeLt"];
+    node_60 [label="beginString"];
+    node_61 [label="a::append"];
+    node_22 -> node_46;
+    node_23 -> node_47;
+    node_24 -> node_46;
     node_25 -> node_47;
-    node_25 -> node_47;
-    node_25 -> node_47;
-    node_26 -> node_48;
-    node_31 -> node_49;
-    node_33 -> node_50;
-    node_33 -> node_51;
-    node_34 -> node_52;
-    node_36 -> node_17;
-    node_37 -> node_53;
-    node_38 -> node_54;
-    node_38 -> node_10;
-    node_38 -> node_55;
-    node_39 -> node_56;
-    node_39 -> node_57;
+    node_25 -> node_48;
+    node_25 -> node_48;
+    node_25 -> node_48;
+    node_26 -> node_49;
+    node_27 -> node_50;
+    node_27 -> node_51;
+    node_27 -> node_52;
+    node_32 -> node_53;
+    node_34 -> node_54;
+    node_34 -> node_55;
+    node_35 -> node_56;
+    node_37 -> node_17;
+    node_38 -> node_57;
+    node_39 -> node_58;
+    node_39 -> node_10;
+    node_39 -> node_59;
+    node_40 -> node_60;
+    node_40 -> node_61;
 }

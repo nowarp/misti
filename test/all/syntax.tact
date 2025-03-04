@@ -168,3 +168,14 @@ contract A {
         }
     }
 }
+
+// Regression test for: https://github.com/nowarp/misti/issues/309
+extends fun toInt(self: String): Int {
+    let string: Slice = self.asSlice();
+    let acc: Int = 0;
+    while (!string.empty()) {
+        let char: Int = string.loadUint(8);
+        acc = (acc * 10) + (char - 48);
+    }
+    return acc;
+}

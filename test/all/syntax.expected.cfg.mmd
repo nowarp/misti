@@ -92,67 +92,81 @@ end
 subgraph callAsm
     callAsm_107["return s.loadRefEx()"]:::exitNode
 end
+subgraph toInt
+    toInt_108["let string: Slice = self.asSlice()"]
+    toInt_109["let acc: Int = 0"]
+    toInt_110["while (!string.empty())"]
+    toInt_111["let char: Int = string.loadUint(8)"]
+    toInt_112["acc = acc * 10 + (char - 48)"]
+    toInt_113["return acc"]:::exitNode
+    toInt_108 --> toInt_109
+    toInt_109 --> toInt_110
+    toInt_110 --> toInt_111
+    toInt_111 --> toInt_112
+    toInt_112 --> toInt_110
+    toInt_110 --> toInt_113
+end
 subgraph TestContract__getter
-    TestContract__getter_125["return 0"]:::exitNode
+    TestContract__getter_131["return 0"]:::exitNode
 end
 subgraph TestContractF__test
 end
 subgraph TestContractT__test
-    TestContractT__test_128["return self.getA()"]:::exitNode
+    TestContractT__test_134["return self.getA()"]:::exitNode
 end
 subgraph TestContractT__receive_external_fallback_2054
 end
 subgraph EffectTest__init_2372
-    EffectTest__init_2372_129["self.addr = sender()"]
-    EffectTest__init_2372_130["self.b = beginCell()"]
-    EffectTest__init_2372_131["self.s = S{b: beginCell()}"]:::exitNode
-    EffectTest__init_2372_129 --> EffectTest__init_2372_130
-    EffectTest__init_2372_130 --> EffectTest__init_2372_131
+    EffectTest__init_2372_135["self.addr = sender()"]
+    EffectTest__init_2372_136["self.b = beginCell()"]
+    EffectTest__init_2372_137["self.s = S{b: beginCell()}"]:::exitNode
+    EffectTest__init_2372_135 --> EffectTest__init_2372_136
+    EffectTest__init_2372_136 --> EffectTest__init_2372_137
 end
 subgraph EffectTest__funcWithSend
-    EffectTest__funcWithSend_132["let amount: Int = 100"]
-    EffectTest__funcWithSend_133["send(SendParameters{to: self.addr, value: amount})"]:::exitNode
-    EffectTest__funcWithSend_132 --> EffectTest__funcWithSend_133
+    EffectTest__funcWithSend_138["let amount: Int = 100"]
+    EffectTest__funcWithSend_139["send(SendParameters{to: self.addr, value: amount})"]:::exitNode
+    EffectTest__funcWithSend_138 --> EffectTest__funcWithSend_139
 end
 subgraph EffectTest__funcWithStateRead
-    EffectTest__funcWithStateRead_134["let value = self.addr"]:::exitNode
+    EffectTest__funcWithStateRead_140["let value = self.addr"]:::exitNode
 end
 subgraph EffectTest__funcWithStateWrite1
-    EffectTest__funcWithStateWrite1_135["self.addr = newAddress(0, 0)"]
-    EffectTest__funcWithStateWrite1_136["self.b.storeAddress(self.addr)"]
-    EffectTest__funcWithStateWrite1_137["self.s.b.storeAddress(self.addr)"]:::exitNode
-    EffectTest__funcWithStateWrite1_135 --> EffectTest__funcWithStateWrite1_136
-    EffectTest__funcWithStateWrite1_136 --> EffectTest__funcWithStateWrite1_137
+    EffectTest__funcWithStateWrite1_141["self.addr = newAddress(0, 0)"]
+    EffectTest__funcWithStateWrite1_142["self.b.storeAddress(self.addr)"]
+    EffectTest__funcWithStateWrite1_143["self.s.b.storeAddress(self.addr)"]:::exitNode
+    EffectTest__funcWithStateWrite1_141 --> EffectTest__funcWithStateWrite1_142
+    EffectTest__funcWithStateWrite1_142 --> EffectTest__funcWithStateWrite1_143
 end
 subgraph EffectTest__funcWithStateWrite2
-    EffectTest__funcWithStateWrite2_138["return s.loadAddress()"]:::exitNode
+    EffectTest__funcWithStateWrite2_144["return s.loadAddress()"]:::exitNode
 end
 subgraph EffectTest__funcWithMultipleEffects
-    EffectTest__funcWithMultipleEffects_139["let currentTime: Int = now()"]
-    EffectTest__funcWithMultipleEffects_140["let randValue: Int = random(1, 100)"]
-    EffectTest__funcWithMultipleEffects_141["if (1 &gt; 42)"]
-    EffectTest__funcWithMultipleEffects_142["nativeRandomizeLt()"]:::exitNode
-    EffectTest__funcWithMultipleEffects_139 --> EffectTest__funcWithMultipleEffects_140
-    EffectTest__funcWithMultipleEffects_140 --> EffectTest__funcWithMultipleEffects_141
-    EffectTest__funcWithMultipleEffects_141 --> EffectTest__funcWithMultipleEffects_142
+    EffectTest__funcWithMultipleEffects_145["let currentTime: Int = now()"]
+    EffectTest__funcWithMultipleEffects_146["let randValue: Int = random(1, 100)"]
+    EffectTest__funcWithMultipleEffects_147["if (1 &gt; 42)"]
+    EffectTest__funcWithMultipleEffects_148["nativeRandomizeLt()"]:::exitNode
+    EffectTest__funcWithMultipleEffects_145 --> EffectTest__funcWithMultipleEffects_146
+    EffectTest__funcWithMultipleEffects_146 --> EffectTest__funcWithMultipleEffects_147
+    EffectTest__funcWithMultipleEffects_147 --> EffectTest__funcWithMultipleEffects_148
 end
 subgraph EffectTest__receive_internal_fallback_2371
-    EffectTest__receive_internal_fallback_2371_143["let a = beginString()"]
-    EffectTest__receive_internal_fallback_2371_144["a.append('f')"]:::exitNode
-    EffectTest__receive_internal_fallback_2371_143 --> EffectTest__receive_internal_fallback_2371_144
+    EffectTest__receive_internal_fallback_2371_149["let a = beginString()"]
+    EffectTest__receive_internal_fallback_2371_150["a.append('f')"]:::exitNode
+    EffectTest__receive_internal_fallback_2371_149 --> EffectTest__receive_internal_fallback_2371_150
 end
 subgraph A__m
-    A__m_145["return self.m"]:::exitNode
+    A__m_151["return self.m"]:::exitNode
 end
 subgraph A__receive_internal_fallback_2419
-    A__receive_internal_fallback_2419_146["while (true)"]
-    A__receive_internal_fallback_2419_147["self.m.set(1, 2)"]
-    A__receive_internal_fallback_2419_146 --> A__receive_internal_fallback_2419_147
-    A__receive_internal_fallback_2419_147 --> A__receive_internal_fallback_2419_146
+    A__receive_internal_fallback_2419_152["while (true)"]
+    A__receive_internal_fallback_2419_153["self.m.set(1, 2)"]
+    A__receive_internal_fallback_2419_152 --> A__receive_internal_fallback_2419_153
+    A__receive_internal_fallback_2419_153 --> A__receive_internal_fallback_2419_152
 end
 subgraph Z__getter
-    Z__getter_126["return self.a + 1"]:::exitNode
+    Z__getter_132["return self.a + 1"]:::exitNode
 end
 subgraph TParent__getA
-    TParent__getA_127["return self.a"]:::exitNode
+    TParent__getA_133["return self.a"]:::exitNode
 end

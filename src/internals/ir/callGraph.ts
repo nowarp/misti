@@ -75,7 +75,6 @@ export class CGNode {
   ) {
     this.stateAccess.set("read", new Set());
     this.stateAccess.set("write", new Set());
-
     this.idx = IdxGenerator.next("cg_node") as CGNodeId;
     if (node === undefined) {
       this.logger.debug(`CGNode created without AST ID for function "${name}"`);
@@ -254,13 +253,12 @@ export class CallGraph {
       const methodName = idText(expr.method);
       // self.<method>()
       if (isSelf(expr.self)) {
-        if (currentContractName !== undefined) {
-          return `${currentContractName}::${methodName}`;
-        } else {
+        if (!currentContractName) {
           throw InternalException.make(
             `Cannot process ${pp(expr)} without current contract name`,
           );
         }
+        return `${currentContractName}::${methodName}`;
       }
       // <struct/contract>.<method>()
       if (expr.self.kind === "id") {
