@@ -122,13 +122,14 @@ function handleOutputToConsole(
   const text = resultToString(result, outputFormat);
   switch (result.kind) {
     case "warnings":
-      logger.warn(text);
+      outputFormat === "json" ? console.warn(text) : logger.warn(text);
       break;
     case "error":
-      logger.error(text);
+      outputFormat === "json" ? console.error(text) : logger.error(text);
       break;
     case "tool":
     case "ok":
+      outputFormat === "json" ? console.log(text) : logger.error(text);
       logger.info(text);
       break;
     default:
