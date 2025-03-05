@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Support new syntax introduced in Tact 1.6: PR [#325](https://github.com/nowarp/misti/pull/325)
+
 ## [0.7.0] - 2025-03-05
 
 ### Added
