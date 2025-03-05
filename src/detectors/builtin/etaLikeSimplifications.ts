@@ -147,7 +147,7 @@ export class EtaLikeSimplifications extends AstDetector {
   }
 
   private isBooleanLiteral(
-    expr: AstExpression | null,
+    expr: AstExpression | undefined,
     value?: boolean,
   ): boolean {
     if (expr == null) return false;

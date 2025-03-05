@@ -135,7 +135,7 @@ class StringReceiversOverlapTransfer implements Transfer<TaintState> {
 
   private processStatements(outState: TaintState, stmt: AstStatement): void {
     if (stmt.kind === "statement_let") {
-      if (stmt.type === null) {
+      if (stmt.type === undefined) {
         // var newTaint = <id | literal | previousTaint>;
         this.processUntypedLet(outState, stmt);
       } else if (stmt.type.kind === "type_id" && stmt.type.text === "String") {

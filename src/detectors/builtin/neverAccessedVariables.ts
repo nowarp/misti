@@ -114,7 +114,7 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
       case "statement_condition":
         trackAccess(stmt.condition);
         stmt.trueStatements.forEach((s) => this.processStatements(outState, s));
-        if (stmt.falseStatements !== null)
+        if (stmt.falseStatements !== undefined)
           stmt.falseStatements.forEach((s) =>
             this.processStatements(outState, s),
           );

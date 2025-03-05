@@ -44,7 +44,7 @@ export class UnusedExpressionResult extends AstDetector {
   /**
    * Return types that the available free functions have.
    */
-  private freeFunctionReturnTypes = new Map<string, AstType | null>();
+  private freeFunctionReturnTypes = new Map<string, AstType | undefined>();
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     this.freeFunctionReturnTypes = cu.ast.getReturnTypes();
@@ -64,7 +64,7 @@ export class UnusedExpressionResult extends AstDetector {
    */
   private checkFunction(
     node: AstNode,
-    methodReturnTypes: Map<string, AstType | null> | undefined,
+    methodReturnTypes: Map<string, AstType | undefined> | undefined,
   ): MistiTactWarning[] {
     const warnings: MistiTactWarning[] = [];
     forEachStatement(node, (stmt) => {
@@ -83,7 +83,7 @@ export class UnusedExpressionResult extends AstDetector {
    */
   private checkExpressionStatement(
     stmt: AstStatementExpression,
-    methodReturnTypes: Map<string, AstType | null> | undefined,
+    methodReturnTypes: Map<string, AstType | undefined> | undefined,
   ): MistiTactWarning[] {
     return this.checkExpression(stmt.expression, methodReturnTypes);
   }
@@ -93,7 +93,7 @@ export class UnusedExpressionResult extends AstDetector {
    */
   private checkExpression(
     expr: AstExpression,
-    methodReturnTypes: Map<string, AstType | null> | undefined,
+    methodReturnTypes: Map<string, AstType | undefined> | undefined,
   ): MistiTactWarning[] {
     const warnings: MistiTactWarning[] = [];
     const warn = () =>

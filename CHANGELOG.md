@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Tact 1.6.1 support
 - Tact 1.6 support: PR [#314](https://github.com/nowarp/misti/pull/314)
 - `StateMutationInGetter` detector: PR [#306](https://github.com/nowarp/misti/pull/306)
 - `UnprotectedCall` detector: PR [#235](https://github.com/nowarp/misti/pull/235)

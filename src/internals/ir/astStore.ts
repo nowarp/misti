@@ -525,8 +525,8 @@ export class AstStore {
   /**
    * Retrieves return types from the callable functions available within CompilationUnit.
    */
-  public getReturnTypes(): Map<FunctionName, AstType | null> {
-    const result = new Map<FunctionName, AstType | null>();
+  public getReturnTypes(): Map<FunctionName, AstType | undefined> {
+    const result = new Map<FunctionName, AstType | undefined>();
     this.asmFunctions.forEach((f) =>
       result.set(idText(f.name) as FunctionName, f.return),
     );
@@ -550,8 +550,8 @@ export class AstStore {
     entryId: AstNodeId,
     withTraits: boolean = true,
     visited = new Set<number>(),
-  ): Map<FunctionName, AstType | null> {
-    let result = new Map<FunctionName, AstType | null>();
+  ): Map<FunctionName, AstType | undefined> {
+    let result = new Map<FunctionName, AstType | undefined>();
 
     // Avoid recursion if used on AST before typechecking
     if (visited.has(entryId)) return result;

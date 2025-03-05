@@ -523,7 +523,10 @@ export class TactIRBuilder {
         edges = trueEdges;
         const trueEndBB = trueBBs[trueBBs.length - 1];
 
-        if (stmt.falseStatements !== null && stmt.falseStatements.length > 0) {
+        if (
+          stmt.falseStatements !== undefined &&
+          stmt.falseStatements.length > 0
+        ) {
           // Branching logic for falseStatements
           const [falseBBs, falseEdges] = this.processStatements(
             stmt.falseStatements,

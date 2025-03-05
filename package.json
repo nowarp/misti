@@ -1,6 +1,6 @@
 {
   "name": "@nowarp/misti",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nowarp/misti.git"
@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "@nowarp/souffle": "^0.1.2",
-    "@tact-lang/compiler": "~1.6.0",
+    "@tact-lang/compiler": "~1.6.1",
     "@types/benchmark": "^2.1.5",
     "@types/fs-extra": "^11.0.4",
     "@types/json-bigint": "^1.0.4",
@@ -71,7 +71,7 @@
     "jest": "^29.7.0",
     "knip": "^5.30.2",
     "prettier": "^3.2.5",
-    "release-it":"^18.1.0",
+    "release-it": "^18.1.0",
     "ts-jest": "^29.0.3",
     "ts-node": "^10.9.1",
     "typedoc": "^0.26.5",
