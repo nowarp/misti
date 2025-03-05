@@ -62,7 +62,7 @@ export class ImportGraphBuilder {
         `Cannot find imported file: ${filePath}. The analysis might not work.`,
       );
     }
-    const imports = getParser(getAstFactory(), "old").parseImports({
+    const imports = getParser(getAstFactory(), "new").parseImports({
       code: fileContent,
       path: filePath,
       origin: "user",

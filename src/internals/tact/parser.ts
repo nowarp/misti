@@ -53,7 +53,7 @@ export function parseTactProject(
       projectVfs,
       stdlibVfs,
       projectConfig.path,
-      getParser(astFactory, "old"),
+      getParser(astFactory, "new"),
       astFactory,
     );
     return getRawAST(ctx);
