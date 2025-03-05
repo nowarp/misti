@@ -10,9 +10,9 @@ contract Test1 {
 
 contract Test2 {
     a: Int;
-    b: Int = 42; // No false positive
+    b: Int = 42; // OK: No false positive
     init(x: Int) {
-        self.a = x; // No false positive
+        self.a = x; // OK: No false positive
     }
     get fun getB(): Int { return self.b; }
 }

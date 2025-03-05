@@ -276,7 +276,7 @@ export function collectFields(
   return contract.declarations.reduce((acc, decl) => {
     if (
       decl.kind === "field_decl" &&
-      (!initialized || decl.initializer !== null)
+      (!initialized || decl.initializer !== undefined)
     ) {
       acc.set(decl.name.text, decl);
     }

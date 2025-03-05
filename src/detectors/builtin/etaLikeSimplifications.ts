@@ -150,7 +150,7 @@ export class EtaLikeSimplifications extends AstDetector {
     expr: AstExpression | undefined,
     value?: boolean,
   ): boolean {
-    if (expr == null) return false;
+    if (expr == undefined) return false;
     return value === undefined
       ? evalToType(expr, "boolean") !== undefined
       : evalsToLiteral(expr, MakeLiteral.boolean(value));
