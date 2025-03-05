@@ -179,3 +179,11 @@ extends fun toInt(self: String): Int {
     }
     return acc;
 }
+
+// Regression test for: https://github.com/nowarp/misti/issues/324
+contract ContractParams(
+  owner: Address,
+  seqno: Int as uint32,
+) {
+    receive() { }
+}
