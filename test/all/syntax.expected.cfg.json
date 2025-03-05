@@ -7,7 +7,7 @@
         "nodes": [
           {
             "id": 71,
-            "stmtID": 2099,
+            "stmtID": 2130,
             "srcEdges": [],
             "dstEdges": [
               53
@@ -15,7 +15,7 @@
           },
           {
             "id": 72,
-            "stmtID": 2098,
+            "stmtID": 2129,
             "srcEdges": [
               53
             ],
@@ -25,7 +25,7 @@
           },
           {
             "id": 73,
-            "stmtID": 2100,
+            "stmtID": 2131,
             "srcEdges": [
               54
             ],
@@ -35,7 +35,7 @@
           },
           {
             "id": 74,
-            "stmtID": 2109,
+            "stmtID": 2140,
             "srcEdges": [
               55
             ],
@@ -46,7 +46,7 @@
           },
           {
             "id": 75,
-            "stmtID": 2103,
+            "stmtID": 2134,
             "srcEdges": [
               56
             ],
@@ -54,7 +54,7 @@
           },
           {
             "id": 76,
-            "stmtID": 2108,
+            "stmtID": 2139,
             "srcEdges": [
               57
             ],
@@ -96,7 +96,7 @@
         "nodes": [
           {
             "id": 77,
-            "stmtID": 2115,
+            "stmtID": 2146,
             "srcEdges": [],
             "dstEdges": [
               58
@@ -104,7 +104,7 @@
           },
           {
             "id": 78,
-            "stmtID": 2119,
+            "stmtID": 2150,
             "srcEdges": [
               58
             ],
@@ -114,7 +114,7 @@
           },
           {
             "id": 79,
-            "stmtID": 2133,
+            "stmtID": 2164,
             "srcEdges": [
               59,
               62
@@ -126,7 +126,7 @@
           },
           {
             "id": 80,
-            "stmtID": 2127,
+            "stmtID": 2158,
             "srcEdges": [
               60
             ],
@@ -136,7 +136,7 @@
           },
           {
             "id": 81,
-            "stmtID": 2132,
+            "stmtID": 2163,
             "srcEdges": [
               61
             ],
@@ -146,7 +146,7 @@
           },
           {
             "id": 82,
-            "stmtID": 2147,
+            "stmtID": 2178,
             "srcEdges": [
               63,
               66
@@ -158,7 +158,7 @@
           },
           {
             "id": 83,
-            "stmtID": 2141,
+            "stmtID": 2172,
             "srcEdges": [
               64
             ],
@@ -168,7 +168,7 @@
           },
           {
             "id": 84,
-            "stmtID": 2146,
+            "stmtID": 2177,
             "srcEdges": [
               65
             ],
@@ -178,7 +178,7 @@
           },
           {
             "id": 85,
-            "stmtID": 2159,
+            "stmtID": 2190,
             "srcEdges": [
               67,
               70
@@ -190,7 +190,7 @@
           },
           {
             "id": 86,
-            "stmtID": 2153,
+            "stmtID": 2184,
             "srcEdges": [
               68
             ],
@@ -200,7 +200,7 @@
           },
           {
             "id": 87,
-            "stmtID": 2158,
+            "stmtID": 2189,
             "srcEdges": [
               69
             ],
@@ -210,7 +210,7 @@
           },
           {
             "id": 88,
-            "stmtID": 2166,
+            "stmtID": 2197,
             "srcEdges": [
               71
             ],
@@ -220,7 +220,7 @@
           },
           {
             "id": 89,
-            "stmtID": 2170,
+            "stmtID": 2201,
             "srcEdges": [
               72,
               73
@@ -320,7 +320,7 @@
         "nodes": [
           {
             "id": 90,
-            "stmtID": 2184,
+            "stmtID": 2215,
             "srcEdges": [],
             "dstEdges": [
               74,
@@ -329,7 +329,7 @@
           },
           {
             "id": 91,
-            "stmtID": 2178,
+            "stmtID": 2209,
             "srcEdges": [
               74
             ],
@@ -337,7 +337,7 @@
           },
           {
             "id": 92,
-            "stmtID": 2183,
+            "stmtID": 2214,
             "srcEdges": [
               75
             ],
@@ -364,7 +364,7 @@
         "nodes": [
           {
             "id": 93,
-            "stmtID": 2190,
+            "stmtID": 2221,
             "srcEdges": [],
             "dstEdges": [
               76
@@ -372,7 +372,7 @@
           },
           {
             "id": 94,
-            "stmtID": 2194,
+            "stmtID": 2225,
             "srcEdges": [
               76
             ],
@@ -382,7 +382,7 @@
           },
           {
             "id": 95,
-            "stmtID": 2208,
+            "stmtID": 2239,
             "srcEdges": [
               77,
               80
@@ -394,7 +394,7 @@
           },
           {
             "id": 96,
-            "stmtID": 2202,
+            "stmtID": 2233,
             "srcEdges": [
               78
             ],
@@ -404,7 +404,7 @@
           },
           {
             "id": 97,
-            "stmtID": 2207,
+            "stmtID": 2238,
             "srcEdges": [
               79
             ],
@@ -414,7 +414,7 @@
           },
           {
             "id": 98,
-            "stmtID": 2222,
+            "stmtID": 2253,
             "srcEdges": [
               81,
               84
@@ -426,7 +426,7 @@
           },
           {
             "id": 99,
-            "stmtID": 2216,
+            "stmtID": 2247,
             "srcEdges": [
               82
             ],
@@ -436,7 +436,7 @@
           },
           {
             "id": 100,
-            "stmtID": 2221,
+            "stmtID": 2252,
             "srcEdges": [
               83
             ],
@@ -446,7 +446,7 @@
           },
           {
             "id": 101,
-            "stmtID": 2234,
+            "stmtID": 2265,
             "srcEdges": [
               85,
               88
@@ -458,7 +458,7 @@
           },
           {
             "id": 102,
-            "stmtID": 2228,
+            "stmtID": 2259,
             "srcEdges": [
               86
             ],
@@ -468,7 +468,7 @@
           },
           {
             "id": 103,
-            "stmtID": 2233,
+            "stmtID": 2264,
             "srcEdges": [
               87
             ],
@@ -478,7 +478,7 @@
           },
           {
             "id": 104,
-            "stmtID": 2241,
+            "stmtID": 2272,
             "srcEdges": [
               89
             ],
@@ -488,7 +488,7 @@
           },
           {
             "id": 105,
-            "stmtID": 2247,
+            "stmtID": 2279,
             "srcEdges": [
               90
             ],
@@ -498,7 +498,7 @@
           },
           {
             "id": 106,
-            "stmtID": 2253,
+            "stmtID": 2286,
             "srcEdges": [
               91
             ],
@@ -508,7 +508,7 @@
           },
           {
             "id": 107,
-            "stmtID": 2259,
+            "stmtID": 2293,
             "srcEdges": [
               92
             ],
@@ -518,7 +518,7 @@
           },
           {
             "id": 108,
-            "stmtID": 2268,
+            "stmtID": 2302,
             "srcEdges": [
               93,
               95
@@ -529,7 +529,7 @@
           },
           {
             "id": 109,
-            "stmtID": 2267,
+            "stmtID": 2301,
             "srcEdges": [
               94
             ],
@@ -648,7 +648,7 @@
         "nodes": [
           {
             "id": 110,
-            "stmtID": 2424,
+            "stmtID": 2463,
             "srcEdges": [],
             "dstEdges": []
           }
@@ -662,7 +662,7 @@
         "nodes": [
           {
             "id": 111,
-            "stmtID": 2466,
+            "stmtID": 2507,
             "srcEdges": [],
             "dstEdges": [
               96
@@ -670,7 +670,7 @@
           },
           {
             "id": 112,
-            "stmtID": 2470,
+            "stmtID": 2511,
             "srcEdges": [
               96
             ],
@@ -680,7 +680,7 @@
           },
           {
             "id": 113,
-            "stmtID": 2491,
+            "stmtID": 2534,
             "srcEdges": [
               97,
               100
@@ -692,7 +692,7 @@
           },
           {
             "id": 114,
-            "stmtID": 2481,
+            "stmtID": 2524,
             "srcEdges": [
               98
             ],
@@ -702,7 +702,7 @@
           },
           {
             "id": 115,
-            "stmtID": 2490,
+            "stmtID": 2533,
             "srcEdges": [
               99
             ],
@@ -712,7 +712,7 @@
           },
           {
             "id": 116,
-            "stmtID": 2493,
+            "stmtID": 2536,
             "srcEdges": [
               101
             ],
@@ -764,7 +764,7 @@
             "nodes": [
               {
                 "id": 134,
-                "stmtID": 2027,
+                "stmtID": 2058,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -795,7 +795,7 @@
             "nodes": [
               {
                 "id": 137,
-                "stmtID": 2085,
+                "stmtID": 2117,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -804,7 +804,7 @@
           }
         },
         {
-          "name": "TestContractT.receive_external_fallback_2089",
+          "name": "TestContractT.receive_external_fallback_2121",
           "cfg": {
             "nodes": [],
             "edges": []
@@ -816,12 +816,12 @@
       "name": "EffectTest",
       "methods": [
         {
-          "name": "EffectTest.init_2407",
+          "name": "EffectTest.init_2445",
           "cfg": {
             "nodes": [
               {
                 "id": 138,
-                "stmtID": 2290,
+                "stmtID": 2324,
                 "srcEdges": [],
                 "dstEdges": [
                   116
@@ -829,7 +829,7 @@
               },
               {
                 "id": 139,
-                "stmtID": 2296,
+                "stmtID": 2330,
                 "srcEdges": [
                   116
                 ],
@@ -839,7 +839,7 @@
               },
               {
                 "id": 140,
-                "stmtID": 2306,
+                "stmtID": 2340,
                 "srcEdges": [
                   117
                 ],
@@ -866,7 +866,7 @@
             "nodes": [
               {
                 "id": 141,
-                "stmtID": 2312,
+                "stmtID": 2346,
                 "srcEdges": [],
                 "dstEdges": [
                   118
@@ -874,7 +874,7 @@
               },
               {
                 "id": 142,
-                "stmtID": 2325,
+                "stmtID": 2359,
                 "srcEdges": [
                   118
                 ],
@@ -896,7 +896,7 @@
             "nodes": [
               {
                 "id": 143,
-                "stmtID": 2332,
+                "stmtID": 2366,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -910,7 +910,7 @@
             "nodes": [
               {
                 "id": 144,
-                "stmtID": 2342,
+                "stmtID": 2376,
                 "srcEdges": [],
                 "dstEdges": [
                   119
@@ -918,7 +918,7 @@
               },
               {
                 "id": 145,
-                "stmtID": 2351,
+                "stmtID": 2386,
                 "srcEdges": [
                   119
                 ],
@@ -928,7 +928,7 @@
               },
               {
                 "id": 146,
-                "stmtID": 2362,
+                "stmtID": 2398,
                 "srcEdges": [
                   120
                 ],
@@ -955,7 +955,7 @@
             "nodes": [
               {
                 "id": 147,
-                "stmtID": 2372,
+                "stmtID": 2409,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -969,7 +969,7 @@
             "nodes": [
               {
                 "id": 148,
-                "stmtID": 2379,
+                "stmtID": 2416,
                 "srcEdges": [],
                 "dstEdges": [
                   121
@@ -977,7 +977,7 @@
               },
               {
                 "id": 149,
-                "stmtID": 2386,
+                "stmtID": 2423,
                 "srcEdges": [
                   121
                 ],
@@ -987,7 +987,7 @@
               },
               {
                 "id": 150,
-                "stmtID": 2393,
+                "stmtID": 2430,
                 "srcEdges": [
                   122
                 ],
@@ -997,7 +997,7 @@
               },
               {
                 "id": 151,
-                "stmtID": 2392,
+                "stmtID": 2429,
                 "srcEdges": [
                   123
                 ],
@@ -1024,12 +1024,12 @@
           }
         },
         {
-          "name": "EffectTest.receive_internal_fallback_2406",
+          "name": "EffectTest.receive_internal_fallback_2444",
           "cfg": {
             "nodes": [
               {
                 "id": 152,
-                "stmtID": 2400,
+                "stmtID": 2437,
                 "srcEdges": [],
                 "dstEdges": [
                   124
@@ -1037,7 +1037,7 @@
               },
               {
                 "id": 153,
-                "stmtID": 2405,
+                "stmtID": 2443,
                 "srcEdges": [
                   124
                 ],
@@ -1064,7 +1064,7 @@
             "nodes": [
               {
                 "id": 154,
-                "stmtID": 2440,
+                "stmtID": 2479,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -1073,12 +1073,12 @@
           }
         },
         {
-          "name": "A.receive_internal_fallback_2454",
+          "name": "A.receive_internal_fallback_2494",
           "cfg": {
             "nodes": [
               {
                 "id": 155,
-                "stmtID": 2453,
+                "stmtID": 2493,
                 "srcEdges": [
                   126
                 ],
@@ -1088,7 +1088,7 @@
               },
               {
                 "id": 156,
-                "stmtID": 2452,
+                "stmtID": 2492,
                 "srcEdges": [
                   125
                 ],
@@ -1114,6 +1114,18 @@
       ]
     },
     {
+      "name": "ContractParams",
+      "methods": [
+        {
+          "name": "ContractParams.receive_internal_fallback_2548",
+          "cfg": {
+            "nodes": [],
+            "edges": []
+          }
+        }
+      ]
+    },
+    {
       "name": "BaseTrait",
       "methods": []
     },
@@ -1130,7 +1142,7 @@
             "nodes": [
               {
                 "id": 135,
-                "stmtID": 2046,
+                "stmtID": 2076,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -1149,7 +1161,7 @@
             "nodes": [
               {
                 "id": 136,
-                "stmtID": 2066,
+                "stmtID": 2096,
                 "srcEdges": [],
                 "dstEdges": []
               }
