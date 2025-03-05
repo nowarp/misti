@@ -57,6 +57,7 @@ export class FieldDoubleInit extends AstDetector {
         initialized: true,
       }).keys(),
     );
+    console.log('INIT_IN_DECL:', initializedInDecl);
     if (initializedInDecl.size === 0) {
       return [];
     }
