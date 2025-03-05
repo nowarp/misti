@@ -6,7 +6,7 @@
 - [ ] Create a GitHub release
 - [ ] Prepare [documentation](https://github.com/nowarp/nowarp.github.io/):
   - [ ] Update the supported Tact version in the introduction page
-  - [ ] Generate detectors documentation: `yarn detector-docs ../nowarp.github.io/docs/detectors/`
+  - [ ] Generate detectors documentation: `yarn detector-docs -o ../nowarp.github.io/docs/detectors/`
   - [ ] Update the `detectors.md` page
   - [ ] Update `sidebars.ts` adding new detectors
   - [ ] Check whether `configuration.md` and `cli.md` should be updated
