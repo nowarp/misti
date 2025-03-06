@@ -679,19 +679,19 @@ export class Driver {
    */
   private async checkCU(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const warningsPromises = this.detectors.map(async (detector) => {
+      const taskId = `${cu.projectName}-${detector.id}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       if (!this.ctx.souffleAvailable && detector.usesSouffle) {
         this.ctx.logger.debug(
           `${cu.projectName}: Skipping ${detector.id} since no Soufflé installation is available`,
+          taskId,
         );
         return [];
       }
-      this.ctx.logger.debug(
-        `${cu.projectName}: Running ${detector.id} for ${cu.projectName}`,
-      );
+      this.ctx.logger.setContext(taskId, `${detector.id}:${cu.projectName}`);
+      this.ctx.logger.debug(`Running detector for ${cu.projectName}`, taskId);
       try {
         // Conditional import for setTimeout to support both Node.js and browser environments
         let setTimeoutPromise: (ms: number, value?: any) => Promise<any>;
-
         if (typeof window !== "undefined") {
           setTimeoutPromise = (ms) =>
             new Promise((resolve) => setTimeout(resolve, ms));
@@ -706,7 +706,8 @@ export class Driver {
             );
           }),
         ]);
-        this.ctx.logger.debug(`${cu.projectName}: Finished ${detector.id}`);
+        this.ctx.logger.debug(`Finished detector`, taskId);
+        this.ctx.logger.clearContext(taskId);
         return warnings;
       } catch (err) {
         let error: string = "";
@@ -723,9 +724,8 @@ export class Driver {
         } else {
           error = `${err}`;
         }
-        this.ctx.logger.error(
-          `${cu.projectName}: Error in ${detector.id}: ${error}`,
-        );
+        this.ctx.logger.error(`Error in detector: ${error}`, taskId);
+        this.ctx.logger.clearContext(taskId);
         return [];
       }
     });
