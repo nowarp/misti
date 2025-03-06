@@ -1,5 +1,6 @@
 import { ToolOutput } from "../cli/result";
 import { MistiContext } from "../internals/context";
+import { InternalException } from "../internals/exceptions";
 import { CompilationUnit } from "../internals/ir";
 
 export type ToolName = string;
@@ -47,15 +48,40 @@ export abstract class Tool<T extends Record<string, unknown>> {
    * @param cu The compilation unit to run the tool on.
    * @returns The result of the tool.
    */
-  abstract run(cu: CompilationUnit): ToolOutput | never;
+  public run(cu: CompilationUnit): ToolOutput | never {
+    return this.runWithCU(cu);
+  }
+
+  /**
+   * Runs the tool without any compilation unit.
+   * @returns The result of the tool.
+   */
+  public runStandalone(): ToolOutput | never {
+    throw InternalException.make(
+      `Tool ${this.id} does not support running without a compilation unit`,
+    );
+  }
+
+  /**
+   * Implement this method if your tool needs a compilation unit.
+   * @param cu The compilation unit to run the tool on.
+   */
+  protected runWithCU(_: CompilationUnit): ToolOutput | never {
+    throw InternalException.make(
+      `Tool ${this.id} does not support running with a compilation unit`,
+    );
+  }
 
   /**
    * Makes a ToolOutput from the given output.
    */
-  protected makeOutput(cu: CompilationUnit, output: string): ToolOutput {
+  protected makeOutput(
+    cu: CompilationUnit | undefined,
+    output: string,
+  ): ToolOutput {
     return {
       name: this.id,
-      projectName: cu.projectName,
+      projectName: cu?.projectName,
       output,
     };
   }
@@ -69,6 +95,18 @@ export abstract class Tool<T extends Record<string, unknown>> {
    * Returns a map of option names to their descriptions.
    */
   abstract getOptionDescriptions(): Record<keyof T, string>;
+
+  /**
+   * Tests if the Tool could be executed without compilation unit using `runStandalone`.
+   */
+  public static canRunStandalone(tool: Tool<any>): boolean {
+    try {
+      const originalMethod = tool.runStandalone;
+      return originalMethod !== Tool.prototype.runStandalone;
+    } catch {
+      return false;
+    }
+  }
 }
 
 // Define the structure of each tool entry in the BuiltInTools map.

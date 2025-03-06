@@ -1,6 +1,5 @@
 import { Tool } from "./tool";
 import { ToolOutput } from "../cli/result";
-import { CompilationUnit } from "../internals/ir";
 import JSONbig from "json-bigint";
 
 interface DumpConfigOptions extends Record<string, unknown> {}
@@ -13,8 +12,8 @@ export class DumpConfig extends Tool<DumpConfigOptions> {
     return {} as DumpConfigOptions;
   }
 
-  run(cu: CompilationUnit): ToolOutput | never {
-    return this.makeOutput(cu, JSONbig.stringify(this.ctx.config));
+  runStandalone(): ToolOutput | never {
+    return this.makeOutput(undefined, JSONbig.stringify(this.ctx.config));
   }
 
   getDescription(): string {

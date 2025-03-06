@@ -29,7 +29,7 @@ export class DumpImports extends Tool<DumpImportGraphOptions> {
     };
   }
 
-  run(cu: CompilationUnit): ToolOutput | never {
+  runWithCU(cu: CompilationUnit): ToolOutput | never {
     switch (this.options.format) {
       case "dot":
         return this.makeOutput(

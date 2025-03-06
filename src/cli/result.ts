@@ -54,8 +54,9 @@ export type ToolOutput = {
   name: string;
   /**
    * Project this tool was executed for.
+   * `undefined` if the tool doesn't require source code.
    */
-  projectName: string;
+  projectName: string | undefined;
   output: string;
 };
 

@@ -24,7 +24,7 @@ export class DumpCfg extends Tool<DumpCfgOptions> {
     };
   }
 
-  public run(cu: CompilationUnit): ToolOutput | never {
+  public runWithCU(cu: CompilationUnit): ToolOutput | never {
     const file = this.options.file
       ? path.resolve(this.options.file)
       : undefined;

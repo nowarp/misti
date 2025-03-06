@@ -48,7 +48,7 @@ export class DumpCallGraph extends Tool<DumpCallGraphOptions> {
    * @param cu `CompilationUnit` representing the code to analyze.
    * @returns A `ToolOutput` containing the generated call graph data.
    */
-  public run(cu: CompilationUnit): ToolOutput | never {
+  public runWithCU(cu: CompilationUnit): ToolOutput | never {
     const callGraph = cu.callGraph;
     const format = this.options.format;
 
