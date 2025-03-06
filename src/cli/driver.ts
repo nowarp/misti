@@ -352,9 +352,6 @@ export class Driver {
    * Actual implementation of the entry point.
    */
   public async executeImpl(): Promise<MistiResult> {
-    if (this.cus.size === 0) {
-      return { kind: "ok" };
-    }
     if (this.detectors.length === 0 && this.tools.length === 0) {
       this.ctx.logger.warn(
         "Nothing to execute. Please specify at least one detector or tool.",
@@ -455,9 +452,27 @@ export class Driver {
    * @returns MistiResult containing tool outputs
    */
   private async executeTools(): Promise<MistiResult> {
-    const toolOutputs = await Promise.all(
+    const standaloneTools = this.tools.filter((tool) =>
+      Tool.canRunStandalone(tool),
+    );
+    const cuDependentTools = this.tools.filter(
+      (tool) => !Tool.canRunStandalone(tool),
+    );
+    const standaloneOutputs = await Promise.all(
+      standaloneTools.map((tool) => {
+        try {
+          return tool.runStandalone();
+        } catch (error) {
+          this.ctx.logger.error(
+            `Error executing standalone tool ${tool.id}: ${error}`,
+          );
+          return null;
+        }
+      }),
+    );
+    const cuOutputs = await Promise.all(
       Array.from(this.cus.values()).flatMap((cu) =>
-        this.tools.map((tool) => {
+        cuDependentTools.map((tool) => {
           try {
             return tool.run(cu);
           } catch (error) {
@@ -467,9 +482,10 @@ export class Driver {
         }),
       ),
     );
+    const allOutputs = [...standaloneOutputs, ...cuOutputs];
     return {
       kind: "tool",
-      output: toolOutputs.filter(
+      output: allOutputs.filter(
         (output): output is ToolOutput => output !== null,
       ),
     };
