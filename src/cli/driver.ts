@@ -679,58 +679,59 @@ export class Driver {
    */
   private async checkCU(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const warningsPromises = this.detectors.map(async (detector) => {
-      const taskId = `${cu.projectName}-${detector.id}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       if (!this.ctx.souffleAvailable && detector.usesSouffle) {
         this.ctx.logger.debug(
           `${cu.projectName}: Skipping ${detector.id} since no Soufflé installation is available`,
-          taskId,
         );
         return [];
       }
-      this.ctx.logger.setContext(taskId, `${detector.id}:${cu.projectName}`);
-      this.ctx.logger.debug(`Running detector for ${cu.projectName}`, taskId);
-      try {
-        // Conditional import for setTimeout to support both Node.js and browser environments
-        let setTimeoutPromise: (ms: number, value?: any) => Promise<any>;
-        if (typeof window !== "undefined") {
-          setTimeoutPromise = (ms) =>
-            new Promise((resolve) => setTimeout(resolve, ms));
-        } else {
-          setTimeoutPromise = (await import("timers/promises")).setTimeout;
-        }
-        const warnings = await Promise.race([
-          detector.check(cu),
-          setTimeoutPromise(MistiEnv.MISTI_TIMEOUT, []).then(() => {
-            throw new Error(
-              `Detector ${detector.id} timed out after ${MistiEnv.MISTI_TIMEOUT}ms`,
-            );
-          }),
-        ]);
-        this.ctx.logger.debug(`Finished detector`, taskId);
-        this.ctx.logger.clearContext(taskId);
-        return warnings;
-      } catch (err) {
-        let error: string = "";
-        if (err instanceof Error) {
-          const result = [] as string[];
-          result.push(err.message);
-          if (
-            err.stack !== undefined &&
-            this.ctx.config.verbosity === "debug"
-          ) {
-            result.push(err.stack);
+      return this.ctx.logger.withContext(`${detector.id}:${cu.projectName}`)(
+        async () => {
+          this.ctx.logger.debug(`Running detector for ${cu.projectName}`);
+          try {
+            // Conditional import for setTimeout to support both Node.js and browser environments
+            let setTimeoutPromise: (ms: number, value?: any) => Promise<any>;
+            if (typeof window !== "undefined") {
+              setTimeoutPromise = (ms) =>
+                new Promise((resolve) => setTimeout(resolve, ms));
+            } else {
+              setTimeoutPromise = (await import("timers/promises")).setTimeout;
+            }
+            const warnings = await Promise.race([
+              detector.check(cu),
+              setTimeoutPromise(MistiEnv.MISTI_TIMEOUT, []).then(() => {
+                throw new Error(
+                  `Detector ${detector.id} timed out after ${MistiEnv.MISTI_TIMEOUT}ms`,
+                );
+              }),
+            ]);
+            this.ctx.logger.debug(`Finished detector`);
+            return warnings;
+          } catch (err) {
+            let error: string = "";
+            if (err instanceof Error) {
+              const result = [] as string[];
+              result.push(err.message);
+              if (
+                err.stack !== undefined &&
+                this.ctx.config.verbosity === "debug"
+              ) {
+                result.push(err.stack);
+              }
+              error = result.join("\n");
+            } else {
+              error = `${err}`;
+            }
+            this.ctx.logger.error(`Error in detector: ${error}`);
+            return [];
           }
-          error = result.join("\n");
-        } else {
-          error = `${err}`;
-        }
-        this.ctx.logger.error(`Error in detector: ${error}`, taskId);
-        this.ctx.logger.clearContext(taskId);
-        return [];
-      }
+        },
+      );
     });
     try {
-      return (await Promise.all(warningsPromises)).flat();
+      return (
+        await Promise.all(warningsPromises as Promise<MistiTactWarning[]>[])
+      ).flat();
     } catch (error) {
       throw InternalException.make(
         `${cu.projectName} execution error:\n${error}`,

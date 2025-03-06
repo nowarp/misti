@@ -18,6 +18,7 @@ export class Logger {
   private logFunctions: Map<LogLevel, LogFunction | undefined>;
   private jsonLogs: Map<LogLevel, string[]>;
   private contextMap: Map<string, string> = new Map();
+  private static asyncLocalStorage = new Map<number, string>();
 
   constructor(
     logMapping?: Partial<Record<LogLevel, LogFunction | undefined>>,
@@ -73,6 +74,40 @@ export class Logger {
   }
 
   /**
+   * Gets the current task ID from the async context
+   */
+  private getCurrentTaskId(): string | undefined {
+    const threadId = Logger.asyncLocalStorage.get(
+      // Use a simple approximation of thread ID in single-threaded JS
+      Math.floor(Date.now() / 1000) % 1000000,
+    );
+    return threadId;
+  }
+
+  /**
+   * Creates a new execution context and returns a function to run code within it.
+   * @param contextName The name of the context to use in logs
+   * @returns A function that executes the provided callback in the context
+   */
+  public withContext<T>(
+    contextName: string,
+  ): (fn: () => Promise<T>) => Promise<T> {
+    return async (fn: () => Promise<T>): Promise<T> => {
+      const taskId = `task-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      const threadId = Math.floor(Date.now() / 1000) % 1000000;
+      // Set context and task ID
+      this.setContext(taskId, contextName);
+      Logger.asyncLocalStorage.set(threadId, taskId);
+      try {
+        return await fn();
+      } finally {
+        this.clearContext(taskId);
+        Logger.asyncLocalStorage.delete(threadId);
+      }
+    };
+  }
+
+  /**
    * Sets the context for a specific task ID.
    * @param taskId Unique identifier for the current task/thread
    * @param context The context string to prepend to log messages.
@@ -98,9 +133,12 @@ export class Logger {
   protected log(level: LogLevel, msg: MessageType, taskId?: string): void {
     const logFunction = this.logFunctions.get(level);
     if (logFunction) {
+      // Try to get task ID from parameter or current context
+      const effectiveTaskId = taskId || this.getCurrentTaskId();
+
       let contextPrefix = "";
-      if (taskId && this.contextMap.has(taskId)) {
-        contextPrefix = `[${this.contextMap.get(taskId)}] `;
+      if (effectiveTaskId && this.contextMap.has(effectiveTaskId)) {
+        contextPrefix = `[${this.contextMap.get(effectiveTaskId)}] `;
       }
       logFunction(`${contextPrefix}${msg}`);
     }
