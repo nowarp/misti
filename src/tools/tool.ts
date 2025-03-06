@@ -97,7 +97,7 @@ export abstract class Tool<T extends Record<string, unknown>> {
   abstract getOptionDescriptions(): Record<keyof T, string>;
 
   /**
-   * Tests if the Tool could be excuted without compilation unit using `runStandalone`.
+   * Tests if the Tool could be executed without compilation unit using `runStandalone`.
    */
   public static canRunStandalone(tool: Tool<any>): boolean {
     try {
