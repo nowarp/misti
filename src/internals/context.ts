@@ -52,7 +52,7 @@ export class MistiContext {
       this.logger = new TraceLogger(saveJson);
     } else {
       this.logger = options.verbose
-        ? new DebugLogger(saveJson)
+        ? new DebugLogger(saveJson, true)
         : options.quiet
           ? new QuietLogger(saveJson)
           : this.config.verbosity === "quiet"

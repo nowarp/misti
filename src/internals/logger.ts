@@ -19,11 +19,14 @@ export class Logger {
   private jsonLogs: Map<LogLevel, string[]>;
   private contextMap: Map<string, string> = new Map();
   private static asyncLocalStorage = new Map<number, string>();
+  private showTimestamps: boolean;
 
   constructor(
     logMapping?: Partial<Record<LogLevel, LogFunction | undefined>>,
     private saveJson: boolean = false,
+    showTimestamps: boolean = false,
   ) {
+    this.showTimestamps = showTimestamps;
     this.jsonLogs = new Map([
       [LogLevel.DEBUG, []],
       [LogLevel.INFO, []],
@@ -125,6 +128,19 @@ export class Logger {
   }
 
   /**
+   * Formats the current time as [HH:MM:SS.ms]
+   * @returns Formatted timestamp string
+   */
+  private getTimestamp(): string {
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, "0");
+    const minutes = now.getMinutes().toString().padStart(2, "0");
+    const seconds = now.getSeconds().toString().padStart(2, "0");
+    const milliseconds = now.getMilliseconds().toString().padStart(3, "0");
+    return `[${hours}:${minutes}:${seconds}.${milliseconds}]`;
+  }
+
+  /**
    * Logs a message at the specified log level if a corresponding log function is defined.
    * @param level The severity level of the log entry.
    * @param msg The content of the log message.
@@ -135,12 +151,14 @@ export class Logger {
     if (logFunction) {
       // Try to get task ID from parameter or current context
       const effectiveTaskId = taskId || this.getCurrentTaskId();
-
       let contextPrefix = "";
       if (effectiveTaskId && this.contextMap.has(effectiveTaskId)) {
         contextPrefix = `[${this.contextMap.get(effectiveTaskId)}] `;
       }
-      logFunction(`${contextPrefix}${msg}`);
+      const timestampPrefix = this.showTimestamps
+        ? `${this.getTimestamp()} `
+        : "";
+      logFunction(`${timestampPrefix}${contextPrefix}${msg}`);
     }
   }
 
@@ -197,7 +215,7 @@ export class Logger {
  * Logger that silences all logs.
  */
 export class QuietLogger extends Logger {
-  constructor(saveJson: boolean = false) {
+  constructor(saveJson: boolean = false, showTimestamps: boolean = false) {
     super(
       {
         [LogLevel.INFO]: undefined,
@@ -205,6 +223,7 @@ export class QuietLogger extends Logger {
         [LogLevel.ERROR]: undefined,
       },
       saveJson,
+      showTimestamps,
     );
   }
 }
@@ -213,12 +232,13 @@ export class QuietLogger extends Logger {
  * Logger that enables debug level logging to stdin.
  */
 export class DebugLogger extends Logger {
-  constructor(saveJson: boolean = false) {
+  constructor(saveJson: boolean = false, showTimestamps: boolean = false) {
     super(
       {
         [LogLevel.DEBUG]: console.log,
       },
       saveJson,
+      showTimestamps,
     );
   }
 }
@@ -232,7 +252,7 @@ function trace(...args: any) {
  * Logger that adds backtraces to each log function.
  */
 export class TraceLogger extends Logger {
-  constructor(saveJson: boolean = false) {
+  constructor(saveJson: boolean = false, showTimestamps: boolean = false) {
     super(
       {
         [LogLevel.DEBUG]: trace,
@@ -241,6 +261,7 @@ export class TraceLogger extends Logger {
         [LogLevel.ERROR]: trace,
       },
       saveJson,
+      showTimestamps,
     );
   }
 }
