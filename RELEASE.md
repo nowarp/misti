@@ -20,4 +20,7 @@
 - [ ] Update [`tact-template`](https://github.com/tact-lang/tact-template):
   - [ ] Update the Misti version in `package.json`
   - [ ] Ensure the commands in `package.json` and the GitHub Actions workflow are up to date
+- [ ] Update [web-ide](https://github.com/tact-lang/web-ide)
+  - [ ] Update the Misti version in `package.json`
+  - [ ] Ensure that no changes in the output or Misti internals lead to issues
 - [ ] Create a post that highlights introduced changes
