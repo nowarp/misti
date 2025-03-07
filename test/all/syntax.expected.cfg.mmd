@@ -114,14 +114,14 @@ end
 subgraph TestContractT__test
     TestContractT__test_137["return self.getA()"]:::exitNode
 end
-subgraph TestContractT__receive_external_fallback_2121
+subgraph TestContractT__receive_external_fallback_2166
 end
-subgraph EffectTest__init_2445
-    EffectTest__init_2445_138["self.addr = sender()"]
-    EffectTest__init_2445_139["self.b = beginCell()"]
-    EffectTest__init_2445_140["self.s = S{b: beginCell()}"]:::exitNode
-    EffectTest__init_2445_138 --> EffectTest__init_2445_139
-    EffectTest__init_2445_139 --> EffectTest__init_2445_140
+subgraph EffectTest__init_2490
+    EffectTest__init_2490_138["self.addr = sender()"]
+    EffectTest__init_2490_139["self.b = beginCell()"]
+    EffectTest__init_2490_140["self.s = S{b: beginCell()}"]:::exitNode
+    EffectTest__init_2490_138 --> EffectTest__init_2490_139
+    EffectTest__init_2490_139 --> EffectTest__init_2490_140
 end
 subgraph EffectTest__funcWithSend
     EffectTest__funcWithSend_141["let amount: Int = 100"]
@@ -150,21 +150,21 @@ subgraph EffectTest__funcWithMultipleEffects
     EffectTest__funcWithMultipleEffects_149 --> EffectTest__funcWithMultipleEffects_150
     EffectTest__funcWithMultipleEffects_150 --> EffectTest__funcWithMultipleEffects_151
 end
-subgraph EffectTest__receive_internal_fallback_2444
-    EffectTest__receive_internal_fallback_2444_152["let a = beginString()"]
-    EffectTest__receive_internal_fallback_2444_153["a.append('f')"]:::exitNode
-    EffectTest__receive_internal_fallback_2444_152 --> EffectTest__receive_internal_fallback_2444_153
+subgraph EffectTest__receive_internal_fallback_2489
+    EffectTest__receive_internal_fallback_2489_152["let a = beginString()"]
+    EffectTest__receive_internal_fallback_2489_153["a.append('f')"]:::exitNode
+    EffectTest__receive_internal_fallback_2489_152 --> EffectTest__receive_internal_fallback_2489_153
 end
 subgraph A__m
     A__m_154["return self.m"]:::exitNode
 end
-subgraph A__receive_internal_fallback_2494
-    A__receive_internal_fallback_2494_155["while (true)"]
-    A__receive_internal_fallback_2494_156["self.m.set(1, 2)"]
-    A__receive_internal_fallback_2494_155 --> A__receive_internal_fallback_2494_156
-    A__receive_internal_fallback_2494_156 --> A__receive_internal_fallback_2494_155
+subgraph A__receive_internal_fallback_2539
+    A__receive_internal_fallback_2539_155["while (true)"]
+    A__receive_internal_fallback_2539_156["self.m.set(1, 2)"]
+    A__receive_internal_fallback_2539_155 --> A__receive_internal_fallback_2539_156
+    A__receive_internal_fallback_2539_156 --> A__receive_internal_fallback_2539_155
 end
-subgraph ContractParams__receive_internal_fallback_2548
+subgraph ContractParams__receive_internal_fallback_2593
 end
 subgraph Z__getter
     Z__getter_135["return self.a + 1"]:::exitNode
