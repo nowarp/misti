@@ -8,9 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Tact 1.6.2 support: PR [#328](https://github.com/nowarp/misti/pull/328)
 - Support standalone Tools to run without `CompilationUnit`: PR [#326](https://github.com/nowarp/misti/pull/326)
 - Logger: Detector contexts: PR [#327](https://github.com/nowarp/misti/pull/327)
 - Logger: Print timestamps when `--verbose` is set: Issue [#73](https://github.com/nowarp/misti/issues/73)
+
+### Changed
+- Replace imports from `@tact-lang/compiler/dist/...` to `@tact-lang/compiler`: PR [#328](https://github.com/nowarp/misti/pull/328)
 
 ## [0.7.1] - 2025-03-05
 
