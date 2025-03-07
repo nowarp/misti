@@ -4,5 +4,5 @@ test/detectors/PreferDeploy.tact:7:9:
 > 7 |         send(SendParameters{ // Bad: Prefer deploy
               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   8 |             to: contractAddress(init),
-Help: Use more gas-effecient `deploy` function: https://docs.tact-lang.org/ref/core-common/#deploy
+Help: Use more gas-efficient `deploy` function: https://docs.tact-lang.org/ref/core-common/#deploy
 See: https://nowarp.io/tools/misti/docs/detectors/PreferDeploy

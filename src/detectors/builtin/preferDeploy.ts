@@ -42,7 +42,7 @@ export class PreferDeploy extends AstDetector {
         foldExpressions(
           node,
           (acc, expr) => {
-            return this.findReplacableSend(acc, expr);
+            return this.findReplaceableSend(acc, expr);
           },
           [] as MistiTactWarning[],
         ),
@@ -50,7 +50,7 @@ export class PreferDeploy extends AstDetector {
     }, [] as MistiTactWarning[]);
   }
 
-  private findReplacableSend(
+  private findReplaceableSend(
     acc: MistiTactWarning[],
     expr: AstExpression,
   ): MistiTactWarning[] {
@@ -64,7 +64,7 @@ export class PreferDeploy extends AstDetector {
     ) {
       acc.push(
         this.makeWarning("Prefer `deploy` over `send`", expr.loc, {
-          suggestion: `Use more gas-effecient \`deploy\` function: https://docs.tact-lang.org/ref/core-common/#deploy`,
+          suggestion: `Use more gas-efficient \`deploy\` function: https://docs.tact-lang.org/ref/core-common/#deploy`,
         }),
       );
     }
