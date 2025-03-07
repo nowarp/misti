@@ -1361,13 +1361,13 @@
     ignore "^5.1.8"
     p-map "^4.0.0"
 
-"@tact-lang/compiler@~1.6.0":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@tact-lang/compiler/-/compiler-1.6.0.tgz#e5ec8fe606d4eca812f5f9042df76dac92ff086e"
-  integrity sha512-rJ6HcBLlk3onyYozX+5rlNMDurUD8TGFirSPeQjlDChPA4tWNolU6NpRNdlFx/Ac0/bCRjMF99UJ8+LRF7oQbQ==
+"@tact-lang/compiler@~1.6.2":
+  version "1.6.2"
+  resolved "https://registry.yarnpkg.com/@tact-lang/compiler/-/compiler-1.6.2.tgz#a949a9099e4014b64148d6323826b8b8e8085d05"
+  integrity sha512-Qo8ooKWxLWy6o1ePdiyCo1+hdaX5rm1qoUs+S/L9R+wV7SpODYM1dHtKE3RkvyuItnBsl9WokgnkWzlC4qnMVQ==
   dependencies:
     "@tact-lang/opcode" "^0.3.0"
-    "@ton/core" "0.60.0"
+    "@ton/core" "0.60.1"
     "@ton/crypto" "^3.2.0"
     "@tonstudio/parser-runtime" "^0.0.1"
     blockstore-core "1.0.5"
@@ -1386,24 +1386,10 @@
     "@ton/core" "^0.60.0"
     "@ton/crypto" "^3.3.0"
 
-"@ton/core@0.60.0":
-  version "0.60.0"
-  resolved "https://registry.yarnpkg.com/@ton/core/-/core-0.60.0.tgz#7968d6a53b63c81149b5b4c91725518bc88a2f87"
-  integrity sha512-vK0itrieVashNQ7geqpvlWcOyXsXKKtIo6h02HcVcMeNo+QxovBaDAvou3BUKDnf7ej6+rRSuXMSOIjBct/zIg==
-  dependencies:
-    symbol.inspect "1.0.1"
-
-"@ton/core@^0.60.0":
+"@ton/core@0.60.1", "@ton/core@^0.60.0":
   version "0.60.1"
   resolved "https://registry.yarnpkg.com/@ton/core/-/core-0.60.1.tgz#cc9a62fb308d7597b1217dc8e44c7e2dcc0aceaa"
   integrity sha512-8FwybYbfkk57C3l9gvnlRhRBHbLYmeu0LbB1z9N+dhDz0Z+FJW8w0TJlks8CgHrAFxsT3FlR2LsqFnsauMp38w==
-  dependencies:
-    symbol.inspect "1.0.1"
-
-"@ton/core@~0.59.0":
-  version "0.59.0"
-  resolved "https://registry.yarnpkg.com/@ton/core/-/core-0.59.0.tgz#58da9fcaa58e5a0c705b63baf1e86cab6e196689"
-  integrity sha512-LSIkGst7BoY7fMWshejzcH0UJnoW21JGlRrW0ch+6A7Xb/7EuekxgdKym7fHxcry6OIf6FoeFg97lJ960N/Ghg==
   dependencies:
     symbol.inspect "1.0.1"
 
