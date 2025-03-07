@@ -70,3 +70,21 @@ test/all/sample-jetton.tact:316:9:
   317 |     }
 Help: Consider using augmented assignment instead: self.balance += jettonAmount
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
+
+[INFO] PreferDeploy: Prefer `deploy` over `send`
+test/all/sample-jetton.tact:92:9:
+  91 |         let wInit: StateInit = self.getJettonWalletInit(to); // Create message
+> 92 |         send(SendParameters{
+               ^~~~~~~~~~~~~~~~~~~~
+  93 |             to: contractAddress(wInit), 
+Help: Use more gas-efficient `deploy` function: https://docs.tact-lang.org/ref/core-common/#deploy
+See: https://nowarp.io/tools/misti/docs/detectors/PreferDeploy
+
+[INFO] PreferDeploy: Prefer `deploy` over `send`
+test/all/sample-jetton.tact:218:9:
+  217 |         let walletAddress: Address = contractAddress(init);
+> 218 |         send(SendParameters{
+                ^~~~~~~~~~~~~~~~~~~~
+  219 |                 to: walletAddress, 
+Help: Use more gas-efficient `deploy` function: https://docs.tact-lang.org/ref/core-common/#deploy
+See: https://nowarp.io/tools/misti/docs/detectors/PreferDeploy

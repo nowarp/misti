@@ -453,6 +453,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  PreferDeploy: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/preferDeploy").then(
+        (module) => new module.PreferDeploy(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**
