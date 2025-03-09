@@ -1,0 +1,62 @@
+[MEDIUM] SuboptimalSend: Prefer `deploy` over `send`
+test/detectors/SuboptimalSend.tact:9:9:
+   8 |         // send -> deploy
+>  9 |         send(SendParameters{ // Bad: Prefer deploy
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  10 |             to: contractAddress(init),
+Help: Use more gas-efficient `deploy` function: https://docs.tact-lang.org/ref/core-common/#deploy
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
+
+[MEDIUM] SuboptimalSend: Prefer `deploy` over `send`
+test/detectors/SuboptimalSend.tact:16:9:
+  15 |         });
+> 16 |         send(SendParameters{ // Bad: Prefer deploy
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  17 |             to: contractAddress(init),
+Help: Use more gas-efficient `deploy` function: https://docs.tact-lang.org/ref/core-common/#deploy
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
+
+[MEDIUM] SuboptimalSend: Prefer `message` over `send`
+test/detectors/SuboptimalSend.tact:24:9:
+  23 |         // send -> message
+> 24 |         send(SendParameters{ // Bad: Prefer message
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  25 |             to: contractAddress(init),
+Help: Use more gas-efficient `message` function: https://docs.tact-lang.org/ref/core-common/#message
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
+
+[MEDIUM] SuboptimalSend: Prefer `message` over `send`
+test/detectors/SuboptimalSend.tact:37:9:
+  36 |         // send -> cashback
+> 37 |         send(SendParameters{ // Bad: Prefer cashback
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  38 |             to: contractAddress(init),
+Help: Use more gas-efficient `message` function: https://docs.tact-lang.org/ref/core-common/#message
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
+
+[MEDIUM] SuboptimalSend: Prefer `message` over `send`
+test/detectors/SuboptimalSend.tact:43:9:
+  42 |         });
+> 43 |         send(SendParameters{ // Bad: Prefer cashback
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  44 |             to: contractAddress(init),
+Help: Use more gas-efficient `message` function: https://docs.tact-lang.org/ref/core-common/#message
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
+
+[MEDIUM] SuboptimalSend: Prefer `message` over `send`
+test/detectors/SuboptimalSend.tact:49:9:
+  48 |         });
+> 49 |         send(SendParameters{ // Bad: Prefer cashback
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  50 |             to: contractAddress(init),
+Help: Use more gas-efficient `message` function: https://docs.tact-lang.org/ref/core-common/#message
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
+
+[MEDIUM] SuboptimalSend: Prefer `cashback` over `message`
+test/detectors/SuboptimalSend.tact:57:9:
+  56 |         // message -> cashback
+> 57 |         message(MessageParameters{ // Bad: Prefer cashback
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  58 |             to: contractAddress(init),
+Help: Use more gas-efficient `cashback` function: https://docs.tact-lang.org/ref/core-common/#cashback
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
