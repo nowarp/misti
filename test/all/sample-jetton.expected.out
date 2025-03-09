@@ -7,6 +7,60 @@ test/all/sample-jetton.tact:312:9:
 Help: Consider removing the variable
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
+[MEDIUM] SuboptimalSend: Prefer `message` over `send`
+test/all/sample-jetton.tact:70:13:
+  69 |         if (msg.response_destination != null) { // Cashback
+> 70 |             send(SendParameters{
+                   ^~~~~~~~~~~~~~~~~~~~
+  71 |                 to: msg.response_destination!!, 
+Help: Use more gas-efficient `message` function: https://docs.tact-lang.org/ref/core-common/#message
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
+
+[MEDIUM] SuboptimalSend: Prefer `deploy` over `send`
+test/all/sample-jetton.tact:92:9:
+  91 |         let wInit: StateInit = self.getJettonWalletInit(to); // Create message
+> 92 |         send(SendParameters{
+               ^~~~~~~~~~~~~~~~~~~~
+  93 |             to: contractAddress(wInit), 
+Help: Use more gas-efficient `deploy` function: https://docs.tact-lang.org/ref/core-common/#deploy
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
+
+[MEDIUM] SuboptimalSend: Prefer `deploy` over `send`
+test/all/sample-jetton.tact:218:9:
+  217 |         let walletAddress: Address = contractAddress(init);
+> 218 |         send(SendParameters{
+                ^~~~~~~~~~~~~~~~~~~~
+  219 |                 to: walletAddress, 
+Help: Use more gas-efficient `deploy` function: https://docs.tact-lang.org/ref/core-common/#deploy
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
+
+[MEDIUM] SuboptimalSend: Prefer `message` over `send`
+test/all/sample-jetton.tact:248:13:
+  247 |         if (msg.forward_ton_amount > 0) { 
+> 248 |             send(SendParameters{
+                    ^~~~~~~~~~~~~~~~~~~~
+  249 |                 to: self.owner,
+Help: Use more gas-efficient `message` function: https://docs.tact-lang.org/ref/core-common/#message
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
+
+[MEDIUM] SuboptimalSend: Prefer `message` over `send`
+test/all/sample-jetton.tact:267:17:
+  266 |         if (msg.response_destination != null) { // Cashback
+> 267 |                 send(SendParameters {
+                        ^~~~~~~~~~~~~~~~~~~~~
+  268 |                     to: msg.response_destination!!, 
+Help: Use more gas-efficient `message` function: https://docs.tact-lang.org/ref/core-common/#message
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
+
+[MEDIUM] SuboptimalSend: Prefer `message` over `send`
+test/all/sample-jetton.tact:296:9:
+  295 | 
+> 296 |         send(SendParameters{  // Burn tokens
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  297 |             to: self.master,
+Help: Use more gas-efficient `message` function: https://docs.tact-lang.org/ref/core-common/#message
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
+
 [LOW] InheritedStateMutation: Inherited trait field mintable is mutated
 test/all/sample-jetton.tact:47:9:
   46 |         require(ctx.sender == self.owner, "Not Owner");
@@ -70,21 +124,3 @@ test/all/sample-jetton.tact:316:9:
   317 |     }
 Help: Consider using augmented assignment instead: self.balance += jettonAmount
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
-
-[INFO] PreferDeploy: Prefer `deploy` over `send`
-test/all/sample-jetton.tact:92:9:
-  91 |         let wInit: StateInit = self.getJettonWalletInit(to); // Create message
-> 92 |         send(SendParameters{
-               ^~~~~~~~~~~~~~~~~~~~
-  93 |             to: contractAddress(wInit), 
-Help: Use more gas-efficient `deploy` function: https://docs.tact-lang.org/ref/core-common/#deploy
-See: https://nowarp.io/tools/misti/docs/detectors/PreferDeploy
-
-[INFO] PreferDeploy: Prefer `deploy` over `send`
-test/all/sample-jetton.tact:218:9:
-  217 |         let walletAddress: Address = contractAddress(init);
-> 218 |         send(SendParameters{
-                ^~~~~~~~~~~~~~~~~~~~
-  219 |                 to: walletAddress, 
-Help: Use more gas-efficient `deploy` function: https://docs.tact-lang.org/ref/core-common/#deploy
-See: https://nowarp.io/tools/misti/docs/detectors/PreferDeploy

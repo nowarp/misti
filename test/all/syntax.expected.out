@@ -43,6 +43,15 @@ test/all/syntax.tact:166:16:
 Help: Avoid unbounded conditions in loops
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
 
+[MEDIUM] SuboptimalSend: Prefer `message` over `send`
+test/all/syntax.tact:120:9:
+  119 |         let amount: Int = 100;
+> 120 |         send(SendParameters{ to: self.addr, value: amount });
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  121 |     }
+Help: Use more gas-efficient `message` function: https://docs.tact-lang.org/ref/core-common/#message
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
+
 [LOW] ZeroAddress: Using zero address
 test/all/syntax.tact:130:35:
   129 |     fun funcWithStateWrite1() {
