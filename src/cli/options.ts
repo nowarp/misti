@@ -151,9 +151,6 @@ export const cliOptions = [
     "-c, --config <PATH>",
     "Path to the Misti configuration file.",
   ).default(cliOptionDefaults.config),
-  new Option("--new-detector <PATH>", "Creates a new custom detector.").default(
-    cliOptionDefaults.newDetector,
-  ),
   new Option("--list-detectors", "List available built-in detectors.").default(
     cliOptionDefaults.listDetectors,
   ),

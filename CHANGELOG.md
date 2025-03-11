@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Replace imports from `@tact-lang/compiler/dist/...` to `@tact-lang/compiler`: PR [#328](https://github.com/nowarp/misti/pull/328)
+- Removed `--new-detector` option and the `createDetector` module as unused
 
 ## [0.7.1] - 2025-03-05
 

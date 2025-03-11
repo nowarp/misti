@@ -1,7 +1,6 @@
 import { Driver } from "./driver";
 import { cliOptions, STDOUT_PATH } from "./options";
 import { OutputFormat } from "../cli";
-import { createDetector } from "../createDetector";
 import { BuiltInDetectors } from "../detectors/detector";
 import { unreachable } from "../internals/util";
 import { generateToolsHelpMessage } from "../tools/tool";
@@ -38,10 +37,6 @@ export function createMistiCommand(): Command {
       const detectorNames = Object.keys(BuiltInDetectors);
       detectorNames.forEach((name) => logger.info(`- ${name}`));
       process.exit(0);
-    }
-    if (options.newDetector) {
-      createDetector(options.newDetector);
-      return;
     }
   });
   return command;
