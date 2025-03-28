@@ -20,7 +20,7 @@
   "scripts": {
     "clean": "rm -fr dist docs/*",
     "build": "tsc",
-    "postinstall": "yarn gen",
+    "postinstall": "node scripts/genVersions.cjs",
     "gen": "node scripts/genVersions.cjs",
     "test": "jest",
     "benchmark": "ts-node benchmarks/detectors.ts",
