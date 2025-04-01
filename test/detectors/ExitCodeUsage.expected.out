@@ -4,7 +4,7 @@ test/detectors/ExitCodeUsage.tact:16:28:
 > 16 |          nativeThrowUnless(128, sender() == self.owner);
                                   ^~~
   17 | 
-Exit codes 0-255 are reserved. Used value: [object Object]
+Exit codes 0-255 are reserved. Used value: 128
 Help: Use a value between 256 and 65535
 See: https://nowarp.io/tools/misti/docs/detectors/ExitCodeUsage
 
@@ -14,7 +14,7 @@ test/detectors/ExitCodeUsage.tact:19:28:
 > 19 |          nativeThrowUnless(255, sender() == self.owner);
                                   ^~~
   20 | 
-Exit codes 0-255 are reserved. Used value: [object Object]
+Exit codes 0-255 are reserved. Used value: 255
 Help: Use a value between 256 and 65535
 See: https://nowarp.io/tools/misti/docs/detectors/ExitCodeUsage
 

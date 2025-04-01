@@ -273,7 +273,7 @@ export class ExitCodeUsage extends DataflowDetector {
     ) {
       warnings.push(
         this.makeWarning(`Value is outside allowed range`, arg.loc, {
-          extraDescription: `Exit codes 0-255 are reserved. Used value: ${num}`,
+          extraDescription: `Exit codes 0-255 are reserved. Used value: ${num.value}`,
           suggestion: `Use a value between ${Number(LOWER_BOUND)} and ${Number(UPPER_BOUND)}`,
         }),
       );
