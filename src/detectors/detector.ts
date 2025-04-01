@@ -460,6 +460,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  PreferBinaryReceiver: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/preferBinaryReceiver").then(
+        (module) => new module.PreferBinaryReceiver(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**

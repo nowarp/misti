@@ -71,6 +71,26 @@ Directly modifying inherited trait fields can indicate a potential error or poor
 Help: Consider using setter methods to preserve invariants
 See: https://nowarp.io/tools/misti/docs/detectors/InheritedStateMutation
 
+[LOW] PreferBinaryReceiver: Prefer binary receiver
+test/all/sample-jetton.tact:38:5:
+  37 | 
+> 38 |     receive("Mint: 100") { // Public Minting
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  39 |         let ctx: Context = context();
+Using text receivers is a gas-expensive operation
+Help: Consider changing it to a binary receiver
+See: https://nowarp.io/tools/misti/docs/detectors/PreferBinaryReceiver
+
+[LOW] PreferBinaryReceiver: Prefer binary receiver
+test/all/sample-jetton.tact:44:5:
+  43 | 
+> 44 |     receive("Owner: MintClose") {
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  45 |         let ctx: Context = context();
+Using text receivers is a gas-expensive operation
+Help: Consider changing it to a binary receiver
+See: https://nowarp.io/tools/misti/docs/detectors/PreferBinaryReceiver
+
 [INFO] PreferAugmentedAssign: Prefer augmented assignment: self.totalSupply -= msg.amount
 test/all/sample-jetton.tact:67:9:
   66 |         self.requireWallet(msg.owner);                     // Check wallet

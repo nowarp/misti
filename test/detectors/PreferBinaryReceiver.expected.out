@@ -1,0 +1,19 @@
+[LOW] PreferBinaryReceiver: Prefer binary receiver
+test/detectors/PreferBinaryReceiver.tact:4:5:
+  3 | contract Example {
+> 4 |     receive("one") { } // Bad
+          ^~~~~~~~~~~~~~~~~~
+  5 |     external("two") { } // Bad
+Using text receivers is a gas-expensive operation
+Help: Consider changing it to a binary receiver
+See: https://nowarp.io/tools/misti/docs/detectors/PreferBinaryReceiver
+
+[LOW] PreferBinaryReceiver: Prefer binary receiver
+test/detectors/PreferBinaryReceiver.tact:5:5:
+  4 |     receive("one") { } // Bad
+> 5 |     external("two") { } // Bad
+          ^~~~~~~~~~~~~~~~~~~
+  6 | 
+Using text receivers is a gas-expensive operation
+Help: Consider changing it to a binary receiver
+See: https://nowarp.io/tools/misti/docs/detectors/PreferBinaryReceiver
