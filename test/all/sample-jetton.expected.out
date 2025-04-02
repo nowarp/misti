@@ -91,6 +91,46 @@ Using text receivers is a gas-expensive operation
 Help: Consider changing it to a binary receiver
 See: https://nowarp.io/tools/misti/docs/detectors/PreferBinaryReceiver
 
+[LOW] PreferSenderFunction: Code can be optimized by using `sender()` instead of accessing context
+test/all/sample-jetton.tact:32:13:
+  31 |     receive(msg: Mint) {
+> 32 |         let ctx: Context = context();
+                   ^~~
+  33 |         require(ctx.sender == self.owner, "Not Owner");
+The `ctx` variable is only used to get the sender
+Help: Consider replacing `ctx.sender` with the less gas-expensive `sender()` call
+See: https://nowarp.io/tools/misti/docs/detectors/PreferSenderFunction
+
+[LOW] PreferSenderFunction: Code can be optimized by using `sender()` instead of accessing context
+test/all/sample-jetton.tact:39:13:
+  38 |     receive("Mint: 100") { // Public Minting
+> 39 |         let ctx: Context = context();
+                   ^~~
+  40 |         require(self.mintable, "Can't Mint Anymore");
+The `ctx` variable is only used to get the sender
+Help: Consider replacing `ctx.sender` with the less gas-expensive `sender()` call
+See: https://nowarp.io/tools/misti/docs/detectors/PreferSenderFunction
+
+[LOW] PreferSenderFunction: Code can be optimized by using `sender()` instead of accessing context
+test/all/sample-jetton.tact:45:13:
+  44 |     receive("Owner: MintClose") {
+> 45 |         let ctx: Context = context();
+                   ^~~
+  46 |         require(ctx.sender == self.owner, "Not Owner");
+The `ctx` variable is only used to get the sender
+Help: Consider replacing `ctx.sender` with the less gas-expensive `sender()` call
+See: https://nowarp.io/tools/misti/docs/detectors/PreferSenderFunction
+
+[LOW] PreferSenderFunction: Code can be optimized by using `sender()` instead of accessing context
+test/all/sample-jetton.tact:111:13:
+  110 |     fun requireWallet(owner: Address) {
+> 111 |         let ctx: Context = context();
+                    ^~~
+  112 |         let wInit: StateInit = self.getJettonWalletInit(owner);
+The `ctx` variable is only used to get the sender
+Help: Consider replacing `ctx.sender` with the less gas-expensive `sender()` call
+See: https://nowarp.io/tools/misti/docs/detectors/PreferSenderFunction
+
 [INFO] PreferAugmentedAssign: Prefer augmented assignment: self.totalSupply -= msg.amount
 test/all/sample-jetton.tact:67:9:
   66 |         self.requireWallet(msg.owner);                     // Check wallet

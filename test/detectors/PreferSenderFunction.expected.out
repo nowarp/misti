@@ -1,0 +1,18 @@
+[LOW] PreferSenderFunction: Using gas-expensive `context().sender`
+test/detectors/PreferSenderFunction.tact:5:17:
+  4 |     receive("1") {
+> 5 |         let s = context().sender; // Bad: replace w/ sender()
+                      ^~~~~~~~~~~~~~~~
+  6 |     }
+Help: Consider replacing it with less gas-expensive `sender()` call
+See: https://nowarp.io/tools/misti/docs/detectors/PreferSenderFunction
+
+[LOW] PreferSenderFunction: Code can be optimized by using `sender()` instead of accessing context
+test/detectors/PreferSenderFunction.tact:8:13:
+  7 |     receive("2") {
+> 8 |         let ctx = context(); // Bad: Only .sender is accessed
+                  ^~~
+  9 |         let s = ctx.sender;
+The `ctx` variable is only used to get the sender
+Help: Consider replacing `ctx.sender` with the less gas-expensive `sender()` call
+See: https://nowarp.io/tools/misti/docs/detectors/PreferSenderFunction
