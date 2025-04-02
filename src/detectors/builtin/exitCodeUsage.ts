@@ -24,7 +24,7 @@ import { DataflowDetector } from "../detector";
 /**
  * The minimum allowed value for user-defined exit codes.
  * @remarks Values below 256 are reserved:
- * - 0-127: Reserved for TVM/FunC
+ * - 1-127: Reserved for TVM/FunC
  * - 128-255: Reserved for Tact
  */
 const LOWER_BOUND = 256n;
@@ -170,7 +170,7 @@ class ExitCodeTransfer implements Transfer<VariableState> {
  * A detector that identifies improper use of exit codes outside the developer-allowed range.
  *
  * ## Why is it bad?
- * In the TON blockchain, exit codes are divided into specific ranges: 0 to 127
+ * In the TON blockchain, exit codes are divided into specific ranges: 1 to 127
  * are reserved for the TVM or FunC, and 128 to 255 are reserved for Tact. This
  * structure leaves the range from 256 to 65535 for developers to define custom
  * exit codes.
@@ -269,7 +269,7 @@ export class ExitCodeUsage extends DataflowDetector {
       num !== undefined &&
       num !== null &&
       num.kind === "number" &&
-      (num.value < LOWER_BOUND || num.value > UPPER_BOUND)
+      ((num.value !== 0n && num.value < LOWER_BOUND) || num.value > UPPER_BOUND)
     ) {
       warnings.push(
         this.makeWarning(`Value is outside allowed range`, arg.loc, {
@@ -317,7 +317,7 @@ export class ExitCodeUsage extends DataflowDetector {
     const lowerBound = interval.low;
     const upperBound = interval.high;
 
-    // Developer-allowed range is 256 to 65535
+    // Developer-allowed range is 256 to 65535 excluding 0
     const belowMin = Num.compare(upperBound, Num.int(LOWER_BOUND)) < 0;
     const aboveMax = Num.compare(lowerBound, Num.int(UPPER_BOUND)) > 0;
 

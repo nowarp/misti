@@ -30,5 +30,9 @@ import "@stdlib/ownable";
          // OK: No false positive
          let code3: Int = 257;
          nativeThrowUnless(code3, sender() == self.owner);
+
+         // OK: Zero is the success exit code
+         let code4: Int = 0;
+         nativeThrowUnless(code4, sender() == self.owner);
      }
  }

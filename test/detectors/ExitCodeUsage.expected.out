@@ -37,3 +37,13 @@ test/detectors/ExitCodeUsage.tact:28:28:
 Exit codes 0-255 are reserved. Variable value: 246
 Help: Use a value between 256 and 65535
 See: https://nowarp.io/tools/misti/docs/detectors/ExitCodeUsage
+
+[HIGH] ExitCodeUsage: Exit code variable "code4" has value outside allowed range
+test/detectors/ExitCodeUsage.tact:36:28:
+  35 |          let code4: Int = 0;
+> 36 |          nativeThrowUnless(code4, sender() == self.owner);
+                                  ^~~~~
+  37 |      }
+Exit codes 0-255 are reserved. Variable value: 0
+Help: Use a value between 256 and 65535
+See: https://nowarp.io/tools/misti/docs/detectors/ExitCodeUsage
