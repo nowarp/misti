@@ -11,6 +11,7 @@ contract Test {
         let mode: Int = pkg.loadInt(8);
         let body: Cell = pkg.loadRef();
         nativeSendMessage(body, mode); // Bad: prefer `send`
+        require(mode > 8, "foo"); // Bad: prefer `throwUnless`
     }
 
     fun getInt(): Int {

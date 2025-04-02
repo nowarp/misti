@@ -4,19 +4,30 @@ import { AstExpression, AstMethodCall } from "../../internals/tact/imports";
 import { MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
-const REPLACEMENTS: Record<string, { replacement: string; rationale: string }> =
-  {
-    nativeSendMessage: {
-      replacement: "send",
-      rationale:
-        "Prefer `send` to make the call more explicit and reduce low-level operations",
-    },
-    nativeRandom: {
-      replacement: "randomInt",
-      rationale:
-        "Prefer `randomInt` since `nativeRandom` requires additional initialization of PRG before use",
-    },
-  };
+type ReplacementKind = "safer" | "more gas-effective";
+const REPLACEMENTS: Record<
+  string,
+  { replacement: string; kind: ReplacementKind; rationale: string }
+> = {
+  nativeSendMessage: {
+    replacement: "send",
+    kind: "safer",
+    rationale:
+      "Prefer `send` to make the call more explicit and reduce low-level operations",
+  },
+  nativeRandom: {
+    replacement: "randomInt",
+    kind: "safer",
+    rationale:
+      "Prefer `randomInt` since `nativeRandom` requires additional initialization of PRG before use",
+  },
+  require: {
+    replacement: "throwUnless",
+    kind: "more gas-effective",
+    rationale:
+      "`throwUnless` is preferred in production because it is more gas-efficient.",
+  },
+};
 
 const METHOD_CHAINS: Array<{
   pattern: string[];
@@ -47,6 +58,7 @@ const METHOD_CHAINS: Array<{
  * * Prefer `randomInt` instead of [`nativeRandom`](https://docs.tact-lang.org/ref/core-advanced#nativerandom)
  * * Replace `emptyCell().asSlice()` with `emptySlice()`
  * * Replace `beginCell().endCell()` with `emptyCell()`
+ * * Replace `require` with `throwUnless`
  *
  * ## Example
  * ```tact
@@ -94,11 +106,11 @@ export class PreferredStdlibApi extends AstDetector {
       if (replacementInfo !== undefined)
         acc.push(
           this.makeWarning(
-            `${funName} has a safer alternative: ${replacementInfo.replacement}`,
+            `${funName} has a ${replacementInfo.kind} alternative: ${replacementInfo.replacement}`,
             expr.loc,
             {
               extraDescription: replacementInfo.rationale,
-              suggestion: `${funName} should be replaced with a safer alternative: ${replacementInfo.replacement}`,
+              suggestion: `${funName} should be replaced with a ${replacementInfo.kind} alternative: ${replacementInfo.replacement}`,
             },
           ),
         );

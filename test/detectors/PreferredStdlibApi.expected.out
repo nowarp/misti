@@ -23,17 +23,27 @@ test/detectors/PreferredStdlibApi.tact:13:9:
   12 |         let body: Cell = pkg.loadRef();
 > 13 |         nativeSendMessage(body, mode); // Bad: prefer `send`
                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  14 |     }
+  14 |         require(mode > 8, "foo"); // Bad: prefer `throwUnless`
 Prefer `send` to make the call more explicit and reduce low-level operations
 Help: nativeSendMessage should be replaced with a safer alternative: send
 See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
 
+[INFO] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
+test/detectors/PreferredStdlibApi.tact:14:9:
+  13 |         nativeSendMessage(body, mode); // Bad: prefer `send`
+> 14 |         require(mode > 8, "foo"); // Bad: prefer `throwUnless`
+               ^~~~~~~~~~~~~~~~~~~~~~~~
+  15 |     }
+`throwUnless` is preferred in production because it is more gas-efficient.
+Help: require should be replaced with a more gas-effective alternative: throwUnless
+See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
 [INFO] PreferredStdlibApi: nativeRandom has a safer alternative: randomInt
-test/detectors/PreferredStdlibApi.tact:17:16:
-  16 |     fun getInt(): Int {
-> 17 |         return nativeRandom(); // Bad: prefer `randomInt`
+test/detectors/PreferredStdlibApi.tact:18:16:
+  17 |     fun getInt(): Int {
+> 18 |         return nativeRandom(); // Bad: prefer `randomInt`
                       ^~~~~~~~~~~~~~
-  18 |     }
+  19 |     }
 Prefer `randomInt` since `nativeRandom` requires additional initialization of PRG before use
 Help: nativeRandom should be replaced with a safer alternative: randomInt
 See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
