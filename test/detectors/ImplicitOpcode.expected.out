@@ -1,0 +1,7 @@
+[INFO] ImplicitOpcode: Message `M1` has an implicit opcode
+test/detectors/ImplicitOpcode.tact:1:1:
+> 1 | message M1 { s: Slice as remaining; } // Bad
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  2 | message(0x7362d09c) M2 { s: Slice as remaining; } // OK
+Help: Prefer explicitly defined message opcodes
+See: https://nowarp.io/tools/misti/docs/detectors/ImplicitOpcode

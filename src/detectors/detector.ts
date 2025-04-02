@@ -474,6 +474,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  ImplicitOpcode: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/implicitOpcode").then(
+        (module) => new module.ImplicitOpcode(ctx),
+      ),
+    enabledByDefault: false,
+  },
 };
 
 /**

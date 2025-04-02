@@ -334,3 +334,21 @@ test/all/sample-jetton.tact:314:9:
 `throwUnless` is preferred in production because it is more gas-efficient.
 Help: require should be replaced with a more gas-effective alternative: throwUnless
 See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
+[INFO] ImplicitOpcode: Message `Mint` has an implicit opcode
+test/all/sample-jetton.tact:3:1:
+  2 | 
+> 3 | message Mint {
+      ^~~~~~~~~~~~~~
+  4 |     amount: Int;
+Help: Prefer explicitly defined message opcodes
+See: https://nowarp.io/tools/misti/docs/detectors/ImplicitOpcode
+
+[INFO] ImplicitOpcode: Message `TokenUpdateContent` has an implicit opcode
+test/all/sample-jetton.tact:183:1:
+  182 | 
+> 183 | message TokenUpdateContent {
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  184 |     content: Cell;
+Help: Prefer explicitly defined message opcodes
+See: https://nowarp.io/tools/misti/docs/detectors/ImplicitOpcode
