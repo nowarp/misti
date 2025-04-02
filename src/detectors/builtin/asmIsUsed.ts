@@ -6,9 +6,9 @@ import { AstDetector } from "../detector";
  * An optional detector that highlights all the `asm` functions.
  *
  * ## Why is it bad?
- Using TVM Assembly is a potentially dangerous operation that requires additional
- attention from an auditor. This optional detector will highlight all its uses to
- assist in contract security audits.
+ * Using TVM Assembly is a potentially dangerous operation that requires
+ * additional attention from an auditor. This optional detector will highlight
+ * all its uses to assist in contract security audits.
  *
  * ## Example
  * ```tact
