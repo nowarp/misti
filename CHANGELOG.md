@@ -18,7 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Replace imports from `@tact-lang/compiler/dist/...` to `@tact-lang/compiler`: PR [#328](https://github.com/nowarp/misti/pull/328)
 - Removed `--new-detector` option and the `createDetector` module as unused
-- Set the supported Tact version as 1.6.1+ for Misti 0.7.*: Issue [#347](https://github.com/nowarp/misti/issues/347)
 
 ### Fixed
 - `postinstall` error when using the Misti dependency with a package manager different from `yarn`: Issue [#337](https://github.com/nowarp/misti/issues/337)
