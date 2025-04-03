@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Tact 1.6.2 support: PR [#328](https://github.com/nowarp/misti/pull/328)
+- Tact 1.6.2+ support: PR [#328](https://github.com/nowarp/misti/pull/328)
 - `SuboptimalSend` detector: PR [#330](https://github.com/nowarp/misti/pull/330) and PR [#332](https://github.com/nowarp/misti/pull/332)
 - `PreferBinaryReceiver` detector: Issue [#335](https://github.com/nowarp/misti/issues/335)
 - `PreferSenderFunction` detector: Issue [#336](https://github.com/nowarp/misti/issues/336)
