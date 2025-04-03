@@ -2,7 +2,7 @@ import { CompilationUnit } from "../../internals/ir";
 import { collectFields, forEachExpression, isSelf } from "../../internals/tact";
 import { AstContract, AstFieldDecl } from "../../internals/tact/imports";
 import { idText } from "../../internals/tact/imports";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 type FieldName = string;
@@ -48,6 +48,7 @@ const MAP_DEL_OPERATIONS = new Set<string>(["del"]);
  */
 export class UnboundMap extends AstDetector {
   severity = Severity.LOW;
+  category = Category.SECURITY;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.ast.getContracts()).reduce(

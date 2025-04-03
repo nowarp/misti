@@ -8,7 +8,7 @@ import {
   SrcInfo,
 } from "../../internals/tact/imports";
 import { isSendCall, getExtendsSelfType } from "../../internals/tact/util";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -39,6 +39,7 @@ import { AstDetector } from "../detector";
  */
 export class SendInLoop extends AstDetector {
   severity = Severity.MEDIUM;
+  category = Category.SECURITY;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const processedLoopIds = new Set<number>();

@@ -8,12 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Tact 1.6.2 support: PR [#328](https://github.com/nowarp/misti/pull/328)
+- Tact 1.6.2+ support: PR [#328](https://github.com/nowarp/misti/pull/328)
 - `SuboptimalSend` detector: PR [#330](https://github.com/nowarp/misti/pull/330) and PR [#332](https://github.com/nowarp/misti/pull/332)
 - `PreferBinaryReceiver` detector: Issue [#335](https://github.com/nowarp/misti/issues/335)
 - `PreferSenderFunction` detector: Issue [#336](https://github.com/nowarp/misti/issues/336)
 - `ImplicitOpcode` detector: Issue [#338](https://github.com/nowarp/misti/issues/338)
 - `SuboptimalCellOperation` detector: Issue [#339](https://github.com/nowarp/misti/issues/339)
+- Detectors categorization (Optimization, Security, Best Practices): PR [#349](https://github.com/nowarp/misti/pull/349)
 - Support standalone Tools to run without `CompilationUnit`: PR [#326](https://github.com/nowarp/misti/pull/326)
 - Logger: Detector contexts: PR [#327](https://github.com/nowarp/misti/pull/327)
 - Logger: Print timestamps when `--verbose` is set: Issue [#73](https://github.com/nowarp/misti/issues/73)

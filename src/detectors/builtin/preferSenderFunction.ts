@@ -20,7 +20,7 @@ import {
 } from "../../internals/tact/imports";
 import { Transfer } from "../../internals/transfer";
 import { isMapSubsetOf, mergeMaps } from "../../internals/util";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";
 
 interface ContextVariablesState {
@@ -176,6 +176,7 @@ class ContextVariablesTransfer implements Transfer<ContextVariablesState> {
  */
 export class PreferSenderFunction extends DataflowDetector {
   severity = Severity.LOW;
+  category = Category.OPTIMIZATION;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const warnings = [] as MistiTactWarning[];

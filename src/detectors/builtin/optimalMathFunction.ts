@@ -9,7 +9,7 @@ import {
   idText,
   prettyPrint,
 } from "../../internals/tact/imports";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 const REPLACEMENTS: Record<string, string> = {
@@ -35,6 +35,7 @@ const REPLACEMENTS: Record<string, string> = {
  */
 export class OptimalMathFunction extends AstDetector {
   severity = Severity.LOW;
+  category = Category.OPTIMIZATION;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {

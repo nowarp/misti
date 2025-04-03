@@ -1,7 +1,7 @@
 import { CompilationUnit } from "../../internals/ir";
 import { collectFields } from "../../internals/tact";
 import { AstContract, AstContractInit } from "../../internals/tact/imports";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -32,6 +32,7 @@ import { AstDetector } from "../detector";
  */
 export class FieldDoubleInit extends AstDetector {
   severity = Severity.MEDIUM;
+  category = Category.OPTIMIZATION;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.ast.getContracts()).reduce(

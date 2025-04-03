@@ -30,7 +30,7 @@ import {
   isMapSubsetOf,
   unreachable,
 } from "../../internals/util";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";
 
 type VariableName = string & { readonly __brand: unique symbol };
@@ -922,6 +922,7 @@ function deepCopyVariableStorage(storage: VariableStorage): VariableStorage {
  */
 export class CellBounds extends DataflowDetector {
   severity = Severity.CRITICAL;
+  category = Category.SECURITY;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     let warnings: MistiTactWarning[] = [];

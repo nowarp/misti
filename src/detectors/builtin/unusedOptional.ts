@@ -19,7 +19,7 @@ import {
 } from "../../internals/tact/imports";
 import { idText } from "../../internals/tact/imports";
 import { prettyPrint } from "../../internals/tact/imports";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 type UnusedVarInfo = { name: AstId; originalType: AstType };
@@ -52,6 +52,7 @@ type UnusedVarInfo = { name: AstId; originalType: AstType };
  */
 export class UnusedOptional extends AstDetector {
   severity = Severity.LOW;
+  category = Category.OPTIMIZATION;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const freeFunctionWarnings = Array.from(cu.ast.getProgramEntries()).reduce(

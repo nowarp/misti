@@ -26,7 +26,7 @@ import { prettyPrint } from "../../internals/tact/imports";
 import { idText } from "../../internals/tact/imports";
 import { Transfer } from "../../internals/transfer";
 import { unreachable, mergeLists } from "../../internals/util";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";
 
 class ArgTaint {
@@ -237,6 +237,7 @@ class UnprotectedCallTransfer implements Transfer<TaintState> {
  */
 export class UnprotectedCall extends DataflowDetector {
   severity = Severity.HIGH;
+  category = Category.SECURITY;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     let warnings: MistiTactWarning[] = [];

@@ -2,6 +2,7 @@ import { getMistiAnnotation } from "./annotation";
 import { InternalException } from "./exceptions";
 import { srcInfoToString } from "./tact";
 import { SrcInfo } from "./tact/imports";
+import { unreachable } from "./util";
 
 /**
  * Enumerates the levels of severity that can be assigned to detected findings.
@@ -12,6 +13,18 @@ export enum Severity {
   MEDIUM,
   HIGH,
   CRITICAL,
+}
+
+/**
+ * Warning category.
+ */
+export enum Category {
+  /** Any possible unintended behavior leading to bugs or vulnerabilities. */
+  SECURITY = 0,
+  /** Code improvements for gas-optimizations. */
+  OPTIMIZATION,
+  /** General code quality advices. */
+  BEST_PRACTICES,
 }
 
 /**
@@ -64,6 +77,19 @@ export function severityToString(
   }
 }
 
+export function categoryToString(c: Category): string | never {
+  switch (c) {
+    case Category.OPTIMIZATION:
+      return "Optimization";
+    case Category.BEST_PRACTICES:
+      return "Best Practices";
+    case Category.SECURITY:
+      return "Security";
+    default:
+      unreachable(c);
+  }
+}
+
 /**
  * Base URL to detectors documentation.
  */
@@ -81,6 +107,7 @@ export class MistiTactWarning {
     public readonly msg: string,
     public readonly loc: SrcInfo,
     public readonly severity: Severity,
+    public readonly category: Category | undefined,
   ) {
     this.loc = loc;
   }
@@ -90,7 +117,8 @@ export class MistiTactWarning {
    *
    * @param description Descriptive text of the warning.
    * @param detectorId Unique identifier of the detector.
-   * @param severity Severity of the finding.
+   * @param severity Severity of the warning.
+   * @param severity Category of the warning.
    * @param loc Reference to the source code that includes file information and position data.
    * @param data Additional optional data for the warning, including:
    * - `extraDescription`: More comprehensive description that clarifies the warning in greater detail.
@@ -102,6 +130,7 @@ export class MistiTactWarning {
     detectorId: string,
     description: string,
     severity: Severity,
+    category: Category | undefined,
     loc: SrcInfo,
     data: Partial<{
       extraDescription: string;
@@ -129,7 +158,7 @@ export class MistiTactWarning {
       suggestionStr,
       docURLStr,
     ].join("");
-    return new MistiTactWarning(detectorId, msg, loc, severity);
+    return new MistiTactWarning(detectorId, msg, loc, severity, category);
   }
 
   /**

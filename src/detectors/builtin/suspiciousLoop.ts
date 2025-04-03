@@ -6,7 +6,7 @@ import {
   MakeLiteral,
 } from "../../internals/tact";
 import { AstStatement, AstExpression } from "../../internals/tact/imports";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -31,6 +31,7 @@ import { AstDetector } from "../detector";
  */
 export class SuspiciousLoop extends AstDetector {
   severity = Severity.MEDIUM;
+  category = Category.SECURITY;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.ast.getProgramEntries()).reduce((acc, node) => {

@@ -3,6 +3,8 @@ import {
   Severity,
   parseSeverity,
   severityToString,
+  Category,
+  categoryToString,
 } from "../src/internals/warnings";
 import { PropertyDeclaration } from "typescript";
 import {
@@ -39,6 +41,7 @@ type DetectorDoc = {
   className: string;
   kind: DetectorKind;
   severity: { min: Severity; max: Severity };
+  categories: Category[] | undefined;
   markdown: string;
   enabledByDefault: boolean;
 };
@@ -156,6 +159,38 @@ function extractSeverityValue(node: ClassDeclaration): {
   throw new Error(`Severity not found for detector ${node.name?.getText()}`);
 }
 
+function extractCategoryValue(node: ClassDeclaration): Category[] | undefined {
+  for (const member of node.members) {
+    if (
+      member.kind === SyntaxKind.PropertyDeclaration &&
+      (member as PropertyDeclaration).name.getText() === "category"
+    ) {
+      const propertyDeclaration = member as PropertyDeclaration;
+      if (propertyDeclaration.initializer) {
+        const initText = propertyDeclaration.initializer.getText();
+        // Handle array of categories
+        if (initText.startsWith("[")) {
+          const categoryValues = initText
+            .replace(/\[|\]/g, "")
+            .split(",")
+            .map((c) => c.trim().split(".")[1]);
+          return categoryValues.map(
+            (c) => Category[c as keyof typeof Category],
+          );
+        }
+        // Handle single category
+        else {
+          const categoryValue = propertyDeclaration.initializer
+            .getText()
+            .split(".")[1];
+          return [Category[categoryValue as keyof typeof Category]];
+        }
+      }
+    }
+  }
+  return undefined;
+}
+
 export function processFile(
   fileName: string,
   program: Program,
@@ -174,10 +209,18 @@ export function processFile(
         const docComment = getJSDocComments(node);
         const kind = extractKindValue(node, checker)!;
         const severity = extractSeverityValue(node);
+        const categories = extractCategoryValue(node);
         const enabledByDefault =
           BuiltInDetectors[className]?.enabledByDefault ?? false;
         const markdown = `# ${className}\n${docComment}\n`;
-        results.push({ className, markdown, kind, severity, enabledByDefault });
+        results.push({
+          className,
+          markdown,
+          kind,
+          severity,
+          categories,
+          enabledByDefault,
+        });
       }
     }
     forEachChild(node, visit);
@@ -206,14 +249,21 @@ export function processDirectory(
   });
 
   console.log(
-    "| #  | Detector | Severity | Requires Soufflé | Enabled by default |",
+    "| #  | Detector | Severity | Category | Requires Soufflé | Enabled by default |",
   );
   console.log(
-    "|----|----------|----------|------------------|--------------------|",
+    "|----|----------|----------|----------|------------------|--------------------|",
   );
   fileNames.forEach((fileName, idx) => {
     processFile(fileName, program).forEach(
-      ({ className, markdown, kind, severity, enabledByDefault }) => {
+      ({
+        className,
+        markdown,
+        kind,
+        severity,
+        categories: category,
+        enabledByDefault,
+      }) => {
         const markdownPath = `${className}.md`;
         const dest = path.join(outputDirectory, markdownPath);
         const requiresSouffle = kind === "souffle" ? "✔" : "";
@@ -224,8 +274,14 @@ export function processDirectory(
             capitalize(severityToString(s, { brackets: false }));
           return min === max ? fmt(min) : `${fmt(min)}—${fmt(max)}`;
         })();
+        const categoryStr = (() => {
+          if (!category) return "";
+          return Array.isArray(category)
+            ? category.map((c) => categoryToString(c)).join(", ")
+            : categoryToString(category);
+        })();
         console.log(
-          `| ${idx + 1}  | [${className}](./detectors/${markdownPath}) | ${severityStr} | ${requiresSouffle} | ${enabledByDefaultStr} |`,
+          `| ${idx + 1}  | [${className}](./detectors/${markdownPath}) | ${severityStr} | ${categoryStr} | ${requiresSouffle} | ${enabledByDefaultStr} |`,
         );
         fs.outputFileSync(dest, markdown);
       },
