@@ -1,0 +1,17 @@
+[MEDIUM] SuboptimalCellOperation: The result of s.loadBit(); is unused
+test/detectors/SuboptimalCellOperation.tact:5:9:
+  4 |     fun test(s: Slice) {
+> 5 |         s.loadBit(); // Bad
+              ^~~~~~~~~~~
+  6 |         s.loadInt(4); // Bad
+Help: Replace it with `s.skipBit()`
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalCellOperation
+
+[MEDIUM] SuboptimalCellOperation: The result of s.loadInt(4); is unused
+test/detectors/SuboptimalCellOperation.tact:6:9:
+  5 |         s.loadBit(); // Bad
+> 6 |         s.loadInt(4); // Bad
+              ^~~~~~~~~~~~
+  7 | 
+Help: Replace it with `s.skipInt(4)`
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalCellOperation

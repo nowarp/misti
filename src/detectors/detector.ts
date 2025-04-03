@@ -481,6 +481,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: false,
   },
+  SuboptimalCellOperation: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/suboptimalCellOperation").then(
+        (module) => new module.SuboptimalCellOperation(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**
