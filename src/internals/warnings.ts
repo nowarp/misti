@@ -2,6 +2,7 @@ import { getMistiAnnotation } from "./annotation";
 import { InternalException } from "./exceptions";
 import { srcInfoToString } from "./tact";
 import { SrcInfo } from "./tact/imports";
+import { unreachable } from "./util";
 
 /**
  * Enumerates the levels of severity that can be assigned to detected findings.
@@ -73,6 +74,19 @@ export function severityToString(
       return severityString("HIGH", colors.high);
     case Severity.CRITICAL:
       return severityString("CRITICAL", colors.critical);
+  }
+}
+
+export function categoryToString(c: Category): string | never {
+  switch (c) {
+    case Category.OPTIMIZATION:
+      return "Optimization";
+    case Category.BEST_PRACTICES:
+      return "Best Practices";
+    case Category.SECURITY:
+      return "Security";
+    default:
+      unreachable(c);
   }
 }
 
