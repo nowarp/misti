@@ -18,7 +18,7 @@ export enum Severity {
  * Warning category.
  */
 export enum Category {
-  /** Any possible uninteded behavior leading to bugs or vulnerabilities. */
+  /** Any possible unintended behavior leading to bugs or vulnerabilities. */
   SECURITY = 0,
   /** Code improvements for gas-optimizations. */
   OPTIMIZATION,
