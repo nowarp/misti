@@ -9,7 +9,7 @@ import {
 import { idText } from "../../internals/tact/imports";
 import { prettyPrint } from "../../internals/tact/imports";
 import { unreachable } from "../../internals/util";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -40,6 +40,7 @@ const IGNORED_FUNCTIONS = new Set<string>(["send"]);
  */
 export class UnusedExpressionResult extends AstDetector {
   severity = Severity.MEDIUM;
+  category = Category.SECURITY;
 
   /**
    * Return types that the available free functions have.

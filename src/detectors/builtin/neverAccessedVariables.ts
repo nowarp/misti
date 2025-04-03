@@ -19,7 +19,7 @@ import { SrcInfo } from "../../internals/tact/imports";
 import { Transfer } from "../../internals/transfer";
 import { mergeSets, isSetSubsetOf } from "../../internals/util";
 import { unreachable } from "../../internals/util";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector, WarningsBehavior } from "../detector";
 
 type FieldName = string;
@@ -182,6 +182,7 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
  */
 export class NeverAccessedVariables extends DataflowDetector {
   severity = Severity.MEDIUM;
+  category = Category.SECURITY;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return [

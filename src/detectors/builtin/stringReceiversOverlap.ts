@@ -11,7 +11,7 @@ import {
 } from "../../internals/tact/imports";
 import { Transfer } from "../../internals/transfer";
 import { mergeSets, isSetSubsetOf } from "../../internals/util";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";
 
 interface TaintState {
@@ -173,6 +173,7 @@ class StringReceiversOverlapTransfer implements Transfer<TaintState> {
  */
 export class StringReceiversOverlap extends DataflowDetector {
   severity = Severity.HIGH;
+  category = Category.SECURITY;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const stringReceivers = this.getStringReceiverNames(cu);

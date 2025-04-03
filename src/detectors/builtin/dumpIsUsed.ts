@@ -1,7 +1,7 @@
 import { CompilationUnit } from "../../internals/ir";
 import { foldExpressions, isPrimitiveLiteral } from "../../internals/tact";
 import { AstExpression } from "../../internals/tact/imports";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -34,6 +34,7 @@ import { AstDetector } from "../detector";
  */
 export class DumpIsUsed extends AstDetector {
   severity = Severity.INFO;
+  category = Category.SECURITY;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {

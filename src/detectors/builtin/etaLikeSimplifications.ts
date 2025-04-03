@@ -14,7 +14,7 @@ import {
   AstOpUnary,
   prettyPrint,
 } from "../../internals/tact/imports";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -54,6 +54,7 @@ import { AstDetector } from "../detector";
  */
 export class EtaLikeSimplifications extends AstDetector {
   severity = Severity.LOW;
+  category = Category.OPTIMIZATION;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const warnings: MistiTactWarning[] = [];

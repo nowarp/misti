@@ -14,7 +14,7 @@ import {
   AstExpression,
   idText,
 } from "../../internals/tact/imports";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -60,6 +60,7 @@ import { AstDetector } from "../detector";
  */
 export class StateMutationInGetter extends AstDetector {
   severity = Severity.INFO;
+  category = Category.SECURITY;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const warnings: MistiTactWarning[] = [];

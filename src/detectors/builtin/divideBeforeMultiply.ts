@@ -12,7 +12,7 @@ import {
   AstStatement,
 } from "../../internals/tact/imports";
 import { SrcInfo } from "../../internals/tact/imports";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { SouffleDetector } from "../detector";
 import { SouffleContext, atom, body, relation, rule } from "@nowarp/souffle";
 
@@ -46,6 +46,7 @@ import { SouffleContext, atom, body, relation, rule } from "@nowarp/souffle";
  */
 export class DivideBeforeMultiply extends SouffleDetector {
   severity = Severity.HIGH;
+  category = Category.SECURITY;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const program = this.createSouffleContext(cu);

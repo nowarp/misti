@@ -15,6 +15,18 @@ export enum Severity {
 }
 
 /**
+ * Warning category.
+ */
+export enum Category {
+  /** Any possible uninteded behavior leading to bugs or vulnerabilities. */
+  SECURITY = 0,
+  /** Code improvements for gas-optimizations. */
+  OPTIMIZATION,
+  /** General code quality advices. */
+  BEST_PRACTICES,
+}
+
+/**
  * Parses string input to corresponding Severity enum value.
  */
 export function parseSeverity(value: string): Severity {
@@ -81,6 +93,7 @@ export class MistiTactWarning {
     public readonly msg: string,
     public readonly loc: SrcInfo,
     public readonly severity: Severity,
+    public readonly category: Category | undefined,
   ) {
     this.loc = loc;
   }
@@ -90,7 +103,8 @@ export class MistiTactWarning {
    *
    * @param description Descriptive text of the warning.
    * @param detectorId Unique identifier of the detector.
-   * @param severity Severity of the finding.
+   * @param severity Severity of the warning.
+   * @param severity Category of the warning.
    * @param loc Reference to the source code that includes file information and position data.
    * @param data Additional optional data for the warning, including:
    * - `extraDescription`: More comprehensive description that clarifies the warning in greater detail.
@@ -102,6 +116,7 @@ export class MistiTactWarning {
     detectorId: string,
     description: string,
     severity: Severity,
+    category: Category | undefined,
     loc: SrcInfo,
     data: Partial<{
       extraDescription: string;
@@ -129,7 +144,7 @@ export class MistiTactWarning {
       suggestionStr,
       docURLStr,
     ].join("");
-    return new MistiTactWarning(detectorId, msg, loc, severity);
+    return new MistiTactWarning(detectorId, msg, loc, severity, category);
   }
 
   /**

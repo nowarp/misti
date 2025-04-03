@@ -10,7 +10,7 @@ import {
   AstStatement,
   SrcInfo,
 } from "../../internals/tact/imports";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { SouffleDetector, WarningsBehavior } from "../detector";
 import { SouffleContext, atom, body, relation, rule } from "@nowarp/souffle";
 
@@ -42,6 +42,7 @@ import { SouffleContext, atom, body, relation, rule } from "@nowarp/souffle";
  */
 export class ReadOnlyVariables extends SouffleDetector {
   severity = Severity.MEDIUM;
+  category = Category.SECURITY;
 
   get shareImportedWarnings(): WarningsBehavior {
     // Read-only constants/fields from imported files will be reported iff they

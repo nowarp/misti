@@ -13,7 +13,7 @@ import {
   AstReceiver,
   SrcInfo,
 } from "../../internals/tact/imports";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -43,6 +43,7 @@ import { AstDetector } from "../detector";
  */
 export class FalseCondition extends AstDetector {
   severity = Severity.MEDIUM;
+  category = Category.SECURITY;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.ast.getFunctions()).reduce(

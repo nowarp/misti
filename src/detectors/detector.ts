@@ -21,6 +21,7 @@ import {
   Severity,
   makeDocURL,
   severityToString,
+  Category,
 } from "../internals/warnings";
 import {
   SouffleAsyncExecutor,
@@ -42,6 +43,8 @@ export abstract class Detector {
   protected abstract readonly severity:
     | Severity // min and max are the same
     | { min: Severity; max: Severity }; // closed interval
+
+  protected readonly category: Category | Category[] | undefined = undefined;
 
   constructor(readonly ctx: MistiContext) {}
 
@@ -65,6 +68,14 @@ export abstract class Detector {
     return typeof this.severity === "object"
       ? this.severity
       : { min: this.severity, max: this.severity };
+  }
+
+  /**
+   * Returns the category of generated warnings if specified.
+   */
+  public getCategory(): Category[] | undefined {
+    if (this.category === undefined) return undefined;
+    return Array.isArray(this.category) ? this.category : [this.category];
   }
 
   /**
@@ -115,6 +126,7 @@ export abstract class Detector {
     loc: SrcInfo,
     data: Partial<{
       severity: Severity;
+      category: Category;
       extraDescription: string;
       suggestion: string;
     }> = {},
@@ -130,10 +142,20 @@ export abstract class Detector {
         `${this.id}: Cannot raise ${current} warning with defined severities ${interval}`,
       );
     }
+    const category = ((
+      c: Category | undefined = data.category,
+    ): Category | undefined => {
+      if (c === undefined) {
+        const detectorCategory = this.getCategory();
+        if (!Array.isArray(detectorCategory)) return detectorCategory;
+      }
+      return c;
+    })();
     return MistiTactWarning.make(
       this.id,
       description,
       data.severity ? data.severity : this.getSeverity().max,
+      category,
       loc,
       {
         ...data,

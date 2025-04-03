@@ -7,7 +7,7 @@ import {
 } from "../../internals/tact";
 import { AstStatement, AstNode } from "../../internals/tact/imports";
 import { intersectLists } from "../../internals/util";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -55,6 +55,7 @@ import { AstDetector } from "../detector";
  */
 export class InheritedStateMutation extends AstDetector {
   severity = Severity.LOW;
+  category = Category.BEST_PRACTICES;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return Array.from(cu.ast.getContracts()).reduce((acc, contract) => {

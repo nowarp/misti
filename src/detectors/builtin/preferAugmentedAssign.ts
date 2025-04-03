@@ -6,7 +6,7 @@ import {
   prettyPrint,
   tryExtractPath,
 } from "../../internals/tact/imports";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 const AstAugmentedAssignOperations = new Set<string>([
@@ -54,6 +54,7 @@ const DontSuggestKinds = new Set<string>([
  */
 export class PreferAugmentedAssign extends AstDetector {
   severity = Severity.INFO;
+  category = Category.BEST_PRACTICES;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {

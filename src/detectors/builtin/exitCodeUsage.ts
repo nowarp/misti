@@ -18,7 +18,7 @@ import {
 } from "../../internals/tact/imports";
 import { findInExpressions } from "../../internals/tact/iterators";
 import { Transfer } from "../../internals/transfer";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";
 
 /**
@@ -206,6 +206,7 @@ class ExitCodeTransfer implements Transfer<VariableState> {
  */
 export class ExitCodeUsage extends DataflowDetector {
   severity = Severity.HIGH;
+  category = Category.SECURITY;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const warnings: MistiTactWarning[] = [];

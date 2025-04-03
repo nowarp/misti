@@ -14,7 +14,7 @@ import {
   idText,
 } from "../../internals/tact/imports";
 import { intersectLists } from "../../internals/util";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -53,6 +53,7 @@ import { AstDetector } from "../detector";
  */
 export class ArgCopyMutation extends AstDetector {
   severity = Severity.HIGH;
+  category = Category.SECURITY;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     const returnStatements = this.collectReturnStatements(cu);

@@ -1,29 +1,54 @@
 import { CompilationUnit } from "../../internals/ir";
 import { foldExpressions } from "../../internals/tact";
 import { AstExpression, AstMethodCall } from "../../internals/tact/imports";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { unreachable } from "../../internals/util";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
-type ReplacementKind = "safer" | "more gas-effective";
+enum ReplacementKind {
+  SAFETY = 0,
+  OPTIMIZATION,
+}
+function kindToString(k: ReplacementKind): string {
+  switch (k) {
+    case ReplacementKind.SAFETY:
+      return "safer";
+    case ReplacementKind.OPTIMIZATION:
+      return "more gas-effective";
+    default:
+      unreachable(k);
+  }
+}
+function kindToCategory(k: ReplacementKind): Category {
+  switch (k) {
+    case ReplacementKind.SAFETY:
+      return Category.SECURITY;
+    case ReplacementKind.OPTIMIZATION:
+      return Category.OPTIMIZATION;
+    default:
+      unreachable(k);
+  }
+}
+
 const REPLACEMENTS: Record<
   string,
   { replacement: string; kind: ReplacementKind; rationale: string }
 > = {
   nativeSendMessage: {
     replacement: "send",
-    kind: "safer",
+    kind: ReplacementKind.SAFETY,
     rationale:
       "Prefer `send` to make the call more explicit and reduce low-level operations",
   },
   nativeRandom: {
     replacement: "randomInt",
-    kind: "safer",
+    kind: ReplacementKind.SAFETY,
     rationale:
       "Prefer `randomInt` since `nativeRandom` requires additional initialization of PRG before use",
   },
   require: {
     replacement: "throwUnless",
-    kind: "more gas-effective",
+    kind: ReplacementKind.OPTIMIZATION,
     rationale:
       "`throwUnless` is preferred in production because it is more gas-efficient.",
   },
@@ -81,6 +106,7 @@ const METHOD_CHAINS: Array<{
  */
 export class PreferredStdlibApi extends AstDetector {
   severity = Severity.INFO;
+  category = [Category.OPTIMIZATION, Category.SECURITY];
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
@@ -102,15 +128,16 @@ export class PreferredStdlibApi extends AstDetector {
   ): MistiTactWarning[] {
     if (expr.kind === "static_call") {
       const funName = expr.function.text;
-      const replacementInfo = REPLACEMENTS[funName] || undefined;
-      if (replacementInfo !== undefined)
+      const r = REPLACEMENTS[funName] || undefined;
+      if (r !== undefined)
         acc.push(
           this.makeWarning(
-            `${funName} has a ${replacementInfo.kind} alternative: ${replacementInfo.replacement}`,
+            `${funName} has a ${kindToString(r.kind)} alternative: ${r.replacement}`,
             expr.loc,
             {
-              extraDescription: replacementInfo.rationale,
-              suggestion: `${funName} should be replaced with a ${replacementInfo.kind} alternative: ${replacementInfo.replacement}`,
+              category: kindToCategory(r.kind),
+              extraDescription: r.rationale,
+              suggestion: `${funName} should be replaced with a ${kindToString(r.kind)} alternative: ${r.replacement}`,
             },
           ),
         );
@@ -124,7 +151,6 @@ export class PreferredStdlibApi extends AstDetector {
         chain.unshift(current.method.text);
         const nextExpr: AstExpression = (current as AstMethodCall).self;
         current = nextExpr;
-
         if (current.kind === "static_call") {
           chain.unshift(current.function.text);
           break;
@@ -139,6 +165,7 @@ export class PreferredStdlibApi extends AstDetector {
               `Method chain has a safer alternative: ${pattern.replacement}`,
               expr.loc,
               {
+                category: Category.SECURITY,
                 extraDescription: pattern.rationale,
                 suggestion: `This chain should be replaced with: ${pattern.replacement}`,
               },

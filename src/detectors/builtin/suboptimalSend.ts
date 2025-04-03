@@ -7,7 +7,7 @@ import {
   idText,
   SrcInfo,
 } from "../../internals/tact/imports";
-import { MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -47,6 +47,7 @@ import { AstDetector } from "../detector";
  */
 export class SuboptimalSend extends AstDetector {
   severity = Severity.MEDIUM;
+  category = Category.OPTIMIZATION;
 
   async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
