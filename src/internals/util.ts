@@ -59,3 +59,14 @@ export function hasSubdirs(filePath: string, subdirs: string[]): boolean {
   const splitPath = filePath.split(path.sep);
   return subdirs.every((dir) => splitPath.includes(dir));
 }
+/**
+ * Determines if code is running in a browser environment.
+ * @returns true if in browser, false otherwise
+ */
+export function isBrowser(): boolean {
+  return (
+    typeof document !== "undefined" &&
+    document !== null &&
+    document.createElement !== undefined
+  );
+}
