@@ -9,7 +9,7 @@
 
 import { SrcInfo } from "../../internals/tact/imports";
 import { MistiContext } from "../context";
-import { hasSubdirs } from "../util";
+import { hasSubdirs, isBrowser } from "../util";
 import path from "path";
 
 /**
@@ -73,30 +73,53 @@ export const BUILDER_MUTATING_METHODS = new Set<string>([
 export const STRING_MUTATING_METHODS = new Set<string>(["append"]);
 
 /**
- * A mandatory part of the file path to stdlib if using the default path.
+ * Path separator used in paths in the browser environment.
  */
-export const DEFAULT_STDLIB_PATH_ELEMENTS = [
-  ...path
-    .dirname(require.resolve("@tact-lang/compiler/package.json"))
-    .split(path.sep)
-    .filter(Boolean)
-    .slice(-2),
-  "dist",
+export const BROWSER_PATH_SEP = "/";
+
+/**
+ * Path to browser starting from the VFS root: `/`.
+ */
+export const BROWSER_STDLIB_PATH_ELEMENTS = [
+  BROWSER_PATH_SEP,
+  "node_modules",
+  "@tact-lang",
+  "compiler",
   "stdlib",
   "stdlib",
 ];
+
+/**
+ * @returns A mandatory part of the file path to stdlib if using the default path.
+ */
+export function getDefaultStdlibPathElements(): string[] {
+  return isBrowser()
+    ? BROWSER_STDLIB_PATH_ELEMENTS
+    : [
+        ...path
+          .dirname(require.resolve("@tact-lang/compiler/package.json"))
+          .split(path.sep)
+          .filter(Boolean)
+          .slice(-2),
+        "dist",
+        "stdlib",
+        "stdlib",
+      ];
+}
 
 /**
  * Returns an absolute path to Tact stdlib distributed within the tact compiler
  * package.
  */
 export function getStdlibPath() {
-  return path.join(
-    path.dirname(require.resolve("@tact-lang/compiler/package.json")),
-    "dist",
-    "stdlib",
-    "stdlib",
-  );
+  return isBrowser()
+    ? BROWSER_STDLIB_PATH_ELEMENTS.join(BROWSER_PATH_SEP)
+    : path.join(
+        path.dirname(require.resolve("@tact-lang/compiler/package.json")),
+        "dist",
+        "stdlib",
+        "stdlib",
+      );
 }
 
 /**
@@ -112,7 +135,7 @@ export function definedInStdlib(
   const stdlibPath = ctx.config.tactStdlibPath;
   const pathElements =
     stdlibPath === undefined
-      ? DEFAULT_STDLIB_PATH_ELEMENTS
+      ? getDefaultStdlibPathElements()
       : stdlibPath.split(path.sep).filter((part) => part !== "");
   const filePath = typeof locOrPath === "string" ? locOrPath : locOrPath.file;
   return (

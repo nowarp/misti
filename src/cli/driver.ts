@@ -10,7 +10,7 @@ import { createIR } from "../internals/ir/builders/";
 import { ImportGraphBuilder } from "../internals/ir/builders/imports";
 import { Logger } from "../internals/logger";
 import { TactConfigManager, parseTactProject } from "../internals/tact";
-import { unreachable } from "../internals/util";
+import { isBrowser, unreachable } from "../internals/util";
 import {
   MistiTactWarning,
   severityToString,
@@ -691,7 +691,7 @@ export class Driver {
           try {
             // Conditional import for setTimeout to support both Node.js and browser environments
             let setTimeoutPromise: (ms: number, value?: any) => Promise<any>;
-            if (typeof window !== "undefined") {
+            if (isBrowser()) {
               setTimeoutPromise = (ms) =>
                 new Promise((resolve) => setTimeout(resolve, ms));
             } else {

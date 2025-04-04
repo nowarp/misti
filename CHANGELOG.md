@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `postinstall` error when using the Misti dependency with a package manager different from `yarn`: Issue [#337](https://github.com/nowarp/misti/issues/337)
 - `ExitCodeUsage`: Incorrect string in the description: Issue [#341](https://github.com/nowarp/misti/issues/341)
+- Fixed and improved browser support: PR [#351](https://github.com/nowarp/misti/pull/351)
 
 ## [0.7.1] - 2025-03-05
 
