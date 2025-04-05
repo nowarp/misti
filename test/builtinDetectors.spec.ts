@@ -28,7 +28,7 @@ function runTestForFile(
   outputFormat: "json" | "plain",
   detectorName?: string,
 ) {
-  const actualSuffix = "actual.out";
+  const actualSuffix = `actual.${outputFormat === "json" ? "json" : "out"}`;
   const outputFilePath = `${nameBase}.${actualSuffix}`;
   describe(`Testing built-in detectors for ${testName}`, () => {
     it(`should generate the expected warnings for ${testName}`, async () => {
