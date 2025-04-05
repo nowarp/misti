@@ -15,6 +15,7 @@
 import { MistiContext } from "../internals/context";
 import { InternalException } from "../internals/exceptions";
 import { CompilationUnit } from "../internals/ir";
+import { QuickFix } from "../internals/quickfix";
 import { SrcInfo } from "../internals/tact/imports";
 import {
   MistiTactWarning,
@@ -129,6 +130,7 @@ export abstract class Detector {
       category: Category;
       extraDescription: string;
       suggestion: string;
+      quickfixes: QuickFix[];
     }> = {},
   ): MistiTactWarning {
     if (

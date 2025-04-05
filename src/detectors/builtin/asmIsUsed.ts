@@ -25,7 +25,7 @@ export class AsmIsUsed extends AstDetector {
       if (node.kind === "asm_function_def") {
         acc.push(
           this.makeWarning("asm function is used", node.loc, {
-            suggestion:
+            extraDescription:
               "Using TVM assembly is a potentially dangerous operation that requires additional review",
           }),
         );

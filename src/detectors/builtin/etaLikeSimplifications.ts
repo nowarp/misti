@@ -1,5 +1,10 @@
 import { CompilationUnit } from "../../internals/ir";
 import {
+  makeRange,
+  makeReplace,
+  makeReplacement,
+} from "../../internals/quickfix";
+import {
   forEachStatement,
   forEachExpression,
   MakeLiteral,
@@ -10,7 +15,6 @@ import {
   AstStatement,
   AstExpression,
   AstOpBinary,
-  AstStatementReturn,
   AstOpUnary,
   prettyPrint,
 } from "../../internals/tact/imports";
@@ -78,32 +82,31 @@ export class EtaLikeSimplifications extends AstDetector {
     stmt: AstStatement,
     warnings: MistiTactWarning[],
   ): void {
-    if (stmt.kind === "statement_condition") {
-      const ifStmt = stmt;
-      if (
-        ifStmt.trueStatements.length === 1 &&
-        ifStmt.falseStatements &&
-        ifStmt.falseStatements.length === 1 &&
-        ifStmt.trueStatements[0].kind === "statement_return" &&
-        ifStmt.falseStatements[0].kind === "statement_return"
-      ) {
-        const trueReturn = ifStmt.trueStatements[0] as AstStatementReturn;
-        const falseReturn = ifStmt.falseStatements[0] as AstStatementReturn;
-        if (
-          this.isBooleanLiteral(trueReturn.expression, true) &&
-          this.isBooleanLiteral(falseReturn.expression, false)
-        ) {
-          warnings.push(
-            this.makeWarning(
-              "Simplify 'if' statement by returning the condition directly",
-              stmt.loc,
-              {
-                suggestion: `return ${prettyPrint(ifStmt.condition)};`,
-              },
+    if (
+      stmt.kind === "statement_condition" &&
+      stmt.trueStatements.length === 1 &&
+      stmt.falseStatements &&
+      stmt.falseStatements.length === 1 &&
+      stmt.trueStatements[0].kind === "statement_return" &&
+      stmt.falseStatements[0].kind === "statement_return" &&
+      this.isBooleanLiteral(stmt.trueStatements[0].expression, true) &&
+      this.isBooleanLiteral(stmt.falseStatements[0].expression, false)
+    ) {
+      const desc = "Return the condition directly";
+      warnings.push(
+        this.makeWarning(desc, stmt.loc, {
+          quickfixes: [
+            makeReplace(
+              desc,
+              true,
+              makeReplacement(
+                makeRange(stmt.loc),
+                `return ${prettyPrint(stmt.condition)};`,
+              ),
             ),
-          );
-        }
-      }
+          ],
+        }),
+      );
     }
   }
 

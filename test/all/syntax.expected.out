@@ -26,12 +26,12 @@ Help: Consider removing the variable
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
 [MEDIUM] FalseCondition: Condition always evaluates to false
-test/all/syntax.tact:143:13:
+test/all/syntax.tact:143:9:
   142 |         let randValue: Int = random(1, 100);
 > 143 |         if (1 > 42) {
-                    ^~~~~~
+                ^~~~~~~~~~~~~
   144 |             nativeRandomizeLt();
-Help: Consider removing it if there is no logic error
+Help: Remove the condition
 See: https://nowarp.io/tools/misti/docs/detectors/FalseCondition
 
 [MEDIUM] SuspiciousLoop: Infinite loop detected
@@ -77,7 +77,8 @@ test/all/syntax.tact:41:35:
 > 41 |     try { a = 19; } catch (err) { dump(err); }
                                          ^~~~~~~~~
   42 | }
-Help: Using `dump` in production code can sometimes indicate complex code that requires additional review
+Using `dump` in production code can sometimes indicate complex code that requires additional review
+
 See: https://nowarp.io/tools/misti/docs/detectors/DumpIsUsed
 
 [INFO] DumpIsUsed: Found `dump` usage
@@ -86,7 +87,8 @@ test/all/syntax.tact:67:9:
 > 67 |         dump(err);
                ^~~~~~~~~
   68 |     }
-Help: Using `dump` in production code can sometimes indicate complex code that requires additional review
+Using `dump` in production code can sometimes indicate complex code that requires additional review
+
 See: https://nowarp.io/tools/misti/docs/detectors/DumpIsUsed
 
 [INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
@@ -212,5 +214,6 @@ test/all/syntax.tact:156:1:
 > 156 | asm(-> 1 0) extends mutates fun loadRefEx(self: Slice): Cell { LDREF }
         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   157 | fun callAsm(s: Slice): Cell { return s.loadRefEx(); }
-Help: Using TVM assembly is a potentially dangerous operation that requires additional review
+Using TVM assembly is a potentially dangerous operation that requires additional review
+
 See: https://nowarp.io/tools/misti/docs/detectors/AsmIsUsed
