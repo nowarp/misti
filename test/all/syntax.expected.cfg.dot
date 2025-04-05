@@ -187,6 +187,22 @@ digraph "syntax" {
     subgraph "cluster_ContractParams__receive_internal_fallback_2593" {
         label="ContractParams__receive_internal_fallback_2593";
     }
+    subgraph "cluster_TestQuickFix__f1" {
+        label="TestQuickFix__f1";
+        "TestQuickFix__f1_157" [label="while (false)"];
+        "TestQuickFix__f1_158" [label="while (false)"];
+        "TestQuickFix__f1_159" [label="dump(\"something\")"];
+        "TestQuickFix__f1_160" [label="if (1 == 2)"];
+        "TestQuickFix__f1_161" [label="return true",style=filled,fillcolor="#66A7DB"];
+        "TestQuickFix__f1_162" [label="return false",style=filled,fillcolor="#66A7DB"];
+        "TestQuickFix__f1_157" -> "TestQuickFix__f1_157";
+        "TestQuickFix__f1_157" -> "TestQuickFix__f1_158";
+        "TestQuickFix__f1_158" -> "TestQuickFix__f1_159";
+        "TestQuickFix__f1_159" -> "TestQuickFix__f1_158";
+        "TestQuickFix__f1_158" -> "TestQuickFix__f1_160";
+        "TestQuickFix__f1_160" -> "TestQuickFix__f1_161";
+        "TestQuickFix__f1_160" -> "TestQuickFix__f1_162";
+    }
     subgraph "cluster_Z__getter" {
         label="Z__getter";
         "Z__getter_135" [label="return self.a + 1",style=filled,fillcolor="#66A7DB"];

@@ -641,7 +641,7 @@ export class Driver {
   }
 
   /**
-   * Returns string representation of the warning.
+   * Returns string representation of the warning according to the configuration.
    */
   private formatWarning(warn: MistiTactWarning, addNewline: boolean): string {
     if (this.outputFormat === "json") {
@@ -663,6 +663,7 @@ export class Driver {
           brackets: false,
         }),
         message: warn.msg,
+        quickfixes: warn.quickfixes,
       });
     } else {
       const severity = severityToString(warn.severity, {

@@ -166,6 +166,21 @@ subgraph A__receive_internal_fallback_2539
 end
 subgraph ContractParams__receive_internal_fallback_2593
 end
+subgraph TestQuickFix__f1
+    TestQuickFix__f1_157["while (false)"]
+    TestQuickFix__f1_158["while (false)"]
+    TestQuickFix__f1_159["dump('something')"]
+    TestQuickFix__f1_160["if (1 == 2)"]
+    TestQuickFix__f1_161["return true"]:::exitNode
+    TestQuickFix__f1_162["return false"]:::exitNode
+    TestQuickFix__f1_157 --> TestQuickFix__f1_157
+    TestQuickFix__f1_157 --> TestQuickFix__f1_158
+    TestQuickFix__f1_158 --> TestQuickFix__f1_159
+    TestQuickFix__f1_159 --> TestQuickFix__f1_158
+    TestQuickFix__f1_158 --> TestQuickFix__f1_160
+    TestQuickFix__f1_160 --> TestQuickFix__f1_161
+    TestQuickFix__f1_160 --> TestQuickFix__f1_162
+end
 subgraph Z__getter
     Z__getter_135["return self.a + 1"]:::exitNode
 end

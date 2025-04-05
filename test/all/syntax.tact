@@ -187,3 +187,17 @@ contract ContractParams(
 ) {
     receive() { }
 }
+
+// Regression test for JSON output for https://github.com/nowarp/misti/issues/340
+contract TestQuickFix {
+    fun f1(): Bool {
+        // Suggested to remove condition
+        while (false) {}
+        while (false) {
+            dump("something");
+        }
+        // Suggested to replace code
+        if (1 == 2) { return true; }
+        else { return false; }
+    }
+}

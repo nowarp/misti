@@ -1,4 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
+import { makeDelete, makeRange } from "../../internals/quickfix";
 import {
   evalsToLiteral,
   foldStatements,
@@ -66,12 +67,12 @@ export class FalseCondition extends AstDetector {
             expr.kind === "conditional" &&
             this.constEvalToFalse(expr.condition)
           ) {
-            acc.push(this.warnCondition(expr));
+            acc.push(this.warnCondition(stmt));
           }
         });
         if (stmt.kind === "statement_condition") {
           collectConditions(stmt, { nonEmpty: true }).forEach((cond) => {
-            if (this.constEvalToFalse(cond)) acc.push(this.warnCondition(cond));
+            if (this.constEvalToFalse(cond)) acc.push(this.warnCondition(stmt));
           });
         }
         if (
@@ -80,14 +81,14 @@ export class FalseCondition extends AstDetector {
           stmt.statements.length > 0 &&
           this.constEvalToFalse(stmt.condition)
         ) {
-          acc.push(this.warnCondition(stmt.condition));
+          acc.push(this.warnCondition(stmt));
         }
         if (
           stmt.kind === "statement_repeat" &&
           stmt.statements.length > 0 &&
           this.constEvalToZero(stmt.iterations)
         ) {
-          acc.push(this.warnCondition(stmt.iterations, true));
+          acc.push(this.warnCondition(stmt, true));
         }
         return acc;
       },
@@ -96,14 +97,16 @@ export class FalseCondition extends AstDetector {
   }
 
   private warnCondition(
-    node: { loc: SrcInfo },
+    stmt: { loc: SrcInfo },
     isZero: boolean = false,
   ): MistiTactWarning {
     const message = isZero
       ? "Condition always evaluates to zero"
       : "Condition always evaluates to false";
-    return this.makeWarning(message, node.loc, {
-      suggestion: "Consider removing it if there is no logic error",
+    return this.makeWarning(message, stmt.loc, {
+      quickfixes: [
+        makeDelete("Remove the condition", true, makeRange(stmt.loc)),
+      ],
     });
   }
 

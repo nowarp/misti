@@ -66,7 +66,7 @@ export class ConstantAddress extends AstDetector {
       ) {
         acc.push(
           this.makeWarning("Found constant address", expr.loc, {
-            suggestion:
+            extraDescription:
               "Using hardcoded addresses can sometimes indicate poor contract design",
           }),
         );

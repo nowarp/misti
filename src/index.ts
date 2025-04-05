@@ -3,6 +3,7 @@ export * from "./detectors/detector";
 export * from "./tools/";
 export * from "./internals/warnings";
 export * from "./internals/annotation";
+export * from "./internals/quickfix";
 export * from "./internals/transfer";
 export * from "./internals/tact";
 export * from "./internals/logger";

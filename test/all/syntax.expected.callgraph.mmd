@@ -32,43 +32,45 @@ graph TD
     node_43["A::receive()
 [StateRead<m>]"]
     node_44["ContractParams::receive()"]
-    node_48["dump"]
-    node_49["emptyMap"]
-    node_50["m::set"]
-    node_51["s::loadRefEx"]
-    node_52["String::asSlice"]
-    node_53["string::empty"]
-    node_54["string::loadUint"]
-    node_55["TestContractT::getA"]
-    node_56["sender"]
-    node_57["beginCell"]
-    node_58["send"]
-    node_59["s::loadAddress"]
-    node_60["now"]
-    node_61["nativeRandomizeLt"]
-    node_62["beginString"]
-    node_63["a::append"]
-    node_23 --> node_48
-    node_24 --> node_49
-    node_25 --> node_48
-    node_26 --> node_49
+    node_45["fun TestQuickFix::f1(): Bool"]
+    node_49["dump"]
+    node_50["emptyMap"]
+    node_51["m::set"]
+    node_52["s::loadRefEx"]
+    node_53["String::asSlice"]
+    node_54["string::empty"]
+    node_55["string::loadUint"]
+    node_56["TestContractT::getA"]
+    node_57["sender"]
+    node_58["beginCell"]
+    node_59["send"]
+    node_60["s::loadAddress"]
+    node_61["now"]
+    node_62["nativeRandomizeLt"]
+    node_63["beginString"]
+    node_64["a::append"]
+    node_23 --> node_49
+    node_24 --> node_50
+    node_25 --> node_49
     node_26 --> node_50
-    node_26 --> node_50
-    node_26 --> node_50
-    node_27 --> node_51
-    node_28 --> node_52
+    node_26 --> node_51
+    node_26 --> node_51
+    node_26 --> node_51
+    node_27 --> node_52
     node_28 --> node_53
     node_28 --> node_54
-    node_33 --> node_55
-    node_35 --> node_56
+    node_28 --> node_55
+    node_33 --> node_56
     node_35 --> node_57
-    node_36 --> node_58
+    node_35 --> node_58
+    node_36 --> node_59
     node_38 --> node_18
-    node_39 --> node_59
-    node_40 --> node_60
-    node_40 --> node_10
+    node_39 --> node_60
     node_40 --> node_61
-    node_41 --> node_62
+    node_40 --> node_10
+    node_40 --> node_62
     node_41 --> node_63
+    node_41 --> node_64
+    node_45 --> node_49
     style node_10 fill:#F0F8FF,stroke:#000,stroke-width:1px;
     style node_18 fill:#F0F8FF,stroke:#000,stroke-width:1px;

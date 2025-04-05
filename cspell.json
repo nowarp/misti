@@ -107,7 +107,11 @@
     "extremal",
     "underflows",
     "substrated",
-    "overapproximates"
+    "quickfix",
+    "quickfixes",
+    "overapproximates",
+    "jubnzv",
+    "basechain"
   ],
   "flagWords": [],
   "ignorePaths": [
