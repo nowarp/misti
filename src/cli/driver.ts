@@ -663,6 +663,7 @@ export class Driver {
           brackets: false,
         }),
         message: warn.msg,
+        quickfixes: warn.quickfixes,
       });
     } else {
       const severity = severityToString(warn.severity, {

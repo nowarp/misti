@@ -24,6 +24,7 @@ export type WarningOutput = {
   projectName: string;
   /**
    * Warnings found by Misti.
+   * If JSON format is used, these are present as serialized JSON.
    */
   warnings: string[];
 };
