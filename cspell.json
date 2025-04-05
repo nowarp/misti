@@ -107,6 +107,8 @@
     "extremal",
     "underflows",
     "substrated",
+    "quickfix",
+    "quickfixes",
     "overapproximates"
   ],
   "flagWords": [],
