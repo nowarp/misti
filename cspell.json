@@ -109,7 +109,9 @@
     "substrated",
     "quickfix",
     "quickfixes",
-    "overapproximates"
+    "overapproximates",
+    "jubnzv",
+    "basechain"
   ],
   "flagWords": [],
   "ignorePaths": [
