@@ -138,6 +138,7 @@ test/all/**/*.dot
 test/all/**/*.mmd
 test/all/**/*.actual.out
 test/detectors/**/*.actual.out
+!test/all/**/*.expected.json
 !test/all/**/*.expected.cfg.json
 !test/all/**/*.expected.cfg.dot
 !test/all/**/*.expected.cfg.mmd

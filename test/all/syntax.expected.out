@@ -34,6 +34,24 @@ test/all/syntax.tact:143:9:
 Help: Remove the condition
 See: https://nowarp.io/tools/misti/docs/detectors/FalseCondition
 
+[MEDIUM] FalseCondition: Condition always evaluates to false
+test/all/syntax.tact:196:9:
+  195 |         while (false) {}
+> 196 |         while (false) {
+                ^~~~~~~~~~~~~~~
+  197 |             dump("something");
+Help: Remove the condition
+See: https://nowarp.io/tools/misti/docs/detectors/FalseCondition
+
+[MEDIUM] FalseCondition: Condition always evaluates to false
+test/all/syntax.tact:200:9:
+  199 |         // Suggested to replace code
+> 200 |         if (1 == 2) { return true; }
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  201 |         else { return false; }
+Help: Remove the condition
+See: https://nowarp.io/tools/misti/docs/detectors/FalseCondition
+
 [MEDIUM] SuspiciousLoop: Infinite loop detected
 test/all/syntax.tact:166:16:
   165 |     receive() {
@@ -41,6 +59,15 @@ test/all/syntax.tact:166:16:
                        ^~~~
   167 |             self.m.set(1, 2);
 Help: Avoid unbounded conditions in loops
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
+
+[MEDIUM] SuspiciousLoop: Loop condition is always false
+test/all/syntax.tact:196:16:
+  195 |         while (false) {}
+> 196 |         while (false) {
+                       ^~~~~
+  197 |             dump("something");
+Help: The condition is always false; the body will never execute
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
 
 [MEDIUM] SuboptimalSend: Prefer `message` over `send`
@@ -70,6 +97,15 @@ test/all/syntax.tact:161:5:
 There are operations adding elements to this map, but there is no API to remove them
 Help: Consider adding a method to remove elements or suppress this warning
 See: https://nowarp.io/tools/misti/docs/detectors/UnboundMap
+
+[LOW] EtaLikeSimplifications: Return the condition directly
+test/all/syntax.tact:200:9:
+  199 |         // Suggested to replace code
+> 200 |         if (1 == 2) { return true; }
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  201 |         else { return false; }
+Help: Replace with: return 1 == 2;
+See: https://nowarp.io/tools/misti/docs/detectors/EtaLikeSimplifications
 
 [INFO] DumpIsUsed: Found `dump` usage
 test/all/syntax.tact:41:35:
