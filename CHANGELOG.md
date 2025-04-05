@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ImplicitOpcode` detector: Issue [#338](https://github.com/nowarp/misti/issues/338)
 - `SuboptimalCellOperation` detector: Issue [#339](https://github.com/nowarp/misti/issues/339)
 - Detectors categorization (Optimization, Security, Best Practices): PR [#349](https://github.com/nowarp/misti/pull/349)
+- Add quickfix suggestions for LSP inlay hints: PR [#353](https://github.com/nowarp/misti/pull/353)
 - Support standalone Tools to run without `CompilationUnit`: PR [#326](https://github.com/nowarp/misti/pull/326)
 - Logger: Detector contexts: PR [#327](https://github.com/nowarp/misti/pull/327)
 - Logger: Print timestamps when `--verbose` is set: Issue [#73](https://github.com/nowarp/misti/issues/73)
