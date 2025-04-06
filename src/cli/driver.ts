@@ -10,7 +10,7 @@ import { createIR } from "../internals/ir/builders/";
 import { ImportGraphBuilder } from "../internals/ir/builders/imports";
 import { Logger } from "../internals/logger";
 import { TactConfigManager, parseTactProject } from "../internals/tact";
-import { isBrowser, isTest, unreachable } from "../internals/util";
+import { isBrowser, unreachable } from "../internals/util";
 import {
   MistiTactWarning,
   severityToString,
