@@ -59,6 +59,7 @@ export function hasSubdirs(filePath: string, subdirs: string[]): boolean {
   const splitPath = filePath.split(path.sep);
   return subdirs.every((dir) => splitPath.includes(dir));
 }
+
 /**
  * Determines if code is running in a browser environment.
  * @returns true if in browser, false otherwise
@@ -69,4 +70,12 @@ export function isBrowser(): boolean {
     document !== null &&
     document.createElement !== undefined
   );
+}
+
+/**
+ * Determines if code is running from Jest test.
+ * @returns true if in test environment, false otherwise
+ */
+export function isTest(): boolean {
+  return process.env.JEST_WORKER_ID !== undefined;
 }

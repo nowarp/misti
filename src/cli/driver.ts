@@ -10,7 +10,7 @@ import { createIR } from "../internals/ir/builders/";
 import { ImportGraphBuilder } from "../internals/ir/builders/imports";
 import { Logger } from "../internals/logger";
 import { TactConfigManager, parseTactProject } from "../internals/tact";
-import { isBrowser, unreachable } from "../internals/util";
+import { isBrowser, isTest, unreachable } from "../internals/util";
 import {
   MistiTactWarning,
   severityToString,
@@ -645,10 +645,9 @@ export class Driver {
    */
   private formatWarning(warn: MistiTactWarning, addNewline: boolean): string {
     if (this.outputFormat === "json") {
-      let file = warn.loc.file;
-      if (file && file.startsWith("/tmp/misti/temp-")) {
-        file = file.replace(/^\/tmp\/misti\/temp-[^/]+\//, "");
-      }
+      const file = warn.loc.file
+        ? path.normalize(path.relative(process.cwd(), warn.loc.file))
+        : "";
       const lc = warn.loc.interval.getLineAndColumn() as {
         lineNum: number;
         colNum: number;
