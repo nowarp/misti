@@ -62,7 +62,7 @@ export class DumpIsUsed extends AstDetector {
     ) {
       acc.push(
         this.makeWarning("Found `dump` usage", expr.loc, {
-          suggestion:
+          extraDescription:
             "Using `dump` in production code can sometimes indicate complex code that requires additional review",
         }),
       );

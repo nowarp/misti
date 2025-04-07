@@ -25,14 +25,20 @@ function runTestForFile(
   filePath: string,
   nameBase: string,
   testName: string,
+  outputFormat: "json" | "plain",
   detectorName?: string,
 ) {
-  const actualSuffix = "actual.out";
+  const actualSuffix = `actual.${outputFormat === "json" ? "json" : "out"}`;
   const outputFilePath = `${nameBase}.${actualSuffix}`;
   describe(`Testing built-in detectors for ${testName}`, () => {
     it(`should generate the expected warnings for ${testName}`, async () => {
       resetIds();
-      const executeArgs = ["--no-colors", filePath];
+      const executeArgs = [
+        "--no-colors",
+        filePath,
+        "--output-format",
+        outputFormat,
+      ];
       if (detectorName) {
         executeArgs.unshift("--enabled-detectors", detectorName);
       } else {
@@ -40,23 +46,27 @@ function runTestForFile(
       }
       const output = await executeMisti(executeArgs);
       fs.writeFileSync(outputFilePath, output);
-      await TAP.from(nameBase, actualSuffix, "expected.out").run();
+      await TAP.from(
+        nameBase,
+        actualSuffix,
+        `expected.${outputFormat === "json" ? "json" : "out"}`,
+      ).run();
     }, 30000);
   });
 }
 
-function processSingleFile(filePath: string) {
+function processSingleFile(filePath: string, outputFormat: "json" | "plain") {
   const contractName = path.basename(filePath).replace(".tact", "");
   const contractPath = path.resolve(filePath);
   const nameBase = path.join(path.dirname(contractPath), contractName);
-  runTestForFile(contractPath, nameBase, contractName);
+  runTestForFile(contractPath, nameBase, contractName, outputFormat);
 }
 
 function processProjectDir(projectDir: string) {
   const projectName = path.basename(projectDir);
   const projectConfigPath = path.join(projectDir, TACT_CONFIG_NAME);
   const nameBase = path.join(projectDir, projectName);
-  runTestForFile(projectConfigPath, nameBase, projectName);
+  runTestForFile(projectConfigPath, nameBase, projectName, "plain");
 }
 
 /**
@@ -69,7 +79,7 @@ function processSingleDetectorFile(filePath: string) {
   const detectorName = fileName.replace(".tact", ""); // Extract detector name
   const contractPath = path.resolve(filePath);
   const nameBase = path.join(path.dirname(contractPath), detectorName);
-  runTestForFile(contractPath, nameBase, detectorName, detectorName);
+  runTestForFile(contractPath, nameBase, detectorName, "plain", detectorName);
 }
 
 const filePathArg = getFilePathArg(DETECTORS_DIR);
@@ -81,7 +91,7 @@ if (filePathArg) {
     if (fullPath.includes(DETECTORS_DIR)) {
       processSingleDetectorFile(fullPath);
     } else {
-      processSingleFile(fullPath);
+      processSingleFile(fullPath, "plain");
     }
   } else if (stats.isDirectory()) {
     processProjectDir(fullPath);
@@ -92,7 +102,8 @@ if (filePathArg) {
   // Run all tests in 'all' directory
   processTactFiles(ALL_DIR, (file) => {
     const filePath = path.join(ALL_DIR, file);
-    processSingleFile(filePath);
+    processSingleFile(filePath, "plain");
+    processSingleFile(filePath, "json");
   });
   processTactProjects(ALL_DIR, (projectDir) => {
     processProjectDir(projectDir);

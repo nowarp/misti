@@ -1,5 +1,7 @@
 import { getMistiAnnotation } from "./annotation";
 import { InternalException } from "./exceptions";
+import { QuickFix } from "./quickfix";
+import { quickFixToString } from "./quickfix";
 import { srcInfoToString } from "./tact";
 import { SrcInfo } from "./tact/imports";
 import { unreachable } from "./util";
@@ -100,7 +102,16 @@ export const BASE_DOC_URL = "https://nowarp.io/tools/misti/docs/detectors";
  */
 export class MistiTactWarning {
   /**
-   * @param detectorId Unique identifier of the detector raised that warning.
+   * @param description Descriptive text of the warning.
+   * @param detectorId Unique identifier of the detector.
+   * @param severity Severity of the warning.
+   * @param category Category of the warning.
+   * @param loc Reference to the source code that includes file information and position data.
+   * @param data Additional optional data for the warning, including:
+   * - `extraDescription`: More comprehensive description that clarifies the warning in greater detail.
+   * - `docURL`: URL to the detector documentation.
+   * - `suggestion`: Suggested change in the source code.
+   * - `quickfix` An optional code suggestions mainly for LSP code actions.
    */
   constructor(
     public readonly detectorId: string,
@@ -108,24 +119,9 @@ export class MistiTactWarning {
     public readonly loc: SrcInfo,
     public readonly severity: Severity,
     public readonly category: Category | undefined,
-  ) {
-    this.loc = loc;
-  }
+    public readonly quickfixes: QuickFix[] | undefined,
+  ) {}
 
-  /**
-   * Constructs a warning object with a description and the source code location.
-   *
-   * @param description Descriptive text of the warning.
-   * @param detectorId Unique identifier of the detector.
-   * @param severity Severity of the warning.
-   * @param severity Category of the warning.
-   * @param loc Reference to the source code that includes file information and position data.
-   * @param data Additional optional data for the warning, including:
-   * - `extraDescription`: More comprehensive description that clarifies the warning in greater detail.
-   * - `docURL`: URL to the detector documentation.
-   * - `suggestion`: Suggested change in the source code.
-   * @returns A new MistiTactWarning containing the warning message and source code reference.
-   */
   public static make(
     detectorId: string,
     description: string,
@@ -136,6 +132,7 @@ export class MistiTactWarning {
       extraDescription: string;
       docURL: string;
       suggestion: string;
+      quickfixes: QuickFix[];
     }> = {},
   ): MistiTactWarning | never {
     if (description.length === 0) {
@@ -145,20 +142,40 @@ export class MistiTactWarning {
       extraDescription = undefined,
       docURL = undefined,
       suggestion = undefined,
+      quickfixes = [],
     } = data;
     const extraDescriptionStr =
       extraDescription === undefined ? "" : extraDescription + "\n";
-    const suggestionStr = suggestion === undefined ? "" : `Help: ${suggestion}`;
+    const suggestedChange = (() => {
+      const quickfixStr = quickfixes
+        .filter((qf) => qf.shown)
+        .map((qf) => quickFixToString(qf))
+        .join("\n");
+      if (quickfixStr) {
+        return `Help: ${quickfixStr}`;
+      } else if (suggestion !== undefined) {
+        return `Help: ${suggestion}`;
+      } else {
+        return "";
+      }
+    })();
     const docURLStr = docURL === undefined ? "" : `\nSee: ${docURL}`;
     const msg = [
       description,
       "\n",
       srcInfoToString(loc),
       extraDescriptionStr,
-      suggestionStr,
+      suggestedChange,
       docURLStr,
     ].join("");
-    return new MistiTactWarning(detectorId, msg, loc, severity, category);
+    return new MistiTactWarning(
+      detectorId,
+      msg,
+      loc,
+      severity,
+      category,
+      quickfixes,
+    );
   }
 
   /**

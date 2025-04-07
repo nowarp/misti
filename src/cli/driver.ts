@@ -641,14 +641,13 @@ export class Driver {
   }
 
   /**
-   * Returns string representation of the warning.
+   * Returns string representation of the warning according to the configuration.
    */
   private formatWarning(warn: MistiTactWarning, addNewline: boolean): string {
     if (this.outputFormat === "json") {
-      let file = warn.loc.file;
-      if (file && file.startsWith("/tmp/misti/temp-")) {
-        file = file.replace(/^\/tmp\/misti\/temp-[^/]+\//, "");
-      }
+      const file = warn.loc.file
+        ? path.normalize(path.relative(process.cwd(), warn.loc.file))
+        : "";
       const lc = warn.loc.interval.getLineAndColumn() as {
         lineNum: number;
         colNum: number;
@@ -663,6 +662,7 @@ export class Driver {
           brackets: false,
         }),
         message: warn.msg,
+        quickfixes: warn.quickfixes,
       });
     } else {
       const severity = severityToString(warn.severity, {

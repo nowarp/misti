@@ -1126,6 +1126,115 @@
       ]
     },
     {
+      "name": "TestQuickFix",
+      "methods": [
+        {
+          "name": "TestQuickFix.f1",
+          "cfg": {
+            "nodes": [
+              {
+                "id": 157,
+                "stmtID": 2599,
+                "srcEdges": [
+                  127
+                ],
+                "dstEdges": [
+                  127,
+                  128
+                ]
+              },
+              {
+                "id": 158,
+                "stmtID": 2605,
+                "srcEdges": [
+                  128,
+                  130
+                ],
+                "dstEdges": [
+                  129,
+                  131
+                ]
+              },
+              {
+                "id": 159,
+                "stmtID": 2604,
+                "srcEdges": [
+                  129
+                ],
+                "dstEdges": [
+                  130
+                ]
+              },
+              {
+                "id": 160,
+                "stmtID": 2613,
+                "srcEdges": [
+                  131
+                ],
+                "dstEdges": [
+                  132,
+                  133
+                ]
+              },
+              {
+                "id": 161,
+                "stmtID": 2610,
+                "srcEdges": [
+                  132
+                ],
+                "dstEdges": []
+              },
+              {
+                "id": 162,
+                "stmtID": 2612,
+                "srcEdges": [
+                  133
+                ],
+                "dstEdges": []
+              }
+            ],
+            "edges": [
+              {
+                "id": 127,
+                "src": 157,
+                "dst": 157
+              },
+              {
+                "id": 128,
+                "src": 157,
+                "dst": 158
+              },
+              {
+                "id": 129,
+                "src": 158,
+                "dst": 159
+              },
+              {
+                "id": 130,
+                "src": 159,
+                "dst": 158
+              },
+              {
+                "id": 131,
+                "src": 158,
+                "dst": 160
+              },
+              {
+                "id": 132,
+                "src": 160,
+                "dst": 161
+              },
+              {
+                "id": 133,
+                "src": 160,
+                "dst": 162
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "BaseTrait",
       "methods": []
     },

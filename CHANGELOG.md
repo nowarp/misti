@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ImplicitOpcode` detector: Issue [#338](https://github.com/nowarp/misti/issues/338)
 - `SuboptimalCellOperation` detector: Issue [#339](https://github.com/nowarp/misti/issues/339)
 - Detectors categorization (Optimization, Security, Best Practices): PR [#349](https://github.com/nowarp/misti/pull/349)
+- Add quickfix suggestions for LSP inlay hints: PR [#353](https://github.com/nowarp/misti/pull/353)
 - Support standalone Tools to run without `CompilationUnit`: PR [#326](https://github.com/nowarp/misti/pull/326)
 - Logger: Detector contexts: PR [#327](https://github.com/nowarp/misti/pull/327)
 - Logger: Print timestamps when `--verbose` is set: Issue [#73](https://github.com/nowarp/misti/issues/73)
@@ -24,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replace imports from `@tact-lang/compiler/dist/...` to `@tact-lang/compiler`: PR [#328](https://github.com/nowarp/misti/pull/328)
 - Removed `--new-detector` option and the `createDetector` module as unused
 - `ExitCodeUsage`: Allow using `0` as success exit code: Issue [#344](https://github.com/nowarp/misti/issues/344)
+- Use relative paths in warnings in JSON: : PR [#353](https://github.com/nowarp/misti/pull/353)
 
 ### Fixed
 - `postinstall` error when using the Misti dependency with a package manager different from `yarn`: Issue [#337](https://github.com/nowarp/misti/issues/337)

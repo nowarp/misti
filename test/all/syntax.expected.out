@@ -26,12 +26,30 @@ Help: Consider removing the variable
 See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables
 
 [MEDIUM] FalseCondition: Condition always evaluates to false
-test/all/syntax.tact:143:13:
+test/all/syntax.tact:143:9:
   142 |         let randValue: Int = random(1, 100);
 > 143 |         if (1 > 42) {
-                    ^~~~~~
+                ^~~~~~~~~~~~~
   144 |             nativeRandomizeLt();
-Help: Consider removing it if there is no logic error
+Help: Remove the condition
+See: https://nowarp.io/tools/misti/docs/detectors/FalseCondition
+
+[MEDIUM] FalseCondition: Condition always evaluates to false
+test/all/syntax.tact:196:9:
+  195 |         while (false) {}
+> 196 |         while (false) {
+                ^~~~~~~~~~~~~~~
+  197 |             dump("something");
+Help: Remove the condition
+See: https://nowarp.io/tools/misti/docs/detectors/FalseCondition
+
+[MEDIUM] FalseCondition: Condition always evaluates to false
+test/all/syntax.tact:200:9:
+  199 |         // Suggested to replace code
+> 200 |         if (1 == 2) { return true; }
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  201 |         else { return false; }
+Help: Remove the condition
 See: https://nowarp.io/tools/misti/docs/detectors/FalseCondition
 
 [MEDIUM] SuspiciousLoop: Infinite loop detected
@@ -41,6 +59,15 @@ test/all/syntax.tact:166:16:
                        ^~~~
   167 |             self.m.set(1, 2);
 Help: Avoid unbounded conditions in loops
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
+
+[MEDIUM] SuspiciousLoop: Loop condition is always false
+test/all/syntax.tact:196:16:
+  195 |         while (false) {}
+> 196 |         while (false) {
+                       ^~~~~
+  197 |             dump("something");
+Help: The condition is always false; the body will never execute
 See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop
 
 [MEDIUM] SuboptimalSend: Prefer `message` over `send`
@@ -71,13 +98,23 @@ There are operations adding elements to this map, but there is no API to remove 
 Help: Consider adding a method to remove elements or suppress this warning
 See: https://nowarp.io/tools/misti/docs/detectors/UnboundMap
 
+[LOW] EtaLikeSimplifications: Return the condition directly
+test/all/syntax.tact:200:9:
+  199 |         // Suggested to replace code
+> 200 |         if (1 == 2) { return true; }
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  201 |         else { return false; }
+Help: Replace with: return 1 == 2;
+See: https://nowarp.io/tools/misti/docs/detectors/EtaLikeSimplifications
+
 [INFO] DumpIsUsed: Found `dump` usage
 test/all/syntax.tact:41:35:
   40 |     try { /* empty */ }
 > 41 |     try { a = 19; } catch (err) { dump(err); }
                                          ^~~~~~~~~
   42 | }
-Help: Using `dump` in production code can sometimes indicate complex code that requires additional review
+Using `dump` in production code can sometimes indicate complex code that requires additional review
+
 See: https://nowarp.io/tools/misti/docs/detectors/DumpIsUsed
 
 [INFO] DumpIsUsed: Found `dump` usage
@@ -86,7 +123,8 @@ test/all/syntax.tact:67:9:
 > 67 |         dump(err);
                ^~~~~~~~~
   68 |     }
-Help: Using `dump` in production code can sometimes indicate complex code that requires additional review
+Using `dump` in production code can sometimes indicate complex code that requires additional review
+
 See: https://nowarp.io/tools/misti/docs/detectors/DumpIsUsed
 
 [INFO] PreferAugmentedAssign: Prefer augmented assignment: i += 1
@@ -212,5 +250,6 @@ test/all/syntax.tact:156:1:
 > 156 | asm(-> 1 0) extends mutates fun loadRefEx(self: Slice): Cell { LDREF }
         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   157 | fun callAsm(s: Slice): Cell { return s.loadRefEx(); }
-Help: Using TVM assembly is a potentially dangerous operation that requires additional review
+Using TVM assembly is a potentially dangerous operation that requires additional review
+
 See: https://nowarp.io/tools/misti/docs/detectors/AsmIsUsed
