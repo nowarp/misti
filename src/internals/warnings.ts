@@ -206,6 +206,8 @@ export function hashWarning(warn: Warning): string {
     warn.location.file,
     warn.location.line,
     warn.location.column,
+    warn.location.code,
+    warn.description,
   ].join("%");
 }
 
