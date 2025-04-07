@@ -212,7 +212,23 @@ export function processFile(
         const categories = extractCategoryValue(node);
         const enabledByDefault =
           BuiltInDetectors[className]?.enabledByDefault ?? false;
-        const markdown = `# ${className}\n${docComment}\n`;
+
+        const severityStr = (() => {
+          const { min, max } = severity;
+          const fmt = (s: Severity) =>
+            capitalize(severityToString(s, { brackets: false }));
+          return min === max ? fmt(min) : `${fmt(min)}—${fmt(max)}`;
+        })();
+
+        const categoryStr = (() => {
+          if (!categories) return "Uncategorized";
+          return Array.isArray(categories)
+            ? categories.map((c) => categoryToString(c)).join(", ")
+            : categoryToString(categories);
+        })();
+
+        const markdown = `# ${className}\n**Severity**: ${severityStr} | **Category**: ${categoryStr}\n\n${docComment}\n`;
+
         results.push({
           className,
           markdown,
