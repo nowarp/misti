@@ -69,6 +69,13 @@ jobs:
         output: /tmp/lychee.txt
         fail: true
 
+    - name: Check for [object Object] in test output files
+      run: |
+        if grep -r "\[object Object\]" test/**/*.out; then
+          echo "Found [object Object] in test output files"
+          exit 1
+        fi
+
     - name: Build
       run: |
         yarn gen
