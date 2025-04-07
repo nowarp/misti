@@ -5,7 +5,7 @@ import {
   PRG_NATIVE_USE_FUNCTIONS,
 } from "../../internals/tact";
 import { AstStaticCall, idText } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -42,7 +42,7 @@ export class EnsurePrgSeed extends AstDetector {
   severity = Severity.MEDIUM;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     const randomCalls = cu.ast.getProgramEntries().reduce(
       (acc, node) => {
         forEachExpression(node, (expr) => {
@@ -80,6 +80,6 @@ export class EnsurePrgSeed extends AstDetector {
         ),
       );
       return acc;
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 }

@@ -6,7 +6,7 @@ import {
   prettyPrint,
   tryExtractPath,
 } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 const AstAugmentedAssignOperations = new Set<string>([
@@ -56,7 +56,7 @@ export class PreferAugmentedAssign extends AstDetector {
   severity = Severity.INFO;
   category = Category.BEST_PRACTICES;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(
         foldStatements(
@@ -64,10 +64,10 @@ export class PreferAugmentedAssign extends AstDetector {
           (acc, expr) => {
             return this.findAugmentedAssignReplacements(acc, expr);
           },
-          [] as MistiTactWarning[],
+          [] as Warning[],
         ),
       );
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 
   /**
@@ -75,9 +75,9 @@ export class PreferAugmentedAssign extends AstDetector {
    * replaced with the augmented assignment.
    */
   private findAugmentedAssignReplacements(
-    acc: MistiTactWarning[],
+    acc: Warning[],
     stmt: AstStatement,
-  ): MistiTactWarning[] {
+  ): Warning[] {
     if (
       stmt.kind === "statement_assign" &&
       stmt.expression.kind === "op_binary" &&

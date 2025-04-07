@@ -1,5 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 import { idText } from "@tact-lang/compiler";
 
@@ -33,7 +33,7 @@ export class ImplicitOpcode extends AstDetector {
   severity = Severity.INFO;
   category = Category.BEST_PRACTICES;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return Array.from(cu.ast.getMessages()).reduce((acc, msg) => {
       if (msg.kind === "message_decl" && msg.opcode === undefined) {
         acc.push(
@@ -47,6 +47,6 @@ export class ImplicitOpcode extends AstDetector {
         );
       }
       return acc;
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 }

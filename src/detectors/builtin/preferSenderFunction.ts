@@ -20,7 +20,7 @@ import {
 } from "../../internals/tact/imports";
 import { Transfer } from "../../internals/transfer";
 import { isMapSubsetOf, mergeMaps } from "../../internals/util";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";
 
 interface ContextVariablesState {
@@ -178,8 +178,8 @@ export class PreferSenderFunction extends DataflowDetector {
   severity = Severity.LOW;
   category = Category.OPTIMIZATION;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
-    const warnings = [] as MistiTactWarning[];
+  async check(cu: CompilationUnit): Promise<Warning[]> {
+    const warnings = [] as Warning[];
     cu.forEachCFG(
       (cfg: Cfg) => {
         const node = cu.ast.getFunction(cfg.id);
@@ -197,7 +197,7 @@ export class PreferSenderFunction extends DataflowDetector {
   /**
    * Warns about direct uses of `context().sender`.
    */
-  private findDirectContextSender(node: AstStoreFunction): MistiTactWarning[] {
+  private findDirectContextSender(node: AstStoreFunction): Warning[] {
     const isContextSender = (expr: AstExpression): boolean =>
       expr.kind === "field_access" &&
       expr.aggregate.kind === "static_call" &&
@@ -221,7 +221,7 @@ export class PreferSenderFunction extends DataflowDetector {
         }
         return acc;
       },
-      [] as MistiTactWarning[],
+      [] as Warning[],
     );
   }
 
@@ -229,8 +229,8 @@ export class PreferSenderFunction extends DataflowDetector {
    * Warns about local variables assigned to `context()` when only `.sender`
    * is accessed.
    */
-  private findUnusedContext(cu: CompilationUnit, cfg: Cfg): MistiTactWarning[] {
-    const warnings = [] as MistiTactWarning[];
+  private findUnusedContext(cu: CompilationUnit, cfg: Cfg): Warning[] {
+    const warnings = [] as Warning[];
     const lattice = new ContextVariablesLattice();
     const transfer = new ContextVariablesTransfer();
     const solver = new WorklistSolver(cu, cfg, transfer, lattice, "forward");

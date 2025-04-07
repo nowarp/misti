@@ -6,7 +6,7 @@ import {
   MakeLiteral,
 } from "../../internals/tact";
 import { AstStatement, AstExpression } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -33,7 +33,7 @@ export class SuspiciousLoop extends AstDetector {
   severity = Severity.MEDIUM;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return Array.from(cu.ast.getProgramEntries()).reduce((acc, node) => {
       return acc.concat(
         ...foldStatements(
@@ -44,13 +44,13 @@ export class SuspiciousLoop extends AstDetector {
           acc,
         ),
       );
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 
   /**
    * Analyzes a loop statement to determine if it contains a suspicious condition.
    */
-  private analyzeLoopStatement(stmt: AstStatement): MistiTactWarning[] {
+  private analyzeLoopStatement(stmt: AstStatement): Warning[] {
     if (
       stmt.kind === "statement_repeat" &&
       evalsToPredicate(
@@ -65,7 +65,7 @@ export class SuspiciousLoop extends AstDetector {
       ];
     }
     if (stmt.kind === "statement_while") {
-      let warnings: MistiTactWarning[] = [];
+      let warnings: Warning[] = [];
       warnings = warnings.concat(this.checkTrueCondition(stmt.condition));
       if (warnings.length === 0 && stmt.statements.length > 0) {
         warnings = warnings.concat(this.checkFalseCondition(stmt.condition));
@@ -73,14 +73,14 @@ export class SuspiciousLoop extends AstDetector {
       return warnings;
     }
     if (stmt.kind === "statement_until") {
-      let warnings: MistiTactWarning[] = [];
+      let warnings: Warning[] = [];
       warnings = warnings.concat(this.checkTrueCondition(stmt.condition));
       return warnings;
     }
     return [];
   }
 
-  private checkFalseCondition(expr: AstExpression): MistiTactWarning[] {
+  private checkFalseCondition(expr: AstExpression): Warning[] {
     if (evalsToLiteral(expr, MakeLiteral.boolean(false))) {
       return [
         this.makeWarning("Loop condition is always false", expr.loc, {
@@ -92,7 +92,7 @@ export class SuspiciousLoop extends AstDetector {
     return [];
   }
 
-  private checkTrueCondition(expr: AstExpression): MistiTactWarning[] {
+  private checkTrueCondition(expr: AstExpression): Warning[] {
     return evalsToLiteral(expr, MakeLiteral.boolean(true))
       ? [
           this.makeWarning("Infinite loop detected", expr.loc, {

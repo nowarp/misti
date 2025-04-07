@@ -1,7 +1,7 @@
 import { CompilationUnit } from "../../internals/ir";
 import { collectFields } from "../../internals/tact";
 import { AstContract, AstContractInit } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -34,17 +34,17 @@ export class FieldDoubleInit extends AstDetector {
   severity = Severity.MEDIUM;
   category = Category.OPTIMIZATION;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return Array.from(cu.ast.getContracts()).reduce(
       (acc, contract) => acc.concat(this.checkContract(contract)),
-      [] as MistiTactWarning[],
+      [] as Warning[],
     );
   }
 
   /**
    * Looks for double-initialized fields in the given contract.
    */
-  private checkContract(contract: AstContract): MistiTactWarning[] {
+  private checkContract(contract: AstContract): Warning[] {
     const init = contract.declarations.find(
       (decl) => decl.kind === "contract_init",
     ) as AstContractInit | undefined;
@@ -83,6 +83,6 @@ export class FieldDoubleInit extends AstDetector {
         );
       }
       return acc;
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 }

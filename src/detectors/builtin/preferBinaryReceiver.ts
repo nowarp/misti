@@ -1,5 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -28,7 +28,7 @@ export class PreferBinaryReceiver extends AstDetector {
   severity = Severity.LOW;
   category = Category.OPTIMIZATION;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return Array.from(cu.ast.getFunctions()).reduce((acc, node) => {
       if (
         node.kind === "receiver" &&
@@ -45,6 +45,6 @@ export class PreferBinaryReceiver extends AstDetector {
         );
       }
       return acc;
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 }

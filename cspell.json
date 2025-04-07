@@ -111,6 +111,8 @@
     "quickfixes",
     "overapproximates",
     "jubnzv",
+    "braindead",
+    "docstrings",
     "basechain"
   ],
   "flagWords": [],

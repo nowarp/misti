@@ -2,7 +2,7 @@ import { CompilationUnit } from "../../internals/ir";
 import { collectFields, forEachExpression, isSelf } from "../../internals/tact";
 import { AstContract, AstFieldDecl } from "../../internals/tact/imports";
 import { idText } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 type FieldName = string;
@@ -50,14 +50,14 @@ export class UnboundMap extends AstDetector {
   severity = Severity.LOW;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return Array.from(cu.ast.getContracts()).reduce(
       (acc, contract) => acc.concat(this.checkContract(contract)),
-      [] as MistiTactWarning[],
+      [] as Warning[],
     );
   }
 
-  private checkContract(contract: AstContract): MistiTactWarning[] {
+  private checkContract(contract: AstContract): Warning[] {
     const mapFields = Array.from(collectFields(contract).values()).reduce(
       (acc, field) => {
         if (field.type.kind === "map_type") acc.set(idText(field.name), field);

@@ -8,7 +8,7 @@ import {
 import { AstId, AstStatement } from "../../internals/tact/imports";
 import { SrcInfo } from "../../internals/tact/imports";
 import { isLiteral } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { SouffleDetector } from "../detector";
 import { SouffleContext, atom, body, relation, rule } from "@nowarp/souffle";
 
@@ -43,7 +43,7 @@ export class UnboundLoop extends SouffleDetector {
   severity = Severity.HIGH;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     const program = this.createSouffleContext(cu);
     this.addDecls(program);
     this.addRules(program);

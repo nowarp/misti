@@ -1,7 +1,7 @@
 import { CompilationUnit } from "../../internals/ir";
 import { foldExpressions } from "../../internals/tact";
 import { AstExpression } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -40,7 +40,7 @@ export class ConstantAddress extends AstDetector {
   severity = Severity.INFO;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(
         foldExpressions(
@@ -48,16 +48,13 @@ export class ConstantAddress extends AstDetector {
           (acc, expr) => {
             return this.findConstantAddress(acc, expr);
           },
-          [] as MistiTactWarning[],
+          [] as Warning[],
         ),
       );
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 
-  private findConstantAddress(
-    acc: MistiTactWarning[],
-    expr: AstExpression,
-  ): MistiTactWarning[] {
+  private findConstantAddress(acc: Warning[], expr: AstExpression): Warning[] {
     if (expr.kind === "static_call") {
       if (
         expr.function.text === "address" &&

@@ -19,7 +19,7 @@ import {
 } from "../../internals/tact/imports";
 import { idText } from "../../internals/tact/imports";
 import { prettyPrint } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 type UnusedVarInfo = { name: AstId; originalType: AstType };
@@ -54,7 +54,7 @@ export class UnusedOptional extends AstDetector {
   severity = Severity.LOW;
   category = Category.OPTIMIZATION;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     const freeFunctionWarnings = Array.from(cu.ast.getProgramEntries()).reduce(
       (acc, entry) => {
         if (entry.kind === "function_def") {
@@ -62,11 +62,11 @@ export class UnusedOptional extends AstDetector {
         }
         return acc;
       },
-      [] as MistiTactWarning[],
+      [] as Warning[],
     );
     const contractWarnings = Array.from(cu.ast.getContracts()).reduce(
       (acc, contract) => [...acc, ...this.checkContract(contract)],
-      [] as MistiTactWarning[],
+      [] as Warning[],
     );
     return [...freeFunctionWarnings, ...contractWarnings];
   }
@@ -78,7 +78,7 @@ export class UnusedOptional extends AstDetector {
   private checkFunction(
     fun: AstFunctionDef | AstReceiver | AstContractInit,
     unusedOptionalFields: Set<string> = new Set(),
-  ): MistiTactWarning[] {
+  ): Warning[] {
     return Array.from(
       foldStatements(
         fun,
@@ -179,7 +179,7 @@ export class UnusedOptional extends AstDetector {
   /**
    * Checks for unused optional variables in fields and method local variables of contracts.
    */
-  private checkContract(contract: AstContract): MistiTactWarning[] {
+  private checkContract(contract: AstContract): Warning[] {
     const fields = collectFields(contract);
     const optionalFields = new Map<string, AstFieldDecl>(
       Array.from(fields.entries()).filter(
@@ -196,7 +196,7 @@ export class UnusedOptional extends AstDetector {
         return [...acc, ...this.checkFunction(decl, optionalFieldNames)];
       }
       return acc;
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
     const fieldWarnings = Array.from(optionalFields.keys()).reduce(
       (acc, fieldName) => {
         if (optionalFieldNames.has(fieldName)) {
@@ -214,7 +214,7 @@ export class UnusedOptional extends AstDetector {
         }
         return acc;
       },
-      [] as MistiTactWarning[],
+      [] as Warning[],
     );
     return [...fieldWarnings, ...localVariablesWarnings];
   }

@@ -2,9 +2,9 @@ import { getMistiAnnotation } from "./annotation";
 import { InternalException } from "./exceptions";
 import { QuickFix } from "./quickfix";
 import { quickFixToString } from "./quickfix";
-import { srcInfoToString } from "./tact";
 import { SrcInfo } from "./tact/imports";
-import { unreachable } from "./util";
+import { isTest, unreachable } from "./util";
+import path from "path";
 
 /**
  * Enumerates the levels of severity that can be assigned to detected findings.
@@ -38,7 +38,7 @@ export function parseSeverity(value: string): Severity {
 
 /**
  * Returns string representation of `Severity` optionally wrapped in ANSI escape
- * sequences making them colorful for visual overload.
+ * sequences making it colorful for visual emphasis.
  */
 export function severityToString(
   s: Severity,
@@ -98,98 +98,167 @@ export function categoryToString(c: Category): string | never {
 export const BASE_DOC_URL = "https://nowarp.io/tools/misti/docs/detectors";
 
 /**
+ * Source code location of the warning present in JSON output.
+ */
+export interface WarningLocation {
+  /** Absolute path from the analyzer's process directory. */
+  file: string;
+  /** Line number. */
+  line: number;
+  /** Column number. */
+  column: number;
+  /** Lines of code in this location used in warning message */
+  code: string;
+}
+
+/**
  * Misti warning that highlights a specific place in a Tact contract.
  */
-export class MistiTactWarning {
-  /**
-   * @param description Descriptive text of the warning.
-   * @param detectorId Unique identifier of the detector.
-   * @param severity Severity of the warning.
-   * @param category Category of the warning.
-   * @param loc Reference to the source code that includes file information and position data.
-   * @param data Additional optional data for the warning, including:
-   * - `extraDescription`: More comprehensive description that clarifies the warning in greater detail.
-   * - `docURL`: URL to the detector documentation.
-   * - `suggestion`: Suggested change in the source code.
-   * - `quickfix` An optional code suggestions mainly for LSP code actions.
-   */
-  constructor(
-    public readonly detectorId: string,
-    public readonly msg: string,
-    public readonly loc: SrcInfo,
-    public readonly severity: Severity,
-    public readonly category: Category | undefined,
-    public readonly quickfixes: QuickFix[] | undefined,
-  ) {}
+export type Warning = {
+  /** Unique identifier of the detector. */
+  readonly detectorId: string;
+  /** Descriptive text of the warning. */
+  readonly description: string;
+  /** Reference to the source code. */
+  readonly location: WarningLocation;
+  /** True if the warning is suppressed with a code annotation. */
+  readonly suppressed: boolean;
+  /** Severity of the warning. */
+  readonly severity: Severity;
+  /** Category of the warning. */
+  readonly category: Category | undefined;
+  /** More comprehensive description that clarifies the warning in greater detail. */
+  readonly extraDescription: string;
+  /** URL to the detector documentation. */
+  readonly docURL: string;
+  /** Suggested change in the source code (text description). */
+  readonly suggestion: string;
+  /** Optional code suggestions mainly for LSP code actions. */
+  readonly quickfixes: QuickFix[];
+};
 
-  public static make(
-    detectorId: string,
-    description: string,
-    severity: Severity,
-    category: Category | undefined,
-    loc: SrcInfo,
-    data: Partial<{
-      extraDescription: string;
-      docURL: string;
-      suggestion: string;
-      quickfixes: QuickFix[];
-    }> = {},
-  ): MistiTactWarning | never {
-    if (description.length === 0) {
-      throw InternalException.make("description cannot be empty");
-    }
-    const {
-      extraDescription = undefined,
-      docURL = undefined,
-      suggestion = undefined,
-      quickfixes = [],
-    } = data;
-    const extraDescriptionStr =
-      extraDescription === undefined ? "" : extraDescription + "\n";
-    const suggestedChange = (() => {
-      const quickfixStr = quickfixes
-        .filter((qf) => qf.shown)
-        .map((qf) => quickFixToString(qf))
-        .join("\n");
-      if (quickfixStr) {
-        return `Help: ${quickfixStr}`;
-      } else if (suggestion !== undefined) {
-        return `Help: ${suggestion}`;
-      } else {
-        return "";
-      }
-    })();
-    const docURLStr = docURL === undefined ? "" : `\nSee: ${docURL}`;
-    const msg = [
-      description,
-      "\n",
-      srcInfoToString(loc),
-      extraDescriptionStr,
-      suggestedChange,
-      docURLStr,
-    ].join("");
-    return new MistiTactWarning(
-      detectorId,
-      msg,
-      loc,
-      severity,
-      category,
-      quickfixes,
-    );
-  }
+/**
+ * Converts SrcInfo to WarningLocation.
+ */
+export function makeWarningLocation(loc: SrcInfo): WarningLocation {
+  const lc = loc.interval.getLineAndColumn() as {
+    lineNum: number;
+    colNum: number;
+  };
+  const code = loc.interval.getLineAndColumnMessage();
+  const file = loc.file
+    ? isTest()
+      ? path.normalize(path.relative(process.cwd(), loc.file))
+      : path.normalize(loc.file)
+    : "<no file>";
+  return { file, line: lc.lineNum, column: lc.colNum, code };
+}
 
-  /**
-   * Checks whether this warning is suppressing using a Misti annotation.
-   */
-  public isSuppressed(): boolean {
-    const annotation = getMistiAnnotation(this.loc);
-    if (annotation && annotation.kind === "suppress") {
-      return (
-        annotation.detectors.find((d) => d === this.detectorId) !== undefined
-      );
-    }
-    return false;
+/**
+ * Converts SrcInfo to the string representation shown to the user.
+ */
+export function warningLocationToString(wl: WarningLocation): string {
+  return `${wl.file}:${wl.line}:${wl.column}:\n${wl.code}`;
+}
+
+export function makeWarning(
+  detectorId: string,
+  description: string,
+  severity: Severity,
+  category: Category | undefined,
+  loc: SrcInfo,
+  data: Partial<{
+    extraDescription: string;
+    docURL: string;
+    suggestion: string;
+    quickfixes: QuickFix[];
+  }> = {
+    extraDescription: undefined,
+    docURL: undefined,
+    suggestion: undefined,
+    quickfixes: [],
+  },
+): Warning | never {
+  if (description.length === 0) {
+    throw InternalException.make("description cannot be empty");
   }
+  const wl = makeWarningLocation(loc);
+  return {
+    detectorId,
+    description,
+    location: wl,
+    suppressed: warningIsSuppressed(wl, detectorId),
+    severity,
+    category,
+    extraDescription: data.extraDescription,
+    docURL: data.docURL,
+    suggestion: data.suggestion,
+    quickfixes: data.quickfixes ? data.quickfixes : [],
+  } as Warning;
+}
+
+/**
+ * A braindead-simple hash to check if the warning has already been reported.
+ */
+export function hashWarning(warn: Warning): string {
+  return [
+    warn.detectorId,
+    warn.location.file,
+    warn.location.line,
+    warn.location.column,
+  ].join("%");
+}
+
+/**
+ * Returns string representation of the warning according to the configuration.
+ */
+export function formatWarning(
+  warn: Warning,
+  colorize: boolean,
+  addNewline: boolean,
+): string {
+  const extraDescriptionStr =
+    warn.extraDescription === undefined ? "" : `${warn.extraDescription}\n`;
+  const suggestedChange = (() => {
+    const quickfixStr = warn.quickfixes
+      .filter((qf) => qf.shown)
+      .map((qf) => quickFixToString(qf))
+      .join("\n");
+    if (quickfixStr) {
+      return `Help: ${quickfixStr}`;
+    } else if (warn.suggestion !== undefined) {
+      return `Help: ${warn.suggestion}`;
+    } else {
+      return "";
+    }
+  })();
+  const docURLStr = warn.docURL === undefined ? "" : `\nSee: ${warn.docURL}`;
+  const msg = [
+    warn.description,
+    "\n",
+    warningLocationToString(warn.location),
+    extraDescriptionStr,
+    suggestedChange,
+    docURLStr,
+  ].join("");
+  const severity = severityToString(warn.severity, {
+    colorize,
+  });
+  return `${severity} ${warn.detectorId}: ${msg}${addNewline && !msg.endsWith("\n") ? "\n" : ""}`;
+}
+
+/**
+ * Checks whether the warning is suppressing using a Misti annotation.
+ */
+export function warningIsSuppressed(
+  wl: WarningLocation,
+  detectorId: string,
+): boolean {
+  const annotation = getMistiAnnotation(wl.code);
+  if (annotation && annotation.kind === "suppress") {
+    return annotation.detectors.find((d) => d === detectorId) !== undefined;
+  }
+  return false;
 }
 
 /**

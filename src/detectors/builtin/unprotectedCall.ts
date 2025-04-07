@@ -26,7 +26,7 @@ import { prettyPrint } from "../../internals/tact/imports";
 import { idText } from "../../internals/tact/imports";
 import { Transfer } from "../../internals/transfer";
 import { unreachable, mergeLists } from "../../internals/util";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";
 
 class ArgTaint {
@@ -239,8 +239,8 @@ export class UnprotectedCall extends DataflowDetector {
   severity = Severity.HIGH;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
-    let warnings: MistiTactWarning[] = [];
+  async check(cu: CompilationUnit): Promise<Warning[]> {
+    let warnings: Warning[] = [];
     cu.forEachCFG((cfg: Cfg) => {
       const astFun = cu.ast.getFunction(cfg.id);
       if (!astFun) {
@@ -289,15 +289,8 @@ export class UnprotectedCall extends DataflowDetector {
     }
   }
 
-  private checkCalls(
-    stmt: AstStatement,
-    state: TaintState,
-  ): MistiTactWarning[] {
-    const inspectArg = (
-      acc: MistiTactWarning[],
-      arg: AstExpression,
-      msg: string,
-    ) => {
+  private checkCalls(stmt: AstStatement, state: TaintState): Warning[] {
+    const inspectArg = (acc: Warning[], arg: AstExpression, msg: string) => {
       // TODO: Print the source of taint (using argTaint.parent)
       const taints: ArgTaint[] = [];
       findTaints(taints, arg, state);
@@ -305,11 +298,8 @@ export class UnprotectedCall extends DataflowDetector {
         acc.push(this.makeWarning(`${msg}: ${prettyPrint(arg)}`, arg.loc));
       }
     };
-    const checkUnprotectedSendArg = (
-      acc: MistiTactWarning[],
-      expr: AstExpression,
-    ) => {
-      const inspectArg_ = (acc: MistiTactWarning[], arg: AstExpression) =>
+    const checkUnprotectedSendArg = (acc: Warning[], expr: AstExpression) => {
+      const inspectArg_ = (acc: Warning[], arg: AstExpression) =>
         inspectArg(acc, arg, "Unprotected send argument");
       if (
         (expr.kind === "static_call" &&
@@ -326,7 +316,7 @@ export class UnprotectedCall extends DataflowDetector {
       }
     };
     const checkUnprotectedFieldMutation = (
-      acc: MistiTactWarning[],
+      acc: Warning[],
       expr: AstExpression,
     ) => {
       if (expr.kind === "method_call") {
@@ -351,7 +341,7 @@ export class UnprotectedCall extends DataflowDetector {
         checkUnprotectedFieldMutation(acc, expr);
         return acc;
       },
-      [] as MistiTactWarning[],
+      [] as Warning[],
     );
   }
 

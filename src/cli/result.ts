@@ -2,6 +2,7 @@ import { STDOUT_PATH } from "./options";
 import { OutputFormat, ExitCode } from "../cli/types";
 import { InternalException } from "../internals/exceptions";
 import { unreachable } from "../internals/util";
+import { formatWarning, Warning } from "../internals/warnings";
 import fs from "fs";
 import JSONbig from "json-bigint";
 import path from "path";
@@ -11,36 +12,24 @@ type LogMap = {
 };
 
 /**
- * MistiResultOK represents the result of a Misti operation that did not find any warnings.
+ * Result of a Misti operation that did not find any warnings.
  */
-export type MistiResultOK = LogMap & {
+export type ResultOK = LogMap & {
   kind: "ok";
 };
 
-export type WarningOutput = {
-  /**
-   * Project that has been checked.
-   */
-  projectName: string;
-  /**
-   * Warnings found by Misti.
-   * If JSON format is used, these are present as serialized JSON.
-   */
-  warnings: string[];
-};
-
 /**
- * MistiResultWarnings represents the result of a Misti operation that found warnings.
+ * Result of a Misti operation that found warnings.
  */
-export type MistiResultWarnings = LogMap & {
+export type ResultWarnings = LogMap & {
   kind: "warnings";
-  warnings: WarningOutput[];
+  warnings: Warning[];
 };
 
 /**
- * MistiResultError represents the result of a Misti operation that encountered an error.
+ * Result of a Misti operation that encountered an error.
  */
-export type MistiResultError = LogMap & {
+export type ResultError = LogMap & {
   kind: "error";
   /**
    * Error output when Misti cannot complete the requested operation.
@@ -62,24 +51,20 @@ export type ToolOutput = {
 };
 
 /**
- * MistiResultTool represents the result of a Misti operation that executed an internal tool.
+ * Result of a Misti operation that executed an internal tool.
  */
-export type MistiResultTool = LogMap & {
+export type ResultTool = LogMap & {
   kind: "tool";
   output: ToolOutput[];
 };
 
-export type MistiResult =
-  | MistiResultOK
-  | MistiResultWarnings
-  | MistiResultTool
-  | MistiResultError;
+export type Result = ResultOK | ResultWarnings | ResultTool | ResultError;
 
 /**
  * Converts a MistiResult object to a readable string based on its kind.
  */
 export function resultToString(
-  result: MistiResult,
+  result: Result,
   outputFormat: OutputFormat,
 ): string {
   if (outputFormat === "json") {
@@ -91,10 +76,12 @@ export function resultToString(
     case "error":
       return `Misti execution failed:\n${result.error}`;
     case "warnings":
-      return result.warnings
-        .flatMap((warningOutput) => warningOutput.warnings)
-        .join("\n")
-        .trim();
+      const formattedWarnings: string[] = [];
+      result.warnings.forEach((warn, index) => {
+        const isLastWarning = index === result.warnings.length - 1;
+        formattedWarnings.push(formatWarning(warn, false, !isLastWarning));
+      });
+      return formattedWarnings.join("\n").trim();
     case "tool":
       return result.output.length === 1
         ? result.output[0].output.trim()
@@ -107,7 +94,7 @@ export function resultToString(
   }
 }
 
-export function resultToExitCode(result: MistiResult): ExitCode {
+export function resultToExitCode(result: Result): ExitCode {
   switch (result.kind) {
     case "ok":
     case "tool":
@@ -138,7 +125,7 @@ export type ResultReport =
  * @returns The report of the result.
  */
 export function saveResultToFiles(
-  result: MistiResult,
+  result: Result,
   outputPath: string,
 ): ResultReport {
   if (outputPath === STDOUT_PATH) {
@@ -153,12 +140,12 @@ export function saveResultToFiles(
         message: result.error,
       };
     case "warnings":
-      result.warnings.forEach((warn) => {
-        fs.writeFileSync(
-          path.join(outputPath, `${warn.projectName}.warnings.out`),
-          warn.warnings.join("\n"),
-        );
-      });
+      fs.writeFileSync(
+        path.join(outputPath, `warnings.out`),
+        result.warnings
+          .map((warning) => formatWarning(warning, false, false))
+          .join("\n"),
+      );
       return null;
     case "tool":
       result.output.forEach((tool) => {

@@ -9,7 +9,7 @@ import {
 import { idText } from "../../internals/tact/imports";
 import { prettyPrint } from "../../internals/tact/imports";
 import { unreachable } from "../../internals/util";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -47,7 +47,7 @@ export class UnusedExpressionResult extends AstDetector {
    */
   private freeFunctionReturnTypes = new Map<string, AstType | undefined>();
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     this.freeFunctionReturnTypes = cu.ast.getReturnTypes();
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       if (node.kind === "trait" || node.kind === "contract") {
@@ -57,7 +57,7 @@ export class UnusedExpressionResult extends AstDetector {
         acc = acc.concat(this.checkFunction(node, undefined));
       }
       return acc;
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 
   /**
@@ -66,8 +66,8 @@ export class UnusedExpressionResult extends AstDetector {
   private checkFunction(
     node: AstNode,
     methodReturnTypes: Map<string, AstType | undefined> | undefined,
-  ): MistiTactWarning[] {
-    const warnings: MistiTactWarning[] = [];
+  ): Warning[] {
+    const warnings: Warning[] = [];
     forEachStatement(node, (stmt) => {
       if (stmt.kind === "statement_expression") {
         this.checkExpressionStatement(stmt, methodReturnTypes).forEach((w) =>
@@ -85,7 +85,7 @@ export class UnusedExpressionResult extends AstDetector {
   private checkExpressionStatement(
     stmt: AstStatementExpression,
     methodReturnTypes: Map<string, AstType | undefined> | undefined,
-  ): MistiTactWarning[] {
+  ): Warning[] {
     return this.checkExpression(stmt.expression, methodReturnTypes);
   }
 
@@ -95,8 +95,8 @@ export class UnusedExpressionResult extends AstDetector {
   private checkExpression(
     expr: AstExpression,
     methodReturnTypes: Map<string, AstType | undefined> | undefined,
-  ): MistiTactWarning[] {
-    const warnings: MistiTactWarning[] = [];
+  ): Warning[] {
+    const warnings: Warning[] = [];
     const warn = () =>
       this.makeWarning(
         `Result of evaluation of ${prettyPrint(expr)} is unused`,

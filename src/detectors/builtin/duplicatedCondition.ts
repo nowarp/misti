@@ -12,7 +12,7 @@ import {
   prettyPrint,
   AstExpression,
 } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -48,7 +48,7 @@ export class DuplicatedCondition extends AstDetector {
   severity = Severity.HIGH;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       const exprWarnings = foldExpressions(
         node,
@@ -57,7 +57,7 @@ export class DuplicatedCondition extends AstDetector {
             ? this.checkConditionalExpression(acc, expr)
             : acc;
         },
-        [] as MistiTactWarning[],
+        [] as Warning[],
       );
       const stmtWarnings = foldStatements(
         node,
@@ -66,32 +66,32 @@ export class DuplicatedCondition extends AstDetector {
             ? this.checkConditionalStatement(acc, stmt)
             : acc;
         },
-        [] as MistiTactWarning[],
+        [] as Warning[],
       );
       return acc.concat(...stmtWarnings, ...exprWarnings);
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 
   private checkConditionalExpression(
-    acc: MistiTactWarning[],
+    acc: Warning[],
     expr: AstConditional,
-  ): MistiTactWarning[] {
+  ): Warning[] {
     const allConditions = this.collectConditionalExpressions(expr);
     return this.checkConditions(acc, allConditions);
   }
 
   private checkConditionalStatement(
-    acc: MistiTactWarning[],
+    acc: Warning[],
     stmt: AstStatementCondition,
-  ): MistiTactWarning[] {
+  ): Warning[] {
     const allConditions = collectConditions(stmt);
     return this.checkConditions(acc, allConditions);
   }
 
   private checkConditions(
-    acc: MistiTactWarning[],
+    acc: Warning[],
     allConditions: (AstExpression | AstStatement)[],
-  ): MistiTactWarning[] {
+  ): Warning[] {
     allConditions.forEach((lhs, index) => {
       allConditions.slice(index + 1).forEach((rhs) => {
         if (nodesAreEqual(lhs, rhs)) {

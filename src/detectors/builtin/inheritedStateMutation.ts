@@ -7,7 +7,7 @@ import {
 } from "../../internals/tact";
 import { AstStatement, AstNode } from "../../internals/tact/imports";
 import { intersectLists } from "../../internals/util";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -57,7 +57,7 @@ export class InheritedStateMutation extends AstDetector {
   severity = Severity.LOW;
   category = Category.BEST_PRACTICES;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return Array.from(cu.ast.getContracts()).reduce((acc, contract) => {
       const contractAst = cu.ast.getContract(contract.id);
       if (!contractAst)
@@ -71,7 +71,7 @@ export class InheritedStateMutation extends AstDetector {
         );
       }
       const inheritedFieldNames = inheritedFields.map((f) => f.name.text);
-      const check = (node: AstNode): MistiTactWarning[] =>
+      const check = (node: AstNode): Warning[] =>
         foldStatements(
           node,
           (acc, stmt) => {
@@ -81,23 +81,23 @@ export class InheritedStateMutation extends AstDetector {
               inheritedFieldNames,
             );
           },
-          [] as MistiTactWarning[],
+          [] as Warning[],
         );
       const contractWarnings = contract.declarations.reduce((acc, decl) => {
         // Skip init functions since we cannot access self to use setters
         return decl.kind === "function_def" || decl.kind === "receiver"
           ? acc.concat(check(decl))
           : acc;
-      }, [] as MistiTactWarning[]);
+      }, [] as Warning[]);
       return acc.concat(contractWarnings);
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 
   private findInheritedFieldAssignments(
-    acc: MistiTactWarning[],
+    acc: Warning[],
     stmt: AstStatement,
     inheritedFieldNames: string[],
-  ): MistiTactWarning[] {
+  ): Warning[] {
     const mutations = collectMutations(stmt);
     const foundMutations = mutations
       ? intersectLists(

@@ -5,7 +5,7 @@ import {
   isSelfId,
   prettyPrint as pp,
 } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 const SLICE_REPLACEMENTS: Record<
@@ -56,17 +56,17 @@ export class SuboptimalCellOperation extends AstDetector {
   severity = Severity.MEDIUM;
   category = Category.OPTIMIZATION;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return Array.from(cu.ast.getFunctions()).reduce((acc, fn) => {
       for (const stmt of fn.statements) {
         const warn = this.warnUnusedLoads(stmt);
         if (warn) acc.push(warn);
       }
       return acc;
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 
-  private warnUnusedLoads(stmt: AstStatement): MistiTactWarning | undefined {
+  private warnUnusedLoads(stmt: AstStatement): Warning | undefined {
     if (
       stmt.kind === "statement_expression" &&
       stmt.expression.kind === "method_call" &&

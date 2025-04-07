@@ -18,11 +18,12 @@ import { CompilationUnit } from "../internals/ir";
 import { QuickFix } from "../internals/quickfix";
 import { SrcInfo } from "../internals/tact/imports";
 import {
-  MistiTactWarning,
+  Warning,
   Severity,
   makeDocURL,
   severityToString,
   Category,
+  makeWarning,
 } from "../internals/warnings";
 import {
   SouffleAsyncExecutor,
@@ -108,7 +109,7 @@ export abstract class Detector {
    * @param cu The compilation unit to be analyzed.
    * @returns List of warnings has highlighted by this detector.
    */
-  abstract check(cu: CompilationUnit): Promise<MistiTactWarning[]>;
+  abstract check(cu: CompilationUnit): Promise<Warning[]>;
 
   /**
    * Returns `true` if the identifier with the given name should not be reported
@@ -132,7 +133,7 @@ export abstract class Detector {
       suggestion: string;
       quickfixes: QuickFix[];
     }> = {},
-  ): MistiTactWarning {
+  ): Warning {
     if (
       data.severity &&
       (data.severity < this.getSeverity().min ||
@@ -153,7 +154,7 @@ export abstract class Detector {
       }
       return c;
     })();
-    return MistiTactWarning.make(
+    return makeWarning(
       this.id,
       description,
       data.severity ? data.severity : this.getSeverity().max,
@@ -219,8 +220,8 @@ export abstract class SouffleDetector extends Detector {
    */
   protected async executeSouffle(
     ctx: SouffleContext<SrcInfo>,
-    callback: (fact: SouffleFact<SrcInfo>) => MistiTactWarning | undefined,
-  ): Promise<MistiTactWarning[]> {
+    callback: (fact: SouffleFact<SrcInfo>) => Warning | undefined,
+  ): Promise<Warning[]> {
     const executor = new SouffleAsyncExecutor<SrcInfo>({
       inputDir: this.ctx.config.soufflePath,
       outputDir: this.ctx.config.soufflePath,
@@ -236,19 +237,20 @@ export abstract class SouffleDetector extends Detector {
         `Error executing Soufflé for ${this.id}:\n${error}`,
       );
     }
-    return Array.from(result.results.entries.values()).reduce<
-      MistiTactWarning[]
-    >((acc, facts) => {
-      return acc.concat(
-        facts.reduce<MistiTactWarning[]>((innerAcc, fact) => {
-          const warning = callback(fact);
-          if (warning) {
-            innerAcc.push(warning);
-          }
-          return innerAcc;
-        }, []),
-      );
-    }, []);
+    return Array.from(result.results.entries.values()).reduce<Warning[]>(
+      (acc, facts) => {
+        return acc.concat(
+          facts.reduce<Warning[]>((innerAcc, fact) => {
+            const warning = callback(fact);
+            if (warning) {
+              innerAcc.push(warning);
+            }
+            return innerAcc;
+          }, []),
+        );
+      },
+      [],
+    );
   }
 }
 

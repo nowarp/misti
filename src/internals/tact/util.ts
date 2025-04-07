@@ -325,21 +325,6 @@ export function collectConditions(
 }
 
 /**
- * Converts SrcInfo to the string representation shown to the user.
- */
-export function srcInfoToString(loc: SrcInfo): string {
-  const lc = loc.interval.getLineAndColumn() as {
-    lineNum: number;
-    colNum: number;
-  };
-  const msg = loc.interval.getLineAndColumnMessage();
-  const shownPath = loc.file
-    ? path.relative(process.cwd(), loc.file) + ":"
-    : "";
-  return `${shownPath}${lc.lineNum}:${lc.colNum}:\n${msg}`;
-}
-
-/**
  * Collects a chain of method calls.
  *
  * Example:
