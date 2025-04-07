@@ -20,12 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Logger: Detector contexts: PR [#327](https://github.com/nowarp/misti/pull/327)
 - Logger: Print timestamps when `--verbose` is set: Issue [#73](https://github.com/nowarp/misti/issues/73)
 - `PreferredStdlibApi`: Suggest using `throwUnless` over `require`: Issue [#345](https://github.com/nowarp/misti/issues/345)
+- JSON Schema for Misti output: PR [#355](https://github.com/nowarp/misti/pull/355)
 
 ### Changed
 - Replace imports from `@tact-lang/compiler/dist/...` to `@tact-lang/compiler`: PR [#328](https://github.com/nowarp/misti/pull/328)
 - Removed `--new-detector` option and the `createDetector` module as unused
 - `ExitCodeUsage`: Allow using `0` as success exit code: Issue [#344](https://github.com/nowarp/misti/issues/344)
 - Use relative paths in warnings in JSON: : PR [#353](https://github.com/nowarp/misti/pull/353)
+- Breaking changes: New `Warning` and `Result` structures: PR [#355](https://github.com/nowarp/misti/pull/355)
 
 ### Fixed
 - `postinstall` error when using the Misti dependency with a package manager different from `yarn`: Issue [#337](https://github.com/nowarp/misti/issues/337)
