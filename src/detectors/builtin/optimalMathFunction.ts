@@ -9,7 +9,7 @@ import {
   idText,
   prettyPrint,
 } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 const REPLACEMENTS: Record<string, string> = {
@@ -37,7 +37,7 @@ export class OptimalMathFunction extends AstDetector {
   severity = Severity.LOW;
   category = Category.OPTIMIZATION;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(
         foldExpressions(
@@ -45,16 +45,13 @@ export class OptimalMathFunction extends AstDetector {
           (acc, expr) => {
             return this.findSuboptimalCall(acc, expr);
           },
-          [] as MistiTactWarning[],
+          [] as Warning[],
         ),
       );
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 
-  private findSuboptimalCall(
-    acc: MistiTactWarning[],
-    expr: AstExpression,
-  ): MistiTactWarning[] {
+  private findSuboptimalCall(acc: Warning[], expr: AstExpression): Warning[] {
     if (expr.kind === "static_call") {
       const funName = idText(expr.function);
       const suggestedFun = REPLACEMENTS[funName] || undefined;

@@ -29,6 +29,7 @@
     "fmt": "prettier --check src test examples",
     "spell": "cspell \"**\" --no-progress --exclude \"dist/**\" --exclude \"node_modules/**\" --exclude \"tags/**\" --exclude \"docs/**\"",
     "docs": "yarn typedoc --out docs/api --entryPointStrategy expand src",
+    "json-schema": "ts-node ./scripts/genJsonSchema.ts mistiOutput.json",
     "detector-docs": "ts-node ./scripts/generateDetectorDocs.ts",
     "fix-all": "yarn fmt --write && yarn lint --fix",
     "test-all": "yarn spell && yarn knip && yarn fmt && yarn lint && yarn test",
@@ -73,6 +74,7 @@
     "prettier": "^3.2.5",
     "release-it": "^18.1.0",
     "ts-jest": "^29.0.3",
+    "ts-json-schema-generator": "^2.3.0",
     "ts-node": "^10.9.1",
     "typedoc": "^0.26.5",
     "typescript": "^4.9.3"

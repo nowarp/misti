@@ -7,7 +7,7 @@ import {
   MakeLiteral,
 } from "../../internals/tact";
 import { AstExpression, prettyPrint } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -38,14 +38,14 @@ export class ShortCircuitCondition extends AstDetector {
   severity = Severity.LOW;
   category = Category.OPTIMIZATION;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return Array.from(cu.ast.getFunctions()).reduce(
       (acc, fun) => acc.concat(this.checkFunction(fun)),
-      [] as MistiTactWarning[],
+      [] as Warning[],
     );
   }
 
-  private checkFunction(fun: any): MistiTactWarning[] {
+  private checkFunction(fun: any): Warning[] {
     return foldStatements(
       fun,
       (acc, stmt) => {
@@ -96,7 +96,7 @@ export class ShortCircuitCondition extends AstDetector {
         });
         return acc;
       },
-      [] as MistiTactWarning[],
+      [] as Warning[],
     );
   }
 

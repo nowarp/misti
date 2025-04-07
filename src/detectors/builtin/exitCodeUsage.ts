@@ -18,7 +18,7 @@ import {
 } from "../../internals/tact/imports";
 import { findInExpressions } from "../../internals/tact/iterators";
 import { Transfer } from "../../internals/transfer";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";
 
 /**
@@ -208,8 +208,8 @@ export class ExitCodeUsage extends DataflowDetector {
   severity = Severity.HIGH;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
-    const warnings: MistiTactWarning[] = [];
+  async check(cu: CompilationUnit): Promise<Warning[]> {
+    const warnings: Warning[] = [];
 
     cu.forEachCFG(
       (cfg: Cfg) => {
@@ -244,7 +244,7 @@ export class ExitCodeUsage extends DataflowDetector {
     cu: CompilationUnit,
     state: VariableState,
     bb: BasicBlock,
-    warnings: MistiTactWarning[],
+    warnings: Warning[],
   ): void {
     const stmt = cu.ast.getStatement(bb.stmtID);
     if (!stmt) {
@@ -261,10 +261,7 @@ export class ExitCodeUsage extends DataflowDetector {
    * @param arg The argument passed to the throw function
    * @param warnings Array to collect any warnings found
    */
-  private checkDirectExitCode(
-    arg: AstExpression,
-    warnings: MistiTactWarning[],
-  ): void {
+  private checkDirectExitCode(arg: AstExpression, warnings: Warning[]): void {
     const num = evalToType(arg, "number");
     if (
       num !== undefined &&
@@ -290,7 +287,7 @@ export class ExitCodeUsage extends DataflowDetector {
   private checkVariableExitCode(
     arg: AstExpression,
     state: VariableState,
-    warnings: MistiTactWarning[],
+    warnings: Warning[],
   ): void {
     if (arg.kind === "id") {
       const exitVariableName = idText(arg);

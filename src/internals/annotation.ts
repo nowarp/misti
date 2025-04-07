@@ -4,9 +4,6 @@
  * @packageDocumentation
  */
 
-import { srcInfoToString } from "./tact";
-import { SrcInfo } from "./tact/imports";
-
 /**
  * Represents a Misti annotation.
  */
@@ -26,9 +23,11 @@ export const SUPPRESS_MARKER = "@misti:suppress";
  *
  * These can be single or multi-line comments on the current or previous line
  * annotated with SUPPRESS_MARKER.
+ *
+ * @param code Code present in `SrcInfo.interval.getLineAndColumnMessage()`.
  */
-export function getMistiAnnotation(loc: SrcInfo): MistiAnnotation | null {
-  const lines = srcInfoToString(loc).split("\n");
+export function getMistiAnnotation(code: string): MistiAnnotation | null {
+  const lines = code.split("\n");
   const currentLineIndex = lines.findIndex((line) =>
     line.trim().startsWith(">"),
   );

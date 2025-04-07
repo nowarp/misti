@@ -2,37 +2,490 @@
   "kind": "warnings",
   "warnings": [
     {
-      "projectName": "syntax",
-      "warnings": [
-        "{\"file\":\"test/all/syntax.tact\",\"line\":125,\"col\":9,\"detectorId\":\"NeverAccessedVariables\",\"severity\":\"MEDIUM\",\"message\":\"Variable value is never accessed\\ntest/all/syntax.tact:125:9:\\n  124 |     fun funcWithStateRead() {\\n> 125 |         let value = self.addr;\\n                ^~~~~~~~~~~~~~~~~~~~~~\\n  126 |     }\\nHelp: Consider removing the variable\\nSee: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":141,\"col\":9,\"detectorId\":\"NeverAccessedVariables\",\"severity\":\"MEDIUM\",\"message\":\"Variable currentTime is never accessed\\ntest/all/syntax.tact:141:9:\\n  140 |     fun funcWithMultipleEffects() {\\n> 141 |         let currentTime: Int = now();\\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\n  142 |         let randValue: Int = random(1, 100);\\nHelp: Consider removing the variable\\nSee: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":142,\"col\":9,\"detectorId\":\"NeverAccessedVariables\",\"severity\":\"MEDIUM\",\"message\":\"Variable randValue is never accessed\\ntest/all/syntax.tact:142:9:\\n  141 |         let currentTime: Int = now();\\n> 142 |         let randValue: Int = random(1, 100);\\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\n  143 |         if (1 > 42) {\\nHelp: Consider removing the variable\\nSee: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":143,\"col\":9,\"detectorId\":\"FalseCondition\",\"severity\":\"MEDIUM\",\"message\":\"Condition always evaluates to false\\ntest/all/syntax.tact:143:9:\\n  142 |         let randValue: Int = random(1, 100);\\n> 143 |         if (1 > 42) {\\n                ^~~~~~~~~~~~~\\n  144 |             nativeRandomizeLt();\\nHelp: Remove the condition\\nSee: https://nowarp.io/tools/misti/docs/detectors/FalseCondition\",\"quickfixes\":[{\"kind\":\"delete\",\"description\":\"Remove the condition\",\"shown\":true,\"range\":{\"start\":{\"line\":143,\"column\":9},\"end\":{\"line\":3,\"column\":10}}}]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":196,\"col\":9,\"detectorId\":\"FalseCondition\",\"severity\":\"MEDIUM\",\"message\":\"Condition always evaluates to false\\ntest/all/syntax.tact:196:9:\\n  195 |         while (false) {}\\n> 196 |         while (false) {\\n                ^~~~~~~~~~~~~~~\\n  197 |             dump(\\\"something\\\");\\nHelp: Remove the condition\\nSee: https://nowarp.io/tools/misti/docs/detectors/FalseCondition\",\"quickfixes\":[{\"kind\":\"delete\",\"description\":\"Remove the condition\",\"shown\":true,\"range\":{\"start\":{\"line\":196,\"column\":9},\"end\":{\"line\":3,\"column\":10}}}]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":200,\"col\":9,\"detectorId\":\"FalseCondition\",\"severity\":\"MEDIUM\",\"message\":\"Condition always evaluates to false\\ntest/all/syntax.tact:200:9:\\n  199 |         // Suggested to replace code\\n> 200 |         if (1 == 2) { return true; }\\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~\\n  201 |         else { return false; }\\nHelp: Remove the condition\\nSee: https://nowarp.io/tools/misti/docs/detectors/FalseCondition\",\"quickfixes\":[{\"kind\":\"delete\",\"description\":\"Remove the condition\",\"shown\":true,\"range\":{\"start\":{\"line\":200,\"column\":9},\"end\":{\"line\":2,\"column\":31}}}]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":166,\"col\":16,\"detectorId\":\"SuspiciousLoop\",\"severity\":\"MEDIUM\",\"message\":\"Infinite loop detected\\ntest/all/syntax.tact:166:16:\\n  165 |     receive() {\\n> 166 |         while (true) {\\n                       ^~~~\\n  167 |             self.m.set(1, 2);\\nHelp: Avoid unbounded conditions in loops\\nSee: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":196,\"col\":16,\"detectorId\":\"SuspiciousLoop\",\"severity\":\"MEDIUM\",\"message\":\"Loop condition is always false\\ntest/all/syntax.tact:196:16:\\n  195 |         while (false) {}\\n> 196 |         while (false) {\\n                       ^~~~~\\n  197 |             dump(\\\"something\\\");\\nHelp: The condition is always false; the body will never execute\\nSee: https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":120,\"col\":9,\"detectorId\":\"SuboptimalSend\",\"severity\":\"MEDIUM\",\"message\":\"Prefer `message` over `send`\\ntest/all/syntax.tact:120:9:\\n  119 |         let amount: Int = 100;\\n> 120 |         send(SendParameters{ to: self.addr, value: amount });\\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\n  121 |     }\\nHelp: Use more gas-efficient `message` function: https://docs.tact-lang.org/ref/core-common/#message\\nSee: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":130,\"col\":35,\"detectorId\":\"ZeroAddress\",\"severity\":\"LOW\",\"message\":\"Using zero address\\ntest/all/syntax.tact:130:35:\\n  129 |     fun funcWithStateWrite1() {\\n> 130 |         self.addr = newAddress(0, 0);\\n                                          ^\\n  131 |         self.b.storeAddress(self.addr);\\nHelp: Consider changing code to avoid using it. For example, you could pass the address during the deployment.\\nSee: https://nowarp.io/tools/misti/docs/detectors/ZeroAddress\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":161,\"col\":5,\"detectorId\":\"UnboundMap\",\"severity\":\"LOW\",\"message\":\"Map self.m could be unbound\\ntest/all/syntax.tact:161:5:\\n  160 | contract A {\\n> 161 |     m: map<Int, Int> = null;\\n            ^~~~~~~~~~~~~~~~~~~~~~~\\n  162 |     get fun m(): map<Int, Int> {\\nThere are operations adding elements to this map, but there is no API to remove them\\nHelp: Consider adding a method to remove elements or suppress this warning\\nSee: https://nowarp.io/tools/misti/docs/detectors/UnboundMap\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":200,\"col\":9,\"detectorId\":\"EtaLikeSimplifications\",\"severity\":\"LOW\",\"message\":\"Return the condition directly\\ntest/all/syntax.tact:200:9:\\n  199 |         // Suggested to replace code\\n> 200 |         if (1 == 2) { return true; }\\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~\\n  201 |         else { return false; }\\nHelp: Replace with: return 1 == 2;\\nSee: https://nowarp.io/tools/misti/docs/detectors/EtaLikeSimplifications\",\"quickfixes\":[{\"kind\":\"replace\",\"shown\":true,\"description\":\"Return the condition directly\",\"replacements\":[{\"range\":{\"start\":{\"line\":200,\"column\":9},\"end\":{\"line\":2,\"column\":31}},\"value\":\"return 1 == 2;\"}]}]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":41,\"col\":35,\"detectorId\":\"DumpIsUsed\",\"severity\":\"INFO\",\"message\":\"Found `dump` usage\\ntest/all/syntax.tact:41:35:\\n  40 |     try { /* empty */ }\\n> 41 |     try { a = 19; } catch (err) { dump(err); }\\n                                         ^~~~~~~~~\\n  42 | }\\nUsing `dump` in production code can sometimes indicate complex code that requires additional review\\n\\nSee: https://nowarp.io/tools/misti/docs/detectors/DumpIsUsed\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":67,\"col\":9,\"detectorId\":\"DumpIsUsed\",\"severity\":\"INFO\",\"message\":\"Found `dump` usage\\ntest/all/syntax.tact:67:9:\\n  66 |     } catch (err) {\\n> 67 |         dump(err);\\n               ^~~~~~~~~\\n  68 |     }\\nUsing `dump` in production code can sometimes indicate complex code that requires additional review\\n\\nSee: https://nowarp.io/tools/misti/docs/detectors/DumpIsUsed\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":48,\"col\":7,\"detectorId\":\"PreferAugmentedAssign\",\"severity\":\"INFO\",\"message\":\"Prefer augmented assignment: i += 1\\ntest/all/syntax.tact:48:7:\\n  47 |     while (i < 10) {\\n> 48 |       i = i + 1;\\n             ^~~~~~~~~~\\n  49 |       sum = sum + i;\\nHelp: Consider using augmented assignment instead: i += 1\\nSee: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":49,\"col\":7,\"detectorId\":\"PreferAugmentedAssign\",\"severity\":\"INFO\",\"message\":\"Prefer augmented assignment: sum += i\\ntest/all/syntax.tact:49:7:\\n  48 |       i = i + 1;\\n> 49 |       sum = sum + i;\\n             ^~~~~~~~~~~~~~\\n  50 |     }\\nHelp: Consider using augmented assignment instead: sum += i\\nSee: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":52,\"col\":7,\"detectorId\":\"PreferAugmentedAssign\",\"severity\":\"INFO\",\"message\":\"Prefer augmented assignment: i -= 1\\ntest/all/syntax.tact:52:7:\\n  51 |     do {\\n> 52 |       i = i - 1;\\n             ^~~~~~~~~~\\n  53 |       sum = sum + i;\\nHelp: Consider using augmented assignment instead: i -= 1\\nSee: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":53,\"col\":7,\"detectorId\":\"PreferAugmentedAssign\",\"severity\":\"INFO\",\"message\":\"Prefer augmented assignment: sum += i\\ntest/all/syntax.tact:53:7:\\n  52 |       i = i - 1;\\n> 53 |       sum = sum + i;\\n             ^~~~~~~~~~~~~~\\n  54 |     } until (i > 10);\\nHelp: Consider using augmented assignment instead: sum += i\\nSee: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":56,\"col\":7,\"detectorId\":\"PreferAugmentedAssign\",\"severity\":\"INFO\",\"message\":\"Prefer augmented assignment: i += 1\\ntest/all/syntax.tact:56:7:\\n  55 |     repeat (10) {\\n> 56 |       i = i + 1;\\n             ^~~~~~~~~~\\n  57 |       sum = sum + i;\\nHelp: Consider using augmented assignment instead: i += 1\\nSee: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":57,\"col\":7,\"detectorId\":\"PreferAugmentedAssign\",\"severity\":\"INFO\",\"message\":\"Prefer augmented assignment: sum += i\\ntest/all/syntax.tact:57:7:\\n  56 |       i = i + 1;\\n> 57 |       sum = sum + i;\\n             ^~~~~~~~~~~~~~\\n  58 |     }\\nHelp: Consider using augmented assignment instead: sum += i\\nSee: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":76,\"col\":9,\"detectorId\":\"PreferAugmentedAssign\",\"severity\":\"INFO\",\"message\":\"Prefer augmented assignment: i += 1\\ntest/all/syntax.tact:76:9:\\n  75 |     while (i < 10) {\\n> 76 |         i = i + 1;\\n               ^~~~~~~~~~\\n  77 |         sum = sum + i;\\nHelp: Consider using augmented assignment instead: i += 1\\nSee: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":77,\"col\":9,\"detectorId\":\"PreferAugmentedAssign\",\"severity\":\"INFO\",\"message\":\"Prefer augmented assignment: sum += i\\ntest/all/syntax.tact:77:9:\\n  76 |         i = i + 1;\\n> 77 |         sum = sum + i;\\n               ^~~~~~~~~~~~~~\\n  78 |     }\\nHelp: Consider using augmented assignment instead: sum += i\\nSee: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":81,\"col\":9,\"detectorId\":\"PreferAugmentedAssign\",\"severity\":\"INFO\",\"message\":\"Prefer augmented assignment: i -= 1\\ntest/all/syntax.tact:81:9:\\n  80 |     do {\\n> 81 |         i = i - 1;\\n               ^~~~~~~~~~\\n  82 |         sum = sum + i;\\nHelp: Consider using augmented assignment instead: i -= 1\\nSee: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":82,\"col\":9,\"detectorId\":\"PreferAugmentedAssign\",\"severity\":\"INFO\",\"message\":\"Prefer augmented assignment: sum += i\\ntest/all/syntax.tact:82:9:\\n  81 |         i = i - 1;\\n> 82 |         sum = sum + i;\\n               ^~~~~~~~~~~~~~\\n  83 |     } until (i <= 0);\\nHelp: Consider using augmented assignment instead: sum += i\\nSee: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":86,\"col\":9,\"detectorId\":\"PreferAugmentedAssign\",\"severity\":\"INFO\",\"message\":\"Prefer augmented assignment: i += 1\\ntest/all/syntax.tact:86:9:\\n  85 |     repeat (10) {\\n> 86 |         i = i + 1;\\n               ^~~~~~~~~~\\n  87 |         sum = sum + i;\\nHelp: Consider using augmented assignment instead: i += 1\\nSee: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":87,\"col\":9,\"detectorId\":\"PreferAugmentedAssign\",\"severity\":\"INFO\",\"message\":\"Prefer augmented assignment: sum += i\\ntest/all/syntax.tact:87:9:\\n  86 |         i = i + 1;\\n> 87 |         sum = sum + i;\\n               ^~~~~~~~~~~~~~\\n  88 |     }\\nHelp: Consider using augmented assignment instead: sum += i\\nSee: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":96,\"col\":9,\"detectorId\":\"PreferAugmentedAssign\",\"severity\":\"INFO\",\"message\":\"Prefer augmented assignment: sum += value\\ntest/all/syntax.tact:96:9:\\n  95 |     foreach (key, value in m) {\\n> 96 |         sum = sum + value;\\n               ^~~~~~~~~~~~~~~~~~\\n  97 |     }\\nHelp: Consider using augmented assignment instead: sum += value\\nSee: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign\",\"quickfixes\":[]}",
-        "{\"file\":\"test/all/syntax.tact\",\"line\":156,\"col\":1,\"detectorId\":\"AsmIsUsed\",\"severity\":\"INFO\",\"message\":\"asm function is used\\ntest/all/syntax.tact:156:1:\\n  155 | // Checks if we add asm functions to IR entries correctly\\n> 156 | asm(-> 1 0) extends mutates fun loadRefEx(self: Slice): Cell { LDREF }\\n        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\n  157 | fun callAsm(s: Slice): Cell { return s.loadRefEx(); }\\nUsing TVM assembly is a potentially dangerous operation that requires additional review\\n\\nSee: https://nowarp.io/tools/misti/docs/detectors/AsmIsUsed\",\"quickfixes\":[]}"
+      "detectorId": "NeverAccessedVariables",
+      "description": "Variable value is never accessed",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 125,
+        "column": 9,
+        "code": "  124 |     fun funcWithStateRead() {\n> 125 |         let value = self.addr;\n                ^~~~~~~~~~~~~~~~~~~~~~\n  126 |     }\n"
+      },
+      "suppressed": false,
+      "severity": 3,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables",
+      "suggestion": "Consider removing the variable",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "NeverAccessedVariables",
+      "description": "Variable currentTime is never accessed",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 141,
+        "column": 9,
+        "code": "  140 |     fun funcWithMultipleEffects() {\n> 141 |         let currentTime: Int = now();\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  142 |         let randValue: Int = random(1, 100);\n"
+      },
+      "suppressed": false,
+      "severity": 3,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables",
+      "suggestion": "Consider removing the variable",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "NeverAccessedVariables",
+      "description": "Variable randValue is never accessed",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 142,
+        "column": 9,
+        "code": "  141 |         let currentTime: Int = now();\n> 142 |         let randValue: Int = random(1, 100);\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  143 |         if (1 > 42) {\n"
+      },
+      "suppressed": false,
+      "severity": 3,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables",
+      "suggestion": "Consider removing the variable",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "FalseCondition",
+      "description": "Condition always evaluates to false",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 143,
+        "column": 9,
+        "code": "  142 |         let randValue: Int = random(1, 100);\n> 143 |         if (1 > 42) {\n                ^~~~~~~~~~~~~\n  144 |             nativeRandomizeLt();\n"
+      },
+      "suppressed": false,
+      "severity": 3,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/FalseCondition",
+      "quickfixes": [
+        {
+          "kind": "delete",
+          "description": "Remove the condition",
+          "shown": true,
+          "range": {
+            "start": {
+              "line": 143,
+              "column": 9
+            },
+            "end": {
+              "line": 3,
+              "column": 10
+            }
+          }
+        }
       ]
+    },
+    {
+      "detectorId": "FalseCondition",
+      "description": "Condition always evaluates to false",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 196,
+        "column": 9,
+        "code": "  195 |         while (false) {}\n> 196 |         while (false) {\n                ^~~~~~~~~~~~~~~\n  197 |             dump(\"something\");\n"
+      },
+      "suppressed": false,
+      "severity": 3,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/FalseCondition",
+      "quickfixes": [
+        {
+          "kind": "delete",
+          "description": "Remove the condition",
+          "shown": true,
+          "range": {
+            "start": {
+              "line": 196,
+              "column": 9
+            },
+            "end": {
+              "line": 3,
+              "column": 10
+            }
+          }
+        }
+      ]
+    },
+    {
+      "detectorId": "FalseCondition",
+      "description": "Condition always evaluates to false",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 200,
+        "column": 9,
+        "code": "  199 |         // Suggested to replace code\n> 200 |         if (1 == 2) { return true; }\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  201 |         else { return false; }\n"
+      },
+      "suppressed": false,
+      "severity": 3,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/FalseCondition",
+      "quickfixes": [
+        {
+          "kind": "delete",
+          "description": "Remove the condition",
+          "shown": true,
+          "range": {
+            "start": {
+              "line": 200,
+              "column": 9
+            },
+            "end": {
+              "line": 2,
+              "column": 31
+            }
+          }
+        }
+      ]
+    },
+    {
+      "detectorId": "SuspiciousLoop",
+      "description": "Infinite loop detected",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 166,
+        "column": 16,
+        "code": "  165 |     receive() {\n> 166 |         while (true) {\n                       ^~~~\n  167 |             self.m.set(1, 2);\n"
+      },
+      "suppressed": false,
+      "severity": 3,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop",
+      "suggestion": "Avoid unbounded conditions in loops",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "SuspiciousLoop",
+      "description": "Loop condition is always false",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 196,
+        "column": 16,
+        "code": "  195 |         while (false) {}\n> 196 |         while (false) {\n                       ^~~~~\n  197 |             dump(\"something\");\n"
+      },
+      "suppressed": false,
+      "severity": 3,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop",
+      "suggestion": "The condition is always false; the body will never execute",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "SuboptimalSend",
+      "description": "Prefer `message` over `send`",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 120,
+        "column": 9,
+        "code": "  119 |         let amount: Int = 100;\n> 120 |         send(SendParameters{ to: self.addr, value: amount });\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  121 |     }\n"
+      },
+      "suppressed": false,
+      "severity": 3,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend",
+      "suggestion": "Use more gas-efficient `message` function: https://docs.tact-lang.org/ref/core-common/#message",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "ZeroAddress",
+      "description": "Using zero address",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 130,
+        "column": 35,
+        "code": "  129 |     fun funcWithStateWrite1() {\n> 130 |         self.addr = newAddress(0, 0);\n                                          ^\n  131 |         self.b.storeAddress(self.addr);\n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/ZeroAddress",
+      "suggestion": "Consider changing code to avoid using it. For example, you could pass the address during the deployment.",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "UnboundMap",
+      "description": "Map self.m could be unbound",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 161,
+        "column": 5,
+        "code": "  160 | contract A {\n> 161 |     m: map<Int, Int> = null;\n            ^~~~~~~~~~~~~~~~~~~~~~~\n  162 |     get fun m(): map<Int, Int> {\n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "extraDescription": "There are operations adding elements to this map, but there is no API to remove them",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/UnboundMap",
+      "suggestion": "Consider adding a method to remove elements or suppress this warning",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "EtaLikeSimplifications",
+      "description": "Return the condition directly",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 200,
+        "column": 9,
+        "code": "  199 |         // Suggested to replace code\n> 200 |         if (1 == 2) { return true; }\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  201 |         else { return false; }\n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/EtaLikeSimplifications",
+      "quickfixes": [
+        {
+          "kind": "replace",
+          "shown": true,
+          "description": "Return the condition directly",
+          "replacements": [
+            {
+              "range": {
+                "start": {
+                  "line": 200,
+                  "column": 9
+                },
+                "end": {
+                  "line": 2,
+                  "column": 31
+                }
+              },
+              "value": "return 1 == 2;"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "detectorId": "DumpIsUsed",
+      "description": "Found `dump` usage",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 41,
+        "column": 35,
+        "code": "  40 |     try { /* empty */ }\n> 41 |     try { a = 19; } catch (err) { dump(err); }\n                                         ^~~~~~~~~\n  42 | }\n"
+      },
+      "suppressed": false,
+      "severity": 1,
+      "extraDescription": "Using `dump` in production code can sometimes indicate complex code that requires additional review",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/DumpIsUsed",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "DumpIsUsed",
+      "description": "Found `dump` usage",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 67,
+        "column": 9,
+        "code": "  66 |     } catch (err) {\n> 67 |         dump(err);\n               ^~~~~~~~~\n  68 |     }\n"
+      },
+      "suppressed": false,
+      "severity": 1,
+      "extraDescription": "Using `dump` in production code can sometimes indicate complex code that requires additional review",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/DumpIsUsed",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferAugmentedAssign",
+      "description": "Prefer augmented assignment: i += 1",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 48,
+        "column": 7,
+        "code": "  47 |     while (i < 10) {\n> 48 |       i = i + 1;\n             ^~~~~~~~~~\n  49 |       sum = sum + i;\n"
+      },
+      "suppressed": false,
+      "severity": 1,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
+      "suggestion": "Consider using augmented assignment instead: i += 1",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferAugmentedAssign",
+      "description": "Prefer augmented assignment: sum += i",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 49,
+        "column": 7,
+        "code": "  48 |       i = i + 1;\n> 49 |       sum = sum + i;\n             ^~~~~~~~~~~~~~\n  50 |     }\n"
+      },
+      "suppressed": false,
+      "severity": 1,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
+      "suggestion": "Consider using augmented assignment instead: sum += i",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferAugmentedAssign",
+      "description": "Prefer augmented assignment: i -= 1",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 52,
+        "column": 7,
+        "code": "  51 |     do {\n> 52 |       i = i - 1;\n             ^~~~~~~~~~\n  53 |       sum = sum + i;\n"
+      },
+      "suppressed": false,
+      "severity": 1,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
+      "suggestion": "Consider using augmented assignment instead: i -= 1",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferAugmentedAssign",
+      "description": "Prefer augmented assignment: sum += i",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 53,
+        "column": 7,
+        "code": "  52 |       i = i - 1;\n> 53 |       sum = sum + i;\n             ^~~~~~~~~~~~~~\n  54 |     } until (i > 10);\n"
+      },
+      "suppressed": false,
+      "severity": 1,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
+      "suggestion": "Consider using augmented assignment instead: sum += i",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferAugmentedAssign",
+      "description": "Prefer augmented assignment: i += 1",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 56,
+        "column": 7,
+        "code": "  55 |     repeat (10) {\n> 56 |       i = i + 1;\n             ^~~~~~~~~~\n  57 |       sum = sum + i;\n"
+      },
+      "suppressed": false,
+      "severity": 1,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
+      "suggestion": "Consider using augmented assignment instead: i += 1",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferAugmentedAssign",
+      "description": "Prefer augmented assignment: sum += i",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 57,
+        "column": 7,
+        "code": "  56 |       i = i + 1;\n> 57 |       sum = sum + i;\n             ^~~~~~~~~~~~~~\n  58 |     }\n"
+      },
+      "suppressed": false,
+      "severity": 1,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
+      "suggestion": "Consider using augmented assignment instead: sum += i",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferAugmentedAssign",
+      "description": "Prefer augmented assignment: i += 1",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 76,
+        "column": 9,
+        "code": "  75 |     while (i < 10) {\n> 76 |         i = i + 1;\n               ^~~~~~~~~~\n  77 |         sum = sum + i;\n"
+      },
+      "suppressed": false,
+      "severity": 1,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
+      "suggestion": "Consider using augmented assignment instead: i += 1",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferAugmentedAssign",
+      "description": "Prefer augmented assignment: sum += i",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 77,
+        "column": 9,
+        "code": "  76 |         i = i + 1;\n> 77 |         sum = sum + i;\n               ^~~~~~~~~~~~~~\n  78 |     }\n"
+      },
+      "suppressed": false,
+      "severity": 1,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
+      "suggestion": "Consider using augmented assignment instead: sum += i",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferAugmentedAssign",
+      "description": "Prefer augmented assignment: i -= 1",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 81,
+        "column": 9,
+        "code": "  80 |     do {\n> 81 |         i = i - 1;\n               ^~~~~~~~~~\n  82 |         sum = sum + i;\n"
+      },
+      "suppressed": false,
+      "severity": 1,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
+      "suggestion": "Consider using augmented assignment instead: i -= 1",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferAugmentedAssign",
+      "description": "Prefer augmented assignment: sum += i",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 82,
+        "column": 9,
+        "code": "  81 |         i = i - 1;\n> 82 |         sum = sum + i;\n               ^~~~~~~~~~~~~~\n  83 |     } until (i <= 0);\n"
+      },
+      "suppressed": false,
+      "severity": 1,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
+      "suggestion": "Consider using augmented assignment instead: sum += i",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferAugmentedAssign",
+      "description": "Prefer augmented assignment: i += 1",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 86,
+        "column": 9,
+        "code": "  85 |     repeat (10) {\n> 86 |         i = i + 1;\n               ^~~~~~~~~~\n  87 |         sum = sum + i;\n"
+      },
+      "suppressed": false,
+      "severity": 1,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
+      "suggestion": "Consider using augmented assignment instead: i += 1",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferAugmentedAssign",
+      "description": "Prefer augmented assignment: sum += i",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 87,
+        "column": 9,
+        "code": "  86 |         i = i + 1;\n> 87 |         sum = sum + i;\n               ^~~~~~~~~~~~~~\n  88 |     }\n"
+      },
+      "suppressed": false,
+      "severity": 1,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
+      "suggestion": "Consider using augmented assignment instead: sum += i",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferAugmentedAssign",
+      "description": "Prefer augmented assignment: sum += value",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 96,
+        "column": 9,
+        "code": "  95 |     foreach (key, value in m) {\n> 96 |         sum = sum + value;\n               ^~~~~~~~~~~~~~~~~~\n  97 |     }\n"
+      },
+      "suppressed": false,
+      "severity": 1,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
+      "suggestion": "Consider using augmented assignment instead: sum += value",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "AsmIsUsed",
+      "description": "asm function is used",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 156,
+        "column": 1,
+        "code": "  155 | // Checks if we add asm functions to IR entries correctly\n> 156 | asm(-> 1 0) extends mutates fun loadRefEx(self: Slice): Cell { LDREF }\n        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  157 | fun callAsm(s: Slice): Cell { return s.loadRefEx(); }\n"
+      },
+      "suppressed": false,
+      "severity": 1,
+      "extraDescription": "Using TVM assembly is a potentially dangerous operation that requires additional review",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/AsmIsUsed",
+      "quickfixes": []
     }
   ],
   "logs": {

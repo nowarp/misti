@@ -19,7 +19,7 @@ import { SrcInfo } from "../../internals/tact/imports";
 import { Transfer } from "../../internals/transfer";
 import { mergeSets, isSetSubsetOf } from "../../internals/util";
 import { unreachable } from "../../internals/util";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { DataflowDetector, WarningsBehavior } from "../detector";
 
 type FieldName = string;
@@ -184,7 +184,7 @@ export class NeverAccessedVariables extends DataflowDetector {
   severity = Severity.MEDIUM;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return [
       ...this.checkFields(cu),
       ...this.checkConstants(cu),
@@ -198,7 +198,7 @@ export class NeverAccessedVariables extends DataflowDetector {
     return "intersect";
   }
 
-  checkFields(cu: CompilationUnit): MistiTactWarning[] {
+  checkFields(cu: CompilationUnit): Warning[] {
     const defined = this.collectDefinedFields(cu);
     const used = this.collectUsedFields(cu);
     return Array.from(
@@ -212,7 +212,7 @@ export class NeverAccessedVariables extends DataflowDetector {
       });
       acc.push(err);
       return acc;
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 
   private collectDefinedFields(cu: CompilationUnit): Set<[FieldName, SrcInfo]> {
@@ -294,7 +294,7 @@ export class NeverAccessedVariables extends DataflowDetector {
     }, new Set<FieldName>());
   }
 
-  checkConstants(cu: CompilationUnit): MistiTactWarning[] {
+  checkConstants(cu: CompilationUnit): Warning[] {
     const definedConstants = this.collectDefinedConstants(cu);
     const usedConstants = this.collectUsedNames(cu);
     return Array.from(
@@ -312,7 +312,7 @@ export class NeverAccessedVariables extends DataflowDetector {
       });
       acc.push(err);
       return acc;
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 
   collectDefinedConstants(cu: CompilationUnit): Set<[ConstantName, SrcInfo]> {
@@ -343,8 +343,8 @@ export class NeverAccessedVariables extends DataflowDetector {
    * Checks never accessed local variables in all the functions leveraging the
    * monotonic framework and the fixpoint dataflow solver.
    */
-  checkVariables(cu: CompilationUnit): MistiTactWarning[] {
-    const warnings: MistiTactWarning[] = [];
+  checkVariables(cu: CompilationUnit): Warning[] {
+    const warnings: Warning[] = [];
     const traversedFunctions = new Set<string>();
     cu.forEachCFG((cfg: Cfg) => {
       if (cfg.origin === "stdlib" || traversedFunctions.has(cfg.name)) {

@@ -8,7 +8,7 @@ import {
   SrcInfo,
 } from "../../internals/tact/imports";
 import { isSendCall, getExtendsSelfType } from "../../internals/tact/util";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -41,9 +41,9 @@ export class SendInLoop extends AstDetector {
   severity = Severity.MEDIUM;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     const processedLoopIds = new Set<number>();
-    const allWarnings: MistiTactWarning[] = [];
+    const allWarnings: Warning[] = [];
 
     // Analyze loops and check if any function called within leads to a send
     for (const entry of cu.ast.getProgramEntries()) {
@@ -81,7 +81,7 @@ export class SendInLoop extends AstDetector {
     processedLoopIds: Set<number>,
     callGraph: CallGraph,
     currentContractName?: string,
-  ): MistiTactWarning[] {
+  ): Warning[] {
     if (processedLoopIds.has(stmt.id)) {
       return [];
     }
@@ -90,12 +90,12 @@ export class SendInLoop extends AstDetector {
       return [];
     }
 
-    const warnings: MistiTactWarning[] = [];
+    const warnings: Warning[] = [];
 
     // Check direct send calls within the loop
     foldExpressions(
       stmt,
-      (acc: MistiTactWarning[], expr: AstExpression) => {
+      (acc: Warning[], expr: AstExpression) => {
         if (isSendCall(expr)) {
           acc.push(this.warn("Send function called inside a loop", expr.loc));
         }
@@ -107,7 +107,7 @@ export class SendInLoop extends AstDetector {
     // Check function calls within the loop that lead to a send
     foldExpressions(
       stmt,
-      (acc: MistiTactWarning[], expr: AstExpression) => {
+      (acc: Warning[], expr: AstExpression) => {
         if (expr.kind === "static_call" || expr.kind === "method_call") {
           const calleeName = CallGraph.getFunctionCallName(
             expr,
@@ -149,7 +149,7 @@ export class SendInLoop extends AstDetector {
     return warnings;
   }
 
-  private warn(msg: string, loc: SrcInfo): MistiTactWarning {
+  private warn(msg: string, loc: SrcInfo): Warning {
     return this.makeWarning(msg, loc, {
       suggestion:
         "Consider refactoring to avoid calling send functions inside loops",

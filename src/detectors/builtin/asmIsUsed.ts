@@ -1,5 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -20,7 +20,7 @@ export class AsmIsUsed extends AstDetector {
   severity = Severity.INFO;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       if (node.kind === "asm_function_def") {
         acc.push(
@@ -31,6 +31,6 @@ export class AsmIsUsed extends AstDetector {
         );
       }
       return acc;
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 }

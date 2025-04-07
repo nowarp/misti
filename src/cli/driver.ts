@@ -1,5 +1,5 @@
 import { CLIOptions, cliOptionDefaults } from "./options";
-import { MistiResult, ToolOutput, WarningOutput } from "./result";
+import { Result, ToolOutput } from "./result";
 import { OutputFormat } from "./types";
 import { Detector, findBuiltInDetector } from "../detectors/detector";
 import { MistiEnv, WarningSuppression } from "../internals/config";
@@ -10,12 +10,8 @@ import { createIR } from "../internals/ir/builders/";
 import { ImportGraphBuilder } from "../internals/ir/builders/imports";
 import { Logger } from "../internals/logger";
 import { TactConfigManager, parseTactProject } from "../internals/tact";
-import { isBrowser, unreachable } from "../internals/util";
-import {
-  MistiTactWarning,
-  severityToString,
-  Severity,
-} from "../internals/warnings";
+import { isBrowser, isTest, unreachable } from "../internals/util";
+import { Warning, Severity, hashWarning } from "../internals/warnings";
 import { Tool, findBuiltInTool } from "../tools/tool";
 import { VirtualFileSystem } from "../vfs/virtualFileSystem";
 import ignore from "ignore";
@@ -351,7 +347,7 @@ export class Driver {
   /**
    * Actual implementation of the entry point.
    */
-  public async executeImpl(): Promise<MistiResult> {
+  public async executeImpl(): Promise<Result> {
     if (this.detectors.length === 0 && this.tools.length === 0) {
       this.ctx.logger.warn(
         "Nothing to execute. Please specify at least one detector or tool.",
@@ -381,7 +377,7 @@ export class Driver {
   /**
    * Wraps the entry point of execution with extra logging handling logic.
    */
-  public async execute(): Promise<MistiResult> {
+  public async execute(): Promise<Result> {
     const result = await this.executeImpl();
     if (this.outputFormat === "json") {
       return {
@@ -397,9 +393,9 @@ export class Driver {
    * @param cus Map of compilation units
    * @returns MistiResult containing detectors output
    */
-  private async executeAnalysis(): Promise<MistiResult> {
+  private async executeAnalysis(): Promise<Result> {
     const allWarnings = await (async () => {
-      const warningsMap = new Map<ProjectName, MistiTactWarning[]>();
+      const warningsMap = new Map<ProjectName, Warning[]>();
       await Promise.all(
         Array.from(this.cus.entries()).map(async ([projectName, cu]) => {
           const warnings = await this.checkCU(cu);
@@ -408,41 +404,27 @@ export class Driver {
       );
       return warningsMap;
     })();
-    const filteredWarnings: Map<ProjectName, MistiTactWarning[]> =
+    const filteredWarnings: Map<ProjectName, Warning[]> =
       this.filterImportedWarnings(Array.from(this.cus.keys()), allWarnings);
     this.filterSuppressedWarnings(filteredWarnings);
     const reported = new Set<string>();
-    const warningsOutput: WarningOutput[] = [];
-    for (const [projectName, detectorsMap] of filteredWarnings.entries()) {
-      const projectWarnings: MistiTactWarning[] = Array.from(
-        detectorsMap.values(),
-      ).flat();
-      const collectedWarnings: MistiTactWarning[] = [];
+    let foundWarnings = false;
+    const warnings: Warning[] = [];
+    for (const [_, projectWarnings] of filteredWarnings.entries()) {
       projectWarnings.forEach((warn) => {
-        if (!reported.has(warn.msg) && warn.severity >= this.minSeverity) {
-          collectedWarnings.push(warn);
-          reported.add(warn.msg);
+        const hash = hashWarning(warn);
+        if (!reported.has(hash) && warn.severity >= this.minSeverity) {
+          warnings.push(warn);
+          foundWarnings = true;
+          reported.add(hash);
         }
       });
-      if (collectedWarnings.length > 0) {
-        const sortedWarnings = collectedWarnings.sort(
-          (a, b) => b.severity - a.severity,
-        );
-        const formattedWarnings = sortedWarnings.reduce((acc, warn, index) => {
-          const isLastWarning = index === sortedWarnings.length - 1;
-          acc.push(this.formatWarning(warn, !isLastWarning));
-          return acc;
-        }, [] as string[]);
-        warningsOutput.push({
-          projectName,
-          warnings: formattedWarnings,
-        });
-      }
     }
-    return warningsOutput.length > 0
+    warnings.sort((a, b) => b.severity - a.severity);
+    return foundWarnings
       ? {
           kind: "warnings",
-          warnings: warningsOutput,
+          warnings,
         }
       : { kind: "ok" };
   }
@@ -451,7 +433,7 @@ export class Driver {
    * Executes all the initialized tools on the compilation units.
    * @returns MistiResult containing tool outputs
    */
-  private async executeTools(): Promise<MistiResult> {
+  private async executeTools(): Promise<Result> {
     const standaloneTools = this.tools.filter((tool) =>
       Tool.canRunStandalone(tool),
     );
@@ -504,8 +486,8 @@ export class Driver {
    */
   private filterImportedWarnings(
     allProjectNames: string[],
-    allWarnings: Map<ProjectName, MistiTactWarning[]>,
-  ): Map<ProjectName, MistiTactWarning[]> {
+    allWarnings: Map<ProjectName, Warning[]>,
+  ): Map<ProjectName, Warning[]> {
     // Early exit if there are no any detectors with the `intersect` behavior
     if (
       this.detectors.filter((d) => d.shareImportedWarnings === "intersect")
@@ -517,17 +499,18 @@ export class Driver {
     // A mapping from warning messages to projects it has been reported.
     const warningsMap = new Map<string, ProjectName[]>();
     allWarnings.forEach((warnings, projectName) => {
-      warnings.forEach((warning) => {
-        if (!warningsMap.has(warning.msg)) {
-          warningsMap.set(warning.msg, []);
+      warnings.forEach((warn) => {
+        const hash = hashWarning(warn);
+        if (!warningsMap.has(hash)) {
+          warningsMap.set(hash, []);
         }
-        warningsMap.get(warning.msg)!.push(projectName);
+        warningsMap.get(hash)!.push(projectName);
       });
     });
 
-    const filteredWarnings: Map<ProjectName, MistiTactWarning[]> = new Map();
+    const filteredWarnings: Map<ProjectName, Warning[]> = new Map();
     for (const [projectName, warnings] of allWarnings) {
-      const projectWarnings: MistiTactWarning[] = [];
+      const projectWarnings: Warning[] = [];
       for (const warn of warnings) {
         const behavior = this.findDetector(
           warn.detectorId,
@@ -535,7 +518,7 @@ export class Driver {
         switch (behavior) {
           case "intersect":
             // The warning must be raised in all the projects.
-            const projects = warningsMap.get(warn.msg)!;
+            const projects = warningsMap.get(hashWarning(warn))!;
             if (
               new Set(allProjectNames).size === new Set(projects).size &&
               [...new Set(allProjectNames)].every((value) =>
@@ -564,7 +547,7 @@ export class Driver {
    * Mutates the input map removing suppressed warnings.
    */
   private filterSuppressedWarnings(
-    warnings: Map<ProjectName, MistiTactWarning[]>,
+    warnings: Map<ProjectName, Warning[]>,
   ): void {
     this.filterSuppressedInAnnotations(warnings);
     this.filterSuppressedInConfig(warnings);
@@ -575,11 +558,11 @@ export class Driver {
    * Mutates the input map removing suppressed warnings.
    */
   private filterSuppressedInAnnotations(
-    warnings: Map<ProjectName, MistiTactWarning[]>,
+    warnings: Map<ProjectName, Warning[]>,
   ): void {
     warnings.forEach((projectWarnings, projectName) => {
       const filteredWarnings = projectWarnings.filter(
-        (warning) => !warning.isSuppressed(),
+        (warning) => !warning.suppressed,
       );
       warnings.set(projectName, filteredWarnings);
     });
@@ -588,11 +571,19 @@ export class Driver {
   /**
    * Compares suppressionFile and warningFile.
    * If suppressionFile is an absolute path, returns true if the files are the same after normalization.
-   * If suppressionFile is relative, returns true if warningFile ends with suppressionFile.
+   * If suppressionFile is relative, returns true if warningFile ends with the normalized relative path.
    */
   private pathsAreEqual(suppressionFile: string, warningFile: string): boolean {
     const normalizedWarningFile = path.normalize(warningFile);
     const normalizedSuppressionFile = path.normalize(suppressionFile);
+    // Special handling for test environments
+    if (isTest() && !path.isAbsolute(warningFile)) {
+      const absoluteWarningFile = path.join(
+        process.cwd(),
+        normalizedWarningFile,
+      );
+      return this.pathsAreEqual(suppressionFile, absoluteWarningFile);
+    }
     return path.isAbsolute(suppressionFile)
       ? normalizedWarningFile === normalizedSuppressionFile
       : normalizedWarningFile.endsWith(normalizedSuppressionFile);
@@ -603,14 +594,16 @@ export class Driver {
    */
   private suppressionMatchesWarning(
     suppression: WarningSuppression,
-    warning: MistiTactWarning,
+    warning: Warning,
   ): boolean {
-    if (!warning.loc.file) return false;
-    const { lineNum, colNum } = warning.loc.interval.getLineAndColumn();
-    if (lineNum !== suppression.line || colNum !== suppression.col) {
+    if (!warning.location.file) return false;
+    if (
+      warning.location.line !== suppression.line ||
+      warning.location.column !== suppression.col
+    ) {
       return false;
     }
-    return this.pathsAreEqual(suppression.file, warning.loc.file);
+    return this.pathsAreEqual(suppression.file, warning.location.file);
   }
 
   /**
@@ -618,7 +611,7 @@ export class Driver {
    * Mutates the input map, removing suppressed warnings.
    */
   private filterSuppressedInConfig(
-    warnings: Map<ProjectName, MistiTactWarning[]>,
+    warnings: Map<ProjectName, Warning[]>,
   ): void {
     this.ctx.config.suppressions.forEach((suppression) => {
       let suppressionUsed = false;
@@ -641,43 +634,11 @@ export class Driver {
   }
 
   /**
-   * Returns string representation of the warning according to the configuration.
-   */
-  private formatWarning(warn: MistiTactWarning, addNewline: boolean): string {
-    if (this.outputFormat === "json") {
-      const file = warn.loc.file
-        ? path.normalize(path.relative(process.cwd(), warn.loc.file))
-        : "";
-      const lc = warn.loc.interval.getLineAndColumn() as {
-        lineNum: number;
-        colNum: number;
-      };
-      return JSONbig.stringify({
-        file,
-        line: lc.lineNum,
-        col: lc.colNum,
-        detectorId: warn.detectorId,
-        severity: severityToString(warn.severity, {
-          colorize: false,
-          brackets: false,
-        }),
-        message: warn.msg,
-        quickfixes: warn.quickfixes,
-      });
-    } else {
-      const severity = severityToString(warn.severity, {
-        colorize: this.colorizeOutput,
-      });
-      return `${severity} ${warn.detectorId}: ${warn.msg}${addNewline && !warn.msg.endsWith("\n") ? "\n" : ""}`;
-    }
-  }
-
-  /**
    * Executes all detectors on a given compilation unit and collects any warnings found.
    * @param cu The compilation unit to check.
    * @returns Warnings generated by each of detectors.
    */
-  private async checkCU(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  private async checkCU(cu: CompilationUnit): Promise<Warning[]> {
     const warningsPromises = this.detectors.map(async (detector) => {
       if (!this.ctx.souffleAvailable && detector.usesSouffle) {
         this.ctx.logger.debug(
@@ -730,7 +691,7 @@ export class Driver {
     });
     try {
       return (
-        await Promise.all(warningsPromises as Promise<MistiTactWarning[]>[])
+        await Promise.all(warningsPromises as Promise<Warning[]>[])
       ).flat();
     } catch (error) {
       throw InternalException.make(

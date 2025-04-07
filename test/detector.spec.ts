@@ -4,6 +4,7 @@ import fs from "fs";
 import JSONbig from "json-bigint";
 import os from "os";
 import path from "path";
+import { Severity, Warning } from "../src/internals/warnings";
 
 const CONTRACT_NAME = "NeverAccessedVariables.tact";
 const ABSOLUTE_PATH = path.resolve(__dirname, DETECTORS_DIR, CONTRACT_NAME);
@@ -27,23 +28,17 @@ describe("Common detectors functionality", () => {
       console.error("Bad output:\n", output);
       throw error;
     }
+    expect(jsonOutput.kind).toBe("warnings");
     expect(jsonOutput.warnings.length).toBeGreaterThan(0);
-    const firstWarning = JSONbig.parse(jsonOutput.warnings[0].warnings[0]);
+    const firstWarning = jsonOutput.warnings[0] as Warning;
 
     // Match the warning for "Field f2 is never used"
-    expect(firstWarning).toMatchObject({
-      file: expect.stringContaining(CONTRACT_NAME),
-      line: 31, // Updated to line 31
-      col: 5,
-      detectorId: "NeverAccessedVariables",
-      severity: "MEDIUM",
-      message: expect.stringContaining("Field f2 is never used"),
-    });
-    expect(firstWarning.message).toContain(`${CONTRACT_NAME}:31:5:`);
-    expect(firstWarning.message).toContain("Help: Consider");
-    expect(firstWarning.message).toContain(
-      "See: https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables",
-    );
+    expect(firstWarning.location.file).toContain(CONTRACT_NAME);
+    expect(firstWarning.location.line).toBe(31);
+    expect(firstWarning.location.column).toBe(5);
+    expect(firstWarning.detectorId).toBe("NeverAccessedVariables");
+    expect(firstWarning.severity).toBe(Severity.MEDIUM);
+    expect(firstWarning.description).toContain("Field f2 is never used");
   });
 
   it("should respect suppressions in config file", async () => {

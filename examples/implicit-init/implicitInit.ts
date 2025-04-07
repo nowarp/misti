@@ -1,6 +1,6 @@
 import { AstDetector } from "../../src/detectors/detector";
 import { CompilationUnit, FunctionName } from "../../src/internals/ir";
-import { MistiTactWarning, Severity } from "../../src/internals/warnings";
+import { Warning, Severity } from "../../src/internals/warnings";
 
 /**
  * An example of a custom detector that showcases the usage of the detector API.
@@ -30,7 +30,7 @@ import { MistiTactWarning, Severity } from "../../src/internals/warnings";
 export class ImplicitInit extends AstDetector {
   severity = Severity.INFO;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return Array.from(cu.getContracts()).reduce(
       (foundErrors, [_, contract]) => {
         if (!cu.findMethodCFGByName(contract.name, "init" as FunctionName)) {
@@ -42,7 +42,7 @@ export class ImplicitInit extends AstDetector {
         }
         return foundErrors;
       },
-      [] as MistiTactWarning[],
+      [] as Warning[],
     );
   }
 }

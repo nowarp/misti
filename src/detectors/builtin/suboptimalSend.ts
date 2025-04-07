@@ -7,7 +7,7 @@ import {
   idText,
   SrcInfo,
 } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -49,7 +49,7 @@ export class SuboptimalSend extends AstDetector {
   severity = Severity.MEDIUM;
   category = Category.OPTIMIZATION;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(
         foldExpressions(
@@ -57,10 +57,10 @@ export class SuboptimalSend extends AstDetector {
           (acc, expr) => {
             return this.findReplaceableSend(acc, expr);
           },
-          [] as MistiTactWarning[],
+          [] as Warning[],
         ),
       );
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 
   private containsField(s: AstStructInstance, arg: string): boolean {
@@ -85,10 +85,7 @@ export class SuboptimalSend extends AstDetector {
     );
   }
 
-  private findReplaceableSend(
-    acc: MistiTactWarning[],
-    expr: AstExpression,
-  ): MistiTactWarning[] {
+  private findReplaceableSend(acc: Warning[], expr: AstExpression): Warning[] {
     if (
       expr.kind !== "static_call" ||
       expr.args.length !== 1 ||
@@ -116,7 +113,7 @@ export class SuboptimalSend extends AstDetector {
   private inspectSendCall(
     call: AstStaticCall,
     arg: AstStructInstance,
-  ): MistiTactWarning | undefined {
+  ): Warning | undefined {
     if (this.containsField(arg, "code")) {
       return this.suggestReplace(call.loc, "send", "deploy");
     } else if (!this.containsField(arg, "data")) {
@@ -132,18 +129,14 @@ export class SuboptimalSend extends AstDetector {
   private inspectMessageCall(
     call: AstStaticCall,
     arg: AstStructInstance,
-  ): MistiTactWarning | undefined {
+  ): Warning | undefined {
     if (this.hasCashbackMode(arg)) {
       return this.suggestReplace(call.loc, "message", "cashback");
     }
     return undefined;
   }
 
-  private suggestReplace(
-    loc: SrcInfo,
-    from: string,
-    to: string,
-  ): MistiTactWarning {
+  private suggestReplace(loc: SrcInfo, from: string, to: string): Warning {
     const docsBase = "https://docs.tact-lang.org/ref/core-common";
     return this.makeWarning(`Prefer \`${to}\` over \`${from}\``, loc, {
       suggestion: `Use more gas-efficient \`${to}\` function: ${docsBase}/#${to}`,

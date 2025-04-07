@@ -30,7 +30,7 @@ import {
   isMapSubsetOf,
   unreachable,
 } from "../../internals/util";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";
 
 type VariableName = string & { readonly __brand: unique symbol };
@@ -924,8 +924,8 @@ export class CellBounds extends DataflowDetector {
   severity = Severity.CRITICAL;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
-    let warnings: MistiTactWarning[] = [];
+  async check(cu: CompilationUnit): Promise<Warning[]> {
+    let warnings: Warning[] = [];
     cu.forEachCFG(
       (cfg: Cfg) => {
         const node = cu.ast.getFunction(cfg.id);
@@ -956,7 +956,7 @@ export class CellBounds extends DataflowDetector {
             state.intermediateVariables.reduce(
               (acc, variable) =>
                 acc.concat(this.checkIntermediateVariable(variable, stmt.loc)),
-              [] as MistiTactWarning[],
+              [] as Warning[],
             );
 
           // Check known variables of each type
@@ -997,8 +997,8 @@ export class CellBounds extends DataflowDetector {
   private checkVariable(
     variable: UnknownVariable | Variable,
     loc: SrcInfo,
-  ): MistiTactWarning[] {
-    const warnings: MistiTactWarning[] = [];
+  ): Warning[] {
+    const warnings: Warning[] = [];
     const { refsNum, dataSize } = variable.storage;
 
     // Check if we might load more refs than we stored
@@ -1079,7 +1079,7 @@ export class CellBounds extends DataflowDetector {
   private checkIntermediateVariable(
     variable: UnknownVariable,
     loc: SrcInfo,
-  ): MistiTactWarning[] {
+  ): Warning[] {
     return this.checkVariable(variable, loc);
   }
 
@@ -1089,7 +1089,7 @@ export class CellBounds extends DataflowDetector {
    * @param variable The variable to check (known or unknown)
    * @param loc Source location for error reporting
    */
-  private checkKnownVariable(variable: Variable): MistiTactWarning[] {
+  private checkKnownVariable(variable: Variable): Warning[] {
     return this.checkVariable(variable, variable.loc);
   }
 }

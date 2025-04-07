@@ -1,7 +1,7 @@
 import { CompilationUnit } from "../../internals/ir";
 import { foldExpressions, isPrimitiveLiteral } from "../../internals/tact";
 import { AstExpression } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -36,7 +36,7 @@ export class DumpIsUsed extends AstDetector {
   severity = Severity.INFO;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(
         foldExpressions(
@@ -44,16 +44,13 @@ export class DumpIsUsed extends AstDetector {
           (acc, expr) => {
             return this.findDumpUsage(acc, expr);
           },
-          [] as MistiTactWarning[],
+          [] as Warning[],
         ),
       );
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 
-  private findDumpUsage(
-    acc: MistiTactWarning[],
-    expr: AstExpression,
-  ): MistiTactWarning[] {
+  private findDumpUsage(acc: Warning[], expr: AstExpression): Warning[] {
     if (
       expr.kind === "static_call" &&
       expr.function.text === "dump" &&

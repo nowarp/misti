@@ -18,7 +18,7 @@ import {
   AstOpUnary,
   prettyPrint,
 } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -60,8 +60,8 @@ export class EtaLikeSimplifications extends AstDetector {
   severity = Severity.LOW;
   category = Category.OPTIMIZATION;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
-    const warnings: MistiTactWarning[] = [];
+  async check(cu: CompilationUnit): Promise<Warning[]> {
+    const warnings: Warning[] = [];
     const entries = cu.ast.getProgramEntries();
     for (const node of entries) {
       this.analyzeNode(node, warnings);
@@ -69,7 +69,7 @@ export class EtaLikeSimplifications extends AstDetector {
     return warnings;
   }
 
-  private analyzeNode(node: AstNode, warnings: MistiTactWarning[]): void {
+  private analyzeNode(node: AstNode, warnings: Warning[]): void {
     forEachStatement(node, (stmt) => {
       this.checkStatement(stmt, warnings);
     });
@@ -78,10 +78,7 @@ export class EtaLikeSimplifications extends AstDetector {
     });
   }
 
-  private checkStatement(
-    stmt: AstStatement,
-    warnings: MistiTactWarning[],
-  ): void {
+  private checkStatement(stmt: AstStatement, warnings: Warning[]): void {
     if (
       stmt.kind === "statement_condition" &&
       stmt.trueStatements.length === 1 &&
@@ -110,10 +107,7 @@ export class EtaLikeSimplifications extends AstDetector {
     }
   }
 
-  private checkExpression(
-    expr: AstExpression,
-    warnings: MistiTactWarning[],
-  ): void {
+  private checkExpression(expr: AstExpression, warnings: Warning[]): void {
     if (expr.kind === "op_binary") {
       const binaryExpr = expr as AstOpBinary;
       if (binaryExpr.op === "==" || binaryExpr.op === "!=") {

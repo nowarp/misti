@@ -14,7 +14,7 @@ import {
   AstExpression,
   idText,
 } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -62,8 +62,8 @@ export class StateMutationInGetter extends AstDetector {
   severity = Severity.INFO;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
-    const warnings: MistiTactWarning[] = [];
+  async check(cu: CompilationUnit): Promise<Warning[]> {
+    const warnings: Warning[] = [];
     for (const contract of cu.ast.getContracts()) {
       for (const decl of contract.declarations) {
         if (
@@ -89,7 +89,7 @@ export class StateMutationInGetter extends AstDetector {
     cu: CompilationUnit,
     getter: AstFunctionDef,
     contractName: string,
-    warnings: MistiTactWarning[],
+    warnings: Warning[],
   ): void {
     // Direct state mutations
     this.checkDirectStateMutations(getter, warnings);
@@ -108,7 +108,7 @@ export class StateMutationInGetter extends AstDetector {
    */
   private checkDirectStateMutations(
     getter: AstFunctionDef,
-    warnings: MistiTactWarning[],
+    warnings: Warning[],
   ): void {
     foldStatements(
       getter,
@@ -139,7 +139,7 @@ export class StateMutationInGetter extends AstDetector {
     cu: CompilationUnit,
     call: AstStaticCall,
     contractName: string,
-    warnings: MistiTactWarning[],
+    warnings: Warning[],
   ): void {
     const calleeName = idText(call.function);
     const calleeNodeId = cu.callGraph.getNodeIdByName(calleeName);
@@ -167,7 +167,7 @@ export class StateMutationInGetter extends AstDetector {
     cu: CompilationUnit,
     call: AstMethodCall,
     contractName: string,
-    warnings: MistiTactWarning[],
+    warnings: Warning[],
   ): void {
     if (isSelf(call.self)) {
       const methodName = idText(call.method);

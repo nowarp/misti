@@ -1,4 +1,4 @@
-import { Driver, MistiResult, runMistiCommand } from "../src/cli";
+import { Driver, Result, runMistiCommand } from "../src/cli";
 import path from "path";
 
 const TACT_CONFIG_PATH = path.join(__dirname, "./tact.config.json");
@@ -49,7 +49,7 @@ describe("CLI Argument Parsing", () => {
       "json",
       TACT_CONFIG_PATH,
     ];
-    const [driver, result] = await runMistiCommand(args);
+    const [_, result] = await runMistiCommand(args);
     expect(result.logs).toBeDefined();
     expect(
       result.logs!.warn.find((w: string) =>
@@ -100,6 +100,6 @@ describe("CLI Argument Parsing", () => {
   it("should return ok when no tools and detectors are specified", async () => {
     const args = ["--config", MISTI_CONFIG_PATH, TACT_CONFIG_PATH];
     const result = await runMistiCommand(args);
-    expect((result as [Driver, MistiResult])[1]).toEqual({ kind: "ok" });
+    expect((result as [Driver, Result])[1]).toEqual({ kind: "ok" });
   });
 });

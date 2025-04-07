@@ -2,7 +2,7 @@ import { CompilationUnit } from "../../internals/ir";
 import { foldExpressions } from "../../internals/tact";
 import { AstExpression, AstMethodCall } from "../../internals/tact/imports";
 import { unreachable } from "../../internals/util";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 enum ReplacementKind {
@@ -108,7 +108,7 @@ export class PreferredStdlibApi extends AstDetector {
   severity = Severity.INFO;
   category = [Category.OPTIMIZATION, Category.SECURITY];
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       return acc.concat(
         foldExpressions(
@@ -116,16 +116,13 @@ export class PreferredStdlibApi extends AstDetector {
           (acc, expr) => {
             return this.findStdlibUsage(acc, expr);
           },
-          [] as MistiTactWarning[],
+          [] as Warning[],
         ),
       );
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 
-  private findStdlibUsage(
-    acc: MistiTactWarning[],
-    expr: AstExpression,
-  ): MistiTactWarning[] {
+  private findStdlibUsage(acc: Warning[], expr: AstExpression): Warning[] {
     if (expr.kind === "static_call") {
       const funName = expr.function.text;
       const r = REPLACEMENTS[funName] || undefined;

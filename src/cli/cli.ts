@@ -6,7 +6,7 @@ import { unreachable } from "../internals/util";
 import { generateToolsHelpMessage } from "../tools/tool";
 import { MISTI_VERSION, TACT_VERSION } from "../version";
 import {
-  MistiResult,
+  Result,
   resultToString,
   saveResultToFiles,
   ResultReport,
@@ -50,7 +50,7 @@ export function createMistiCommand(): Command {
 export async function runMistiCommand(
   args: string[],
   command: Command = createMistiCommand(),
-): Promise<[Driver, MistiResult]> {
+): Promise<[Driver, Result]> {
   await command.parseAsync(args, { from: "user" });
   const driver = await Driver.create(command.args, {
     ...command.opts(),
@@ -75,7 +75,7 @@ export async function executeMisti(args: string[]): Promise<string> {
 /**
  * Handles Misti execution result by either logging to console or saving to file.
  */
-export function handleMistiResult(driver: Driver, result: MistiResult): void {
+export function handleMistiResult(driver: Driver, result: Result): void {
   const logger = driver.ctx.logger;
   driver.outputPath && driver.outputPath !== STDOUT_PATH
     ? handleOutputToFile(result, driver.outputPath, logger)
@@ -86,7 +86,7 @@ export function handleMistiResult(driver: Driver, result: MistiResult): void {
  * Handles saving the result to a file and logging the outcome.
  */
 function handleOutputToFile(
-  result: MistiResult,
+  result: Result,
   outputPath: string,
   logger: Logger,
 ): void {
@@ -110,7 +110,7 @@ function handleOutputToFile(
  * Handles logging the result to the console.
  */
 function handleOutputToConsole(
-  result: MistiResult,
+  result: Result,
   outputFormat: OutputFormat,
   logger: Logger,
 ): void {

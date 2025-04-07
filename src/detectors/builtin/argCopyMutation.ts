@@ -14,7 +14,7 @@ import {
   idText,
 } from "../../internals/tact/imports";
 import { intersectLists } from "../../internals/util";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -55,7 +55,7 @@ export class ArgCopyMutation extends AstDetector {
   severity = Severity.HIGH;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     const returnStatements = this.collectReturnStatements(cu);
     return Array.from(cu.ast.getFunctions()).reduce((acc, fun) => {
       if (fun.kind === "contract_init" || fun.kind === "function_def") {
@@ -94,7 +94,7 @@ export class ArgCopyMutation extends AstDetector {
         });
       }
       return acc;
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 
   /**

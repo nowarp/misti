@@ -10,7 +10,7 @@ import {
   AstStatement,
   SrcInfo,
 } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { SouffleDetector, WarningsBehavior } from "../detector";
 import { SouffleContext, atom, body, relation, rule } from "@nowarp/souffle";
 
@@ -50,7 +50,7 @@ export class ReadOnlyVariables extends SouffleDetector {
     return "intersect";
   }
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     const program = this.createSouffleContext(cu);
     this.addDecls(program);
     this.addRules(program);

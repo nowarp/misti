@@ -14,7 +14,7 @@ import {
   AstReceiver,
   SrcInfo,
 } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -46,10 +46,10 @@ export class FalseCondition extends AstDetector {
   severity = Severity.MEDIUM;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return Array.from(cu.ast.getFunctions()).reduce(
       (acc, fun) => acc.concat(this.checkFunction(fun)),
-      [] as MistiTactWarning[],
+      [] as Warning[],
     );
   }
 
@@ -58,7 +58,7 @@ export class FalseCondition extends AstDetector {
    */
   private checkFunction(
     fun: AstFunctionDef | AstReceiver | AstContractInit,
-  ): MistiTactWarning[] {
+  ): Warning[] {
     return foldStatements(
       fun,
       (acc, stmt) => {
@@ -92,14 +92,14 @@ export class FalseCondition extends AstDetector {
         }
         return acc;
       },
-      [] as MistiTactWarning[],
+      [] as Warning[],
     );
   }
 
   private warnCondition(
     stmt: { loc: SrcInfo },
     isZero: boolean = false,
-  ): MistiTactWarning {
+  ): Warning {
     const message = isZero
       ? "Condition always evaluates to zero"
       : "Condition always evaluates to false";

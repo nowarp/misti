@@ -11,7 +11,7 @@ import {
 } from "../../internals/tact/imports";
 import { Transfer } from "../../internals/transfer";
 import { mergeSets, isSetSubsetOf } from "../../internals/util";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { DataflowDetector } from "../detector";
 
 interface TaintState {
@@ -175,9 +175,9 @@ export class StringReceiversOverlap extends DataflowDetector {
   severity = Severity.HIGH;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     const stringReceivers = this.getStringReceiverNames(cu);
-    let warnings: MistiTactWarning[] = [];
+    let warnings: Warning[] = [];
     cu.forEachCFG((cfg: Cfg) => {
       const node = cu.ast.getFunction(cfg.id);
       if (node !== undefined && node.kind === "receiver") {
@@ -232,8 +232,8 @@ export class StringReceiversOverlap extends DataflowDetector {
     stringReceivers: Set<string>,
     literalTaints: Set<string>,
     argTaints: Set<string>,
-  ): MistiTactWarning[] {
-    const warnings: MistiTactWarning[] = [];
+  ): Warning[] {
+    const warnings: Warning[] = [];
     forEachStatement(receiver, (stmt) => {
       // Conditional statements
       if (stmt.kind === "statement_condition") {
@@ -271,7 +271,7 @@ export class StringReceiversOverlap extends DataflowDetector {
    */
   private checkCondition(
     receiver: AstReceiver,
-    warnings: MistiTactWarning[],
+    warnings: Warning[],
     condition: AstExpression,
     argName: string,
     stringReceivers: Set<string>,

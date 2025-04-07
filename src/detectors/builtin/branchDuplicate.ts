@@ -11,7 +11,7 @@ import {
   AstStatement,
 } from "../../internals/tact/imports";
 import { SrcInfo } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -45,33 +45,30 @@ export class BranchDuplicate extends AstDetector {
   severity = Severity.HIGH;
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
+  async check(cu: CompilationUnit): Promise<Warning[]> {
     return cu.ast.getProgramEntries().reduce((acc, node) => {
       const ternaryWarnings = foldExpressions(
         node,
         (acc, expr) => {
           return this.checkTernary(acc, expr);
         },
-        [] as MistiTactWarning[],
+        [] as Warning[],
       );
       const conditionWarnings = foldStatements(
         node,
         (acc, stmt) => {
           return this.checkConditional(acc, stmt);
         },
-        [] as MistiTactWarning[],
+        [] as Warning[],
       );
       return acc.concat([...conditionWarnings, ...ternaryWarnings]);
-    }, [] as MistiTactWarning[]);
+    }, [] as Warning[]);
   }
 
   /**
    * Looks for duplicates in ternary expressions.
    */
-  private checkTernary(
-    acc: MistiTactWarning[],
-    expr: AstExpression,
-  ): MistiTactWarning[] {
+  private checkTernary(acc: Warning[], expr: AstExpression): Warning[] {
     if (
       expr.kind === "conditional" &&
       nodesAreEqual(expr.thenBranch, expr.elseBranch)
@@ -85,10 +82,7 @@ export class BranchDuplicate extends AstDetector {
    * Checks for duplicated conditions within an if-elseif-else chain.
    * If duplicates are found, a warning is added to the accumulator.
    */
-  private checkConditional(
-    acc: MistiTactWarning[],
-    stmt: AstStatement,
-  ): MistiTactWarning[] {
+  private checkConditional(acc: Warning[], stmt: AstStatement): Warning[] {
     if (stmt.kind === "statement_condition") {
       const allBranches = this.collectAllBranches(stmt);
       for (let i = 0; i < allBranches.length; i++) {
@@ -133,7 +127,7 @@ export class BranchDuplicate extends AstDetector {
     return branches;
   }
 
-  private createWarning(loc: SrcInfo, dupLoc: SrcInfo): MistiTactWarning {
+  private createWarning(loc: SrcInfo, dupLoc: SrcInfo): Warning {
     return this.makeWarning(
       "Duplicated code in conditional branches is detected",
       loc,

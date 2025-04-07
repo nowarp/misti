@@ -6,7 +6,7 @@ import {
   AstOpBinary,
 } from "../../internals/tact/imports";
 import { idText } from "../../internals/tact/imports";
-import { Category, MistiTactWarning, Severity } from "../../internals/warnings";
+import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
 /**
@@ -43,8 +43,8 @@ export class SuspiciousMessageMode extends AstDetector {
   severity = { min: Severity.LOW, max: Severity.MEDIUM };
   category = Category.SECURITY;
 
-  async check(cu: CompilationUnit): Promise<MistiTactWarning[]> {
-    const warnings: MistiTactWarning[] = [];
+  async check(cu: CompilationUnit): Promise<Warning[]> {
+    const warnings: Warning[] = [];
     Array.from(cu.ast.getProgramEntries()).forEach((node) => {
       forEachExpression(node, (expr) => {
         if (
@@ -60,7 +60,7 @@ export class SuspiciousMessageMode extends AstDetector {
 
   private checkSendParameters(
     expr: AstStructInstance,
-    warnings: MistiTactWarning[],
+    warnings: Warning[],
   ): void {
     const args = expr.args;
     const modeField = args.find((arg) => idText(arg.field) === "mode");
@@ -69,10 +69,7 @@ export class SuspiciousMessageMode extends AstDetector {
     }
   }
 
-  private checkModeExpression(
-    expr: AstExpression,
-    warnings: MistiTactWarning[],
-  ): void {
+  private checkModeExpression(expr: AstExpression, warnings: Warning[]): void {
     if (expr.kind === "number" && expr.value === 0n) {
       warnings.push(
         this.makeWarning(
