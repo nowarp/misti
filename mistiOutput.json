@@ -1,0 +1,385 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$ref": "#/definitions/Result",
+  "definitions": {
+    "Result": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ResultOK"
+        },
+        {
+          "$ref": "#/definitions/ResultWarnings"
+        },
+        {
+          "$ref": "#/definitions/ResultTool"
+        },
+        {
+          "$ref": "#/definitions/ResultError"
+        }
+      ]
+    },
+    "ResultOK": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "ok"
+        },
+        "logs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "description": "Result of a Misti operation that did not find any warnings."
+    },
+    "ResultWarnings": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "warnings"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        },
+        "logs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "warnings"
+      ],
+      "description": "Result of a Misti operation that found warnings."
+    },
+    "Warning": {
+      "type": "object",
+      "properties": {
+        "detectorId": {
+          "type": "string",
+          "description": "Unique identifier of the detector."
+        },
+        "description": {
+          "type": "string",
+          "description": "Descriptive text of the warning."
+        },
+        "location": {
+          "$ref": "#/definitions/WarningLocation",
+          "description": "Reference to the source code."
+        },
+        "suppressed": {
+          "type": "boolean",
+          "description": "True if the warning is suppressed with a code annotation."
+        },
+        "severity": {
+          "$ref": "#/definitions/Severity",
+          "description": "Severity of the warning."
+        },
+        "category": {
+          "$ref": "#/definitions/Category",
+          "description": "Category of the warning."
+        },
+        "extraDescription": {
+          "type": "string",
+          "description": "More comprehensive description that clarifies the warning in greater detail."
+        },
+        "docURL": {
+          "type": "string",
+          "description": "URL to the detector documentation."
+        },
+        "suggestion": {
+          "type": "string",
+          "description": "Suggested change in the source code (text description)."
+        },
+        "quickfixes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/QuickFix"
+          },
+          "description": "Optional code suggestions mainly for LSP code actions."
+        }
+      },
+      "required": [
+        "detectorId",
+        "description",
+        "location",
+        "suppressed",
+        "severity",
+        "extraDescription",
+        "docURL",
+        "suggestion",
+        "quickfixes"
+      ],
+      "description": "Misti warning that highlights a specific place in a Tact contract."
+    },
+    "WarningLocation": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string",
+          "description": "Absolute path from the analyzer's process directory."
+        },
+        "line": {
+          "type": "number",
+          "description": "Line number."
+        },
+        "column": {
+          "type": "number",
+          "description": "Column number."
+        },
+        "code": {
+          "type": "string",
+          "description": "Lines of code in this location used in warning message"
+        }
+      },
+      "required": [
+        "file",
+        "line",
+        "column",
+        "code"
+      ],
+      "description": "Source code location of the warning present in JSON output."
+    },
+    "Severity": {
+      "type": "number",
+      "enum": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "description": "Enumerates the levels of severity that can be assigned to detected findings."
+    },
+    "Category": {
+      "type": "number",
+      "enum": [
+        1,
+        2,
+        3
+      ],
+      "description": "Warning category."
+    },
+    "QuickFix": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "replace"
+            },
+            "description": {
+              "type": "string"
+            },
+            "shown": {
+              "type": "boolean"
+            },
+            "replacements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Replacement"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "description",
+            "shown",
+            "replacements"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "insert"
+            },
+            "description": {
+              "type": "string"
+            },
+            "shown": {
+              "type": "boolean"
+            },
+            "insertion": {
+              "$ref": "#/definitions/Replacement"
+            }
+          },
+          "required": [
+            "kind",
+            "description",
+            "shown",
+            "insertion"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "delete"
+            },
+            "description": {
+              "type": "string"
+            },
+            "shown": {
+              "type": "boolean"
+            },
+            "range": {
+              "$ref": "#/definitions/Range"
+            }
+          },
+          "required": [
+            "kind",
+            "description",
+            "shown",
+            "range"
+          ]
+        }
+      ],
+      "description": "Represents a quick fix suggestion for code issues.\n\nCan be one of:\n- replace: Replace text at multiple locations\n- insert: Insert text at a specific location\n- delete: Delete text between start and end positions"
+    },
+    "Replacement": {
+      "type": "object",
+      "properties": {
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "range",
+        "value"
+      ],
+      "description": "Represents a text replacement with range and replacement value."
+    },
+    "Range": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "$ref": "#/definitions/Position"
+        },
+        "end": {
+          "$ref": "#/definitions/Position"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "description": "Represents a range in a source file with start and end positions."
+    },
+    "Position": {
+      "type": "object",
+      "properties": {
+        "line": {
+          "type": "number"
+        },
+        "column": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "line",
+        "column"
+      ],
+      "description": "Represents a position in a source file with line and column numbers."
+    },
+    "ResultTool": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "tool"
+        },
+        "output": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ToolOutput"
+          }
+        },
+        "logs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "output"
+      ],
+      "description": "Result of a Misti operation that executed an internal tool."
+    },
+    "ToolOutput": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the tool."
+        },
+        "projectName": {
+          "type": "string",
+          "description": "Project this tool was executed for. `undefined` if the tool doesn't require source code."
+        },
+        "output": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "output"
+      ]
+    },
+    "ResultError": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "error"
+        },
+        "error": {
+          "type": "string",
+          "description": "Error output when Misti cannot complete the requested operation."
+        },
+        "logs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "required": [
+        "error",
+        "kind"
+      ],
+      "description": "Result of a Misti operation that encountered an error."
+    }
+  }
+}
