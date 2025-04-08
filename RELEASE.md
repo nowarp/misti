@@ -13,14 +13,17 @@
   - [ ] Ensure that funding information is actual
   - [ ] Run: `yarn spell && yarn build` from the `nowarp.github.io` directory to ensure there are no errors
   - [ ] Release a new version of documentation: `npx docusaurus docs:version <VERSION>`
+  - [ ] Remove old documentation versions, keeping only the 3 latest versions
   - [ ] Run: `yarn build && yarn deploy` from the `nowarp.github.io` directory
 - [ ] Update [`blueprint-misti`](https://github.com/nowarp/blueprint-misti):
-  - [ ] Update Misti version and build the project
+  - [ ] Update Misti version in `package.json` and run `yarn install && yarn build`
+  - [ ] Run the integration test manually
   - [ ] Release it in order to update the npm dependency
 - [ ] Update [`tact-template`](https://github.com/tact-lang/tact-template):
   - [ ] Update the Misti version in `package.json`
   - [ ] Ensure the commands in `package.json` and the GitHub Actions workflow are up to date
 - [ ] Update [web-ide](https://github.com/tact-lang/web-ide)
-  - [ ] Update the Misti version in `package.json`
-  - [ ] Ensure that no changes in the output or Misti internals lead to issues
+  - [ ] Create an issue describing possible breaking changes
+- [ ] Update [tact-language-server](https://github.com/tact-lang/tact-language-server)
+  - [ ] Create an issue describing possible breaking changes
 - [ ] Create a post that highlights introduced changes
