@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2025-04-08
+
 ### Added
 - Tact 1.6.2+ support: PR [#328](https://github.com/nowarp/misti/pull/328)
 - `SuboptimalSend` detector: PR [#330](https://github.com/nowarp/misti/pull/330) and PR [#332](https://github.com/nowarp/misti/pull/332)
