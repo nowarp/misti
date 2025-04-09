@@ -84,5 +84,5 @@ export function isTest(): boolean {
  * Creates a relative path from the `process.cwd()`.
  */
 export function makeRelativePath(p: string): string {
- return path.normalize(path.relative(process.cwd(), p));
+  return path.normalize(path.relative(process.cwd(), p));
 }
