@@ -3,7 +3,7 @@ import { InternalException } from "./exceptions";
 import { QuickFix } from "./quickfix";
 import { quickFixToString } from "./quickfix";
 import { SrcInfo } from "./tact/imports";
-import { isTest, unreachable } from "./util";
+import { isTest, makeRelativePath, unreachable } from "./util";
 import path from "path";
 
 /**
@@ -148,7 +148,7 @@ export function makeWarningLocation(loc: SrcInfo): WarningLocation {
   const code = loc.interval.getLineAndColumnMessage();
   const file = loc.file
     ? isTest()
-      ? path.normalize(path.relative(process.cwd(), loc.file))
+      ? makeRelativePath(loc.file)
       : path.normalize(loc.file)
     : "<no file>";
   return { file, line: lc.lineNum, column: lc.colNum, code };
@@ -158,7 +158,7 @@ export function makeWarningLocation(loc: SrcInfo): WarningLocation {
  * Converts SrcInfo to the string representation shown to the user.
  */
 export function warningLocationToString(wl: WarningLocation): string {
-  return `${wl.file}:${wl.line}:${wl.column}:\n${wl.code}`;
+  return `${makeRelativePath(wl.file)}:${wl.line}:${wl.column}:\n${wl.code}`;
 }
 
 export function makeWarning(

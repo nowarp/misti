@@ -79,3 +79,10 @@ export function isBrowser(): boolean {
 export function isTest(): boolean {
   return process.env.JEST_WORKER_ID !== undefined;
 }
+
+/**
+ * Creates a relative path from the `process.cwd()`.
+ */
+export function makeRelativePath(p: string): string {
+ return path.normalize(path.relative(process.cwd(), p));
+}
