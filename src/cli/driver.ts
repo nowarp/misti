@@ -266,47 +266,26 @@ export class Driver {
       }
       acc.push(
         (async () => {
-          let DetectorClass;
+          let detector: Detector | null;
           if (config.modulePath) {
-            let module;
-            try {
-              const absolutePath = path.resolve(config.modulePath);
-              const relativePath = path.relative(__dirname, absolutePath);
-              module = await import(
-                relativePath.replace(path.extname(relativePath), "")
-              );
-              DetectorClass = module[config.className];
-            } catch (error) {
-              this.ctx.logger.error(
-                `Failed to import module: ${config.modulePath}`,
-              );
-              this.ctx.logger.error(`${error}`);
-              return null;
-            }
+            detector = await this.loadExternalDetector({
+              modulePath: config.modulePath,
+              className: config.className,
+            });
           } else {
-            const detector = await findBuiltInDetector(
-              this.ctx,
-              config.className,
-            );
-            if (!detector) {
-              throw ExecutionException.make(
-                `Built-in detector ${config.className} not found`,
-              );
-            }
-            return detector;
+            detector = await this.loadBuiltInDetector({
+              className: config.className,
+            });
           }
-          if (!DetectorClass) {
-            throw ExecutionException.make(
-              `Detector class ${config.className} not found in module ${config.modulePath}`,
-            );
-          }
-          if (DetectorClass.maxSeverity < this.minSeverity) {
-            this.ctx.logger.debug(
-              `Skipping detector ${config.className} - max severity ${DetectorClass.maxSeverity} < min severity ${this.minSeverity}`,
-            );
+
+          if (
+            detector &&
+            !this.checkDetectorSeverity(detector, config.className)
+          ) {
             return null;
           }
-          return new DetectorClass(this.ctx) as Detector;
+
+          return detector;
         })(),
       );
       return acc;
@@ -317,6 +296,73 @@ export class Driver {
     this.ctx.logger.debug(
       `Enabled detectors (${this.detectors.length}): ${this.detectors.map((d) => d.id).join(", ")}`,
     );
+  }
+
+  /**
+   * Loads an external detector from a module path.
+   * @param config The detector configuration
+   * @returns The detector instance or null if loading failed
+   */
+  private async loadExternalDetector(config: {
+    modulePath: string;
+    className: string;
+  }): Promise<Detector | null> {
+    let DetectorClass;
+    let module;
+    try {
+      const absolutePath = path.resolve(config.modulePath);
+      const relativePath = path.relative(__dirname, absolutePath);
+      module = await import(
+        relativePath.replace(path.extname(relativePath), "")
+      );
+      DetectorClass = module[config.className];
+    } catch (error) {
+      this.ctx.logger.error(`Failed to import module: ${config.modulePath}`);
+      this.ctx.logger.error(`${error}`);
+      return null;
+    }
+    if (!DetectorClass) {
+      throw ExecutionException.make(
+        `Detector class ${config.className} not found in module ${config.modulePath}`,
+      );
+    }
+    return new DetectorClass(this.ctx) as Detector;
+  }
+
+  /**
+   * Loads a built-in detector.
+   * @param config The detector configuration
+   * @returns The detector instance or null if not found
+   */
+  private async loadBuiltInDetector(config: {
+    className: string;
+  }): Promise<Detector | null> {
+    const detector = await findBuiltInDetector(this.ctx, config.className);
+    if (!detector) {
+      throw ExecutionException.make(
+        `Built-in detector ${config.className} not found`,
+      );
+    }
+    return detector;
+  }
+
+  /**
+   * Checks if detector's severity meets the minimum severity requirement.
+   * @param detector The detector to check
+   * @param className The detector class name for logging
+   * @returns True if detector should be used, false if it should be skipped
+   */
+  private checkDetectorSeverity(
+    detector: Detector,
+    className: string,
+  ): boolean {
+    if (detector.getSeverity().max < this.minSeverity) {
+      this.ctx.logger.debug(
+        `Skipping detector ${className} - max severity ${detector.getSeverity().max} < min severity ${this.minSeverity}`,
+      );
+      return false;
+    }
+    return true;
   }
 
   /**

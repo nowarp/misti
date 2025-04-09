@@ -41,6 +41,28 @@ describe("Common detectors functionality", () => {
     expect(firstWarning.description).toContain("Field f2 is never used");
   });
 
+  it("should respect --min-severity", async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "misti-test-"));
+    const filePath = ABSOLUTE_PATH;
+    const output = await executeMisti([
+      "--all-detectors",
+      "--min-severity",
+      "critical",
+      "--output-format",
+      "json",
+      filePath,
+    ]);
+    let jsonOutput: { kind: string };
+    try {
+      jsonOutput = JSONbig.parse(output);
+    } catch (error) {
+      console.error("Bad output:\n", output);
+      throw error;
+    }
+    expect(jsonOutput.kind).toBe("ok");
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
   it("should respect suppressions in config file", async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "misti-test-"));
     const configPath = path.join(tempDir, "misti.config.json");
