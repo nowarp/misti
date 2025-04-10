@@ -332,7 +332,7 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       import("./builtin/preferAugmentedAssign").then(
         (module) => new module.PreferAugmentedAssign(ctx),
       ),
-    enabledByDefault: true,
+    enabledByDefault: false,
   },
   StringReceiversOverlap: {
     loader: (ctx: MistiContext) =>
@@ -351,7 +351,7 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       import("./builtin/preferredStdlibApi").then(
         (module) => new module.PreferredStdlibApi(ctx),
       ),
-    enabledByDefault: false,
+    enabledByDefault: true,
   },
   InheritedStateMutation: {
     loader: (ctx: MistiContext) =>

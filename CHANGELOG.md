@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `PreferredStdlibApi`: More accurate severity levels and warning descriptions
+- `PreferredStdlibApi` is enabled by default; `PreferAugmentedAssign` is disabled
 
 ### Fixed
 - Severity filter for detectors (optimization): Issue [#358](https://github.com/nowarp/misti/issues/358)
