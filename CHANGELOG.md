@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `PreferredStdlibApi`: More accurate severity levels and warning descriptions
+
 ### Fixed
 - Severity filter for detectors (optimization): Issue [#358](https://github.com/nowarp/misti/issues/358)
 - Relative paths in displayed warnings: PR [#361](https://github.com/nowarp/misti/pull/361)

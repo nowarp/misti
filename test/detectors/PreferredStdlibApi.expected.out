@@ -1,21 +1,31 @@
-[INFO] PreferredStdlibApi: Method chain has a safer alternative: emptySlice()
+[LOW] PreferredStdlibApi: Method call has a more gas-effective alternative: emptySlice()
 test/detectors/PreferredStdlibApi.tact:7:29:
   6 |     receive(msg: Msg) {
 > 7 |         let slice1: Slice = emptyCell().asSlice();  // Bad: use emptySlice()
                                   ^~~~~~~~~~~~~~~~~~~~~
   8 |         let cell1: Cell = beginCell().endCell();    // Bad: use emptyCell()
 Use `emptySlice()` instead of chaining `emptyCell().asSlice()`
-Help: This chain should be replaced with: emptySlice()
+Help: This call should be replaced with: emptySlice()
 See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
 
-[INFO] PreferredStdlibApi: Method chain has a safer alternative: emptyCell()
+[LOW] PreferredStdlibApi: Method call has a more gas-effective alternative: emptyCell()
 test/detectors/PreferredStdlibApi.tact:8:27:
   7 |         let slice1: Slice = emptyCell().asSlice();  // Bad: use emptySlice()
 > 8 |         let cell1: Cell = beginCell().endCell();    // Bad: use emptyCell()
                                 ^~~~~~~~~~~~~~~~~~~~~
   9 |         let pkg: Slice = msg.whatever;
 Use `emptyCell()` instead of chaining `beginCell().endCell()`
-Help: This chain should be replaced with: emptyCell()
+Help: This call should be replaced with: emptyCell()
+See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
+[LOW] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
+test/detectors/PreferredStdlibApi.tact:14:9:
+  13 |         nativeSendMessage(body, mode); // Bad: prefer `send`
+> 14 |         require(mode > 8, "foo"); // Bad: prefer `throwUnless`
+               ^~~~~~~~~~~~~~~~~~~~~~~~
+  15 |     }
+`throwUnless` is preferred in production because it is more gas-efficient.
+Help: require should be replaced with a more gas-effective alternative: throwUnless
 See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
 
 [INFO] PreferredStdlibApi: nativeSendMessage has a safer alternative: send
@@ -26,16 +36,6 @@ test/detectors/PreferredStdlibApi.tact:13:9:
   14 |         require(mode > 8, "foo"); // Bad: prefer `throwUnless`
 Prefer `send` to make the call more explicit and reduce low-level operations
 Help: nativeSendMessage should be replaced with a safer alternative: send
-See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
-
-[INFO] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
-test/detectors/PreferredStdlibApi.tact:14:9:
-  13 |         nativeSendMessage(body, mode); // Bad: prefer `send`
-> 14 |         require(mode > 8, "foo"); // Bad: prefer `throwUnless`
-               ^~~~~~~~~~~~~~~~~~~~~~~~
-  15 |     }
-`throwUnless` is preferred in production because it is more gas-efficient.
-Help: require should be replaced with a more gas-effective alternative: throwUnless
 See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
 
 [INFO] PreferredStdlibApi: nativeRandom has a safer alternative: randomInt

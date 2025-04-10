@@ -61,6 +61,156 @@ test/all/sample-jetton.tact:296:9:
 Help: Use more gas-efficient `message` function: https://docs.tact-lang.org/ref/core-common/#message
 See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
 
+[LOW] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
+test/all/sample-jetton.tact:33:9:
+  32 |         let ctx: Context = context();
+> 33 |         require(ctx.sender == self.owner, "Not Owner");
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  34 |         require(self.mintable, "Can't Mint Anymore");
+`throwUnless` is preferred in production because it is more gas-efficient.
+Help: require should be replaced with a more gas-effective alternative: throwUnless
+See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
+[LOW] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
+test/all/sample-jetton.tact:34:9:
+  33 |         require(ctx.sender == self.owner, "Not Owner");
+> 34 |         require(self.mintable, "Can't Mint Anymore");
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  35 |         self.mint(msg.receiver, msg.amount, self.owner); //(to, amount, response_destination)
+`throwUnless` is preferred in production because it is more gas-efficient.
+Help: require should be replaced with a more gas-effective alternative: throwUnless
+See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
+[LOW] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
+test/all/sample-jetton.tact:40:9:
+  39 |         let ctx: Context = context();
+> 40 |         require(self.mintable, "Can't Mint Anymore");
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  41 |         self.mint(ctx.sender, 100, self.owner);
+`throwUnless` is preferred in production because it is more gas-efficient.
+Help: require should be replaced with a more gas-effective alternative: throwUnless
+See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
+[LOW] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
+test/all/sample-jetton.tact:46:9:
+  45 |         let ctx: Context = context();
+> 46 |         require(ctx.sender == self.owner, "Not Owner");
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  47 |         self.mintable = false;
+`throwUnless` is preferred in production because it is more gas-efficient.
+Help: require should be replaced with a more gas-effective alternative: throwUnless
+See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
+[LOW] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
+test/all/sample-jetton.tact:88:9:
+  87 | 
+> 88 |         require(self.totalSupply + amount <= self.max_supply, "The total supply will be overlapping.");
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  89 |         self.totalSupply = self.totalSupply + amount; // Update total supply
+`throwUnless` is preferred in production because it is more gas-efficient.
+Help: require should be replaced with a more gas-effective alternative: throwUnless
+See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
+[LOW] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
+test/all/sample-jetton.tact:113:9:
+  112 |         let wInit: StateInit = self.getJettonWalletInit(owner);
+> 113 |         require(contractAddress(wInit) == ctx.sender, "Invalid sender");
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  114 |     }
+`throwUnless` is preferred in production because it is more gas-efficient.
+Help: require should be replaced with a more gas-effective alternative: throwUnless
+See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
+[LOW] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
+test/all/sample-jetton.tact:207:9:
+  206 |         let ctx: Context = context(); // Check sender
+> 207 |         require(ctx.sender == self.owner, "Invalid sender");
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  208 | 
+`throwUnless` is preferred in production because it is more gas-efficient.
+Help: require should be replaced with a more gas-effective alternative: throwUnless
+See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
+[LOW] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
+test/all/sample-jetton.tact:211:9:
+  210 |         let final: Int =  2 * self.gasConsumption + self.minTonsForStorage + fwdFee;
+> 211 |         require(ctx.value > min(final, ton("0.01")), "Invalid value!!"); 
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  212 | 
+`throwUnless` is preferred in production because it is more gas-efficient.
+Help: require should be replaced with a more gas-effective alternative: throwUnless
+See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
+[LOW] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
+test/all/sample-jetton.tact:214:9:
+  213 |         self.balance = self.balance - msg.amount; // Update balance
+> 214 |         require(self.balance >= 0, "Invalid balance");
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  215 | 
+`throwUnless` is preferred in production because it is more gas-efficient.
+Help: require should be replaced with a more gas-effective alternative: throwUnless
+See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
+[LOW] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
+test/all/sample-jetton.tact:241:13:
+  240 |             let sInit: StateInit = initOf JettonDefaultWallet(self.master, msg.from);
+> 241 |             require(contractAddress(sInit) == ctx.sender, "Invalid sender!");
+                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  242 |         }
+`throwUnless` is preferred in production because it is more gas-efficient.
+Help: require should be replaced with a more gas-effective alternative: throwUnless
+See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
+[LOW] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
+test/all/sample-jetton.tact:245:9:
+  244 |         self.balance = self.balance + msg.amount;
+> 245 |         require(self.balance >= 0, "Invalid balance"); // Update balance
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  246 | 
+`throwUnless` is preferred in production because it is more gas-efficient.
+Help: require should be replaced with a more gas-effective alternative: throwUnless
+See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
+[LOW] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
+test/all/sample-jetton.tact:288:9:
+  287 |         let ctx: Context = context();
+> 288 |         require(ctx.sender == self.owner, "Invalid sender");  // Check sender
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  289 | 
+`throwUnless` is preferred in production because it is more gas-efficient.
+Help: require should be replaced with a more gas-effective alternative: throwUnless
+See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
+[LOW] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
+test/all/sample-jetton.tact:291:9:
+  290 |         self.balance = self.balance - msg.amount; // Update balance
+> 291 |         require(self.balance >= 0, "Invalid balance");
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  292 | 
+`throwUnless` is preferred in production because it is more gas-efficient.
+Help: require should be replaced with a more gas-effective alternative: throwUnless
+See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
+[LOW] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
+test/all/sample-jetton.tact:294:9:
+  293 |         let fwdFee: Int = ctx.readForwardFee(); // Gas checks
+> 294 |         require(ctx.value > fwdFee + 2 * self.gasConsumption + self.minTonsForStorage, "Invalid value - Burn");
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  295 | 
+`throwUnless` is preferred in production because it is more gas-efficient.
+Help: require should be replaced with a more gas-effective alternative: throwUnless
+See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
+[LOW] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
+test/all/sample-jetton.tact:314:9:
+  313 |         let jettonAmount: Int = msg.loadCoins();
+> 314 |         require(op == 0x178d4519 || op == 0x7bdd97de, "Invalid bounced message");
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  315 |         
+`throwUnless` is preferred in production because it is more gas-efficient.
+Help: require should be replaced with a more gas-effective alternative: throwUnless
+See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
+
 [LOW] InheritedStateMutation: Inherited trait field mintable is mutated
 test/all/sample-jetton.tact:47:9:
   46 |         require(ctx.sender == self.owner, "Not Owner");
@@ -184,156 +334,6 @@ test/all/sample-jetton.tact:316:9:
   317 |     }
 Help: Consider using augmented assignment instead: self.balance += jettonAmount
 See: https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign
-
-[INFO] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
-test/all/sample-jetton.tact:33:9:
-  32 |         let ctx: Context = context();
-> 33 |         require(ctx.sender == self.owner, "Not Owner");
-               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  34 |         require(self.mintable, "Can't Mint Anymore");
-`throwUnless` is preferred in production because it is more gas-efficient.
-Help: require should be replaced with a more gas-effective alternative: throwUnless
-See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
-
-[INFO] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
-test/all/sample-jetton.tact:34:9:
-  33 |         require(ctx.sender == self.owner, "Not Owner");
-> 34 |         require(self.mintable, "Can't Mint Anymore");
-               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  35 |         self.mint(msg.receiver, msg.amount, self.owner); //(to, amount, response_destination)
-`throwUnless` is preferred in production because it is more gas-efficient.
-Help: require should be replaced with a more gas-effective alternative: throwUnless
-See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
-
-[INFO] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
-test/all/sample-jetton.tact:40:9:
-  39 |         let ctx: Context = context();
-> 40 |         require(self.mintable, "Can't Mint Anymore");
-               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  41 |         self.mint(ctx.sender, 100, self.owner);
-`throwUnless` is preferred in production because it is more gas-efficient.
-Help: require should be replaced with a more gas-effective alternative: throwUnless
-See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
-
-[INFO] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
-test/all/sample-jetton.tact:46:9:
-  45 |         let ctx: Context = context();
-> 46 |         require(ctx.sender == self.owner, "Not Owner");
-               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  47 |         self.mintable = false;
-`throwUnless` is preferred in production because it is more gas-efficient.
-Help: require should be replaced with a more gas-effective alternative: throwUnless
-See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
-
-[INFO] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
-test/all/sample-jetton.tact:88:9:
-  87 | 
-> 88 |         require(self.totalSupply + amount <= self.max_supply, "The total supply will be overlapping.");
-               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  89 |         self.totalSupply = self.totalSupply + amount; // Update total supply
-`throwUnless` is preferred in production because it is more gas-efficient.
-Help: require should be replaced with a more gas-effective alternative: throwUnless
-See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
-
-[INFO] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
-test/all/sample-jetton.tact:113:9:
-  112 |         let wInit: StateInit = self.getJettonWalletInit(owner);
-> 113 |         require(contractAddress(wInit) == ctx.sender, "Invalid sender");
-                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  114 |     }
-`throwUnless` is preferred in production because it is more gas-efficient.
-Help: require should be replaced with a more gas-effective alternative: throwUnless
-See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
-
-[INFO] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
-test/all/sample-jetton.tact:207:9:
-  206 |         let ctx: Context = context(); // Check sender
-> 207 |         require(ctx.sender == self.owner, "Invalid sender");
-                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  208 | 
-`throwUnless` is preferred in production because it is more gas-efficient.
-Help: require should be replaced with a more gas-effective alternative: throwUnless
-See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
-
-[INFO] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
-test/all/sample-jetton.tact:211:9:
-  210 |         let final: Int =  2 * self.gasConsumption + self.minTonsForStorage + fwdFee;
-> 211 |         require(ctx.value > min(final, ton("0.01")), "Invalid value!!"); 
-                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  212 | 
-`throwUnless` is preferred in production because it is more gas-efficient.
-Help: require should be replaced with a more gas-effective alternative: throwUnless
-See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
-
-[INFO] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
-test/all/sample-jetton.tact:214:9:
-  213 |         self.balance = self.balance - msg.amount; // Update balance
-> 214 |         require(self.balance >= 0, "Invalid balance");
-                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  215 | 
-`throwUnless` is preferred in production because it is more gas-efficient.
-Help: require should be replaced with a more gas-effective alternative: throwUnless
-See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
-
-[INFO] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
-test/all/sample-jetton.tact:241:13:
-  240 |             let sInit: StateInit = initOf JettonDefaultWallet(self.master, msg.from);
-> 241 |             require(contractAddress(sInit) == ctx.sender, "Invalid sender!");
-                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  242 |         }
-`throwUnless` is preferred in production because it is more gas-efficient.
-Help: require should be replaced with a more gas-effective alternative: throwUnless
-See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
-
-[INFO] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
-test/all/sample-jetton.tact:245:9:
-  244 |         self.balance = self.balance + msg.amount;
-> 245 |         require(self.balance >= 0, "Invalid balance"); // Update balance
-                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  246 | 
-`throwUnless` is preferred in production because it is more gas-efficient.
-Help: require should be replaced with a more gas-effective alternative: throwUnless
-See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
-
-[INFO] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
-test/all/sample-jetton.tact:288:9:
-  287 |         let ctx: Context = context();
-> 288 |         require(ctx.sender == self.owner, "Invalid sender");  // Check sender
-                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  289 | 
-`throwUnless` is preferred in production because it is more gas-efficient.
-Help: require should be replaced with a more gas-effective alternative: throwUnless
-See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
-
-[INFO] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
-test/all/sample-jetton.tact:291:9:
-  290 |         self.balance = self.balance - msg.amount; // Update balance
-> 291 |         require(self.balance >= 0, "Invalid balance");
-                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  292 | 
-`throwUnless` is preferred in production because it is more gas-efficient.
-Help: require should be replaced with a more gas-effective alternative: throwUnless
-See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
-
-[INFO] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
-test/all/sample-jetton.tact:294:9:
-  293 |         let fwdFee: Int = ctx.readForwardFee(); // Gas checks
-> 294 |         require(ctx.value > fwdFee + 2 * self.gasConsumption + self.minTonsForStorage, "Invalid value - Burn");
-                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  295 | 
-`throwUnless` is preferred in production because it is more gas-efficient.
-Help: require should be replaced with a more gas-effective alternative: throwUnless
-See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
-
-[INFO] PreferredStdlibApi: require has a more gas-effective alternative: throwUnless
-test/all/sample-jetton.tact:314:9:
-  313 |         let jettonAmount: Int = msg.loadCoins();
-> 314 |         require(op == 0x178d4519 || op == 0x7bdd97de, "Invalid bounced message");
-                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  315 |         
-`throwUnless` is preferred in production because it is more gas-efficient.
-Help: require should be replaced with a more gas-effective alternative: throwUnless
-See: https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi
 
 [INFO] ImplicitOpcode: Message `Mint` has an implicit opcode
 test/all/sample-jetton.tact:3:1:

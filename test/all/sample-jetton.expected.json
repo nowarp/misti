@@ -107,6 +107,261 @@
       "quickfixes": []
     },
     {
+      "detectorId": "PreferredStdlibApi",
+      "description": "require has a more gas-effective alternative: throwUnless",
+      "location": {
+        "file": "test/all/sample-jetton.tact",
+        "line": 33,
+        "column": 9,
+        "code": "  32 |         let ctx: Context = context();\n> 33 |         require(ctx.sender == self.owner, \"Not Owner\");\n               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  34 |         require(self.mintable, \"Can't Mint Anymore\");\n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
+      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferredStdlibApi",
+      "description": "require has a more gas-effective alternative: throwUnless",
+      "location": {
+        "file": "test/all/sample-jetton.tact",
+        "line": 34,
+        "column": 9,
+        "code": "  33 |         require(ctx.sender == self.owner, \"Not Owner\");\n> 34 |         require(self.mintable, \"Can't Mint Anymore\");\n               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  35 |         self.mint(msg.receiver, msg.amount, self.owner); //(to, amount, response_destination)\n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
+      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferredStdlibApi",
+      "description": "require has a more gas-effective alternative: throwUnless",
+      "location": {
+        "file": "test/all/sample-jetton.tact",
+        "line": 40,
+        "column": 9,
+        "code": "  39 |         let ctx: Context = context();\n> 40 |         require(self.mintable, \"Can't Mint Anymore\");\n               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  41 |         self.mint(ctx.sender, 100, self.owner);\n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
+      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferredStdlibApi",
+      "description": "require has a more gas-effective alternative: throwUnless",
+      "location": {
+        "file": "test/all/sample-jetton.tact",
+        "line": 46,
+        "column": 9,
+        "code": "  45 |         let ctx: Context = context();\n> 46 |         require(ctx.sender == self.owner, \"Not Owner\");\n               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  47 |         self.mintable = false;\n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
+      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferredStdlibApi",
+      "description": "require has a more gas-effective alternative: throwUnless",
+      "location": {
+        "file": "test/all/sample-jetton.tact",
+        "line": 88,
+        "column": 9,
+        "code": "  87 | \n> 88 |         require(self.totalSupply + amount <= self.max_supply, \"The total supply will be overlapping.\");\n               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  89 |         self.totalSupply = self.totalSupply + amount; // Update total supply\n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
+      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferredStdlibApi",
+      "description": "require has a more gas-effective alternative: throwUnless",
+      "location": {
+        "file": "test/all/sample-jetton.tact",
+        "line": 113,
+        "column": 9,
+        "code": "  112 |         let wInit: StateInit = self.getJettonWalletInit(owner);\n> 113 |         require(contractAddress(wInit) == ctx.sender, \"Invalid sender\");\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  114 |     }\n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
+      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferredStdlibApi",
+      "description": "require has a more gas-effective alternative: throwUnless",
+      "location": {
+        "file": "test/all/sample-jetton.tact",
+        "line": 207,
+        "column": 9,
+        "code": "  206 |         let ctx: Context = context(); // Check sender\n> 207 |         require(ctx.sender == self.owner, \"Invalid sender\");\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  208 | \n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
+      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferredStdlibApi",
+      "description": "require has a more gas-effective alternative: throwUnless",
+      "location": {
+        "file": "test/all/sample-jetton.tact",
+        "line": 211,
+        "column": 9,
+        "code": "  210 |         let final: Int =  2 * self.gasConsumption + self.minTonsForStorage + fwdFee;\n> 211 |         require(ctx.value > min(final, ton(\"0.01\")), \"Invalid value!!\"); \n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  212 | \n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
+      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferredStdlibApi",
+      "description": "require has a more gas-effective alternative: throwUnless",
+      "location": {
+        "file": "test/all/sample-jetton.tact",
+        "line": 214,
+        "column": 9,
+        "code": "  213 |         self.balance = self.balance - msg.amount; // Update balance\n> 214 |         require(self.balance >= 0, \"Invalid balance\");\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  215 | \n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
+      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferredStdlibApi",
+      "description": "require has a more gas-effective alternative: throwUnless",
+      "location": {
+        "file": "test/all/sample-jetton.tact",
+        "line": 241,
+        "column": 13,
+        "code": "  240 |             let sInit: StateInit = initOf JettonDefaultWallet(self.master, msg.from);\n> 241 |             require(contractAddress(sInit) == ctx.sender, \"Invalid sender!\");\n                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  242 |         }\n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
+      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferredStdlibApi",
+      "description": "require has a more gas-effective alternative: throwUnless",
+      "location": {
+        "file": "test/all/sample-jetton.tact",
+        "line": 245,
+        "column": 9,
+        "code": "  244 |         self.balance = self.balance + msg.amount;\n> 245 |         require(self.balance >= 0, \"Invalid balance\"); // Update balance\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  246 | \n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
+      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferredStdlibApi",
+      "description": "require has a more gas-effective alternative: throwUnless",
+      "location": {
+        "file": "test/all/sample-jetton.tact",
+        "line": 288,
+        "column": 9,
+        "code": "  287 |         let ctx: Context = context();\n> 288 |         require(ctx.sender == self.owner, \"Invalid sender\");  // Check sender\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  289 | \n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
+      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferredStdlibApi",
+      "description": "require has a more gas-effective alternative: throwUnless",
+      "location": {
+        "file": "test/all/sample-jetton.tact",
+        "line": 291,
+        "column": 9,
+        "code": "  290 |         self.balance = self.balance - msg.amount; // Update balance\n> 291 |         require(self.balance >= 0, \"Invalid balance\");\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  292 | \n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
+      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferredStdlibApi",
+      "description": "require has a more gas-effective alternative: throwUnless",
+      "location": {
+        "file": "test/all/sample-jetton.tact",
+        "line": 294,
+        "column": 9,
+        "code": "  293 |         let fwdFee: Int = ctx.readForwardFee(); // Gas checks\n> 294 |         require(ctx.value > fwdFee + 2 * self.gasConsumption + self.minTonsForStorage, \"Invalid value - Burn\");\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  295 | \n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
+      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferredStdlibApi",
+      "description": "require has a more gas-effective alternative: throwUnless",
+      "location": {
+        "file": "test/all/sample-jetton.tact",
+        "line": 314,
+        "column": 9,
+        "code": "  313 |         let jettonAmount: Int = msg.loadCoins();\n> 314 |         require(op == 0x178d4519 || op == 0x7bdd97de, \"Invalid bounced message\");\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  315 |         \n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
+      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
+      "quickfixes": []
+    },
+    {
       "detectorId": "InheritedStateMutation",
       "description": "Inherited trait field mintable is mutated",
       "location": {
@@ -306,261 +561,6 @@
       "severity": 1,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: self.balance += jettonAmount",
-      "quickfixes": []
-    },
-    {
-      "detectorId": "PreferredStdlibApi",
-      "description": "require has a more gas-effective alternative: throwUnless",
-      "location": {
-        "file": "test/all/sample-jetton.tact",
-        "line": 33,
-        "column": 9,
-        "code": "  32 |         let ctx: Context = context();\n> 33 |         require(ctx.sender == self.owner, \"Not Owner\");\n               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  34 |         require(self.mintable, \"Can't Mint Anymore\");\n"
-      },
-      "suppressed": false,
-      "severity": 1,
-      "category": 2,
-      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
-      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
-      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
-      "quickfixes": []
-    },
-    {
-      "detectorId": "PreferredStdlibApi",
-      "description": "require has a more gas-effective alternative: throwUnless",
-      "location": {
-        "file": "test/all/sample-jetton.tact",
-        "line": 34,
-        "column": 9,
-        "code": "  33 |         require(ctx.sender == self.owner, \"Not Owner\");\n> 34 |         require(self.mintable, \"Can't Mint Anymore\");\n               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  35 |         self.mint(msg.receiver, msg.amount, self.owner); //(to, amount, response_destination)\n"
-      },
-      "suppressed": false,
-      "severity": 1,
-      "category": 2,
-      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
-      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
-      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
-      "quickfixes": []
-    },
-    {
-      "detectorId": "PreferredStdlibApi",
-      "description": "require has a more gas-effective alternative: throwUnless",
-      "location": {
-        "file": "test/all/sample-jetton.tact",
-        "line": 40,
-        "column": 9,
-        "code": "  39 |         let ctx: Context = context();\n> 40 |         require(self.mintable, \"Can't Mint Anymore\");\n               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  41 |         self.mint(ctx.sender, 100, self.owner);\n"
-      },
-      "suppressed": false,
-      "severity": 1,
-      "category": 2,
-      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
-      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
-      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
-      "quickfixes": []
-    },
-    {
-      "detectorId": "PreferredStdlibApi",
-      "description": "require has a more gas-effective alternative: throwUnless",
-      "location": {
-        "file": "test/all/sample-jetton.tact",
-        "line": 46,
-        "column": 9,
-        "code": "  45 |         let ctx: Context = context();\n> 46 |         require(ctx.sender == self.owner, \"Not Owner\");\n               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  47 |         self.mintable = false;\n"
-      },
-      "suppressed": false,
-      "severity": 1,
-      "category": 2,
-      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
-      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
-      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
-      "quickfixes": []
-    },
-    {
-      "detectorId": "PreferredStdlibApi",
-      "description": "require has a more gas-effective alternative: throwUnless",
-      "location": {
-        "file": "test/all/sample-jetton.tact",
-        "line": 88,
-        "column": 9,
-        "code": "  87 | \n> 88 |         require(self.totalSupply + amount <= self.max_supply, \"The total supply will be overlapping.\");\n               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  89 |         self.totalSupply = self.totalSupply + amount; // Update total supply\n"
-      },
-      "suppressed": false,
-      "severity": 1,
-      "category": 2,
-      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
-      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
-      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
-      "quickfixes": []
-    },
-    {
-      "detectorId": "PreferredStdlibApi",
-      "description": "require has a more gas-effective alternative: throwUnless",
-      "location": {
-        "file": "test/all/sample-jetton.tact",
-        "line": 113,
-        "column": 9,
-        "code": "  112 |         let wInit: StateInit = self.getJettonWalletInit(owner);\n> 113 |         require(contractAddress(wInit) == ctx.sender, \"Invalid sender\");\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  114 |     }\n"
-      },
-      "suppressed": false,
-      "severity": 1,
-      "category": 2,
-      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
-      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
-      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
-      "quickfixes": []
-    },
-    {
-      "detectorId": "PreferredStdlibApi",
-      "description": "require has a more gas-effective alternative: throwUnless",
-      "location": {
-        "file": "test/all/sample-jetton.tact",
-        "line": 207,
-        "column": 9,
-        "code": "  206 |         let ctx: Context = context(); // Check sender\n> 207 |         require(ctx.sender == self.owner, \"Invalid sender\");\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  208 | \n"
-      },
-      "suppressed": false,
-      "severity": 1,
-      "category": 2,
-      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
-      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
-      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
-      "quickfixes": []
-    },
-    {
-      "detectorId": "PreferredStdlibApi",
-      "description": "require has a more gas-effective alternative: throwUnless",
-      "location": {
-        "file": "test/all/sample-jetton.tact",
-        "line": 211,
-        "column": 9,
-        "code": "  210 |         let final: Int =  2 * self.gasConsumption + self.minTonsForStorage + fwdFee;\n> 211 |         require(ctx.value > min(final, ton(\"0.01\")), \"Invalid value!!\"); \n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  212 | \n"
-      },
-      "suppressed": false,
-      "severity": 1,
-      "category": 2,
-      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
-      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
-      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
-      "quickfixes": []
-    },
-    {
-      "detectorId": "PreferredStdlibApi",
-      "description": "require has a more gas-effective alternative: throwUnless",
-      "location": {
-        "file": "test/all/sample-jetton.tact",
-        "line": 214,
-        "column": 9,
-        "code": "  213 |         self.balance = self.balance - msg.amount; // Update balance\n> 214 |         require(self.balance >= 0, \"Invalid balance\");\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  215 | \n"
-      },
-      "suppressed": false,
-      "severity": 1,
-      "category": 2,
-      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
-      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
-      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
-      "quickfixes": []
-    },
-    {
-      "detectorId": "PreferredStdlibApi",
-      "description": "require has a more gas-effective alternative: throwUnless",
-      "location": {
-        "file": "test/all/sample-jetton.tact",
-        "line": 241,
-        "column": 13,
-        "code": "  240 |             let sInit: StateInit = initOf JettonDefaultWallet(self.master, msg.from);\n> 241 |             require(contractAddress(sInit) == ctx.sender, \"Invalid sender!\");\n                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  242 |         }\n"
-      },
-      "suppressed": false,
-      "severity": 1,
-      "category": 2,
-      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
-      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
-      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
-      "quickfixes": []
-    },
-    {
-      "detectorId": "PreferredStdlibApi",
-      "description": "require has a more gas-effective alternative: throwUnless",
-      "location": {
-        "file": "test/all/sample-jetton.tact",
-        "line": 245,
-        "column": 9,
-        "code": "  244 |         self.balance = self.balance + msg.amount;\n> 245 |         require(self.balance >= 0, \"Invalid balance\"); // Update balance\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  246 | \n"
-      },
-      "suppressed": false,
-      "severity": 1,
-      "category": 2,
-      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
-      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
-      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
-      "quickfixes": []
-    },
-    {
-      "detectorId": "PreferredStdlibApi",
-      "description": "require has a more gas-effective alternative: throwUnless",
-      "location": {
-        "file": "test/all/sample-jetton.tact",
-        "line": 288,
-        "column": 9,
-        "code": "  287 |         let ctx: Context = context();\n> 288 |         require(ctx.sender == self.owner, \"Invalid sender\");  // Check sender\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  289 | \n"
-      },
-      "suppressed": false,
-      "severity": 1,
-      "category": 2,
-      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
-      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
-      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
-      "quickfixes": []
-    },
-    {
-      "detectorId": "PreferredStdlibApi",
-      "description": "require has a more gas-effective alternative: throwUnless",
-      "location": {
-        "file": "test/all/sample-jetton.tact",
-        "line": 291,
-        "column": 9,
-        "code": "  290 |         self.balance = self.balance - msg.amount; // Update balance\n> 291 |         require(self.balance >= 0, \"Invalid balance\");\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  292 | \n"
-      },
-      "suppressed": false,
-      "severity": 1,
-      "category": 2,
-      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
-      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
-      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
-      "quickfixes": []
-    },
-    {
-      "detectorId": "PreferredStdlibApi",
-      "description": "require has a more gas-effective alternative: throwUnless",
-      "location": {
-        "file": "test/all/sample-jetton.tact",
-        "line": 294,
-        "column": 9,
-        "code": "  293 |         let fwdFee: Int = ctx.readForwardFee(); // Gas checks\n> 294 |         require(ctx.value > fwdFee + 2 * self.gasConsumption + self.minTonsForStorage, \"Invalid value - Burn\");\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  295 | \n"
-      },
-      "suppressed": false,
-      "severity": 1,
-      "category": 2,
-      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
-      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
-      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
-      "quickfixes": []
-    },
-    {
-      "detectorId": "PreferredStdlibApi",
-      "description": "require has a more gas-effective alternative: throwUnless",
-      "location": {
-        "file": "test/all/sample-jetton.tact",
-        "line": 314,
-        "column": 9,
-        "code": "  313 |         let jettonAmount: Int = msg.loadCoins();\n> 314 |         require(op == 0x178d4519 || op == 0x7bdd97de, \"Invalid bounced message\");\n                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  315 |         \n"
-      },
-      "suppressed": false,
-      "severity": 1,
-      "category": 2,
-      "extraDescription": "`throwUnless` is preferred in production because it is more gas-efficient.",
-      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferredStdlibApi",
-      "suggestion": "require should be replaced with a more gas-effective alternative: throwUnless",
       "quickfixes": []
     },
     {

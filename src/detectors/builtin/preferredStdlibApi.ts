@@ -32,41 +32,55 @@ function kindToCategory(k: ReplacementKind): Category {
 
 const REPLACEMENTS: Record<
   string,
-  { replacement: string; kind: ReplacementKind; rationale: string }
+  {
+    replacement: string;
+    kind: ReplacementKind;
+    severity: Severity;
+    rationale: string;
+  }
 > = {
   nativeSendMessage: {
     replacement: "send",
     kind: ReplacementKind.SAFETY,
+    severity: Severity.INFO,
     rationale:
       "Prefer `send` to make the call more explicit and reduce low-level operations",
   },
   nativeRandom: {
     replacement: "randomInt",
     kind: ReplacementKind.SAFETY,
+    severity: Severity.INFO,
     rationale:
       "Prefer `randomInt` since `nativeRandom` requires additional initialization of PRG before use",
   },
   require: {
     replacement: "throwUnless",
     kind: ReplacementKind.OPTIMIZATION,
+    severity: Severity.LOW,
     rationale:
       "`throwUnless` is preferred in production because it is more gas-efficient.",
   },
 };
 
-const METHOD_CHAINS: Array<{
+const METHOD_REPLACEMENTS: Array<{
   pattern: string[];
   replacement: string;
+  kind: ReplacementKind;
+  severity: Severity;
   rationale: string;
 }> = [
   {
     pattern: ["emptyCell", "asSlice"],
     replacement: "emptySlice()",
+    kind: ReplacementKind.OPTIMIZATION,
+    severity: Severity.LOW,
     rationale: "Use `emptySlice()` instead of chaining `emptyCell().asSlice()`",
   },
   {
     pattern: ["beginCell", "endCell"],
     replacement: "emptyCell()",
+    kind: ReplacementKind.OPTIMIZATION,
+    severity: Severity.LOW,
     rationale: "Use `emptyCell()` instead of chaining `beginCell().endCell()`",
   },
 ];
@@ -105,7 +119,7 @@ const METHOD_CHAINS: Array<{
  * ```
  */
 export class PreferredStdlibApi extends AstDetector {
-  severity = Severity.INFO;
+  severity = { min: Severity.INFO, max: Severity.LOW };
   category = [Category.OPTIMIZATION, Category.SECURITY];
 
   async check(cu: CompilationUnit): Promise<Warning[]> {
@@ -134,6 +148,7 @@ export class PreferredStdlibApi extends AstDetector {
             {
               category: kindToCategory(r.kind),
               extraDescription: r.rationale,
+              severity: r.severity,
               suggestion: `${funName} should be replaced with a ${kindToString(r.kind)} alternative: ${r.replacement}`,
             },
           ),
@@ -155,16 +170,17 @@ export class PreferredStdlibApi extends AstDetector {
       }
 
       // Check if the chain matches any patterns
-      for (const pattern of METHOD_CHAINS) {
-        if (arraysEqual(chain, pattern.pattern)) {
+      for (const r of METHOD_REPLACEMENTS) {
+        if (arraysEqual(chain, r.pattern)) {
           acc.push(
             this.makeWarning(
-              `Method chain has a safer alternative: ${pattern.replacement}`,
+              `Method call has a ${kindToString(r.kind)} alternative: ${r.replacement}`,
               expr.loc,
               {
                 category: Category.SECURITY,
-                extraDescription: pattern.rationale,
-                suggestion: `This chain should be replaced with: ${pattern.replacement}`,
+                extraDescription: r.rationale,
+                severity: r.severity,
+                suggestion: `This call should be replaced with: ${r.replacement}`,
               },
             ),
           );
