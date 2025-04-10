@@ -9,7 +9,8 @@ const filePath = args[0];
 const showProgress = args.includes("--progress");
 
 if (!filePath || filePath === "--progress") {
-  console.error("Error: No file path provided.");
+  console.error("Error: No contract provided.");
+  console.error("Usage: ts-node benchmark/detectors.ts <contract.tact>");
   process.exit(1);
 }
 
@@ -34,7 +35,7 @@ getAllDetectors().forEach((detectorName) => {
     async: true,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     fn: async function (deferred: any) {
-      await executeMisti([`--detectors`, detectorName, filePath]);
+      await executeMisti([`-de`, detectorName, filePath]);
       deferred.resolve();
     },
   });
