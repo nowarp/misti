@@ -204,6 +204,16 @@ export class Driver {
         `--enabled-detectors and --all-detectors cannot be used simultaneously`,
       );
     }
+    // Prevent multiple tools with plain output format
+    if (
+      options.tools &&
+      options.tools.length > 1 &&
+      options.outputFormat === "plain"
+    ) {
+      throw ExecutionException.make(
+        `Cannot execute multiple tools with --output-format "plain". Use --output-format "json" for multiple tools.`,
+      );
+    }
     // Check for duplicate tool class names
     if (options.tools && options.tools.length > 0) {
       const toolClassNames = options.tools.map((tool) => tool.className);
