@@ -490,12 +490,22 @@ export class Driver {
    * @returns MistiResult containing tool outputs
    */
   private async executeTools(): Promise<Result> {
+    const noInputFiles = this.cus.size === 0;
     const standaloneTools = this.tools.filter((tool) =>
       Tool.canRunStandalone(tool),
     );
-    const cuDependentTools = this.tools.filter(
-      (tool) => !Tool.canRunStandalone(tool),
-    );
+    const cuDependentTools = this.tools.filter((tool) => {
+      if (noInputFiles) {
+        this.ctx.logger.warn(
+          `${tool.id} requires an input file to be executed`,
+        );
+      }
+      return !Tool.canRunStandalone(tool);
+    });
+    if (noInputFiles && standaloneTools.length === 0) {
+      this.ctx.logger.warn("Nothing to execute");
+      return { kind: "ok" };
+    }
     const standaloneOutputs = await Promise.all(
       standaloneTools.map((tool) => {
         try {
