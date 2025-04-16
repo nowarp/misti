@@ -68,6 +68,20 @@ export class SuboptimalSend extends AstDetector {
   }
 
   private hasCashbackMode(s: AstStructInstance): boolean {
+    const bodyField = s.args.find((a) => idText(a.field) === "body");
+    if (bodyField && !(bodyField.initializer.kind === "null")) {
+      return false;
+    }
+    const bounceField = s.args.find((a) => idText(a.field) === "bounce");
+    if (
+      bounceField &&
+      !(
+        bounceField.initializer.kind === "boolean" &&
+        bounceField.initializer.value === false
+      )
+    ) {
+      return false;
+    }
     const modeField = s.args.find((a) => idText(a.field) === "mode");
     return (
       modeField !== undefined &&

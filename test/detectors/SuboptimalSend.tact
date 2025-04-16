@@ -1,3 +1,5 @@
+const FALSE_CONSTANT: Bool = false;
+
 contract A { init() {} }
 contract B {
     owner: Address;
@@ -58,7 +60,19 @@ contract B {
             to: contractAddress(init),
             mode: SendRemainingValue | SendIgnoreErrors,
             value: 0,
-            body: beginCell().endCell(),
+            body: null,
+        });
+        message(MessageParameters{ // Bad: Prefer cashback
+            to: contractAddress(init),
+            mode: SendRemainingValue | SendIgnoreErrors,
+            value: 0,
+            body: null,
+            bounce: false,
+        });
+        message(MessageParameters{ // Bad: Prefer cashback
+            to: contractAddress(init),
+            mode: SendRemainingValue | SendIgnoreErrors,
+            value: 0,
         });
         message(MessageParameters{ // OK
             to: contractAddress(init),
@@ -81,6 +95,18 @@ contract B {
             to: contractAddress(init),
             value: 0,
             body: beginCell().endCell(),
+        });
+        message(MessageParameters { // OK: Issue #366
+            body: emptyCell(),
+            to: sender(),
+            value: 0,
+            mode: SendRemainingValue | SendIgnoreErrors,
+        });
+        message(MessageParameters { // OK: Issue #366
+            bounce: true,
+            to: sender(),
+            value: 0,
+            mode: SendRemainingValue | SendIgnoreErrors,
         });
     }
 }
