@@ -19,7 +19,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "clean": "rm -fr dist docs/*",
-    "build": "tsc",
+    "build": "node scripts/genVersions.cjs && tsc",
     "postinstall": "node scripts/genVersions.cjs",
     "gen": "node scripts/genVersions.cjs",
     "test": "jest",
