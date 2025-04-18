@@ -85,6 +85,7 @@ export class UnusedOptional extends AstDetector {
         (unusedOptionalVars, stmt) => {
           if (
             stmt.kind === "statement_let" &&
+            stmt.name.kind === "id" &&
             stmt.type !== undefined &&
             stmt.type.kind === "optional_type" &&
             // Filter out variables resulted of expressions that return optionals

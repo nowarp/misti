@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@nowarp/souffle": "^0.1.2",
-    "@tact-lang/compiler": "~1.6.2",
+    "@tact-lang/compiler": "~1.6.6",
     "@types/benchmark": "^2.1.5",
     "@types/fs-extra": "^11.0.4",
     "@types/json-bigint": "^1.0.4",

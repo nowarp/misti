@@ -72,7 +72,6 @@ export function forEachExpression(
       case "address":
       case "cell":
       case "struct_value":
-      case "simplified_string":
       case "slice":
       case "null":
         // Primitives and non-composite expressions don't require further traversal
@@ -187,7 +186,6 @@ export function forEachExpression(
       case "conditional":
       case "string":
       case "address":
-      case "simplified_string":
       case "cell":
       case "slice":
       case "number":
@@ -220,6 +218,7 @@ export function forEachExpression(
       case "optional_type":
       case "constant_decl":
       case "asm_function_def":
+      case "wildcard":
         // Do nothing
         break;
       default:
@@ -289,7 +288,6 @@ export function findInExpressions(
       case "address":
       case "cell":
       case "struct_value":
-      case "simplified_string":
       case "slice":
       case "null":
         // Primitives and non-composite expressions don't require further traversal
@@ -431,7 +429,6 @@ export function findInExpressions(
       case "number":
       case "boolean":
       case "address":
-      case "simplified_string":
       case "cell":
       case "slice":
       case "id":
@@ -460,6 +457,7 @@ export function findInExpressions(
       case "fallback":
       case "comment":
       case "function_attribute":
+      case "wildcard":
         // Do nothing
         return null;
       default:
@@ -537,7 +535,6 @@ export function foldExpressions<T>(
         acc = traverseExpression(acc, expr.elseBranch);
         break;
       case "string":
-      case "simplified_string":
       case "struct_value":
       case "number":
       case "boolean":
@@ -684,7 +681,6 @@ export function foldExpressions<T>(
       case "boolean":
       case "id":
       case "address":
-      case "simplified_string":
       case "cell":
       case "slice":
       case "null":
@@ -704,7 +700,6 @@ export function foldExpressions<T>(
       case "address":
       case "cell":
       case "struct_value":
-      case "simplified_string":
       case "slice":
       case "asm_function_def":
       case "code_of":
@@ -719,6 +714,7 @@ export function foldExpressions<T>(
       case "fallback":
       case "comment":
       case "function_attribute":
+      case "wildcard":
         // Do nothing
         break;
       default:
@@ -813,7 +809,6 @@ export function forEachStatement(
       case "conditional":
       case "string":
       case "address":
-      case "simplified_string":
       case "cell":
       case "slice":
       case "number":
@@ -849,6 +844,7 @@ export function forEachStatement(
       case "fallback":
       case "comment":
       case "function_attribute":
+      case "wildcard":
         // Do nothing
         break;
       default:
@@ -982,7 +978,6 @@ export function foldStatements<T>(
       case "address":
       case "cell":
       case "struct_value":
-      case "simplified_string":
       case "slice":
       case "asm_function_def":
       case "code_of":
@@ -998,6 +993,7 @@ export function foldStatements<T>(
       case "comment":
       case "function_attribute":
       case "asm_function_def":
+      case "wildcard":
         // Do nothing
         break;
       default:

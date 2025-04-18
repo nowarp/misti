@@ -162,6 +162,7 @@ export class ReadOnlyVariables extends SouffleDetector {
             // Don't add variables resulted from method calls and field accesses,
             // since we cannot even replace them with constants.
             if (
+              stmt.name.kind === "id" &&
               !hasInExpressions(
                 stmt.expression,
                 (expr) =>

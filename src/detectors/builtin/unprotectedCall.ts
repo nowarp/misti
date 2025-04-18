@@ -119,7 +119,6 @@ function findTaints(
     case "code_of":
       break;
     case "string":
-    case "simplified_string":
     case "address":
     case "cell":
     case "slice":
@@ -191,7 +190,7 @@ class UnprotectedCallTransfer implements Transfer<TaintState> {
         stmt.path.kind === "id"
       )
         return { lhs: stmt.path, rhs: stmt.expression };
-      else if (stmt.kind === "statement_let")
+      else if (stmt.kind === "statement_let" && stmt.name.kind === "id")
         return { lhs: stmt.name, rhs: stmt.expression };
       else return undefined;
     })();
@@ -266,21 +265,26 @@ export class UnprotectedCall extends DataflowDetector {
   }
 
   private getArgTaints(f: AstStoreFunction): ArgTaint[] {
-    const taintOfTypedParam = (p: AstTypedParameter) => new ArgTaint(p.name);
+    const taintOfTypedParam = (p: AstTypedParameter) =>
+      p.name.kind === "id" ? new ArgTaint(p.name) : undefined;
     switch (f.kind) {
       case "function_def":
       case "contract_init":
-        return f.params.map(taintOfTypedParam);
+        return f.params
+          .map(taintOfTypedParam)
+          .filter((taint): taint is ArgTaint => taint !== undefined);
       case "receiver":
         switch (f.selector.kind) {
           case "internal":
           case "external":
             if (f.selector.subKind.kind === "simple") {
-              return [taintOfTypedParam(f.selector.subKind.param)];
+              const taint = taintOfTypedParam(f.selector.subKind.param);
+              return taint ? [taint] : [];
             }
             return [];
           case "bounce":
-            return [taintOfTypedParam(f.selector.param)];
+            const taint = taintOfTypedParam(f.selector.param);
+            return taint ? [taint] : [];
           default:
             return [];
         }

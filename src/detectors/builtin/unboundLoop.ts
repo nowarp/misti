@@ -174,7 +174,7 @@ export class UnboundLoop extends SouffleDetector {
           return;
         }
         const funName = cfg.name;
-        if (stmt.kind === "statement_let") {
+        if (stmt.kind === "statement_let" && stmt.name.kind === "id") {
           ctx.addFact("varDef", [stmt.name.text, funName], stmt.loc);
           return;
         }

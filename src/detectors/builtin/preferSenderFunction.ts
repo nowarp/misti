@@ -121,7 +121,7 @@ class ContextVariablesTransfer implements Transfer<ContextVariablesState> {
     outState: ContextVariablesState,
     stmt: AstStatement,
   ): void {
-    if (stmt.kind === "statement_let") {
+    if (stmt.kind === "statement_let" && stmt.name.kind === "id") {
       if (
         stmt.expression.kind === "static_call" &&
         idText(stmt.expression.function) === "context"
@@ -237,6 +237,7 @@ export class PreferSenderFunction extends DataflowDetector {
     const results = solver.solve();
     cfg.forEachBasicBlock(cu.ast, (stmt, bb) => {
       if (stmt.kind !== "statement_let") return;
+      if (stmt.name.kind !== "id") return;
       const state = results.getState(bb.idx);
       if (state === undefined) {
         this.ctx.logger.warn(`${this.id}: Cannot find BB #${bb.idx}`);

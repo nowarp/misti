@@ -11,8 +11,6 @@ import { evalToType } from "../../internals/tact";
 import {
   AstStatement,
   AstExpression,
-  AstStatementAssign,
-  AstStatementLet,
   AstNumber,
   idText,
 } from "../../internals/tact/imports";
@@ -112,19 +110,14 @@ class ExitCodeTransfer implements Transfer<VariableState> {
     const outState = new Map(inState);
 
     if (stmt.kind === "statement_assign") {
-      const assignStmt = stmt as AstStatementAssign;
-      const varName = this.extractVariableName(assignStmt.path);
+      const varName = this.extractVariableName(stmt.path);
       if (varName) {
-        const exprInterval = this.evaluateExpression(
-          assignStmt.expression,
-          inState,
-        );
+        const exprInterval = this.evaluateExpression(stmt.expression, inState);
         outState.set(varName as Variable, exprInterval);
       }
-    } else if (stmt.kind === "statement_let") {
-      const letStmt = stmt as AstStatementLet;
-      const varName = idText(letStmt.name);
-      const exprInterval = this.evaluateExpression(letStmt.expression, inState);
+    } else if (stmt.kind === "statement_let" && stmt.name.kind === "id") {
+      const varName = idText(stmt.name);
+      const exprInterval = this.evaluateExpression(stmt.expression, inState);
       outState.set(varName as Variable, exprInterval);
     }
 

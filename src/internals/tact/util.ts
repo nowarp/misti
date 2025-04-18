@@ -537,7 +537,11 @@ export function getExtendsSelfType(fun: AstFunctionDef): string | undefined {
   if (!functionHasAttribute(fun, "extends")) return undefined;
   if (fun.params.length > 0) {
     const firstParam = fun.params[0];
-    if (firstParam.name.text === "self" && firstParam.type.kind === "type_id") {
+    if (
+      firstParam.name.kind === "id" &&
+      firstParam.name.text === "self" &&
+      firstParam.type.kind === "type_id"
+    ) {
       return firstParam.type.text;
     }
   }
