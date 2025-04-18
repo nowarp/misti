@@ -714,7 +714,8 @@ export class Driver {
       }
       return this.ctx.logger.withContext(`${detector.id}:${cu.projectName}`)(
         async () => {
-          this.ctx.logger.debug(`Running detector for ${cu.projectName}`);
+          if (!isTest())
+            this.ctx.logger.debug(`Running detector for ${cu.projectName}`);
           try {
             // Conditional import for setTimeout to support both Node.js and browser environments
             let setTimeoutPromise: (ms: number, value?: any) => Promise<any>;
@@ -732,7 +733,7 @@ export class Driver {
                 );
               }),
             ]);
-            this.ctx.logger.debug(`Finished detector`);
+            if (!isTest()) this.ctx.logger.debug(`Finished detector`);
             return warnings;
           } catch (err) {
             let error: string = "";
