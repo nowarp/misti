@@ -119,7 +119,6 @@ export class UnusedExpressionResult extends AstDetector {
       case "boolean":
       case "null":
       case "string":
-      case "simplified_string":
       case "address":
       case "cell":
       case "slice":

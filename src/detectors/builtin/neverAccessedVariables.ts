@@ -90,12 +90,16 @@ class NeverAccessedTransfer implements Transfer<VariableState> {
     };
     switch (stmt.kind) {
       case "statement_let":
-        outState.declared.add([stmt.name.text, stmt.loc]);
+        if (stmt.name.kind === "id") {
+          outState.declared.add([stmt.name.text, stmt.loc]);
+        }
         trackAccess(stmt.expression);
         break;
       case "statement_destruct":
         for (const [, ids] of stmt.identifiers) {
-          outState.declared.add([idText(ids[1]), stmt.loc]);
+          if (ids[1].kind === "id") {
+            outState.declared.add([idText(ids[1]), stmt.loc]);
+          }
         }
         trackAccess(stmt.expression);
         break;

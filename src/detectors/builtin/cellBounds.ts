@@ -289,6 +289,9 @@ class CellUnderflowTransfer implements Transfer<CellUnderflowState> {
    * could lead to the Cell Underflow problem.
    */
   private processLet(out: CellUnderflowState, stmt: AstStatementLet): void {
+    if (stmt.name.kind !== "id") {
+      return;
+    }
     const callsChain = getMethodCallsChain(stmt.expression);
     if (callsChain === undefined) {
       // Try to create variable from the let expression.

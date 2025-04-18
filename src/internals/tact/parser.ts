@@ -1,11 +1,10 @@
-import { getParser, stdLibFiles } from "../../internals/tact/imports";
+import { stdLibFiles } from "../../internals/tact/imports";
 import {
   enableFeatures,
   AstStore,
   getRawAST,
   CompilerContext,
   Project,
-  getAstFactory,
   precompile,
 } from "../../internals/tact/imports";
 import { VirtualFileSystem } from "../../vfs/virtualFileSystem";
@@ -47,15 +46,7 @@ export function parseTactProject(
   try {
     let ctx = new CompilerContext();
     ctx = enableFeatures(ctx, mistiCtx.logger, projectConfig);
-    const astFactory = getAstFactory();
-    ctx = precompile(
-      ctx,
-      projectVfs,
-      stdlibVfs,
-      projectConfig.path,
-      getParser(astFactory, "new"),
-      astFactory,
-    );
+    ctx = precompile(ctx, projectVfs, stdlibVfs, projectConfig.path);
     return getRawAST(ctx);
   } catch (error: unknown) {
     throw TactException.make(error);

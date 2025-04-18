@@ -83,7 +83,7 @@ class StringReceiversOverlapTransfer implements Transfer<TaintState> {
    * var newTaint = <id | literal | previousTaint>;
    */
   private processUntypedLet(outState: TaintState, stmt: AstStatementLet): void {
-    if (stmt.expression.kind === "id") {
+    if (stmt.expression.kind === "id" && stmt.name.kind === "id") {
       const rhs = stmt.expression.text;
       if (rhs === outState.argName || outState.argTaint.has(rhs)) {
         // let newTaint = arg;
@@ -94,6 +94,7 @@ class StringReceiversOverlapTransfer implements Transfer<TaintState> {
         outState.literalTaint.add(stmt.name.text);
       }
     } else if (
+      stmt.name.kind === "id" &&
       stmt.expression.kind === "string" &&
       outState.stringReceiverNames.has(stmt.expression.value)
     ) {
@@ -108,6 +109,9 @@ class StringReceiversOverlapTransfer implements Transfer<TaintState> {
    */
   private processTypedLet(outState: TaintState, stmt: AstStatementLet): void {
     forEachExpression(stmt.expression, (expr) => {
+      if (stmt.name.kind !== "id") {
+        return;
+      }
       if (expr.kind === "id") {
         // Any operation involving receiver's argument or previous taints with it creates a new taint
         if (
@@ -196,7 +200,7 @@ export class StringReceiversOverlap extends DataflowDetector {
           const taintResults = solver.solve();
 
           // Inspect conditions in each statement with respect to its taint state.
-          cfg.forEachBasicBlock(cu.ast, (stmt, bb) => {
+          cfg.forEachBasicBlock(cu.ast, (_, bb) => {
             const state = taintResults.getState(bb.idx);
             if (state === undefined) {
               this.ctx.logger.warn(
@@ -320,7 +324,8 @@ export class StringReceiversOverlap extends DataflowDetector {
     return receiver.selector.kind === "internal" &&
       receiver.selector.subKind.kind === "simple" &&
       receiver.selector.subKind.param.type.kind === "type_id" &&
-      receiver.selector.subKind.param.type.text === "String"
+      receiver.selector.subKind.param.type.text === "String" &&
+      receiver.selector.subKind.param.name.kind === "id"
       ? receiver.selector.subKind.param.name.text
       : undefined;
   }

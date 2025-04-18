@@ -311,7 +311,7 @@ export class DivideBeforeMultiply extends SouffleDetector {
         const funName = cfg.name;
         // Collect information about variables definitions and tainted divisions in initializers
         forEachStatement(stmt, (s) => {
-          if (s.kind === "statement_let") {
+          if (s.kind === "statement_let" && s.name.kind === "id") {
             const varName = s.name.text;
             ctx.addFact("varDef", [varName, funName], s.loc);
             this.collectIdentifiers(s.expression).forEach((rhsName) => {

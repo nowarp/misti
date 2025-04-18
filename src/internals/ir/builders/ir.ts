@@ -443,7 +443,6 @@ export class TactIRBuilder {
       case "id":
       case "cell":
       case "struct_value":
-      case "simplified_string":
       case "address":
       case "slice":
         break;

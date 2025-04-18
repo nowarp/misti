@@ -19,7 +19,6 @@ export type LiteralKind =
   | "cell"
   | "null"
   | "number"
-  | "simplified_string"
   | "slice"
   | "struct_value";
 

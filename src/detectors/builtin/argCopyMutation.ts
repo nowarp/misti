@@ -189,6 +189,9 @@ export class ArgCopyMutation extends AstDetector {
     fun: AstFunctionDef | AstContractInit,
   ): string[] {
     return fun.params.reduce((acc, p) => {
+      if (p.name.kind !== "id") {
+        return acc;
+      }
       // TODO: Should be improved when we have types in AST
       // Sort out integral types. It is unlikely that the user will expect they change inside the function.
       // See: tact:src/types/resolveExpression.ts
