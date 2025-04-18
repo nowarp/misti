@@ -596,6 +596,8 @@
   ],
   "logs": {
     "debug": [
+      "Enabled detectors (36): DivideBeforeMultiply, ReadOnlyVariables, NeverAccessedVariables, UnboundLoop, ZeroAddress, ConstantAddress, BranchDuplicate, DumpIsUsed, FieldDoubleInit, PreferAugmentedAssign, StringReceiversOverlap, AsmIsUsed, PreferredStdlibApi, InheritedStateMutation, ArgCopyMutation, OptimalMathFunction, DuplicatedCondition, UnusedOptional, EnsurePrgSeed, FalseCondition, SendInLoop, UnboundMap, StateMutationInGetter, UnusedExpressionResult, SuspiciousMessageMode, ShortCircuitCondition, EtaLikeSimplifications, ExitCodeUsage, CellBounds, UnprotectedCall, SuspiciousLoop, SuboptimalSend, PreferBinaryReceiver, PreferSenderFunction, ImplicitOpcode, SuboptimalCellOperation",
+      "Enabled tools (0): ",
       "Parsing project sample-jetton ...",
       "Parsing completed: sample-jetton",
       "node_modules/@tact-lang/compiler/dist/stdlib/stdlib/std/internal/text.tact:   424 |     let b: StringBuilder = beginComment();\n> 425 |     b.append(self);\n            ^\n  426 |     return b.toCell();\n\nUnsupported contract method access: id",
@@ -654,9 +656,7 @@
       "CGNode created without AST ID for function \"ton\"",
       "CGNode created without AST ID for function \"myBalance\"",
       "CGNode created without AST ID for function \"msg::loadUint\"",
-      "CGNode created without AST ID for function \"msg::loadCoins\"",
-      "Enabled detectors (36): DivideBeforeMultiply, ReadOnlyVariables, NeverAccessedVariables, UnboundLoop, ZeroAddress, ConstantAddress, BranchDuplicate, DumpIsUsed, FieldDoubleInit, PreferAugmentedAssign, StringReceiversOverlap, AsmIsUsed, PreferredStdlibApi, InheritedStateMutation, ArgCopyMutation, OptimalMathFunction, DuplicatedCondition, UnusedOptional, EnsurePrgSeed, FalseCondition, SendInLoop, UnboundMap, StateMutationInGetter, UnusedExpressionResult, SuspiciousMessageMode, ShortCircuitCondition, EtaLikeSimplifications, ExitCodeUsage, CellBounds, UnprotectedCall, SuspiciousLoop, SuboptimalSend, PreferBinaryReceiver, PreferSenderFunction, ImplicitOpcode, SuboptimalCellOperation",
-      "Enabled tools (0): "
+      "CGNode created without AST ID for function \"msg::loadCoins\""
     ],
     "info": [],
     "warn": [],

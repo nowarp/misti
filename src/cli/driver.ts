@@ -34,7 +34,11 @@ export class Driver {
    * Compilation units representing the actual entrypoints of the analysis targets
    * based on user's input. Might be empty if no paths are specified.
    */
-  cus: Map<ProjectName, CompilationUnit>;
+  cus: Map<ProjectName, CompilationUnit> = new Map();
+  /**
+   * Input paths specified by the user.
+   */
+  tactPaths: string[] = [];
   /** Minimum severity level to report warnings. */
   minSeverity: Severity;
   outputFormat: OutputFormat;
@@ -42,7 +46,8 @@ export class Driver {
   private constructor(tactPaths: string[], options: CLIOptions) {
     this.fs = options.fs;
     this.ctx = new MistiContext(options);
-    this.cus = this.createCUs(tactPaths);
+    this.cus = new Map();
+    this.tactPaths = tactPaths;
     this.disabledDetectors = new Set(options.disabledDetectors ?? []);
     this.colorizeOutput = options.colors;
     this.minSeverity = options.minSeverity;
@@ -403,13 +408,15 @@ export class Driver {
   /**
    * Actual implementation of the entry point.
    */
-  public async executeImpl(): Promise<Result> {
+  public async executeImpl(): Promise<Result | never> {
     if (this.detectors.length === 0 && this.tools.length === 0) {
       this.ctx.logger.warn(
         "Nothing to execute. Please specify at least one detector or tool.",
       );
       return { kind: "ok" };
     }
+    // Parse Tact files/projects
+    this.cus = this.createCUs(this.tactPaths);
     try {
       return this.tools.length > 0
         ? await this.executeTools()
@@ -434,14 +441,33 @@ export class Driver {
    * Wraps the entry point of execution with extra logging handling logic.
    */
   public async execute(): Promise<Result> {
-    const result = await this.executeImpl();
-    if (this.outputFormat === "json") {
+    try {
+      const result = await this.executeImpl();
+      if (this.outputFormat === "json") {
+        return {
+          ...result,
+          logs: this.ctx.logger.getJsonLogs(),
+        };
+      }
+      return result;
+    } catch (err) {
+      let error: string;
+      if (err instanceof Error) {
+        error = err.message;
+        if (err.stack && MistiEnv.MISTI_TRACE) {
+          error += `\n${err.stack}`;
+        }
+      } else {
+        error = String(err);
+      }
       return {
-        ...result,
-        logs: this.ctx.logger.getJsonLogs(),
+        kind: "error",
+        error,
+        ...(this.outputFormat === "json"
+          ? { logs: this.ctx.logger.getJsonLogs() }
+          : {}),
       };
     }
-    return result;
   }
 
   /**

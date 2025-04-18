@@ -66,9 +66,7 @@ export async function runMistiCommand(
  * @returns The output of the Misti command as a string.
  */
 export async function executeMisti(args: string[]): Promise<string> {
-  const result = await runMistiCommand(args);
-  if (!result) return "";
-  const [driver, mistiResult] = result;
+  const [driver, mistiResult] = await runMistiCommand(args);
   return mistiResult ? resultToString(mistiResult, driver.outputFormat) : "";
 }
 

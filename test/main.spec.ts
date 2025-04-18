@@ -1,4 +1,8 @@
+import * as path from "path";
+import * as os from "os";
+import fs from "fs-extra";
 import { execSync, ExecSyncOptions } from "child_process";
+import { ExitCode } from "../src/cli/types";
 
 describe("Misti `main` tests", () => {
   beforeAll(() => {
@@ -29,8 +33,8 @@ describe("Misti `main` tests", () => {
     const binResult = safeExecSync(`./bin/misti ${testContract}`);
 
     // Both commands should exit with code 1
-    expect(yarnResult.exitCode).toBe(1);
-    expect(binResult.exitCode).toBe(1);
+    expect(yarnResult.exitCode).toBe(ExitCode.WARNINGS);
+    expect(binResult.exitCode).toBe(ExitCode.WARNINGS);
 
     // Compare the sanitized outputs
     expect(sanitizeYarnOutput(yarnResult.output)).toBe(binResult.output);
@@ -53,6 +57,19 @@ describe("Misti `main` tests", () => {
       fail("Expected ./bin/misti to throw an error");
     } catch (error: any) {
       expect(error.status).not.toBe(0);
+    }
+  });
+
+  it("should return exit code 2 for invalid contract syntax", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "misti-test-"));
+    const tempFilePath = path.join(tempDir, "invalid-contract.tact");
+    fs.writeFileSync(tempFilePath, "contract A {\n\n", "utf8");
+    try {
+      const result = safeExecSync(`yarn misti ${tempFilePath}`);
+      expect(result.exitCode).toBe(ExitCode.EXECUTION_FAILURE);
+    } finally {
+      fs.unlinkSync(tempFilePath);
+      fs.rmdirSync(tempDir);
     }
   });
 });
