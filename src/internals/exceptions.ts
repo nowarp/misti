@@ -79,7 +79,7 @@ export class TactException {
 function prettyPrintOrStringify(input: unknown): string {
   try {
     return `AST:\n${prettyPrint(input as AstNode)}`;
-  } catch (error) {
+  } catch {
     try {
       return JSONbig.stringify(input, null, 2);
     } catch (jsonError) {
@@ -207,7 +207,7 @@ function dumpReportFile(
     const reportFile = path.join(reportsDir, `${timestamp}.txt`);
     fs.writeFileSync(reportFile, fullMsg);
     return reportFile;
-  } catch (error) {
+  } catch {
     throw new Error(shortMsg);
   }
 }

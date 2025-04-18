@@ -23,6 +23,11 @@ module.exports = {
         caughtErrorsIgnorePattern: "^_",
       },
     ],
+    "@typescript-eslint/switch-exhaustiveness-check": "off",
+    "@typescript-eslint/no-unused-expressions": [
+      "error",
+      { "allowTernary": true } // Allows standalone ternaries
+    ],
     // Forbid console.{error,out}
     "no-console": ["error", { "allow": ["warn", "info"] }],
     // Autofix for imports: https://simondosda.github.io/posts/2021-05-10-eslint-imports.html

@@ -70,7 +70,7 @@ export class MistiContext {
     try {
       execSync(`${souffleBinary} --version`, { stdio: "ignore" });
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
