@@ -1,76 +1,76 @@
 graph TD
-    node_10["inline fun random(min: Int, max: Int): Int"]
-    node_18["inline fun newAddress(chain: Int, hash: Int): Address"]
-    node_23["fun test_try(a: Int)"]
-    node_24["fun test_loops()"]
-    node_25["fun testTryCatch(a: Int)"]
-    node_26["fun testLoops()"]
-    node_27["fun callAsm(s: Slice): Cell"]
-    node_28["extends fun String::toInt(self: String): Int"]
-    node_29["override get fun TestContract::getter(): Int"]
-    node_30["get fun Z::getter(): Int
+    node_11["inline fun random(min: Int, max: Int): Int"]
+    node_19["inline fun newAddress(chain: Int, hash: Int): Address"]
+    node_24["fun test_try(a: Int)"]
+    node_25["fun test_loops()"]
+    node_26["fun testTryCatch(a: Int)"]
+    node_27["fun testLoops()"]
+    node_28["fun callAsm(s: Slice): Cell"]
+    node_29["extends fun String::toInt(self: String): Int"]
+    node_30["override get fun TestContract::getter(): Int"]
+    node_31["get fun Z::getter(): Int
 [StateRead<a>]"]
-    node_31["fun TestContractF::test()"]
-    node_32["fun TParent::getA(): Int
+    node_32["fun TestContractF::test()"]
+    node_33["fun TParent::getA(): Int
 [StateRead<a>]"]
-    node_33["fun TestContractT::test(): Int"]
-    node_34["TestContractT::external()"]
-    node_35["EffectTest::init()
+    node_34["fun TestContractT::test(): Int"]
+    node_35["TestContractT::external()"]
+    node_36["EffectTest::init()
 [StateWrite<addr,b,s>]"]
-    node_36["fun EffectTest::funcWithSend()
+    node_37["fun EffectTest::funcWithSend()
 [Send,StateRead<addr>]"]
-    node_37["fun EffectTest::funcWithStateRead()
+    node_38["fun EffectTest::funcWithStateRead()
 [StateRead<addr>]"]
-    node_38["fun EffectTest::funcWithStateWrite1()
+    node_39["fun EffectTest::funcWithStateWrite1()
 [StateRead<b,addr,s>,StateWrite<addr>]"]
-    node_39["fun EffectTest::funcWithStateWrite2(s: Slice): Address"]
-    node_40["fun EffectTest::funcWithMultipleEffects()
+    node_40["fun EffectTest::funcWithStateWrite2(s: Slice): Address"]
+    node_41["fun EffectTest::funcWithMultipleEffects()
 [AccessDatetime,PrgUse,PrgSeedInit]"]
-    node_41["EffectTest::receive()"]
-    node_42["get fun A::m(): map<Int, Int>
+    node_42["EffectTest::receive()"]
+    node_43["get fun A::m(): map<Int, Int>
 [StateRead<m>]"]
-    node_43["A::receive()
+    node_44["A::receive()
 [StateRead<m>]"]
-    node_44["ContractParams::receive()"]
-    node_45["fun TestQuickFix::f1(): Bool"]
-    node_49["dump"]
-    node_50["emptyMap"]
-    node_51["m::set"]
-    node_52["s::loadRefEx"]
-    node_53["String::asSlice"]
-    node_54["string::empty"]
-    node_55["string::loadUint"]
-    node_56["TestContractT::getA"]
-    node_57["sender"]
-    node_58["beginCell"]
-    node_59["send"]
-    node_60["s::loadAddress"]
-    node_61["now"]
-    node_62["nativeRandomizeLt"]
-    node_63["beginString"]
-    node_64["a::append"]
-    node_23 --> node_49
+    node_45["ContractParams::receive()"]
+    node_46["fun TestQuickFix::f1(): Bool"]
+    node_50["dump"]
+    node_51["emptyMap"]
+    node_52["m::set"]
+    node_53["s::loadRefEx"]
+    node_54["String::asSlice"]
+    node_55["string::empty"]
+    node_56["string::loadUint"]
+    node_57["TestContractT::getA"]
+    node_58["sender"]
+    node_59["beginCell"]
+    node_60["send"]
+    node_61["s::loadAddress"]
+    node_62["now"]
+    node_63["nativeRandomizeLt"]
+    node_64["beginString"]
+    node_65["a::append"]
     node_24 --> node_50
-    node_25 --> node_49
+    node_25 --> node_51
     node_26 --> node_50
-    node_26 --> node_51
-    node_26 --> node_51
-    node_26 --> node_51
+    node_27 --> node_51
+    node_27 --> node_52
+    node_27 --> node_52
     node_27 --> node_52
     node_28 --> node_53
-    node_28 --> node_54
-    node_28 --> node_55
-    node_33 --> node_56
-    node_35 --> node_57
-    node_35 --> node_58
+    node_29 --> node_54
+    node_29 --> node_55
+    node_29 --> node_56
+    node_34 --> node_57
+    node_36 --> node_58
     node_36 --> node_59
-    node_38 --> node_18
-    node_39 --> node_60
+    node_37 --> node_60
+    node_39 --> node_19
     node_40 --> node_61
-    node_40 --> node_10
-    node_40 --> node_62
+    node_41 --> node_62
+    node_41 --> node_11
     node_41 --> node_63
-    node_41 --> node_64
-    node_45 --> node_49
-    style node_10 fill:#F0F8FF,stroke:#000,stroke-width:1px;
-    style node_18 fill:#F0F8FF,stroke:#000,stroke-width:1px;
+    node_42 --> node_64
+    node_42 --> node_65
+    node_46 --> node_50
+    style node_11 fill:#F0F8FF,stroke:#000,stroke-width:1px;
+    style node_19 fill:#F0F8FF,stroke:#000,stroke-width:1px;
