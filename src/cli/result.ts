@@ -66,6 +66,7 @@ export type Result = ResultOK | ResultWarnings | ResultTool | ResultError;
 export function resultToString(
   result: Result,
   outputFormat: OutputFormat,
+  colorizeOutput: boolean,
 ): string {
   if (outputFormat === "json") {
     return JSONbig.stringify(result, null, 2);
@@ -79,7 +80,9 @@ export function resultToString(
       const formattedWarnings: string[] = [];
       result.warnings.forEach((warn, index) => {
         const isLastWarning = index === result.warnings.length - 1;
-        formattedWarnings.push(formatWarning(warn, false, !isLastWarning));
+        formattedWarnings.push(
+          formatWarning(warn, colorizeOutput, !isLastWarning),
+        );
       });
       return formattedWarnings.join("\n").trim();
     case "tool":

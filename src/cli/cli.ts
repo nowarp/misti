@@ -67,7 +67,9 @@ export async function runMistiCommand(
  */
 export async function executeMisti(args: string[]): Promise<string> {
   const [driver, mistiResult] = await runMistiCommand(args);
-  return mistiResult ? resultToString(mistiResult, driver.outputFormat) : "";
+  return mistiResult
+    ? resultToString(mistiResult, driver.outputFormat, driver.colorizeOutput)
+    : "";
 }
 
 /**
@@ -77,7 +79,12 @@ export function handleMistiResult(driver: Driver, result: Result): void {
   const logger = driver.ctx.logger;
   driver.outputPath && driver.outputPath !== STDOUT_PATH
     ? handleOutputToFile(result, driver.outputPath, logger)
-    : handleOutputToConsole(result, driver.outputFormat, logger);
+    : handleOutputToConsole(
+        result,
+        driver.outputFormat,
+        logger,
+        driver.colorizeOutput,
+      );
 }
 
 /**
@@ -111,8 +118,9 @@ function handleOutputToConsole(
   result: Result,
   outputFormat: OutputFormat,
   logger: Logger,
+  colorizeOutput: boolean,
 ): void {
-  const text = resultToString(result, outputFormat);
+  const text = resultToString(result, outputFormat, colorizeOutput);
   switch (result.kind) {
     case "warnings":
       outputFormat === "json" ? console.warn(text) : logger.warn(text);
