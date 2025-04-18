@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Relative paths in displayed warnings: PR [#361](https://github.com/nowarp/misti/pull/361)
 - `SuboptimalSend`: Incorrect `message`->`cashback` suggestion: Issue [#366](https://github.com/nowarp/misti/issues/366)
 - `Logger`: Show context in JSON output: Issue [#370](https://github.com/nowarp/misti/issues/370)
+- `Logger`: Race condition for context in asynchronous execution
 
 ## [0.8.0] - 2025-04-08
 

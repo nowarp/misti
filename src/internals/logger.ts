@@ -1,4 +1,5 @@
 import { ExecutionException } from "./exceptions";
+import { AsyncLocalStorage } from "async_hooks";
 
 export enum LogLevel {
   DEBUG,
@@ -18,7 +19,7 @@ export class Logger {
   private logFunctions: Map<LogLevel, LogFunction | undefined>;
   private jsonLogs: Map<LogLevel, string[]>;
   private contextMap: Map<string, string> = new Map();
-  private static asyncLocalStorage = new Map<number, string>();
+  private static asyncLocalStorage = new AsyncLocalStorage<string>();
   private showTimestamps: boolean;
 
   constructor(
@@ -80,11 +81,7 @@ export class Logger {
    * Gets the current task ID from the async context
    */
   private getCurrentTaskId(): string | undefined {
-    const threadId = Logger.asyncLocalStorage.get(
-      // Use a simple approximation of thread ID in single-threaded JS
-      Math.floor(Date.now() / 1000) % 1000000,
-    );
-    return threadId;
+    return Logger.asyncLocalStorage.getStore();
   }
 
   /**
@@ -97,16 +94,14 @@ export class Logger {
   ): (fn: () => Promise<T>) => Promise<T> {
     return async (fn: () => Promise<T>): Promise<T> => {
       const taskId = `task-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-      const threadId = Math.floor(Date.now() / 1000) % 1000000;
-      // Set context and task ID
       this.setContext(taskId, contextName);
-      Logger.asyncLocalStorage.set(threadId, taskId);
-      try {
-        return await fn();
-      } finally {
-        this.clearContext(taskId);
-        Logger.asyncLocalStorage.delete(threadId);
-      }
+      return Logger.asyncLocalStorage.run(taskId, async () => {
+        try {
+          return await fn();
+        } finally {
+          this.clearContext(taskId);
+        }
+      });
     };
   }
 
