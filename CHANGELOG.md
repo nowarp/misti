@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Tact 1.6.6+ support: PR [#368](https://github.com/nowarp/misti/pull/368)
+
 ### Changed
 - `PreferredStdlibApi`: More accurate severity levels and warning descriptions
 - `PreferredStdlibApi` is enabled by default; `PreferAugmentedAssign` is disabled
