@@ -163,6 +163,21 @@ export class Logger {
   }
 
   /**
+   * Format message with context and timestamp prefixes
+   */
+  private formatMessage(msg: MessageType, taskId?: string): string {
+    const effectiveTaskId = taskId || this.getCurrentTaskId();
+    let contextPrefix = "";
+    if (effectiveTaskId && this.contextMap.has(effectiveTaskId)) {
+      contextPrefix = `[${this.contextMap.get(effectiveTaskId)}] `;
+    }
+    const timestampPrefix = this.showTimestamps
+      ? `${this.getTimestamp()} `
+      : "";
+    return `${timestampPrefix}${contextPrefix}${msg}`;
+  }
+
+  /**
    * Logs a debug message.
    * @param msg The debug message to log.
    * @param taskId Optional task identifier to retrieve the correct context
@@ -170,7 +185,7 @@ export class Logger {
   public debug(msg: MessageType, taskId?: string): void {
     this.log(LogLevel.DEBUG, msg, taskId);
     if (this.saveJson) {
-      this.jsonLogs.get(LogLevel.DEBUG)!.push(msg.toString());
+      this.jsonLogs.get(LogLevel.DEBUG)!.push(this.formatMessage(msg, taskId));
     }
   }
 
@@ -182,7 +197,7 @@ export class Logger {
   public info(msg: MessageType, taskId?: string): void {
     this.log(LogLevel.INFO, msg, taskId);
     if (this.saveJson) {
-      this.jsonLogs.get(LogLevel.INFO)!.push(msg.toString());
+      this.jsonLogs.get(LogLevel.INFO)!.push(this.formatMessage(msg, taskId));
     }
   }
 
@@ -194,7 +209,7 @@ export class Logger {
   public warn(msg: MessageType, taskId?: string): void {
     this.log(LogLevel.WARN, msg, taskId);
     if (this.saveJson) {
-      this.jsonLogs.get(LogLevel.WARN)!.push(msg.toString());
+      this.jsonLogs.get(LogLevel.WARN)!.push(this.formatMessage(msg, taskId));
     }
   }
 
@@ -206,7 +221,7 @@ export class Logger {
   public error(msg: MessageType, taskId?: string): void {
     this.log(LogLevel.ERROR, msg, taskId);
     if (this.saveJson) {
-      this.jsonLogs.get(LogLevel.ERROR)!.push(msg.toString());
+      this.jsonLogs.get(LogLevel.ERROR)!.push(this.formatMessage(msg, taskId));
     }
   }
 }
