@@ -751,6 +751,7 @@ export class Driver {
             } else {
               setTimeoutPromise = (await import("timers/promises")).setTimeout;
             }
+            const startTime = Date.now();
             const warnings = await Promise.race([
               detector.check(cu),
               setTimeoutPromise(MistiEnv.MISTI_TIMEOUT, []).then(() => {
@@ -759,7 +760,11 @@ export class Driver {
                 );
               }),
             ]);
-            if (!isTest()) this.ctx.logger.debug(`Finished detector`);
+            if (!isTest()) {
+              this.ctx.logger.debug(
+                `Finished detector in ${Date.now() - startTime}ms`,
+              );
+            }
             return warnings;
           } catch (err) {
             let error: string = "";

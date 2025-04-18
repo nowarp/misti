@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Tact 1.6.6+ support: PR [#368](https://github.com/nowarp/misti/pull/368)
+- `Driver`: Save detectors execution time in debug log
 
 ### Changed
 - `PreferredStdlibApi`: More accurate severity levels and warning descriptions
