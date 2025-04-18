@@ -12,6 +12,7 @@ import { MistiContext } from "../context";
 import { TactException } from "../exceptions";
 import { getStdlibPath } from "./stdlib";
 import { createNodeFileSystem } from "../../vfs/createNodeFileSystem";
+import { QuietLogger } from "../logger";
 import {
   createVirtualFileSystem,
   VirtualFileSystem as TactVirtualFileSystem,
@@ -45,8 +46,9 @@ export function parseTactProject(
   mistiCtx.logger.debug(`Parsing project ${projectConfig.name} ...`);
   try {
     let ctx = new CompilerContext();
-    ctx = enableFeatures(ctx, mistiCtx.logger, projectConfig);
+    ctx = enableFeatures(ctx, new QuietLogger(), projectConfig);
     ctx = precompile(ctx, projectVfs, stdlibVfs, projectConfig.path);
+    mistiCtx.logger.debug(`Parsing completed: ${projectConfig.name}`);
     return getRawAST(ctx);
   } catch (error: unknown) {
     throw TactException.make(error);

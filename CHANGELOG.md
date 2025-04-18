@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prevent multiple `Tool`s with plain output format: Issue [#363](https://github.com/nowarp/misti/issues/363)
 - Forbid executing `Dump{Cfg,CallGraph,Imports}` without input file: Issue [#363](https://github.com/nowarp/misti/issues/363)
 - `package.json`: Update Misti version on every `yarn build`
+- Don't show Tact logs in JSON output when parsing a project: Issue [#369](https://github.com/nowarp/misti/issues/369)
 
 ### Fixed
 - Severity filter for detectors (optimization): Issue [#358](https://github.com/nowarp/misti/issues/358)
