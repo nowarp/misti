@@ -32,7 +32,6 @@ export class TactException {
     if (this.isCompilationError(tactStack)) {
       return new Error(`Compilation error: ${error.message}`);
     }
-
     // Display an error that should be reported to issues.
     const errorKind = "Internal Tact Compiler Error:";
     const fullMsg = [
@@ -59,7 +58,8 @@ export class TactException {
     return (
       stack !== undefined &&
       (stack.includes("at throwParseError") ||
-        stack.includes("parser-error.js"))
+        stack.includes("parser-error.js") ||
+        stack.includes('Expected "'))
     );
   }
 
