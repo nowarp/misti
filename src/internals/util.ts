@@ -86,3 +86,15 @@ export function isTest(): boolean {
 export function makeRelativePath(p: string): string {
   return path.normalize(path.relative(process.cwd(), p));
 }
+
+/**
+ * ANSI escape sequences used for terminal output.
+ */
+export const ansi = {
+  reset: "\x1b[0m",
+  bold: "\x1b[1m",
+  green: "\x1b[32m", // Green
+  yellow: "\x1b[33m", // Yellow
+  red: "\x1b[31m", // Red
+  magenta: "\x1b[35m", // Magenta
+};

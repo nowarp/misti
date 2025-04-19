@@ -3,7 +3,7 @@ import { InternalException } from "./exceptions";
 import { QuickFix } from "./quickfix";
 import { quickFixToString } from "./quickfix";
 import { SrcInfo } from "./tact/imports";
-import { isTest, makeRelativePath, unreachable } from "./util";
+import { ansi, isTest, makeRelativePath, unreachable } from "./util";
 import path from "path";
 
 /**
@@ -47,21 +47,13 @@ export function severityToString(
     brackets = true,
   }: Partial<{ colorize: boolean; brackets: boolean }> = {},
 ): string {
-  const colors = {
-    reset: "\x1b[0m",
-    bold: "\x1b[1m",
-    low: "\x1b[32m", // Green
-    medium: "\x1b[33m", // Yellow
-    high: "\x1b[31m", // Red
-    critical: "\x1b[35m", // Magenta
-  };
   const severityString = (text: string, color?: string): string => {
     let result = text;
     if (brackets) {
       result = `[${result}]`;
     }
     if (colorize && color) {
-      result = `${colors.bold}${color}${result}${colors.reset}`;
+      result = `${ansi.bold}${color}${result}${ansi.reset}`;
     }
     return result;
   };
@@ -69,13 +61,13 @@ export function severityToString(
     case Severity.INFO:
       return severityString("INFO");
     case Severity.LOW:
-      return severityString("LOW", colors.low);
+      return severityString("LOW", ansi.green);
     case Severity.MEDIUM:
-      return severityString("MEDIUM", colors.medium);
+      return severityString("MEDIUM", ansi.yellow);
     case Severity.HIGH:
-      return severityString("HIGH", colors.high);
+      return severityString("HIGH", ansi.red);
     case Severity.CRITICAL:
-      return severityString("CRITICAL", colors.critical);
+      return severityString("CRITICAL", ansi.magenta);
   }
 }
 
