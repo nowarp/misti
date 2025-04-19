@@ -12,6 +12,7 @@
       },
       "suppressed": false,
       "severity": 3,
+      "category": 1,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables",
       "suggestion": "Consider removing the variable",
       "quickfixes": []
@@ -27,6 +28,7 @@
       },
       "suppressed": false,
       "severity": 3,
+      "category": 1,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables",
       "suggestion": "Consider removing the variable",
       "quickfixes": []
@@ -42,6 +44,7 @@
       },
       "suppressed": false,
       "severity": 3,
+      "category": 1,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables",
       "suggestion": "Consider removing the variable",
       "quickfixes": []
@@ -57,6 +60,7 @@
       },
       "suppressed": false,
       "severity": 3,
+      "category": 1,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/FalseCondition",
       "quickfixes": [
         {
@@ -87,6 +91,7 @@
       },
       "suppressed": false,
       "severity": 3,
+      "category": 1,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/FalseCondition",
       "quickfixes": [
         {
@@ -117,6 +122,7 @@
       },
       "suppressed": false,
       "severity": 3,
+      "category": 1,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/FalseCondition",
       "quickfixes": [
         {
@@ -147,6 +153,7 @@
       },
       "suppressed": false,
       "severity": 3,
+      "category": 1,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop",
       "suggestion": "Avoid unbounded conditions in loops",
       "quickfixes": []
@@ -162,6 +169,7 @@
       },
       "suppressed": false,
       "severity": 3,
+      "category": 1,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/SuspiciousLoop",
       "suggestion": "The condition is always false; the body will never execute",
       "quickfixes": []
@@ -177,6 +185,7 @@
       },
       "suppressed": false,
       "severity": 3,
+      "category": 2,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend",
       "suggestion": "Use more gas-efficient `message` function: https://docs.tact-lang.org/ref/core-common/#message",
       "quickfixes": []
@@ -192,6 +201,7 @@
       },
       "suppressed": false,
       "severity": 2,
+      "category": 1,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/ZeroAddress",
       "suggestion": "Consider changing code to avoid using it. For example, you could pass the address during the deployment.",
       "quickfixes": []
@@ -207,6 +217,7 @@
       },
       "suppressed": false,
       "severity": 2,
+      "category": 1,
       "extraDescription": "There are operations adding elements to this map, but there is no API to remove them",
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/UnboundMap",
       "suggestion": "Consider adding a method to remove elements or suppress this warning",
@@ -223,6 +234,7 @@
       },
       "suppressed": false,
       "severity": 2,
+      "category": 2,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/EtaLikeSimplifications",
       "quickfixes": [
         {
@@ -258,6 +270,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 1,
       "extraDescription": "Using `dump` in production code can sometimes indicate complex code that requires additional review",
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/DumpIsUsed",
       "quickfixes": []
@@ -273,6 +286,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 1,
       "extraDescription": "Using `dump` in production code can sometimes indicate complex code that requires additional review",
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/DumpIsUsed",
       "quickfixes": []
@@ -288,6 +302,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: i += 1",
       "quickfixes": []
@@ -303,6 +318,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: sum += i",
       "quickfixes": []
@@ -318,6 +334,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: i -= 1",
       "quickfixes": []
@@ -333,6 +350,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: sum += i",
       "quickfixes": []
@@ -348,6 +366,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: i += 1",
       "quickfixes": []
@@ -363,6 +382,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: sum += i",
       "quickfixes": []
@@ -378,6 +398,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: i += 1",
       "quickfixes": []
@@ -393,6 +414,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: sum += i",
       "quickfixes": []
@@ -408,6 +430,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: i -= 1",
       "quickfixes": []
@@ -423,6 +446,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: sum += i",
       "quickfixes": []
@@ -438,6 +462,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: i += 1",
       "quickfixes": []
@@ -453,6 +478,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: sum += i",
       "quickfixes": []
@@ -468,6 +494,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: sum += value",
       "quickfixes": []
@@ -483,6 +510,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 1,
       "extraDescription": "Using TVM assembly is a potentially dangerous operation that requires additional review",
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/AsmIsUsed",
       "quickfixes": []

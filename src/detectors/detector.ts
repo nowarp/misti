@@ -149,8 +149,8 @@ export abstract class Detector {
       c: Category | undefined = data.category,
     ): Category | undefined => {
       if (c === undefined) {
-        const detectorCategory = this.getCategory();
-        if (!Array.isArray(detectorCategory)) return detectorCategory;
+        const cs = this.getCategory();
+        if (cs && cs.length === 1) return cs[0];
       }
       return c;
     })();

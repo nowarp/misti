@@ -12,6 +12,7 @@
       },
       "suppressed": false,
       "severity": 3,
+      "category": 1,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/NeverAccessedVariables",
       "suggestion": "Consider removing the variable",
       "quickfixes": []
@@ -27,6 +28,7 @@
       },
       "suppressed": false,
       "severity": 3,
+      "category": 2,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend",
       "suggestion": "Use more gas-efficient `message` function: https://docs.tact-lang.org/ref/core-common/#message",
       "quickfixes": []
@@ -42,6 +44,7 @@
       },
       "suppressed": false,
       "severity": 3,
+      "category": 2,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend",
       "suggestion": "Use more gas-efficient `deploy` function: https://docs.tact-lang.org/ref/core-common/#deploy",
       "quickfixes": []
@@ -57,6 +60,7 @@
       },
       "suppressed": false,
       "severity": 3,
+      "category": 2,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend",
       "suggestion": "Use more gas-efficient `deploy` function: https://docs.tact-lang.org/ref/core-common/#deploy",
       "quickfixes": []
@@ -72,6 +76,7 @@
       },
       "suppressed": false,
       "severity": 3,
+      "category": 2,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend",
       "suggestion": "Use more gas-efficient `message` function: https://docs.tact-lang.org/ref/core-common/#message",
       "quickfixes": []
@@ -87,6 +92,7 @@
       },
       "suppressed": false,
       "severity": 3,
+      "category": 2,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend",
       "suggestion": "Use more gas-efficient `message` function: https://docs.tact-lang.org/ref/core-common/#message",
       "quickfixes": []
@@ -102,6 +108,7 @@
       },
       "suppressed": false,
       "severity": 3,
+      "category": 2,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend",
       "suggestion": "Use more gas-efficient `message` function: https://docs.tact-lang.org/ref/core-common/#message",
       "quickfixes": []
@@ -372,6 +379,7 @@
       },
       "suppressed": false,
       "severity": 2,
+      "category": 3,
       "extraDescription": "Directly modifying inherited trait fields can indicate a potential error or poor design",
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/InheritedStateMutation",
       "suggestion": "Consider using setter methods to preserve invariants",
@@ -388,6 +396,7 @@
       },
       "suppressed": false,
       "severity": 2,
+      "category": 2,
       "extraDescription": "Using text receivers is a gas-expensive operation",
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferBinaryReceiver",
       "suggestion": "Consider changing it to a binary receiver",
@@ -404,6 +413,7 @@
       },
       "suppressed": false,
       "severity": 2,
+      "category": 2,
       "extraDescription": "Using text receivers is a gas-expensive operation",
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferBinaryReceiver",
       "suggestion": "Consider changing it to a binary receiver",
@@ -420,6 +430,7 @@
       },
       "suppressed": false,
       "severity": 2,
+      "category": 2,
       "extraDescription": "The `ctx` variable is only used to get the sender",
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferSenderFunction",
       "suggestion": "Consider replacing `ctx.sender` with the less gas-expensive `sender()` call",
@@ -436,6 +447,7 @@
       },
       "suppressed": false,
       "severity": 2,
+      "category": 2,
       "extraDescription": "The `ctx` variable is only used to get the sender",
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferSenderFunction",
       "suggestion": "Consider replacing `ctx.sender` with the less gas-expensive `sender()` call",
@@ -452,6 +464,7 @@
       },
       "suppressed": false,
       "severity": 2,
+      "category": 2,
       "extraDescription": "The `ctx` variable is only used to get the sender",
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferSenderFunction",
       "suggestion": "Consider replacing `ctx.sender` with the less gas-expensive `sender()` call",
@@ -468,6 +481,7 @@
       },
       "suppressed": false,
       "severity": 2,
+      "category": 2,
       "extraDescription": "The `ctx` variable is only used to get the sender",
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferSenderFunction",
       "suggestion": "Consider replacing `ctx.sender` with the less gas-expensive `sender()` call",
@@ -484,6 +498,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: self.totalSupply -= msg.amount",
       "quickfixes": []
@@ -499,6 +514,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: self.totalSupply += amount",
       "quickfixes": []
@@ -514,6 +530,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: self.balance -= msg.amount",
       "quickfixes": []
@@ -529,6 +546,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: self.balance += msg.amount",
       "quickfixes": []
@@ -544,6 +562,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: self.balance -= msg.amount",
       "quickfixes": []
@@ -559,6 +578,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferAugmentedAssign",
       "suggestion": "Consider using augmented assignment instead: self.balance += jettonAmount",
       "quickfixes": []
@@ -574,6 +594,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/ImplicitOpcode",
       "suggestion": "Prefer explicitly defined message opcodes",
       "quickfixes": []
@@ -589,6 +610,7 @@
       },
       "suppressed": false,
       "severity": 1,
+      "category": 3,
       "docURL": "https://nowarp.io/tools/misti/docs/detectors/ImplicitOpcode",
       "suggestion": "Prefer explicitly defined message opcodes",
       "quickfixes": []

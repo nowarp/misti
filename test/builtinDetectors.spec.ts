@@ -12,6 +12,67 @@ import { executeMisti } from "../src/cli";
 import fs from "fs";
 import path from "path";
 import { getAllDetectors } from "../src/detectors/detector";
+import JSONbig from "json-bigint";
+
+/**
+ * Validates that JSON warnings have the required structure with non-empty fields.
+ */
+function validateJsonWarnings(jsonOutput: string): boolean {
+  const result = JSONbig.parse(jsonOutput);
+  if (result.kind !== "warnings") {
+    return true;
+  }
+  for (const warning of result.warnings) {
+    // Check required non-empty fields
+    if (!warning.severity || typeof warning.severity !== "number") {
+      throw new Error(
+        `Warning missing valid severity: ${JSONbig.stringify(warning)}`,
+      );
+    }
+    if (!warning.category || typeof warning.category !== "number") {
+      throw new Error(
+        `Warning missing valid category: ${JSONbig.stringify(warning)}`,
+      );
+    }
+    if (
+      !warning.detectorId ||
+      typeof warning.detectorId !== "string" ||
+      warning.detectorId.trim() === ""
+    ) {
+      throw new Error(
+        `Warning missing valid detectorId: ${JSONbig.stringify(warning)}`,
+      );
+    }
+    if (
+      !warning.description ||
+      typeof warning.description !== "string" ||
+      warning.description.trim() === ""
+    ) {
+      throw new Error(
+        `Warning missing valid description: ${JSONbig.stringify(warning)}`,
+      );
+    }
+    if (!warning.location || typeof warning.location !== "object") {
+      throw new Error(
+        `Warning missing valid location: ${JSONbig.stringify(warning)}`,
+      );
+    }
+    const loc = warning.location;
+    if (
+      !loc.file ||
+      typeof loc.file !== "string" ||
+      typeof loc.line !== "number" ||
+      typeof loc.column !== "number" ||
+      !loc.code ||
+      typeof loc.code !== "string"
+    ) {
+      throw new Error(
+        `Warning has invalid location structure: ${JSONbig.stringify(loc)}`,
+      );
+    }
+  }
+  return true;
+}
 
 /**
  * Runs a test for a single contract or a Tact project with the expected output.
@@ -46,6 +107,9 @@ function runTestForFile(
       }
       const output = await executeMisti(executeArgs);
       fs.writeFileSync(outputFilePath, output);
+      if (outputFormat === "json") {
+        expect(validateJsonWarnings(output)).toBe(true);
+      }
       await TAP.from(
         nameBase,
         actualSuffix,
