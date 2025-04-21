@@ -82,6 +82,7 @@ export function handleMistiResult(driver: Driver, result: Result): void {
     : handleOutputToConsole(
         result,
         driver.outputFormat,
+        driver.outputPath,
         logger,
         driver.colorizeOutput,
       );
@@ -117,21 +118,22 @@ function handleOutputToFile(
 function handleOutputToConsole(
   result: Result,
   outputFormat: OutputFormat,
+  outputFile: string,
   logger: Logger,
   colorizeOutput: boolean,
 ): void {
   const text = resultToString(result, outputFormat, colorizeOutput);
+  const print = outputFormat === "json" && outputFile !== STDOUT_PATH;
   switch (result.kind) {
     case "warnings":
-      outputFormat === "json" ? console.warn(text) : logger.warn(text);
+      print ? console.warn(text) : logger.warn(text);
       break;
     case "error":
-      outputFormat === "json" ? console.error(text) : logger.error(text);
+      print ? console.error(text) : logger.error(text);
       break;
     case "tool":
     case "ok":
-      outputFormat === "json" ? console.log(text) : logger.error(text);
-      logger.info(text);
+      print ? console.log(text) : logger.error(text);
       break;
     default:
       unreachable(result);
