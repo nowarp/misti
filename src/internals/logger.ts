@@ -1,5 +1,5 @@
 import { ExecutionException } from "./exceptions";
-import { AsyncLocalStorage } from "async_hooks";
+import { isBrowser } from "./util";
 
 export enum LogLevel {
   DEBUG,
@@ -19,7 +19,10 @@ export class Logger {
   private logFunctions: Map<LogLevel, LogFunction | undefined>;
   private jsonLogs: Map<LogLevel, string[]>;
   private contextMap: Map<string, string> = new Map();
-  private static asyncLocalStorage = new AsyncLocalStorage<string>();
+  private static asyncLocalStorage: {
+    getStore: () => string | undefined;
+    run: <T>(store: string, callback: () => Promise<T>) => Promise<T>;
+  };
   private showTimestamps: boolean;
 
   constructor(
@@ -27,6 +30,23 @@ export class Logger {
     private saveJson: boolean = false,
     showTimestamps: boolean = false,
   ) {
+    if (!Logger.asyncLocalStorage) {
+      if (isBrowser()) {
+        Logger.asyncLocalStorage = {
+          getStore: () => undefined,
+          run: async <T>(
+            _store: string,
+            callback: () => Promise<T>,
+          ): Promise<T> => {
+            return callback();
+          },
+        };
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { AsyncLocalStorage } = require("async_hooks");
+        Logger.asyncLocalStorage = new AsyncLocalStorage();
+      }
+    }
     this.showTimestamps = showTimestamps;
     this.jsonLogs = new Map([
       [LogLevel.DEBUG, []],
