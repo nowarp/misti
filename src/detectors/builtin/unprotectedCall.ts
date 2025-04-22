@@ -246,6 +246,7 @@ export class UnprotectedCall extends DataflowDetector {
         this.ctx.logger.warn(`Cannot find AST node for BB #${cfg.id}`);
         return;
       }
+      if (astFun.kind !== "receiver") return; // TODO: IPA is NYI
       if (!this.hasCallsToCheck(cu, cfg.id)) return;
       const argTaints = this.getArgTaints(astFun);
       const lattice = new TaintLattice(argTaints);

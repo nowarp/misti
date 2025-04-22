@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `No errors found` gets printed twice: Issue [#375](https://github.com/nowarp/misti/issues/375)
 - Cannot execute Misti in browser environment: PR [#377](https://github.com/nowarp/misti/pull/377)
+- `UnprotectedCall`: False positive on interprocedural calls: Issue [#373](https://github.com/nowarp/misti/issues/373)
 
 ## [0.8.1] - 2025-04-19
 
