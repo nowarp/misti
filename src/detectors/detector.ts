@@ -514,6 +514,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  DuplicatedImport: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/duplicatedImport").then(
+        (module) => new module.DuplicatedImport(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**

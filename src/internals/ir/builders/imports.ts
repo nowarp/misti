@@ -50,7 +50,7 @@ export class ImportGraphBuilder {
     visited: Set<string>,
   ): ImportNodeIdx {
     if (visited.has(filePath)) {
-      return nodes.find((node) => node.importPath === filePath)!.idx;
+      return nodes.find((node) => node.filePath === filePath)!.idx;
     }
     visited.add(filePath);
 
@@ -62,21 +62,28 @@ export class ImportGraphBuilder {
         `Cannot find imported file: ${filePath}. The analysis might not work.`,
       );
     }
+    const language = this.determineLanguage(filePath);
+    if (language === undefined) {
+      throw ExecutionException.make(
+        `Cannot determine the target language of import: ${filePath}`,
+      );
+    }
+    const node = new ImportNode(
+      this.generateNodeName(filePath),
+      definedInStdlib(this.ctx, filePath) ? "stdlib" : "user",
+      filePath,
+      language,
+      this.hasContract(fileContent),
+    );
+    nodes.push(node);
+
     const imports = getParser(getAstFactory()).parseImports({
       code: fileContent,
       path: filePath,
       origin: "user",
     } as Source);
-    const node = new ImportNode(
-      this.generateNodeName(filePath),
-      definedInStdlib(this.ctx, filePath) ? "stdlib" : "user",
-      filePath,
-      this.determineLanguage(filePath),
-      this.hasContract(fileContent),
-    );
-    nodes.push(node);
 
-    imports.reduce((acc, importNode) => {
+    imports.forEach((importNode) => {
       let importPath =
         importNode.importPath.type === "stdlib"
           ? this.resolveStdlibPath(importAsString(importNode.importPath.path))
@@ -87,7 +94,7 @@ export class ImportGraphBuilder {
       // TODO: We should use a Tact API function call when this is fixed:
       //       https://github.com/tact-lang/tact/issues/982
       importPath =
-        importPath.endsWith(".tact") || importPath.endsWith(".fc")
+        this.determineLanguage(importPath) !== undefined
           ? importPath
           : importPath + ".tact";
       const targetNodeIdx = this.processFile(importPath, nodes, edges, visited);
@@ -95,9 +102,7 @@ export class ImportGraphBuilder {
       edges.push(edge);
       node.outEdges.add(edge.idx);
       nodes.find((n) => n.idx === targetNodeIdx)?.inEdges.add(edge.idx);
-      return acc;
-    }, undefined);
-
+    });
     return node.idx;
   }
 
@@ -124,18 +129,13 @@ export class ImportGraphBuilder {
 
   /**
    * Determines the language of a file based on its extension.
-   * @throws ExecutionException if the language cannot be determined.
    */
-  private determineLanguage(filePath: string): ImportLanguage | never {
+  private determineLanguage(filePath: string): ImportLanguage | undefined {
     return filePath.endsWith(".tact")
       ? "tact"
-      : filePath.endsWith(".fc")
+      : filePath.endsWith(".fc") || filePath.endsWith(".func")
         ? "func"
-        : (() => {
-            throw ExecutionException.make(
-              `Cannot determine the target language of import: ${filePath}`,
-            );
-          })();
+        : undefined;
   }
 
   /**

@@ -1,5 +1,6 @@
 import "./constants.tact";
 import "./messages.tact";
+import "./messages"; // Importing the same file
 import "./test"; // Importing without extension
 import "@stdlib/ownable";
 

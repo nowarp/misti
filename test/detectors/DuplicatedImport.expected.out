@@ -1,0 +1,19 @@
+[MEDIUM] DuplicatedImport: Duplicated import
+test/detectors/DuplicatedImport.tact:2:1:
+  1 | import "@stdlib/ownable";
+> 2 | import "@stdlib/ownable"; // Bad: Duplicated import
+      ^~~~~~~~~~~~~~~~~~~~~~~~~
+  3 | 
+`@stdlib/ownable.tact` is already imported in this file
+Help: Remove this import statement
+See: https://nowarp.io/tools/misti/docs/detectors/DuplicatedImport
+
+[MEDIUM] DuplicatedImport: Duplicated import
+test/detectors/DuplicatedImport.tact:5:1:
+  4 | import "./NeverAccessedVariables";
+> 5 | import "./NeverAccessedVariables.tact"; // Bad: Duplicated import
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  6 | 
+`NeverAccessedVariables` is already imported in this file
+Help: Remove this import statement
+See: https://nowarp.io/tools/misti/docs/detectors/DuplicatedImport

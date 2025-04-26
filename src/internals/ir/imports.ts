@@ -7,7 +7,8 @@ import path from "path";
 export type ImportNodeIdx = number & { readonly __brand: unique symbol };
 export type ImportEdgeIdx = number & { readonly __brand: unique symbol };
 export type ImportLanguage = "tact" | "func";
-export type ImportDirection = "forward" | "backward";
+
+export type TraversalDirection = "forward" | "backward";
 
 /**
  * Represents a node in the import graph, corresponding to a file.
@@ -20,7 +21,7 @@ export class ImportNode {
     /** Origin of the node. */
     public origin: ItemOrigin,
     /** Absolute path to the imported file. */
-    public importPath: string,
+    public filePath: string,
     /** Language in which the imported file is written. */
     public language: ImportLanguage,
     /** True if this file has a contract definition. */
@@ -76,6 +77,18 @@ export class ImportGraph {
     });
   }
 
+  public getEdge(idx: ImportEdgeIdx): ImportEdge | undefined {
+    const foundIdx = this.edgesMap.get(idx);
+    if (foundIdx === undefined) return undefined;
+    return this.edges[foundIdx];
+  }
+
+  public getNode(idx: ImportNodeIdx): ImportNode | undefined {
+    const foundIdx = this.nodesMap.get(idx);
+    if (foundIdx === undefined) return undefined;
+    return this.nodes[foundIdx];
+  }
+
   /**
    * Iterates over all nodes in the graph and calls the provided callback for each nodes.
    * @param callback A function to be called for each nodes in the graph.
@@ -104,12 +117,12 @@ export class ImportGraph {
     this.nodes.forEach((node) => {
       if (node.origin === "user") {
         if (!projectRoot) {
-          projectRoot = path.dirname(node.importPath);
+          projectRoot = path.dirname(node.filePath);
         } else {
-          if (!projectRoot.includes(path.dirname(node.importPath))) {
+          if (!projectRoot.includes(path.dirname(node.filePath))) {
             projectRoot = this.findCommonParent(
               projectRoot,
-              path.dirname(node.importPath),
+              path.dirname(node.filePath),
             );
           }
         }
@@ -155,12 +168,13 @@ export class ImportGraph {
   /**
    * Performs a BFS on the import graph.
    * @param start The starting node index for the BFS.
+   * @param direction The direction of traversal ('forward' or 'backward').
    * @param callback A function called for each visited node and the edge through which it was reached.
    */
   public bfs(
     start: ImportNodeIdx,
     callback: (node: ImportNode, edge: ImportEdge | null) => void,
-    { direction = "forward" }: Partial<{ direction: ImportDirection }> = {},
+    { direction = "forward" }: Partial<{ direction: TraversalDirection }> = {},
   ): void {
     const queue: [ImportNodeIdx, ImportEdge | null][] = [[start, null]];
     const visited = new Set<ImportNodeIdx>();
@@ -188,7 +202,7 @@ export class ImportGraph {
    * @returns The ImportNode if found, or undefined if not found.
    */
   public findNodeByPath(importPath: string): ImportNode | undefined {
-    return this.nodes.find((node) => node.importPath === importPath);
+    return this.nodes.find((node) => node.filePath === importPath);
   }
 
   /**
@@ -199,7 +213,7 @@ export class ImportGraph {
    */
   private getConnectionsInDirection(
     nodeIdx: ImportNodeIdx,
-    direction: ImportDirection,
+    direction: TraversalDirection,
   ): ImportNode[] {
     const result: ImportNode[] = [];
     this.bfs(
