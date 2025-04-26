@@ -192,7 +192,7 @@ class JSONDumper {
         idx: node.idx,
         name: node.name,
         origin: node.origin,
-        importPath: path.relative(process.cwd(), node.importPath),
+        importPath: path.relative(process.cwd(), node.filePath),
         language: node.language,
         hasContract: node.hasContract,
         inEdges: Array.from(node.inEdges),

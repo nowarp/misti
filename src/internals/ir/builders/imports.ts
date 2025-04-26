@@ -50,7 +50,7 @@ export class ImportGraphBuilder {
     visited: Set<string>,
   ): ImportNodeIdx {
     if (visited.has(filePath)) {
-      return nodes.find((node) => node.importPath === filePath)!.idx;
+      return nodes.find((node) => node.filePath === filePath)!.idx;
     }
     visited.add(filePath);
 
@@ -62,11 +62,6 @@ export class ImportGraphBuilder {
         `Cannot find imported file: ${filePath}. The analysis might not work.`,
       );
     }
-    const imports = getParser(getAstFactory()).parseImports({
-      code: fileContent,
-      path: filePath,
-      origin: "user",
-    } as Source);
     const language = this.determineLanguage(filePath);
     if (language === undefined) {
       throw ExecutionException.make(
@@ -82,7 +77,13 @@ export class ImportGraphBuilder {
     );
     nodes.push(node);
 
-    imports.reduce((acc, importNode) => {
+    const imports = getParser(getAstFactory()).parseImports({
+      code: fileContent,
+      path: filePath,
+      origin: "user",
+    } as Source);
+
+    imports.forEach((importNode) => {
       let importPath =
         importNode.importPath.type === "stdlib"
           ? this.resolveStdlibPath(importAsString(importNode.importPath.path))
@@ -101,9 +102,7 @@ export class ImportGraphBuilder {
       edges.push(edge);
       node.outEdges.add(edge.idx);
       nodes.find((n) => n.idx === targetNodeIdx)?.inEdges.add(edge.idx);
-      return acc;
-    }, undefined);
-
+    });
     return node.idx;
   }
 

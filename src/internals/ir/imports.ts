@@ -21,7 +21,7 @@ export class ImportNode {
     /** Origin of the node. */
     public origin: ItemOrigin,
     /** Absolute path to the imported file. */
-    public importPath: string,
+    public filePath: string,
     /** Language in which the imported file is written. */
     public language: ImportLanguage,
     /** True if this file has a contract definition. */
@@ -105,12 +105,12 @@ export class ImportGraph {
     this.nodes.forEach((node) => {
       if (node.origin === "user") {
         if (!projectRoot) {
-          projectRoot = path.dirname(node.importPath);
+          projectRoot = path.dirname(node.filePath);
         } else {
-          if (!projectRoot.includes(path.dirname(node.importPath))) {
+          if (!projectRoot.includes(path.dirname(node.filePath))) {
             projectRoot = this.findCommonParent(
               projectRoot,
-              path.dirname(node.importPath),
+              path.dirname(node.filePath),
             );
           }
         }
@@ -190,7 +190,7 @@ export class ImportGraph {
    * @returns The ImportNode if found, or undefined if not found.
    */
   public findNodeByPath(importPath: string): ImportNode | undefined {
-    return this.nodes.find((node) => node.importPath === importPath);
+    return this.nodes.find((node) => node.filePath === importPath);
   }
 
   /**
