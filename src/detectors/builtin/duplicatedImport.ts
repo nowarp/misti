@@ -34,7 +34,7 @@ export class DuplicatedImport extends AstDetector {
         if (visited.has(dst.idx)) {
           warnings.push(
             this.makeWarning(`Duplicated import`, edge.loc, {
-              extraDescription: `\`${dst.filePath}\` is already imported in this file`,
+              extraDescription: `\`${dst.name}\` is already imported in this file`,
               suggestion: "Remove this import statement",
             }),
           );

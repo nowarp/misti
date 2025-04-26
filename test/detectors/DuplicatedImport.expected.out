@@ -4,7 +4,7 @@ test/detectors/DuplicatedImport.tact:2:1:
 > 2 | import "@stdlib/ownable"; // Bad: Duplicated import
       ^~~~~~~~~~~~~~~~~~~~~~~~~
   3 | 
-`/home/jubnzv/Dev/misti/node_modules/@tact-lang/compiler/dist/stdlib/stdlib/libs/ownable.tact` is already imported in this file
+`@stdlib/ownable.tact` is already imported in this file
 Help: Remove this import statement
 See: https://nowarp.io/tools/misti/docs/detectors/DuplicatedImport
 
@@ -14,6 +14,6 @@ test/detectors/DuplicatedImport.tact:5:1:
 > 5 | import "./NeverAccessedVariables.tact"; // Bad: Duplicated import
       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   6 | 
-`/home/jubnzv/Dev/misti/test/detectors/NeverAccessedVariables.tact` is already imported in this file
+`NeverAccessedVariables` is already imported in this file
 Help: Remove this import statement
 See: https://nowarp.io/tools/misti/docs/detectors/DuplicatedImport
