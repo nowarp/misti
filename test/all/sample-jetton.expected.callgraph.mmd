@@ -1,106 +1,106 @@
 graph TD
-    node_16["inline fun contractAddress(s: StateInit): Address"]
-    node_30["SampleJetton::init(owner: Address, content: Cell, max_supply: Int)
+    node_17["inline fun contractAddress(s: StateInit): Address"]
+    node_31["SampleJetton::init(owner: Address, content: Cell, max_supply: Int)
 [StateWrite<totalSupply,max_supply,owner,mintable,content>]"]
-    node_31["SampleJetton::receive(msg: Mint)
+    node_32["SampleJetton::receive(msg: Mint)
 [StateRead<owner,mintable>]"]
-    node_32["SampleJetton::receive('Mint: 100')
+    node_33["SampleJetton::receive('Mint: 100')
 [StateRead<mintable,owner>]"]
-    node_33["SampleJetton::receive('Owner: MintClose')
+    node_34["SampleJetton::receive('Owner: MintClose')
 [StateRead<owner>,StateWrite<mintable>]"]
-    node_34["Jetton::receive(msg: TokenUpdateContent)
+    node_35["Jetton::receive(msg: TokenUpdateContent)
 [StateWrite<content>]"]
-    node_35["Jetton::receive(msg: TokenBurnNotification)
+    node_36["Jetton::receive(msg: TokenBurnNotification)
 [Send,StateWrite<totalSupply>]"]
-    node_36["fun Jetton::mint(to: Address, amount: Int, response_destination: Address)
+    node_37["fun Jetton::mint(to: Address, amount: Int, response_destination: Address)
 [Send,StateRead<totalSupply,max_supply>,StateWrite<totalSupply>]"]
-    node_37["fun Jetton::requireWallet(owner: Address)"]
-    node_38["virtual fun Jetton::getJettonWalletInit(address: Address): StateInit"]
-    node_39["get fun Jetton::get_jetton_data(): JettonData
+    node_38["fun Jetton::requireWallet(owner: Address)"]
+    node_39["virtual fun Jetton::getJettonWalletInit(address: Address): StateInit"]
+    node_40["get fun Jetton::get_jetton_data(): JettonData
 [StateRead<totalSupply,mintable,owner,content>]"]
-    node_40["get fun Jetton::get_wallet_address(owner: Address): Address"]
-    node_41["JettonDefaultWallet::init(master: Address, owner: Address)
+    node_41["get fun Jetton::get_wallet_address(owner: Address): Address"]
+    node_42["JettonDefaultWallet::init(master: Address, owner: Address)
 [StateWrite<balance,owner,master>]"]
-    node_42["JettonDefaultWallet::receive(msg: TokenTransfer)
+    node_43["JettonDefaultWallet::receive(msg: TokenTransfer)
 [Send,StateRead<owner,gasConsumption,minTonsForStorage,balance,master>,StateWrite<balance>]"]
-    node_43["JettonDefaultWallet::receive(msg: TokenTransferInternal)
+    node_44["JettonDefaultWallet::receive(msg: TokenTransferInternal)
 [Send,StateRead<master,balance,owner>,StateWrite<balance>]"]
-    node_44["get fun JettonDefaultWallet::msgValue(value: Int): Int
+    node_45["get fun JettonDefaultWallet::msgValue(value: Int): Int
 [StateRead<minTonsForStorage>]"]
-    node_45["JettonDefaultWallet::receive(msg: TokenBurn)
+    node_46["JettonDefaultWallet::receive(msg: TokenBurn)
 [Send,StateRead<owner,balance,gasConsumption,minTonsForStorage,master>,StateWrite<balance>]"]
-    node_46["JettonDefaultWallet::bounced(msg: Slice)
+    node_47["JettonDefaultWallet::bounced(msg: Slice)
 [StateWrite<balance>]"]
-    node_47["get fun JettonDefaultWallet::get_wallet_data(): JettonWalletData
+    node_48["get fun JettonDefaultWallet::get_wallet_data(): JettonWalletData
 [StateRead<balance,owner,master>]"]
-    node_48["context"]
-    node_49["require"]
-    node_50["SampleJetton::mint"]
-    node_51["Jetton::requireOwner"]
-    node_52["send"]
-    node_53["myAddress"]
-    node_54["emptySlice"]
-    node_55["ctx::readForwardFee"]
-    node_56["min"]
-    node_57["ton"]
-    node_58["myBalance"]
-    node_59["msg::loadUint"]
-    node_60["msg::loadCoins"]
-    node_31 --> node_48
-    node_31 --> node_49
-    node_31 --> node_49
-    node_31 --> node_50
-    node_32 --> node_48
+    node_49["context"]
+    node_50["require"]
+    node_51["SampleJetton::mint"]
+    node_52["Jetton::requireOwner"]
+    node_53["send"]
+    node_54["myAddress"]
+    node_55["emptySlice"]
+    node_56["ctx::readForwardFee"]
+    node_57["min"]
+    node_58["ton"]
+    node_59["myBalance"]
+    node_60["msg::loadUint"]
+    node_61["msg::loadCoins"]
     node_32 --> node_49
     node_32 --> node_50
-    node_33 --> node_48
+    node_32 --> node_50
+    node_32 --> node_51
     node_33 --> node_49
-    node_34 --> node_51
-    node_35 --> node_37
+    node_33 --> node_50
+    node_33 --> node_51
+    node_34 --> node_49
+    node_34 --> node_50
     node_35 --> node_52
-    node_36 --> node_49
     node_36 --> node_38
-    node_36 --> node_52
-    node_36 --> node_16
     node_36 --> node_53
-    node_36 --> node_54
-    node_37 --> node_48
-    node_37 --> node_38
-    node_37 --> node_49
-    node_37 --> node_16
-    node_38 --> node_53
-    node_39 --> node_38
-    node_39 --> node_53
-    node_40 --> node_38
-    node_40 --> node_16
-    node_42 --> node_48
-    node_42 --> node_49
-    node_42 --> node_55
-    node_42 --> node_55
-    node_42 --> node_49
-    node_42 --> node_56
-    node_42 --> node_57
-    node_42 --> node_49
-    node_42 --> node_16
-    node_42 --> node_52
-    node_43 --> node_48
+    node_37 --> node_50
+    node_37 --> node_39
+    node_37 --> node_53
+    node_37 --> node_17
+    node_37 --> node_54
+    node_37 --> node_55
+    node_38 --> node_49
+    node_38 --> node_39
+    node_38 --> node_50
+    node_38 --> node_17
+    node_39 --> node_54
+    node_40 --> node_39
+    node_40 --> node_54
+    node_41 --> node_39
+    node_41 --> node_17
     node_43 --> node_49
-    node_43 --> node_16
-    node_43 --> node_49
-    node_43 --> node_52
-    node_43 --> node_44
-    node_43 --> node_55
-    node_43 --> node_52
-    node_44 --> node_58
+    node_43 --> node_50
+    node_43 --> node_56
+    node_43 --> node_56
+    node_43 --> node_50
+    node_43 --> node_57
+    node_43 --> node_58
+    node_43 --> node_50
+    node_43 --> node_17
+    node_43 --> node_53
+    node_44 --> node_49
+    node_44 --> node_50
+    node_44 --> node_17
+    node_44 --> node_50
+    node_44 --> node_53
+    node_44 --> node_45
     node_44 --> node_56
-    node_45 --> node_48
-    node_45 --> node_49
-    node_45 --> node_49
-    node_45 --> node_55
-    node_45 --> node_49
-    node_45 --> node_52
-    node_46 --> node_59
-    node_46 --> node_59
-    node_46 --> node_60
+    node_44 --> node_53
+    node_45 --> node_59
+    node_45 --> node_57
     node_46 --> node_49
-    style node_16 fill:#F0F8FF,stroke:#000,stroke-width:1px;
+    node_46 --> node_50
+    node_46 --> node_50
+    node_46 --> node_56
+    node_46 --> node_50
+    node_46 --> node_53
+    node_47 --> node_60
+    node_47 --> node_60
+    node_47 --> node_61
+    node_47 --> node_50
+    style node_17 fill:#F0F8FF,stroke:#000,stroke-width:1px;

@@ -2,216 +2,216 @@ digraph "syntax" {
     node [shape=box];
     subgraph "cluster_test_try" {
         label="test_try";
-        "test_try_72" [label="try"];
-        "test_try_73" [label="a += 1"];
-        "test_try_74" [label="try"];
-        "test_try_75" [label="try ... catch (err)"];
-        "test_try_76" [label="a = 19",style=filled,fillcolor="#66A7DB"];
-        "test_try_77" [label="dump(err)",style=filled,fillcolor="#66A7DB"];
-        "test_try_72" -> "test_try_73";
-        "test_try_73" -> "test_try_74";
-        "test_try_74" -> "test_try_75";
-        "test_try_75" -> "test_try_76";
-        "test_try_75" -> "test_try_77";
+        "test_try_81" [label="try"];
+        "test_try_82" [label="a += 1"];
+        "test_try_83" [label="try"];
+        "test_try_84" [label="try ... catch (err)"];
+        "test_try_85" [label="a = 19",style=filled,fillcolor="#66A7DB"];
+        "test_try_86" [label="dump(err)",style=filled,fillcolor="#66A7DB"];
+        "test_try_81" -> "test_try_82";
+        "test_try_82" -> "test_try_83";
+        "test_try_83" -> "test_try_84";
+        "test_try_84" -> "test_try_85";
+        "test_try_84" -> "test_try_86";
     }
     subgraph "cluster_test_loops" {
         label="test_loops";
-        "test_loops_78" [label="let sum: Int = 0"];
-        "test_loops_79" [label="let i: Int = 0"];
-        "test_loops_80" [label="while (i < 10)"];
-        "test_loops_81" [label="i = i + 1"];
-        "test_loops_82" [label="sum = sum + i"];
-        "test_loops_83" [label="until (i > 10)"];
-        "test_loops_84" [label="i = i - 1"];
-        "test_loops_85" [label="sum = sum + i"];
-        "test_loops_86" [label="repeat (10)"];
-        "test_loops_87" [label="i = i + 1"];
-        "test_loops_88" [label="sum = sum + i"];
-        "test_loops_89" [label="let m: map<Int, Int> = emptyMap()"];
-        "test_loops_90" [label="foreach ((k, v) of m)"];
-        "test_loops_78" -> "test_loops_79";
-        "test_loops_79" -> "test_loops_80";
-        "test_loops_80" -> "test_loops_81";
-        "test_loops_81" -> "test_loops_82";
-        "test_loops_82" -> "test_loops_80";
-        "test_loops_80" -> "test_loops_83";
-        "test_loops_83" -> "test_loops_84";
-        "test_loops_84" -> "test_loops_85";
-        "test_loops_85" -> "test_loops_83";
-        "test_loops_83" -> "test_loops_86";
-        "test_loops_86" -> "test_loops_87";
+        "test_loops_87" [label="let sum: Int = 0"];
+        "test_loops_88" [label="let i: Int = 0"];
+        "test_loops_89" [label="while (i < 10)"];
+        "test_loops_90" [label="i = i + 1"];
+        "test_loops_91" [label="sum = sum + i"];
+        "test_loops_92" [label="until (i > 10)"];
+        "test_loops_93" [label="i = i - 1"];
+        "test_loops_94" [label="sum = sum + i"];
+        "test_loops_95" [label="repeat (10)"];
+        "test_loops_96" [label="i = i + 1"];
+        "test_loops_97" [label="sum = sum + i"];
+        "test_loops_98" [label="let m: map<Int, Int> = emptyMap()"];
+        "test_loops_99" [label="foreach ((k, v) of m)"];
         "test_loops_87" -> "test_loops_88";
-        "test_loops_88" -> "test_loops_86";
-        "test_loops_86" -> "test_loops_89";
+        "test_loops_88" -> "test_loops_89";
         "test_loops_89" -> "test_loops_90";
-        "test_loops_90" -> "test_loops_90";
+        "test_loops_90" -> "test_loops_91";
+        "test_loops_91" -> "test_loops_89";
+        "test_loops_89" -> "test_loops_92";
+        "test_loops_92" -> "test_loops_93";
+        "test_loops_93" -> "test_loops_94";
+        "test_loops_94" -> "test_loops_92";
+        "test_loops_92" -> "test_loops_95";
+        "test_loops_95" -> "test_loops_96";
+        "test_loops_96" -> "test_loops_97";
+        "test_loops_97" -> "test_loops_95";
+        "test_loops_95" -> "test_loops_98";
+        "test_loops_98" -> "test_loops_99";
+        "test_loops_99" -> "test_loops_99";
     }
     subgraph "cluster_testTryCatch" {
         label="testTryCatch";
-        "testTryCatch_91" [label="try ... catch (err)"];
-        "testTryCatch_92" [label="a += 1",style=filled,fillcolor="#66A7DB"];
-        "testTryCatch_93" [label="dump(err)",style=filled,fillcolor="#66A7DB"];
-        "testTryCatch_91" -> "testTryCatch_92";
-        "testTryCatch_91" -> "testTryCatch_93";
+        "testTryCatch_100" [label="try ... catch (err)"];
+        "testTryCatch_101" [label="a += 1",style=filled,fillcolor="#66A7DB"];
+        "testTryCatch_102" [label="dump(err)",style=filled,fillcolor="#66A7DB"];
+        "testTryCatch_100" -> "testTryCatch_101";
+        "testTryCatch_100" -> "testTryCatch_102";
     }
     subgraph "cluster_testLoops" {
         label="testLoops";
-        "testLoops_94" [label="let sum: Int = 0"];
-        "testLoops_95" [label="let i: Int = 0"];
-        "testLoops_96" [label="while (i < 10)"];
-        "testLoops_97" [label="i = i + 1"];
-        "testLoops_98" [label="sum = sum + i"];
-        "testLoops_99" [label="until (i <= 0)"];
-        "testLoops_100" [label="i = i - 1"];
-        "testLoops_101" [label="sum = sum + i"];
-        "testLoops_102" [label="repeat (10)"];
-        "testLoops_103" [label="i = i + 1"];
-        "testLoops_104" [label="sum = sum + i"];
-        "testLoops_105" [label="let m: map<Int, Int> = emptyMap()"];
-        "testLoops_106" [label="m.set(1, 10)"];
-        "testLoops_107" [label="m.set(2, 20)"];
-        "testLoops_108" [label="m.set(3, 30)"];
-        "testLoops_109" [label="foreach ((key, value) of m)"];
-        "testLoops_110" [label="sum = sum + value"];
-        "testLoops_94" -> "testLoops_95";
-        "testLoops_95" -> "testLoops_96";
-        "testLoops_96" -> "testLoops_97";
-        "testLoops_97" -> "testLoops_98";
-        "testLoops_98" -> "testLoops_96";
-        "testLoops_96" -> "testLoops_99";
-        "testLoops_99" -> "testLoops_100";
-        "testLoops_100" -> "testLoops_101";
-        "testLoops_101" -> "testLoops_99";
-        "testLoops_99" -> "testLoops_102";
-        "testLoops_102" -> "testLoops_103";
+        "testLoops_103" [label="let sum: Int = 0"];
+        "testLoops_104" [label="let i: Int = 0"];
+        "testLoops_105" [label="while (i < 10)"];
+        "testLoops_106" [label="i = i + 1"];
+        "testLoops_107" [label="sum = sum + i"];
+        "testLoops_108" [label="until (i <= 0)"];
+        "testLoops_109" [label="i = i - 1"];
+        "testLoops_110" [label="sum = sum + i"];
+        "testLoops_111" [label="repeat (10)"];
+        "testLoops_112" [label="i = i + 1"];
+        "testLoops_113" [label="sum = sum + i"];
+        "testLoops_114" [label="let m: map<Int, Int> = emptyMap()"];
+        "testLoops_115" [label="m.set(1, 10)"];
+        "testLoops_116" [label="m.set(2, 20)"];
+        "testLoops_117" [label="m.set(3, 30)"];
+        "testLoops_118" [label="foreach ((key, value) of m)"];
+        "testLoops_119" [label="sum = sum + value"];
         "testLoops_103" -> "testLoops_104";
-        "testLoops_104" -> "testLoops_102";
-        "testLoops_102" -> "testLoops_105";
+        "testLoops_104" -> "testLoops_105";
         "testLoops_105" -> "testLoops_106";
         "testLoops_106" -> "testLoops_107";
-        "testLoops_107" -> "testLoops_108";
+        "testLoops_107" -> "testLoops_105";
+        "testLoops_105" -> "testLoops_108";
         "testLoops_108" -> "testLoops_109";
         "testLoops_109" -> "testLoops_110";
-        "testLoops_110" -> "testLoops_109";
+        "testLoops_110" -> "testLoops_108";
+        "testLoops_108" -> "testLoops_111";
+        "testLoops_111" -> "testLoops_112";
+        "testLoops_112" -> "testLoops_113";
+        "testLoops_113" -> "testLoops_111";
+        "testLoops_111" -> "testLoops_114";
+        "testLoops_114" -> "testLoops_115";
+        "testLoops_115" -> "testLoops_116";
+        "testLoops_116" -> "testLoops_117";
+        "testLoops_117" -> "testLoops_118";
+        "testLoops_118" -> "testLoops_119";
+        "testLoops_119" -> "testLoops_118";
     }
     subgraph "cluster_callAsm" {
         label="callAsm";
-        "callAsm_111" [label="return s.loadRefEx()",style=filled,fillcolor="#66A7DB"];
+        "callAsm_120" [label="return s.loadRefEx()",style=filled,fillcolor="#66A7DB"];
     }
     subgraph "cluster_toInt" {
         label="toInt";
-        "toInt_112" [label="let string: Slice = self.asSlice()"];
-        "toInt_113" [label="let acc: Int = 0"];
-        "toInt_114" [label="while (!string.empty())"];
-        "toInt_115" [label="let char: Int = string.loadUint(8)"];
-        "toInt_116" [label="acc = acc * 10 + (char - 48)"];
-        "toInt_117" [label="return acc",style=filled,fillcolor="#66A7DB"];
-        "toInt_112" -> "toInt_113";
-        "toInt_113" -> "toInt_114";
-        "toInt_114" -> "toInt_115";
-        "toInt_115" -> "toInt_116";
-        "toInt_116" -> "toInt_114";
-        "toInt_114" -> "toInt_117";
+        "toInt_121" [label="let string: Slice = self.asSlice()"];
+        "toInt_122" [label="let acc: Int = 0"];
+        "toInt_123" [label="while (!string.empty())"];
+        "toInt_124" [label="let char: Int = string.loadUint(8)"];
+        "toInt_125" [label="acc = acc * 10 + (char - 48)"];
+        "toInt_126" [label="return acc",style=filled,fillcolor="#66A7DB"];
+        "toInt_121" -> "toInt_122";
+        "toInt_122" -> "toInt_123";
+        "toInt_123" -> "toInt_124";
+        "toInt_124" -> "toInt_125";
+        "toInt_125" -> "toInt_123";
+        "toInt_123" -> "toInt_126";
     }
     subgraph "cluster_TestContract__getter" {
         label="TestContract__getter";
-        "TestContract__getter_135" [label="return 0",style=filled,fillcolor="#66A7DB"];
+        "TestContract__getter_167" [label="return 0",style=filled,fillcolor="#66A7DB"];
     }
     subgraph "cluster_TestContractF__test" {
         label="TestContractF__test";
     }
     subgraph "cluster_TestContractT__test" {
         label="TestContractT__test";
-        "TestContractT__test_138" [label="return self.getA()",style=filled,fillcolor="#66A7DB"];
+        "TestContractT__test_170" [label="return self.getA()",style=filled,fillcolor="#66A7DB"];
     }
-    subgraph "cluster_TestContractT__receive_external_fallback_2294" {
-        label="TestContractT__receive_external_fallback_2294";
+    subgraph "cluster_TestContractT__receive_external_fallback_2540" {
+        label="TestContractT__receive_external_fallback_2540";
     }
-    subgraph "cluster_EffectTest__init_2618" {
-        label="EffectTest__init_2618";
-        "EffectTest__init_2618_139" [label="self.addr = sender()"];
-        "EffectTest__init_2618_140" [label="self.b = beginCell()"];
-        "EffectTest__init_2618_141" [label="self.s = S{b: beginCell()}",style=filled,fillcolor="#66A7DB"];
-        "EffectTest__init_2618_139" -> "EffectTest__init_2618_140";
-        "EffectTest__init_2618_140" -> "EffectTest__init_2618_141";
+    subgraph "cluster_EffectTest__init_2864" {
+        label="EffectTest__init_2864";
+        "EffectTest__init_2864_171" [label="self.addr = sender()"];
+        "EffectTest__init_2864_172" [label="self.b = beginCell()"];
+        "EffectTest__init_2864_173" [label="self.s = S{b: beginCell()}",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__init_2864_171" -> "EffectTest__init_2864_172";
+        "EffectTest__init_2864_172" -> "EffectTest__init_2864_173";
     }
     subgraph "cluster_EffectTest__funcWithSend" {
         label="EffectTest__funcWithSend";
-        "EffectTest__funcWithSend_142" [label="let amount: Int = 100"];
-        "EffectTest__funcWithSend_143" [label="send(SendParameters{to: self.addr, value: amount})",style=filled,fillcolor="#66A7DB"];
-        "EffectTest__funcWithSend_142" -> "EffectTest__funcWithSend_143";
+        "EffectTest__funcWithSend_174" [label="let amount: Int = 100"];
+        "EffectTest__funcWithSend_175" [label="send(SendParameters{to: self.addr, value: amount})",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__funcWithSend_174" -> "EffectTest__funcWithSend_175";
     }
     subgraph "cluster_EffectTest__funcWithStateRead" {
         label="EffectTest__funcWithStateRead";
-        "EffectTest__funcWithStateRead_144" [label="let value = self.addr",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__funcWithStateRead_176" [label="let value = self.addr",style=filled,fillcolor="#66A7DB"];
     }
     subgraph "cluster_EffectTest__funcWithStateWrite1" {
         label="EffectTest__funcWithStateWrite1";
-        "EffectTest__funcWithStateWrite1_145" [label="self.addr = newAddress(0, 0)"];
-        "EffectTest__funcWithStateWrite1_146" [label="self.b.storeAddress(self.addr)"];
-        "EffectTest__funcWithStateWrite1_147" [label="self.s.b.storeAddress(self.addr)",style=filled,fillcolor="#66A7DB"];
-        "EffectTest__funcWithStateWrite1_145" -> "EffectTest__funcWithStateWrite1_146";
-        "EffectTest__funcWithStateWrite1_146" -> "EffectTest__funcWithStateWrite1_147";
+        "EffectTest__funcWithStateWrite1_177" [label="self.addr = newAddress(0, 0)"];
+        "EffectTest__funcWithStateWrite1_178" [label="self.b.storeAddress(self.addr)"];
+        "EffectTest__funcWithStateWrite1_179" [label="self.s.b.storeAddress(self.addr)",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__funcWithStateWrite1_177" -> "EffectTest__funcWithStateWrite1_178";
+        "EffectTest__funcWithStateWrite1_178" -> "EffectTest__funcWithStateWrite1_179";
     }
     subgraph "cluster_EffectTest__funcWithStateWrite2" {
         label="EffectTest__funcWithStateWrite2";
-        "EffectTest__funcWithStateWrite2_148" [label="return s.loadAddress()",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__funcWithStateWrite2_180" [label="return s.loadAddress()",style=filled,fillcolor="#66A7DB"];
     }
     subgraph "cluster_EffectTest__funcWithMultipleEffects" {
         label="EffectTest__funcWithMultipleEffects";
-        "EffectTest__funcWithMultipleEffects_149" [label="let currentTime: Int = now()"];
-        "EffectTest__funcWithMultipleEffects_150" [label="let randValue: Int = random(1, 100)"];
-        "EffectTest__funcWithMultipleEffects_151" [label="if (1 > 42)"];
-        "EffectTest__funcWithMultipleEffects_152" [label="nativeRandomizeLt()",style=filled,fillcolor="#66A7DB"];
-        "EffectTest__funcWithMultipleEffects_149" -> "EffectTest__funcWithMultipleEffects_150";
-        "EffectTest__funcWithMultipleEffects_150" -> "EffectTest__funcWithMultipleEffects_151";
-        "EffectTest__funcWithMultipleEffects_151" -> "EffectTest__funcWithMultipleEffects_152";
+        "EffectTest__funcWithMultipleEffects_181" [label="let currentTime: Int = now()"];
+        "EffectTest__funcWithMultipleEffects_182" [label="let randValue: Int = random(1, 100)"];
+        "EffectTest__funcWithMultipleEffects_183" [label="if (1 > 42)"];
+        "EffectTest__funcWithMultipleEffects_184" [label="nativeRandomizeLt()",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__funcWithMultipleEffects_181" -> "EffectTest__funcWithMultipleEffects_182";
+        "EffectTest__funcWithMultipleEffects_182" -> "EffectTest__funcWithMultipleEffects_183";
+        "EffectTest__funcWithMultipleEffects_183" -> "EffectTest__funcWithMultipleEffects_184";
     }
-    subgraph "cluster_EffectTest__receive_internal_fallback_2617" {
-        label="EffectTest__receive_internal_fallback_2617";
-        "EffectTest__receive_internal_fallback_2617_153" [label="let a = beginString()"];
-        "EffectTest__receive_internal_fallback_2617_154" [label="a.append(\"f\")",style=filled,fillcolor="#66A7DB"];
-        "EffectTest__receive_internal_fallback_2617_153" -> "EffectTest__receive_internal_fallback_2617_154";
+    subgraph "cluster_EffectTest__receive_internal_fallback_2863" {
+        label="EffectTest__receive_internal_fallback_2863";
+        "EffectTest__receive_internal_fallback_2863_185" [label="let a = beginString()"];
+        "EffectTest__receive_internal_fallback_2863_186" [label="a.append(\"f\")",style=filled,fillcolor="#66A7DB"];
+        "EffectTest__receive_internal_fallback_2863_185" -> "EffectTest__receive_internal_fallback_2863_186";
     }
     subgraph "cluster_A__m" {
         label="A__m";
-        "A__m_155" [label="return self.m",style=filled,fillcolor="#66A7DB"];
+        "A__m_187" [label="return self.m",style=filled,fillcolor="#66A7DB"];
     }
-    subgraph "cluster_A__receive_internal_fallback_2667" {
-        label="A__receive_internal_fallback_2667";
-        "A__receive_internal_fallback_2667_156" [label="while (true)"];
-        "A__receive_internal_fallback_2667_157" [label="self.m.set(1, 2)"];
-        "A__receive_internal_fallback_2667_156" -> "A__receive_internal_fallback_2667_157";
-        "A__receive_internal_fallback_2667_157" -> "A__receive_internal_fallback_2667_156";
+    subgraph "cluster_A__receive_internal_fallback_2913" {
+        label="A__receive_internal_fallback_2913";
+        "A__receive_internal_fallback_2913_188" [label="while (true)"];
+        "A__receive_internal_fallback_2913_189" [label="self.m.set(1, 2)"];
+        "A__receive_internal_fallback_2913_188" -> "A__receive_internal_fallback_2913_189";
+        "A__receive_internal_fallback_2913_189" -> "A__receive_internal_fallback_2913_188";
     }
-    subgraph "cluster_ContractParams__receive_internal_fallback_2721" {
-        label="ContractParams__receive_internal_fallback_2721";
+    subgraph "cluster_ContractParams__receive_internal_fallback_2967" {
+        label="ContractParams__receive_internal_fallback_2967";
     }
     subgraph "cluster_TestQuickFix__f1" {
         label="TestQuickFix__f1";
-        "TestQuickFix__f1_158" [label="while (false)"];
-        "TestQuickFix__f1_159" [label="while (false)"];
-        "TestQuickFix__f1_160" [label="dump(\"something\")"];
-        "TestQuickFix__f1_161" [label="if (1 == 2)"];
-        "TestQuickFix__f1_162" [label="return true",style=filled,fillcolor="#66A7DB"];
-        "TestQuickFix__f1_163" [label="return false",style=filled,fillcolor="#66A7DB"];
-        "TestQuickFix__f1_158" -> "TestQuickFix__f1_158";
-        "TestQuickFix__f1_158" -> "TestQuickFix__f1_159";
-        "TestQuickFix__f1_159" -> "TestQuickFix__f1_160";
-        "TestQuickFix__f1_160" -> "TestQuickFix__f1_159";
-        "TestQuickFix__f1_159" -> "TestQuickFix__f1_161";
-        "TestQuickFix__f1_161" -> "TestQuickFix__f1_162";
-        "TestQuickFix__f1_161" -> "TestQuickFix__f1_163";
+        "TestQuickFix__f1_190" [label="while (false)"];
+        "TestQuickFix__f1_191" [label="while (false)"];
+        "TestQuickFix__f1_192" [label="dump(\"something\")"];
+        "TestQuickFix__f1_193" [label="if (1 == 2)"];
+        "TestQuickFix__f1_194" [label="return true",style=filled,fillcolor="#66A7DB"];
+        "TestQuickFix__f1_195" [label="return false",style=filled,fillcolor="#66A7DB"];
+        "TestQuickFix__f1_190" -> "TestQuickFix__f1_190";
+        "TestQuickFix__f1_190" -> "TestQuickFix__f1_191";
+        "TestQuickFix__f1_191" -> "TestQuickFix__f1_192";
+        "TestQuickFix__f1_192" -> "TestQuickFix__f1_191";
+        "TestQuickFix__f1_191" -> "TestQuickFix__f1_193";
+        "TestQuickFix__f1_193" -> "TestQuickFix__f1_194";
+        "TestQuickFix__f1_193" -> "TestQuickFix__f1_195";
     }
     subgraph "cluster_Z__getter" {
         label="Z__getter";
-        "Z__getter_136" [label="return self.a + 1",style=filled,fillcolor="#66A7DB"];
+        "Z__getter_168" [label="return self.a + 1",style=filled,fillcolor="#66A7DB"];
     }
     subgraph "cluster_TParent__getA" {
         label="TParent__getA";
-        "TParent__getA_137" [label="return self.a",style=filled,fillcolor="#66A7DB"];
+        "TParent__getA_169" [label="return self.a",style=filled,fillcolor="#66A7DB"];
     }
-"54" -> "67";
-"145" -> "64";
-"150" -> "35";
+"63" -> "76";
+"177" -> "73";
+"182" -> "35";
 }

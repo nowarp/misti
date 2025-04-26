@@ -6,259 +6,70 @@
       "cfg": {
         "nodes": [
           {
-            "id": 72,
-            "stmtID": 2303,
-            "srcEdges": [],
-            "dstEdges": [
-              53
-            ]
-          },
-          {
-            "id": 73,
-            "stmtID": 2302,
-            "srcEdges": [
-              53
-            ],
-            "dstEdges": [
-              54
-            ]
-          },
-          {
-            "id": 74,
-            "stmtID": 2304,
-            "srcEdges": [
-              54
-            ],
-            "dstEdges": [
-              55
-            ]
-          },
-          {
-            "id": 75,
-            "stmtID": 2313,
-            "srcEdges": [
-              55
-            ],
-            "dstEdges": [
-              56,
-              57
-            ]
-          },
-          {
-            "id": 76,
-            "stmtID": 2307,
-            "srcEdges": [
-              56
-            ],
-            "dstEdges": []
-          },
-          {
-            "id": 77,
-            "stmtID": 2312,
-            "srcEdges": [
-              57
-            ],
-            "dstEdges": []
-          }
-        ],
-        "edges": [
-          {
-            "id": 53,
-            "src": 72,
-            "dst": 73
-          },
-          {
-            "id": 54,
-            "src": 73,
-            "dst": 74
-          },
-          {
-            "id": 55,
-            "src": 74,
-            "dst": 75
-          },
-          {
-            "id": 56,
-            "src": 75,
-            "dst": 76
-          },
-          {
-            "id": 57,
-            "src": 75,
-            "dst": 77
-          }
-        ]
-      }
-    },
-    {
-      "name": "test_loops",
-      "cfg": {
-        "nodes": [
-          {
-            "id": 78,
-            "stmtID": 2319,
-            "srcEdges": [],
-            "dstEdges": [
-              58
-            ]
-          },
-          {
-            "id": 79,
-            "stmtID": 2323,
-            "srcEdges": [
-              58
-            ],
-            "dstEdges": [
-              59
-            ]
-          },
-          {
-            "id": 80,
-            "stmtID": 2337,
-            "srcEdges": [
-              59,
-              62
-            ],
-            "dstEdges": [
-              60,
-              63
-            ]
-          },
-          {
             "id": 81,
-            "stmtID": 2331,
-            "srcEdges": [
-              60
-            ],
+            "stmtID": 2549,
+            "srcEdges": [],
             "dstEdges": [
-              61
+              62
             ]
           },
           {
             "id": 82,
-            "stmtID": 2336,
+            "stmtID": 2548,
             "srcEdges": [
-              61
+              62
             ],
             "dstEdges": [
-              62
+              63
             ]
           },
           {
             "id": 83,
-            "stmtID": 2351,
+            "stmtID": 2550,
             "srcEdges": [
-              63,
-              66
+              63
             ],
             "dstEdges": [
-              64,
-              67
+              64
             ]
           },
           {
             "id": 84,
-            "stmtID": 2345,
+            "stmtID": 2559,
             "srcEdges": [
               64
             ],
             "dstEdges": [
-              65
-            ]
-          },
-          {
-            "id": 85,
-            "stmtID": 2350,
-            "srcEdges": [
-              65
-            ],
-            "dstEdges": [
+              65,
               66
             ]
           },
           {
+            "id": 85,
+            "stmtID": 2553,
+            "srcEdges": [
+              65
+            ],
+            "dstEdges": []
+          },
+          {
             "id": 86,
-            "stmtID": 2363,
+            "stmtID": 2558,
             "srcEdges": [
-              67,
-              70
+              66
             ],
-            "dstEdges": [
-              68,
-              71
-            ]
-          },
-          {
-            "id": 87,
-            "stmtID": 2357,
-            "srcEdges": [
-              68
-            ],
-            "dstEdges": [
-              69
-            ]
-          },
-          {
-            "id": 88,
-            "stmtID": 2362,
-            "srcEdges": [
-              69
-            ],
-            "dstEdges": [
-              70
-            ]
-          },
-          {
-            "id": 89,
-            "stmtID": 2370,
-            "srcEdges": [
-              71
-            ],
-            "dstEdges": [
-              72
-            ]
-          },
-          {
-            "id": 90,
-            "stmtID": 2374,
-            "srcEdges": [
-              72,
-              73
-            ],
-            "dstEdges": [
-              73
-            ]
+            "dstEdges": []
           }
         ],
         "edges": [
           {
-            "id": 58,
-            "src": 78,
-            "dst": 79
-          },
-          {
-            "id": 59,
-            "src": 79,
-            "dst": 80
-          },
-          {
-            "id": 60,
-            "src": 80,
-            "dst": 81
-          },
-          {
-            "id": 61,
+            "id": 62,
             "src": 81,
             "dst": 82
           },
           {
-            "id": 62,
-            "src": 82,
-            "dst": 80
-          },
-          {
             "id": 63,
-            "src": 80,
+            "src": 82,
             "dst": 83
           },
           {
@@ -273,128 +84,123 @@
           },
           {
             "id": 66,
-            "src": 85,
-            "dst": 83
-          },
-          {
-            "id": 67,
-            "src": 83,
+            "src": 84,
             "dst": 86
-          },
-          {
-            "id": 68,
-            "src": 86,
-            "dst": 87
-          },
-          {
-            "id": 69,
-            "src": 87,
-            "dst": 88
-          },
-          {
-            "id": 70,
-            "src": 88,
-            "dst": 86
-          },
-          {
-            "id": 71,
-            "src": 86,
-            "dst": 89
-          },
-          {
-            "id": 72,
-            "src": 89,
-            "dst": 90
-          },
-          {
-            "id": 73,
-            "src": 90,
-            "dst": 90
           }
         ]
       }
     },
     {
-      "name": "testTryCatch",
+      "name": "test_loops",
       "cfg": {
         "nodes": [
           {
-            "id": 91,
-            "stmtID": 2388,
+            "id": 87,
+            "stmtID": 2565,
             "srcEdges": [],
             "dstEdges": [
-              74,
-              75
+              67
+            ]
+          },
+          {
+            "id": 88,
+            "stmtID": 2569,
+            "srcEdges": [
+              67
+            ],
+            "dstEdges": [
+              68
+            ]
+          },
+          {
+            "id": 89,
+            "stmtID": 2583,
+            "srcEdges": [
+              68,
+              71
+            ],
+            "dstEdges": [
+              69,
+              72
+            ]
+          },
+          {
+            "id": 90,
+            "stmtID": 2577,
+            "srcEdges": [
+              69
+            ],
+            "dstEdges": [
+              70
+            ]
+          },
+          {
+            "id": 91,
+            "stmtID": 2582,
+            "srcEdges": [
+              70
+            ],
+            "dstEdges": [
+              71
             ]
           },
           {
             "id": 92,
-            "stmtID": 2382,
+            "stmtID": 2597,
             "srcEdges": [
-              74
+              72,
+              75
             ],
-            "dstEdges": []
+            "dstEdges": [
+              73,
+              76
+            ]
           },
           {
             "id": 93,
-            "stmtID": 2387,
+            "stmtID": 2591,
             "srcEdges": [
-              75
+              73
             ],
-            "dstEdges": []
-          }
-        ],
-        "edges": [
-          {
-            "id": 74,
-            "src": 91,
-            "dst": 92
+            "dstEdges": [
+              74
+            ]
           },
           {
-            "id": 75,
-            "src": 91,
-            "dst": 93
-          }
-        ]
-      }
-    },
-    {
-      "name": "testLoops",
-      "cfg": {
-        "nodes": [
-          {
             "id": 94,
-            "stmtID": 2394,
-            "srcEdges": [],
+            "stmtID": 2596,
+            "srcEdges": [
+              74
+            ],
             "dstEdges": [
-              76
+              75
             ]
           },
           {
             "id": 95,
-            "stmtID": 2398,
+            "stmtID": 2609,
             "srcEdges": [
-              76
+              76,
+              79
             ],
             "dstEdges": [
-              77
+              77,
+              80
             ]
           },
           {
             "id": 96,
-            "stmtID": 2412,
+            "stmtID": 2603,
             "srcEdges": [
-              77,
-              80
+              77
             ],
             "dstEdges": [
-              78,
-              81
+              78
             ]
           },
           {
             "id": 97,
-            "stmtID": 2406,
+            "stmtID": 2608,
             "srcEdges": [
               78
             ],
@@ -404,144 +210,75 @@
           },
           {
             "id": 98,
-            "stmtID": 2411,
+            "stmtID": 2616,
             "srcEdges": [
-              79
+              80
             ],
             "dstEdges": [
-              80
+              81
             ]
           },
           {
             "id": 99,
-            "stmtID": 2426,
+            "stmtID": 2620,
             "srcEdges": [
               81,
-              84
-            ],
-            "dstEdges": [
-              82,
-              85
-            ]
-          },
-          {
-            "id": 100,
-            "stmtID": 2420,
-            "srcEdges": [
               82
             ],
             "dstEdges": [
-              83
-            ]
-          },
-          {
-            "id": 101,
-            "stmtID": 2425,
-            "srcEdges": [
-              83
-            ],
-            "dstEdges": [
-              84
-            ]
-          },
-          {
-            "id": 102,
-            "stmtID": 2438,
-            "srcEdges": [
-              85,
-              88
-            ],
-            "dstEdges": [
-              86,
-              89
-            ]
-          },
-          {
-            "id": 103,
-            "stmtID": 2432,
-            "srcEdges": [
-              86
-            ],
-            "dstEdges": [
-              87
-            ]
-          },
-          {
-            "id": 104,
-            "stmtID": 2437,
-            "srcEdges": [
-              87
-            ],
-            "dstEdges": [
-              88
-            ]
-          },
-          {
-            "id": 105,
-            "stmtID": 2445,
-            "srcEdges": [
-              89
-            ],
-            "dstEdges": [
-              90
-            ]
-          },
-          {
-            "id": 106,
-            "stmtID": 2452,
-            "srcEdges": [
-              90
-            ],
-            "dstEdges": [
-              91
-            ]
-          },
-          {
-            "id": 107,
-            "stmtID": 2459,
-            "srcEdges": [
-              91
-            ],
-            "dstEdges": [
-              92
-            ]
-          },
-          {
-            "id": 108,
-            "stmtID": 2466,
-            "srcEdges": [
-              92
-            ],
-            "dstEdges": [
-              93
-            ]
-          },
-          {
-            "id": 109,
-            "stmtID": 2475,
-            "srcEdges": [
-              93,
-              95
-            ],
-            "dstEdges": [
-              94
-            ]
-          },
-          {
-            "id": 110,
-            "stmtID": 2474,
-            "srcEdges": [
-              94
-            ],
-            "dstEdges": [
-              95
+              82
             ]
           }
         ],
         "edges": [
           {
-            "id": 76,
+            "id": 67,
+            "src": 87,
+            "dst": 88
+          },
+          {
+            "id": 68,
+            "src": 88,
+            "dst": 89
+          },
+          {
+            "id": 69,
+            "src": 89,
+            "dst": 90
+          },
+          {
+            "id": 70,
+            "src": 90,
+            "dst": 91
+          },
+          {
+            "id": 71,
+            "src": 91,
+            "dst": 89
+          },
+          {
+            "id": 72,
+            "src": 89,
+            "dst": 92
+          },
+          {
+            "id": 73,
+            "src": 92,
+            "dst": 93
+          },
+          {
+            "id": 74,
+            "src": 93,
+            "dst": 94
+          },
+          {
+            "id": 75,
             "src": 94,
+            "dst": 92
+          },
+          {
+            "id": 76,
+            "src": 92,
             "dst": 95
           },
           {
@@ -557,23 +294,57 @@
           {
             "id": 79,
             "src": 97,
-            "dst": 98
+            "dst": 95
           },
           {
             "id": 80,
-            "src": 98,
-            "dst": 96
+            "src": 95,
+            "dst": 98
           },
           {
             "id": 81,
-            "src": 96,
+            "src": 98,
             "dst": 99
           },
           {
             "id": 82,
             "src": 99,
-            "dst": 100
+            "dst": 99
+          }
+        ]
+      }
+    },
+    {
+      "name": "testTryCatch",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 100,
+            "stmtID": 2634,
+            "srcEdges": [],
+            "dstEdges": [
+              83,
+              84
+            ]
           },
+          {
+            "id": 101,
+            "stmtID": 2628,
+            "srcEdges": [
+              83
+            ],
+            "dstEdges": []
+          },
+          {
+            "id": 102,
+            "stmtID": 2633,
+            "srcEdges": [
+              84
+            ],
+            "dstEdges": []
+          }
+        ],
+        "edges": [
           {
             "id": 83,
             "src": 100,
@@ -581,63 +352,292 @@
           },
           {
             "id": 84,
-            "src": 101,
-            "dst": 99
+            "src": 100,
+            "dst": 102
+          }
+        ]
+      }
+    },
+    {
+      "name": "testLoops",
+      "cfg": {
+        "nodes": [
+          {
+            "id": 103,
+            "stmtID": 2640,
+            "srcEdges": [],
+            "dstEdges": [
+              85
+            ]
           },
+          {
+            "id": 104,
+            "stmtID": 2644,
+            "srcEdges": [
+              85
+            ],
+            "dstEdges": [
+              86
+            ]
+          },
+          {
+            "id": 105,
+            "stmtID": 2658,
+            "srcEdges": [
+              86,
+              89
+            ],
+            "dstEdges": [
+              87,
+              90
+            ]
+          },
+          {
+            "id": 106,
+            "stmtID": 2652,
+            "srcEdges": [
+              87
+            ],
+            "dstEdges": [
+              88
+            ]
+          },
+          {
+            "id": 107,
+            "stmtID": 2657,
+            "srcEdges": [
+              88
+            ],
+            "dstEdges": [
+              89
+            ]
+          },
+          {
+            "id": 108,
+            "stmtID": 2672,
+            "srcEdges": [
+              90,
+              93
+            ],
+            "dstEdges": [
+              91,
+              94
+            ]
+          },
+          {
+            "id": 109,
+            "stmtID": 2666,
+            "srcEdges": [
+              91
+            ],
+            "dstEdges": [
+              92
+            ]
+          },
+          {
+            "id": 110,
+            "stmtID": 2671,
+            "srcEdges": [
+              92
+            ],
+            "dstEdges": [
+              93
+            ]
+          },
+          {
+            "id": 111,
+            "stmtID": 2684,
+            "srcEdges": [
+              94,
+              97
+            ],
+            "dstEdges": [
+              95,
+              98
+            ]
+          },
+          {
+            "id": 112,
+            "stmtID": 2678,
+            "srcEdges": [
+              95
+            ],
+            "dstEdges": [
+              96
+            ]
+          },
+          {
+            "id": 113,
+            "stmtID": 2683,
+            "srcEdges": [
+              96
+            ],
+            "dstEdges": [
+              97
+            ]
+          },
+          {
+            "id": 114,
+            "stmtID": 2691,
+            "srcEdges": [
+              98
+            ],
+            "dstEdges": [
+              99
+            ]
+          },
+          {
+            "id": 115,
+            "stmtID": 2698,
+            "srcEdges": [
+              99
+            ],
+            "dstEdges": [
+              100
+            ]
+          },
+          {
+            "id": 116,
+            "stmtID": 2705,
+            "srcEdges": [
+              100
+            ],
+            "dstEdges": [
+              101
+            ]
+          },
+          {
+            "id": 117,
+            "stmtID": 2712,
+            "srcEdges": [
+              101
+            ],
+            "dstEdges": [
+              102
+            ]
+          },
+          {
+            "id": 118,
+            "stmtID": 2721,
+            "srcEdges": [
+              102,
+              104
+            ],
+            "dstEdges": [
+              103
+            ]
+          },
+          {
+            "id": 119,
+            "stmtID": 2720,
+            "srcEdges": [
+              103
+            ],
+            "dstEdges": [
+              104
+            ]
+          }
+        ],
+        "edges": [
           {
             "id": 85,
-            "src": 99,
-            "dst": 102
-          },
-          {
-            "id": 86,
-            "src": 102,
-            "dst": 103
-          },
-          {
-            "id": 87,
             "src": 103,
             "dst": 104
           },
           {
-            "id": 88,
+            "id": 86,
             "src": 104,
-            "dst": 102
+            "dst": 105
+          },
+          {
+            "id": 87,
+            "src": 105,
+            "dst": 106
+          },
+          {
+            "id": 88,
+            "src": 106,
+            "dst": 107
           },
           {
             "id": 89,
-            "src": 102,
+            "src": 107,
             "dst": 105
           },
           {
             "id": 90,
             "src": 105,
-            "dst": 106
-          },
-          {
-            "id": 91,
-            "src": 106,
-            "dst": 107
-          },
-          {
-            "id": 92,
-            "src": 107,
             "dst": 108
           },
           {
-            "id": 93,
+            "id": 91,
             "src": 108,
             "dst": 109
           },
           {
-            "id": 94,
+            "id": 92,
             "src": 109,
             "dst": 110
           },
           {
-            "id": 95,
+            "id": 93,
             "src": 110,
-            "dst": 109
+            "dst": 108
+          },
+          {
+            "id": 94,
+            "src": 108,
+            "dst": 111
+          },
+          {
+            "id": 95,
+            "src": 111,
+            "dst": 112
+          },
+          {
+            "id": 96,
+            "src": 112,
+            "dst": 113
+          },
+          {
+            "id": 97,
+            "src": 113,
+            "dst": 111
+          },
+          {
+            "id": 98,
+            "src": 111,
+            "dst": 114
+          },
+          {
+            "id": 99,
+            "src": 114,
+            "dst": 115
+          },
+          {
+            "id": 100,
+            "src": 115,
+            "dst": 116
+          },
+          {
+            "id": 101,
+            "src": 116,
+            "dst": 117
+          },
+          {
+            "id": 102,
+            "src": 117,
+            "dst": 118
+          },
+          {
+            "id": 103,
+            "src": 118,
+            "dst": 119
+          },
+          {
+            "id": 104,
+            "src": 119,
+            "dst": 118
           }
         ]
       }
@@ -647,8 +647,8 @@
       "cfg": {
         "nodes": [
           {
-            "id": 111,
-            "stmtID": 2636,
+            "id": 120,
+            "stmtID": 2882,
             "srcEdges": [],
             "dstEdges": []
           }
@@ -661,94 +661,94 @@
       "cfg": {
         "nodes": [
           {
-            "id": 112,
-            "stmtID": 2680,
+            "id": 121,
+            "stmtID": 2926,
             "srcEdges": [],
             "dstEdges": [
-              96
+              105
             ]
           },
           {
-            "id": 113,
-            "stmtID": 2684,
+            "id": 122,
+            "stmtID": 2930,
             "srcEdges": [
-              96
+              105
             ],
             "dstEdges": [
-              97
+              106
             ]
           },
           {
-            "id": 114,
-            "stmtID": 2707,
+            "id": 123,
+            "stmtID": 2953,
             "srcEdges": [
-              97,
-              100
+              106,
+              109
             ],
             "dstEdges": [
-              98,
-              101
+              107,
+              110
             ]
           },
           {
-            "id": 115,
-            "stmtID": 2697,
+            "id": 124,
+            "stmtID": 2943,
             "srcEdges": [
-              98
+              107
             ],
             "dstEdges": [
-              99
+              108
             ]
           },
           {
-            "id": 116,
-            "stmtID": 2706,
+            "id": 125,
+            "stmtID": 2952,
             "srcEdges": [
-              99
+              108
             ],
             "dstEdges": [
-              100
+              109
             ]
           },
           {
-            "id": 117,
-            "stmtID": 2709,
+            "id": 126,
+            "stmtID": 2955,
             "srcEdges": [
-              101
+              110
             ],
             "dstEdges": []
           }
         ],
         "edges": [
           {
-            "id": 96,
-            "src": 112,
-            "dst": 113
+            "id": 105,
+            "src": 121,
+            "dst": 122
           },
           {
-            "id": 97,
-            "src": 113,
-            "dst": 114
+            "id": 106,
+            "src": 122,
+            "dst": 123
           },
           {
-            "id": 98,
-            "src": 114,
-            "dst": 115
+            "id": 107,
+            "src": 123,
+            "dst": 124
           },
           {
-            "id": 99,
-            "src": 115,
-            "dst": 116
+            "id": 108,
+            "src": 124,
+            "dst": 125
           },
           {
-            "id": 100,
-            "src": 116,
-            "dst": 114
+            "id": 109,
+            "src": 125,
+            "dst": 123
           },
           {
-            "id": 101,
-            "src": 114,
-            "dst": 117
+            "id": 110,
+            "src": 123,
+            "dst": 126
           }
         ]
       }
@@ -763,8 +763,8 @@
           "cfg": {
             "nodes": [
               {
-                "id": 135,
-                "stmtID": 2231,
+                "id": 167,
+                "stmtID": 2477,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -794,8 +794,8 @@
           "cfg": {
             "nodes": [
               {
-                "id": 138,
-                "stmtID": 2290,
+                "id": 170,
+                "stmtID": 2536,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -804,7 +804,7 @@
           }
         },
         {
-          "name": "TestContractT.receive_external_fallback_2294",
+          "name": "TestContractT.receive_external_fallback_2540",
           "cfg": {
             "nodes": [],
             "edges": []
@@ -816,46 +816,46 @@
       "name": "EffectTest",
       "methods": [
         {
-          "name": "EffectTest.init_2618",
+          "name": "EffectTest.init_2864",
           "cfg": {
             "nodes": [
               {
-                "id": 139,
-                "stmtID": 2497,
+                "id": 171,
+                "stmtID": 2743,
                 "srcEdges": [],
                 "dstEdges": [
-                  116
+                  148
                 ]
               },
               {
-                "id": 140,
-                "stmtID": 2503,
+                "id": 172,
+                "stmtID": 2749,
                 "srcEdges": [
-                  116
+                  148
                 ],
                 "dstEdges": [
-                  117
+                  149
                 ]
               },
               {
-                "id": 141,
-                "stmtID": 2513,
+                "id": 173,
+                "stmtID": 2759,
                 "srcEdges": [
-                  117
+                  149
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 116,
-                "src": 139,
-                "dst": 140
+                "id": 148,
+                "src": 171,
+                "dst": 172
               },
               {
-                "id": 117,
-                "src": 140,
-                "dst": 141
+                "id": 149,
+                "src": 172,
+                "dst": 173
               }
             ]
           }
@@ -865,27 +865,27 @@
           "cfg": {
             "nodes": [
               {
-                "id": 142,
-                "stmtID": 2519,
+                "id": 174,
+                "stmtID": 2765,
                 "srcEdges": [],
                 "dstEdges": [
-                  118
+                  150
                 ]
               },
               {
-                "id": 143,
-                "stmtID": 2532,
+                "id": 175,
+                "stmtID": 2778,
                 "srcEdges": [
-                  118
+                  150
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 118,
-                "src": 142,
-                "dst": 143
+                "id": 150,
+                "src": 174,
+                "dst": 175
               }
             ]
           }
@@ -895,8 +895,8 @@
           "cfg": {
             "nodes": [
               {
-                "id": 144,
-                "stmtID": 2539,
+                "id": 176,
+                "stmtID": 2785,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -909,42 +909,42 @@
           "cfg": {
             "nodes": [
               {
-                "id": 145,
-                "stmtID": 2549,
+                "id": 177,
+                "stmtID": 2795,
                 "srcEdges": [],
                 "dstEdges": [
-                  119
+                  151
                 ]
               },
               {
-                "id": 146,
-                "stmtID": 2559,
+                "id": 178,
+                "stmtID": 2805,
                 "srcEdges": [
-                  119
+                  151
                 ],
                 "dstEdges": [
-                  120
+                  152
                 ]
               },
               {
-                "id": 147,
-                "stmtID": 2571,
+                "id": 179,
+                "stmtID": 2817,
                 "srcEdges": [
-                  120
+                  152
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 119,
-                "src": 145,
-                "dst": 146
+                "id": 151,
+                "src": 177,
+                "dst": 178
               },
               {
-                "id": 120,
-                "src": 146,
-                "dst": 147
+                "id": 152,
+                "src": 178,
+                "dst": 179
               }
             ]
           }
@@ -954,8 +954,8 @@
           "cfg": {
             "nodes": [
               {
-                "id": 148,
-                "stmtID": 2582,
+                "id": 180,
+                "stmtID": 2828,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -968,87 +968,87 @@
           "cfg": {
             "nodes": [
               {
-                "id": 149,
-                "stmtID": 2589,
+                "id": 181,
+                "stmtID": 2835,
                 "srcEdges": [],
                 "dstEdges": [
-                  121
+                  153
                 ]
               },
               {
-                "id": 150,
-                "stmtID": 2596,
+                "id": 182,
+                "stmtID": 2842,
                 "srcEdges": [
-                  121
+                  153
                 ],
                 "dstEdges": [
-                  122
+                  154
                 ]
               },
               {
-                "id": 151,
-                "stmtID": 2603,
+                "id": 183,
+                "stmtID": 2849,
                 "srcEdges": [
-                  122
+                  154
                 ],
                 "dstEdges": [
-                  123
+                  155
                 ]
               },
               {
-                "id": 152,
-                "stmtID": 2602,
+                "id": 184,
+                "stmtID": 2848,
                 "srcEdges": [
-                  123
+                  155
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 121,
-                "src": 149,
-                "dst": 150
+                "id": 153,
+                "src": 181,
+                "dst": 182
               },
               {
-                "id": 122,
-                "src": 150,
-                "dst": 151
+                "id": 154,
+                "src": 182,
+                "dst": 183
               },
               {
-                "id": 123,
-                "src": 151,
-                "dst": 152
+                "id": 155,
+                "src": 183,
+                "dst": 184
               }
             ]
           }
         },
         {
-          "name": "EffectTest.receive_internal_fallback_2617",
+          "name": "EffectTest.receive_internal_fallback_2863",
           "cfg": {
             "nodes": [
               {
-                "id": 153,
-                "stmtID": 2610,
+                "id": 185,
+                "stmtID": 2856,
                 "srcEdges": [],
                 "dstEdges": [
-                  124
+                  156
                 ]
               },
               {
-                "id": 154,
-                "stmtID": 2616,
+                "id": 186,
+                "stmtID": 2862,
                 "srcEdges": [
-                  124
+                  156
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 124,
-                "src": 153,
-                "dst": 154
+                "id": 156,
+                "src": 185,
+                "dst": 186
               }
             ]
           }
@@ -1063,8 +1063,8 @@
           "cfg": {
             "nodes": [
               {
-                "id": 155,
-                "stmtID": 2652,
+                "id": 187,
+                "stmtID": 2898,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -1073,40 +1073,40 @@
           }
         },
         {
-          "name": "A.receive_internal_fallback_2667",
+          "name": "A.receive_internal_fallback_2913",
           "cfg": {
             "nodes": [
               {
-                "id": 156,
-                "stmtID": 2666,
+                "id": 188,
+                "stmtID": 2912,
                 "srcEdges": [
-                  126
+                  158
                 ],
                 "dstEdges": [
-                  125
+                  157
                 ]
               },
               {
-                "id": 157,
-                "stmtID": 2665,
+                "id": 189,
+                "stmtID": 2911,
                 "srcEdges": [
-                  125
+                  157
                 ],
                 "dstEdges": [
-                  126
+                  158
                 ]
               }
             ],
             "edges": [
               {
-                "id": 125,
-                "src": 156,
-                "dst": 157
+                "id": 157,
+                "src": 188,
+                "dst": 189
               },
               {
-                "id": 126,
-                "src": 157,
-                "dst": 156
+                "id": 158,
+                "src": 189,
+                "dst": 188
               }
             ]
           }
@@ -1117,7 +1117,7 @@
       "name": "ContractParams",
       "methods": [
         {
-          "name": "ContractParams.receive_internal_fallback_2721",
+          "name": "ContractParams.receive_internal_fallback_2967",
           "cfg": {
             "nodes": [],
             "edges": []
@@ -1133,101 +1133,101 @@
           "cfg": {
             "nodes": [
               {
-                "id": 158,
-                "stmtID": 2727,
+                "id": 190,
+                "stmtID": 2973,
                 "srcEdges": [
-                  127
+                  159
                 ],
                 "dstEdges": [
-                  127,
-                  128
+                  159,
+                  160
                 ]
               },
               {
-                "id": 159,
-                "stmtID": 2733,
+                "id": 191,
+                "stmtID": 2979,
                 "srcEdges": [
-                  128,
-                  130
+                  160,
+                  162
                 ],
                 "dstEdges": [
-                  129,
-                  131
+                  161,
+                  163
                 ]
               },
               {
-                "id": 160,
-                "stmtID": 2732,
+                "id": 192,
+                "stmtID": 2978,
                 "srcEdges": [
-                  129
+                  161
                 ],
                 "dstEdges": [
-                  130
+                  162
                 ]
               },
               {
-                "id": 161,
-                "stmtID": 2741,
+                "id": 193,
+                "stmtID": 2987,
                 "srcEdges": [
-                  131
+                  163
                 ],
                 "dstEdges": [
-                  132,
-                  133
+                  164,
+                  165
                 ]
               },
               {
-                "id": 162,
-                "stmtID": 2738,
+                "id": 194,
+                "stmtID": 2984,
                 "srcEdges": [
-                  132
+                  164
                 ],
                 "dstEdges": []
               },
               {
-                "id": 163,
-                "stmtID": 2740,
+                "id": 195,
+                "stmtID": 2986,
                 "srcEdges": [
-                  133
+                  165
                 ],
                 "dstEdges": []
               }
             ],
             "edges": [
               {
-                "id": 127,
-                "src": 158,
-                "dst": 158
+                "id": 159,
+                "src": 190,
+                "dst": 190
               },
               {
-                "id": 128,
-                "src": 158,
-                "dst": 159
+                "id": 160,
+                "src": 190,
+                "dst": 191
               },
               {
-                "id": 129,
-                "src": 159,
-                "dst": 160
+                "id": 161,
+                "src": 191,
+                "dst": 192
               },
               {
-                "id": 130,
-                "src": 160,
-                "dst": 159
+                "id": 162,
+                "src": 192,
+                "dst": 191
               },
               {
-                "id": 131,
-                "src": 159,
-                "dst": 161
+                "id": 163,
+                "src": 191,
+                "dst": 193
               },
               {
-                "id": 132,
-                "src": 161,
-                "dst": 162
+                "id": 164,
+                "src": 193,
+                "dst": 194
               },
               {
-                "id": 133,
-                "src": 161,
-                "dst": 163
+                "id": 165,
+                "src": 193,
+                "dst": 195
               }
             ]
           }
@@ -1250,8 +1250,8 @@
           "cfg": {
             "nodes": [
               {
-                "id": 136,
-                "stmtID": 2249,
+                "id": 168,
+                "stmtID": 2495,
                 "srcEdges": [],
                 "dstEdges": []
               }
@@ -1269,8 +1269,8 @@
           "cfg": {
             "nodes": [
               {
-                "id": 137,
-                "stmtID": 2269,
+                "id": 169,
+                "stmtID": 2515,
                 "srcEdges": [],
                 "dstEdges": []
               }

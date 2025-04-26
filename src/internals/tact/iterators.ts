@@ -48,6 +48,12 @@ export function forEachExpression(
         traverseExpression(expr.self);
         expr.args.forEach(traverseExpression);
         break;
+      case "map_literal":
+        expr.fields.forEach((f) => {
+          traverseExpression(f.key);
+          traverseExpression(f.value);
+        });
+        break;
       case "static_call":
         expr.args.forEach(traverseExpression);
         break;
@@ -65,6 +71,8 @@ export function forEachExpression(
         traverseExpression(expr.elseBranch);
         break;
       case "string":
+      case "map_value":
+      case "set_literal":
       case "number":
       case "boolean":
       case "id":
@@ -181,6 +189,9 @@ export function forEachExpression(
       case "field_access":
       case "method_call":
       case "static_call":
+      case "map_literal":
+      case "map_value":
+      case "set_literal":
       case "struct_instance":
       case "init_of":
       case "conditional":
@@ -249,6 +260,12 @@ export function findInExpressions(
         return traverseExpression(expr.left) || traverseExpression(expr.right);
       case "op_unary":
         return traverseExpression(expr.operand);
+      case "map_literal":
+        return expr.fields.reduce<AstExpression | null>(
+          (found, f) =>
+            found || traverseExpression(f.key) || traverseExpression(f.value),
+          null,
+        );
       case "field_access":
         return traverseExpression(expr.aggregate);
       case "method_call":
@@ -286,6 +303,8 @@ export function findInExpressions(
       case "id":
       case "code_of":
       case "address":
+      case "map_value":
+      case "set_literal":
       case "cell":
       case "struct_value":
       case "slice":
@@ -433,6 +452,9 @@ export function findInExpressions(
       case "slice":
       case "id":
       case "null":
+      case "map_literal":
+      case "map_value":
+      case "set_literal":
         return traverseExpression(node);
       case "struct_field_initializer":
         return traverseExpression(node.initializer);
@@ -514,6 +536,12 @@ export function foldExpressions<T>(
           acc = traverseExpression(acc, arg);
         });
         break;
+      case "map_literal":
+        expr.fields.forEach((f) => {
+          acc = traverseExpression(acc, f.key);
+          acc = traverseExpression(acc, f.value);
+        });
+        break;
       case "static_call":
         expr.args.forEach((arg) => {
           acc = traverseExpression(acc, arg);
@@ -544,7 +572,9 @@ export function foldExpressions<T>(
       case "address":
       case "null":
       case "code_of":
-        // Literals and non-composite expressions don't require further traversal
+      case "map_value":
+      case "set_literal":
+        // Non-composite expressions and literals don't require further traversal
         break;
       default:
         unreachable(expr);
@@ -684,6 +714,9 @@ export function foldExpressions<T>(
       case "cell":
       case "slice":
       case "null":
+      case "map_literal":
+      case "map_value":
+      case "set_literal":
         acc = traverseExpression(acc, node);
         break;
       case "struct_field_initializer":
@@ -811,6 +844,9 @@ export function forEachStatement(
       case "address":
       case "cell":
       case "slice":
+      case "map_literal":
+      case "map_value":
+      case "set_literal":
       case "number":
       case "boolean":
       case "id":
@@ -990,6 +1026,9 @@ export function foldStatements<T>(
       case "bounce":
       case "simple":
       case "fallback":
+      case "map_literal":
+      case "map_value":
+      case "set_literal":
       case "comment":
       case "function_attribute":
       case "asm_function_def":

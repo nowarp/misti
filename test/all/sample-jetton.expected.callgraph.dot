@@ -1,107 +1,107 @@
 digraph "CallGraph" {
     node [shape=box];
-    node_16 [label="inline fun contractAddress(s: StateInit): Address" style=filled fillcolor="#F0F8FF"];
-    node_30 [label="SampleJetton::init(owner: Address, content: Cell, max_supply: Int)
+    node_17 [label="inline fun contractAddress(s: StateInit): Address" style=filled fillcolor="#F0F8FF"];
+    node_31 [label="SampleJetton::init(owner: Address, content: Cell, max_supply: Int)
 [StateWrite<totalSupply,max_supply,owner,mintable,content>]"];
-    node_31 [label="SampleJetton::receive(msg: Mint)
+    node_32 [label="SampleJetton::receive(msg: Mint)
 [StateRead<owner,mintable>]"];
-    node_32 [label="SampleJetton::receive('Mint: 100')
+    node_33 [label="SampleJetton::receive('Mint: 100')
 [StateRead<mintable,owner>]"];
-    node_33 [label="SampleJetton::receive('Owner: MintClose')
+    node_34 [label="SampleJetton::receive('Owner: MintClose')
 [StateRead<owner>,StateWrite<mintable>]"];
-    node_34 [label="Jetton::receive(msg: TokenUpdateContent)
+    node_35 [label="Jetton::receive(msg: TokenUpdateContent)
 [StateWrite<content>]"];
-    node_35 [label="Jetton::receive(msg: TokenBurnNotification)
+    node_36 [label="Jetton::receive(msg: TokenBurnNotification)
 [Send,StateWrite<totalSupply>]"];
-    node_36 [label="fun Jetton::mint(to: Address, amount: Int, response_destination: Address)
+    node_37 [label="fun Jetton::mint(to: Address, amount: Int, response_destination: Address)
 [Send,StateRead<totalSupply,max_supply>,StateWrite<totalSupply>]"];
-    node_37 [label="fun Jetton::requireWallet(owner: Address)"];
-    node_38 [label="virtual fun Jetton::getJettonWalletInit(address: Address): StateInit"];
-    node_39 [label="get fun Jetton::get_jetton_data(): JettonData
+    node_38 [label="fun Jetton::requireWallet(owner: Address)"];
+    node_39 [label="virtual fun Jetton::getJettonWalletInit(address: Address): StateInit"];
+    node_40 [label="get fun Jetton::get_jetton_data(): JettonData
 [StateRead<totalSupply,mintable,owner,content>]"];
-    node_40 [label="get fun Jetton::get_wallet_address(owner: Address): Address"];
-    node_41 [label="JettonDefaultWallet::init(master: Address, owner: Address)
+    node_41 [label="get fun Jetton::get_wallet_address(owner: Address): Address"];
+    node_42 [label="JettonDefaultWallet::init(master: Address, owner: Address)
 [StateWrite<balance,owner,master>]"];
-    node_42 [label="JettonDefaultWallet::receive(msg: TokenTransfer)
+    node_43 [label="JettonDefaultWallet::receive(msg: TokenTransfer)
 [Send,StateRead<owner,gasConsumption,minTonsForStorage,balance,master>,StateWrite<balance>]"];
-    node_43 [label="JettonDefaultWallet::receive(msg: TokenTransferInternal)
+    node_44 [label="JettonDefaultWallet::receive(msg: TokenTransferInternal)
 [Send,StateRead<master,balance,owner>,StateWrite<balance>]"];
-    node_44 [label="get fun JettonDefaultWallet::msgValue(value: Int): Int
+    node_45 [label="get fun JettonDefaultWallet::msgValue(value: Int): Int
 [StateRead<minTonsForStorage>]"];
-    node_45 [label="JettonDefaultWallet::receive(msg: TokenBurn)
+    node_46 [label="JettonDefaultWallet::receive(msg: TokenBurn)
 [Send,StateRead<owner,balance,gasConsumption,minTonsForStorage,master>,StateWrite<balance>]"];
-    node_46 [label="JettonDefaultWallet::bounced(msg: Slice)
+    node_47 [label="JettonDefaultWallet::bounced(msg: Slice)
 [StateWrite<balance>]"];
-    node_47 [label="get fun JettonDefaultWallet::get_wallet_data(): JettonWalletData
+    node_48 [label="get fun JettonDefaultWallet::get_wallet_data(): JettonWalletData
 [StateRead<balance,owner,master>]"];
-    node_48 [label="context"];
-    node_49 [label="require"];
-    node_50 [label="SampleJetton::mint"];
-    node_51 [label="Jetton::requireOwner"];
-    node_52 [label="send"];
-    node_53 [label="myAddress"];
-    node_54 [label="emptySlice"];
-    node_55 [label="ctx::readForwardFee"];
-    node_56 [label="min"];
-    node_57 [label="ton"];
-    node_58 [label="myBalance"];
-    node_59 [label="msg::loadUint"];
-    node_60 [label="msg::loadCoins"];
-    node_31 -> node_48;
-    node_31 -> node_49;
-    node_31 -> node_49;
-    node_31 -> node_50;
-    node_32 -> node_48;
+    node_49 [label="context"];
+    node_50 [label="require"];
+    node_51 [label="SampleJetton::mint"];
+    node_52 [label="Jetton::requireOwner"];
+    node_53 [label="send"];
+    node_54 [label="myAddress"];
+    node_55 [label="emptySlice"];
+    node_56 [label="ctx::readForwardFee"];
+    node_57 [label="min"];
+    node_58 [label="ton"];
+    node_59 [label="myBalance"];
+    node_60 [label="msg::loadUint"];
+    node_61 [label="msg::loadCoins"];
     node_32 -> node_49;
     node_32 -> node_50;
-    node_33 -> node_48;
+    node_32 -> node_50;
+    node_32 -> node_51;
     node_33 -> node_49;
-    node_34 -> node_51;
-    node_35 -> node_37;
+    node_33 -> node_50;
+    node_33 -> node_51;
+    node_34 -> node_49;
+    node_34 -> node_50;
     node_35 -> node_52;
-    node_36 -> node_49;
     node_36 -> node_38;
-    node_36 -> node_52;
-    node_36 -> node_16;
     node_36 -> node_53;
-    node_36 -> node_54;
-    node_37 -> node_48;
-    node_37 -> node_38;
-    node_37 -> node_49;
-    node_37 -> node_16;
-    node_38 -> node_53;
-    node_39 -> node_38;
-    node_39 -> node_53;
-    node_40 -> node_38;
-    node_40 -> node_16;
-    node_42 -> node_48;
-    node_42 -> node_49;
-    node_42 -> node_55;
-    node_42 -> node_55;
-    node_42 -> node_49;
-    node_42 -> node_56;
-    node_42 -> node_57;
-    node_42 -> node_49;
-    node_42 -> node_16;
-    node_42 -> node_52;
-    node_43 -> node_48;
+    node_37 -> node_50;
+    node_37 -> node_39;
+    node_37 -> node_53;
+    node_37 -> node_17;
+    node_37 -> node_54;
+    node_37 -> node_55;
+    node_38 -> node_49;
+    node_38 -> node_39;
+    node_38 -> node_50;
+    node_38 -> node_17;
+    node_39 -> node_54;
+    node_40 -> node_39;
+    node_40 -> node_54;
+    node_41 -> node_39;
+    node_41 -> node_17;
     node_43 -> node_49;
-    node_43 -> node_16;
-    node_43 -> node_49;
-    node_43 -> node_52;
-    node_43 -> node_44;
-    node_43 -> node_55;
-    node_43 -> node_52;
-    node_44 -> node_58;
+    node_43 -> node_50;
+    node_43 -> node_56;
+    node_43 -> node_56;
+    node_43 -> node_50;
+    node_43 -> node_57;
+    node_43 -> node_58;
+    node_43 -> node_50;
+    node_43 -> node_17;
+    node_43 -> node_53;
+    node_44 -> node_49;
+    node_44 -> node_50;
+    node_44 -> node_17;
+    node_44 -> node_50;
+    node_44 -> node_53;
+    node_44 -> node_45;
     node_44 -> node_56;
-    node_45 -> node_48;
-    node_45 -> node_49;
-    node_45 -> node_49;
-    node_45 -> node_55;
-    node_45 -> node_49;
-    node_45 -> node_52;
-    node_46 -> node_59;
-    node_46 -> node_59;
-    node_46 -> node_60;
+    node_44 -> node_53;
+    node_45 -> node_59;
+    node_45 -> node_57;
     node_46 -> node_49;
+    node_46 -> node_50;
+    node_46 -> node_50;
+    node_46 -> node_56;
+    node_46 -> node_50;
+    node_46 -> node_53;
+    node_47 -> node_60;
+    node_47 -> node_60;
+    node_47 -> node_61;
+    node_47 -> node_50;
 }

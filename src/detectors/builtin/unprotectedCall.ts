@@ -125,6 +125,9 @@ function findTaints(
     case "number":
     case "boolean":
     case "null":
+    case "map_literal":
+    case "map_value":
+    case "set_literal":
       break;
     default:
       unreachable(expr);

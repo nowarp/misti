@@ -117,6 +117,9 @@ export class UnusedExpressionResult extends AstDetector {
       case "number":
       case "id":
       case "boolean":
+      case "map_literal":
+      case "set_literal":
+      case "map_value":
       case "null":
       case "string":
       case "address":

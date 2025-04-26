@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Tact 1.6.7 support: Issue [#379](https://github.com/nowarp/misti/issues/379)
+
 ## [0.8.2] - 2025-04-23
 
 ### Fixed
@@ -17,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.8.1] - 2025-04-19
 
 ### Added
-- Tact 1.6.6+ support: PR [#368](https://github.com/nowarp/misti/pull/368)
+- Tact 1.6.6 support: PR [#368](https://github.com/nowarp/misti/pull/368)
 - `Driver`: Save detectors execution time in debug log
 
 ### Changed

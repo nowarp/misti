@@ -435,7 +435,6 @@ export class TactIRBuilder {
         this.collectFunctionCalls(expr.elseBranch, parentCalls);
         break;
       case "code_of":
-        break;
       case "string":
       case "number":
       case "boolean":
@@ -445,6 +444,9 @@ export class TactIRBuilder {
       case "struct_value":
       case "address":
       case "slice":
+      case "map_value":
+      case "map_literal":
+      case "set_literal":
         break;
       default:
         unreachable(expr);
