@@ -7,7 +7,8 @@ import path from "path";
 export type ImportNodeIdx = number & { readonly __brand: unique symbol };
 export type ImportEdgeIdx = number & { readonly __brand: unique symbol };
 export type ImportLanguage = "tact" | "func";
-export type ImportDirection = "forward" | "backward";
+
+export type TraversalDirection = "forward" | "backward";
 
 /**
  * Represents a node in the import graph, corresponding to a file.
@@ -155,12 +156,13 @@ export class ImportGraph {
   /**
    * Performs a BFS on the import graph.
    * @param start The starting node index for the BFS.
+   * @param direction The direction of traversal ('forward' or 'backward').
    * @param callback A function called for each visited node and the edge through which it was reached.
    */
   public bfs(
     start: ImportNodeIdx,
     callback: (node: ImportNode, edge: ImportEdge | null) => void,
-    { direction = "forward" }: Partial<{ direction: ImportDirection }> = {},
+    { direction = "forward" }: Partial<{ direction: TraversalDirection }> = {},
   ): void {
     const queue: [ImportNodeIdx, ImportEdge | null][] = [[start, null]];
     const visited = new Set<ImportNodeIdx>();
@@ -199,7 +201,7 @@ export class ImportGraph {
    */
   private getConnectionsInDirection(
     nodeIdx: ImportNodeIdx,
-    direction: ImportDirection,
+    direction: TraversalDirection,
   ): ImportNode[] {
     const result: ImportNode[] = [];
     this.bfs(
