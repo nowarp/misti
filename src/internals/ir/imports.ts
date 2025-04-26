@@ -77,6 +77,18 @@ export class ImportGraph {
     });
   }
 
+  public getEdge(idx: ImportEdgeIdx): ImportEdge | undefined {
+    const foundIdx = this.edgesMap.get(idx);
+    if (foundIdx === undefined) return undefined;
+    return this.edges[foundIdx];
+  }
+
+  public getNode(idx: ImportNodeIdx): ImportNode | undefined {
+    const foundIdx = this.nodesMap.get(idx);
+    if (foundIdx === undefined) return undefined;
+    return this.nodes[foundIdx];
+  }
+
   /**
    * Iterates over all nodes in the graph and calls the provided callback for each nodes.
    * @param callback A function to be called for each nodes in the graph.
