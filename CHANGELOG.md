@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.3] - 2025-04-26
+
 ### Added
 - Tact 1.6.7 support: Issue [#379](https://github.com/nowarp/misti/issues/379)
 
