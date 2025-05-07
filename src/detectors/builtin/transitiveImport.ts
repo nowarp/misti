@@ -1,4 +1,5 @@
 import { CompilationUnit, ImportNodeIdx } from "../../internals/ir";
+import { makeRelativePath } from "../../internals/util";
 import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
@@ -66,8 +67,8 @@ export class TransitiveImport extends AstDetector {
             const nodeC = cu.imports.getNode(nodeCIdx)!;
             warnings.push(
               this.makeWarning(`Transitive import`, a2bEdge.loc, {
-                extraDescription: `\`${nodeB.name}\` exposes exports from \`${nodeC.name}\` making them available in \`${a2bEdge.loc.file}\``,
-                suggestion: `Explicitly import \`${nodeC.name}\` in \`${a2bEdge.loc.file}\``,
+                extraDescription: `\`${nodeB.name}\` exposes exports from \`${nodeC.name}\` making them available in \`${a2bEdge.loc.file ? makeRelativePath(a2bEdge.loc.file) : ""}\``,
+                suggestion: `Explicitly import \`${nodeC.name}\` in \`${a2bEdge.loc.file ? makeRelativePath(a2bEdge.loc.file) : ""}\``,
               }),
             );
           }

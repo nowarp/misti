@@ -3,6 +3,6 @@ test/detectors/TransitiveImport.tact:1:1:
 > 1 | import "./DuplicatedImport.tact"; // Bad: Transitive import of `NeverAccessedVariables`
       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   2 | 
-`DuplicatedImport` exposes exports from `NeverAccessedVariables` making them available in `/home/jubnzv/Dev/misti/test/detectors/TransitiveImport.tact`
-Help: Explicitly import `NeverAccessedVariables` in `/home/jubnzv/Dev/misti/test/detectors/TransitiveImport.tact`
+`DuplicatedImport` exposes exports from `NeverAccessedVariables` making them available in `test/detectors/TransitiveImport.tact`
+Help: Explicitly import `NeverAccessedVariables` in `test/detectors/TransitiveImport.tact`
 See: https://nowarp.io/tools/misti/docs/detectors/TransitiveImport
