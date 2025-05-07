@@ -521,6 +521,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  TransitiveImport: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/transitiveImport").then(
+        (module) => new module.TransitiveImport(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**

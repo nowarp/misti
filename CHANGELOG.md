@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `DuplicatedImport` detector: PR [#381](https://github.com/nowarp/misti/pull/381)
+- `TransitiveImport` detector: Issue [#382](https://github.com/nowarp/misti/issues/382)
 
 ### Fixed
 - `ImportGraph`: Set correct file paths of import nodes for `.func` files: PR [#381](https://github.com/nowarp/misti/pull/381)
