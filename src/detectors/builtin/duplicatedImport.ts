@@ -27,6 +27,7 @@ export class DuplicatedImport extends AstDetector {
   async check(cu: CompilationUnit): Promise<Warning[]> {
     const warnings: Warning[] = [];
     cu.imports.forEachNode((node) => {
+      if (node.origin === "stdlib") return;
       const visited: Set<ImportNodeIdx> = new Set();
       node.outEdges.forEach((edgeIdx) => {
         const edge = cu.imports.getEdge(edgeIdx)!;

@@ -47,6 +47,7 @@ export class TransitiveImport extends AstDetector {
   async check(cu: CompilationUnit): Promise<Warning[]> {
     const warnings: Warning[] = [];
     cu.imports.forEachNode((nodeA) => {
+      if (nodeA.origin === "stdlib") return;
       nodeA.outEdges.forEach((edgeIdx) => {
         // Find (implicit) transitive import of C: nodeA --> nodeB --> nodeC
         const a2bEdge = cu.imports.getEdge(edgeIdx)!;
