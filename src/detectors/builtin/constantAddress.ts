@@ -1,6 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
-import { foldExpressions } from "../../internals/tact";
-import { AstExpression } from "../../internals/tact/imports";
+import { foldExpressions, isComparison } from "../../internals/tact";
 import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
@@ -46,29 +45,31 @@ export class ConstantAddress extends AstDetector {
         foldExpressions(
           node,
           (acc, expr) => {
-            return this.findConstantAddress(acc, expr);
+            if (expr.kind === "static_call") {
+              if (
+                expr.function.text === "address" &&
+                expr.args.length === 1 &&
+                expr.args[0].kind === "string"
+              ) {
+                acc.push(
+                  this.makeWarning("Found constant address", expr.loc, {
+                    extraDescription:
+                      "Using hardcoded addresses can sometimes indicate poor contract design",
+                  }),
+                );
+              }
+            }
+            return acc;
           },
           [] as Warning[],
+          {
+            shouldContinue: (expr) => {
+              // Stop traversal if we're inside a comparison
+              return !isComparison(expr);
+            },
+          },
         ),
       );
     }, [] as Warning[]);
-  }
-
-  private findConstantAddress(acc: Warning[], expr: AstExpression): Warning[] {
-    if (expr.kind === "static_call") {
-      if (
-        expr.function.text === "address" &&
-        expr.args.length === 1 &&
-        expr.args[0].kind === "string"
-      ) {
-        acc.push(
-          this.makeWarning("Found constant address", expr.loc, {
-            extraDescription:
-              "Using hardcoded addresses can sometimes indicate poor contract design",
-          }),
-        );
-      }
-    }
-    return acc;
   }
 }

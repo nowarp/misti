@@ -3,7 +3,7 @@ test/detectors/ConstantAddress.tact:5:18:
   4 |     // Bad: Constant address highlighted by the analyzer.
 > 5 |     self.proxy = address("UQBKgXCNLPexWhs2L79kiARR1phGH1LwXxRbNsCFF9doczSI");
                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  6 |   }
+  6 |     require(addr != address("UQBKgXCNLPexWhs2L79kiARR1phGH1LwXxRbNsCFF9doczSI"), "no false positive");
 Using hardcoded addresses can sometimes indicate poor contract design
 
 See: https://nowarp.io/tools/misti/docs/detectors/ConstantAddress

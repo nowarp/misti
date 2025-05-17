@@ -1,5 +1,6 @@
 contract SampleContract {
-    init() {
-        newAddress(1, 0x000000000000000000000000000000000000000000000000);
+    init(addr: Address) {
+        newAddress(1, 0x000000000000000000000000000000000000000000000000); // Bad
+        require(addr != newAddress(0, 0), "no false positive");
     }
 }

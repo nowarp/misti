@@ -1,6 +1,5 @@
 import { CompilationUnit } from "../../internals/ir";
-import { foldExpressions } from "../../internals/tact";
-import { AstExpression } from "../../internals/tact/imports";
+import { foldExpressions, isComparison } from "../../internals/tact";
 import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
@@ -51,32 +50,34 @@ export class ZeroAddress extends AstDetector {
         foldExpressions(
           node,
           (acc, expr) => {
-            return this.findZeroAddress(acc, expr);
+            if (expr.kind === "static_call") {
+              if (
+                expr.function.text === "newAddress" &&
+                expr.args.length === 2 &&
+                expr.args[1].kind === "number" &&
+                expr.args[1].value === 0n
+              ) {
+                acc.push(
+                  this.makeWarning("Using zero address", expr.args[1].loc, {
+                    suggestion: [
+                      "Consider changing code to avoid using it.",
+                      "For example, you could pass the address during the deployment.",
+                    ].join(" "),
+                  }),
+                );
+              }
+            }
+            return acc;
           },
           [] as Warning[],
+          {
+            shouldContinue: (expr) => {
+              // Stop traversal if we're inside a comparison
+              return !isComparison(expr);
+            },
+          },
         ),
       );
     }, [] as Warning[]);
-  }
-
-  private findZeroAddress(acc: Warning[], expr: AstExpression): Warning[] {
-    if (expr.kind === "static_call") {
-      if (
-        expr.function.text === "newAddress" &&
-        expr.args.length === 2 &&
-        expr.args[1].kind === "number" &&
-        expr.args[1].value === 0n
-      ) {
-        acc.push(
-          this.makeWarning("Using zero address", expr.args[1].loc, {
-            suggestion: [
-              "Consider changing code to avoid using it.",
-              "For example, you could pass the address during the deployment.",
-            ].join(" "),
-          }),
-        );
-      }
-    }
-    return acc;
   }
 }

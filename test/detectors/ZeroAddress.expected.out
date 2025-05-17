@@ -1,8 +1,8 @@
 [LOW] ZeroAddress: Using zero address
 test/detectors/ZeroAddress.tact:3:23:
-  2 |     init() {
-> 3 |         newAddress(1, 0x000000000000000000000000000000000000000000000000);
+  2 |     init(addr: Address) {
+> 3 |         newAddress(1, 0x000000000000000000000000000000000000000000000000); // Bad
                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  4 |     }
+  4 |         require(addr != newAddress(0, 0), "no false positive");
 Help: Consider changing code to avoid using it. For example, you could pass the address during the deployment.
 See: https://nowarp.io/tools/misti/docs/detectors/ZeroAddress

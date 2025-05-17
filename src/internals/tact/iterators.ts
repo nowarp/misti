@@ -508,14 +508,22 @@ export function hasInExpressions(
  * @param node The node to traverse.
  * @param acc The initial value of the accumulator.
  * @param callback The callback function to apply to each expression.
+ * @param options Optional configuration for the traversal.
  * @returns The final value of the accumulator after processing all expressions.
  */
 export function foldExpressions<T>(
   node: AstNode,
   callback: (acc: T, expr: AstExpression) => T,
   acc: T,
+  options: Partial<{
+    shouldContinue: (expr: AstExpression) => boolean;
+  }> = {},
 ): T {
   function traverseExpression(acc: T, expr: AstExpression): T {
+    if (options.shouldContinue && !options.shouldContinue(expr)) {
+      return acc;
+    }
+
     acc = callback(acc, expr);
 
     switch (expr.kind) {

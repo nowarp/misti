@@ -547,3 +547,14 @@ export function getExtendsSelfType(fun: AstFunctionDef): string | undefined {
   }
   return undefined;
 }
+
+/**
+ * @returns True if the given expression is a binary operation with comparison operand.
+ */
+export function isComparison(expr: AstExpression): boolean {
+  if (expr.kind === "op_binary") {
+    const comparisonOps = ["==", "!=", ">", "<", ">=", "<="];
+    return comparisonOps.includes(expr.op);
+  }
+  return false;
+}
