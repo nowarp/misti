@@ -272,10 +272,12 @@ export class Driver {
    * @throws Error if a detector class cannot be found in the specified module or as a built-in.
    */
   async initializeDetectors(): Promise<void> {
+    const usedDisabledDetectors = new Set<string>();
     const detectorPromises = this.ctx.config.detectors.reduce<
       Promise<Detector | null>[]
     >((acc, config) => {
       if (this.disabledDetectors.has(config.className)) {
+        usedDisabledDetectors.add(config.className);
         this.ctx.logger.debug(`Suppressed detector: ${config.className}`);
         return acc;
       }
@@ -311,6 +313,16 @@ export class Driver {
     this.ctx.logger.debug(
       `Enabled detectors (${this.detectors.length}): ${this.detectors.map((d) => d.id).join(", ")}`,
     );
+
+    // Warn about unused disabled detectors
+    const unusedDisabledDetectors = [...this.disabledDetectors].filter(
+      (detector) => !usedDisabledDetectors.has(detector),
+    );
+    if (unusedDisabledDetectors.length > 0) {
+      this.ctx.logger.warn(
+        `The following disabled detectors were never encountered: ${unusedDisabledDetectors.join(", ")}`,
+      );
+    }
   }
 
   /**

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `DuplicatedImport` and `TransitiveImport`: Don't check internal stdlib imports
 - `ZeroAddress` and `ConstantAddress`: Ignore uses in comparisons: Issue [#384](https://github.com/nowarp/misti/issues/384)
+- Warn if one of the disabled detectors (`-dd`) is unused: Issue [#393](https://github.com/nowarp/misti/issues/393)
 
 ### Fixed
 - `ImportGraph`: Set correct file paths of import nodes for `.func` files: PR [#381](https://github.com/nowarp/misti/pull/381)
