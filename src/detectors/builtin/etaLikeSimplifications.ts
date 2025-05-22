@@ -119,7 +119,7 @@ export class EtaLikeSimplifications extends AstDetector {
               "Redundant comparison with boolean literal",
               expr.loc,
               {
-                suggestion: prettyPrint(simplified),
+                suggestion: `Replace with: ${prettyPrint(simplified)}`,
               },
             ),
           );
@@ -136,7 +136,7 @@ export class EtaLikeSimplifications extends AstDetector {
             "Simplify conditional expression by using the condition directly",
             expr.loc,
             {
-              suggestion: prettyPrint(expr.condition),
+              suggestion: `Replace with: ${prettyPrint(expr.condition)}`,
             },
           ),
         );

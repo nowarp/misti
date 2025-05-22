@@ -13,7 +13,7 @@ test/detectors/EtaLikeSimplifications.tact:13:16:
 > 13 |         return a == true;
                       ^~~~~~~~~
   14 |     }
-Help: a
+Help: Replace with: a
 See: https://nowarp.io/tools/misti/docs/detectors/EtaLikeSimplifications
 
 [LOW] EtaLikeSimplifications: Simplify conditional expression by using the condition directly
@@ -22,5 +22,5 @@ test/detectors/EtaLikeSimplifications.tact:18:16:
 > 18 |         return b ? true : false;
                       ^~~~~~~~~~~~~~~~
   19 |     }
-Help: b
+Help: Replace with: b
 See: https://nowarp.io/tools/misti/docs/detectors/EtaLikeSimplifications
