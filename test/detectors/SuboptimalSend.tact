@@ -108,5 +108,11 @@ contract B {
             value: 0,
             mode: SendRemainingValue | SendIgnoreErrors,
         });
+
+        let body: Cell = beginCell().endCell();
+        // self.forward -> self.reply
+        self.forward(sender(), body, true, null);
+        // self.forward -> self.notify
+        self.forward(sender(), body, false, null);
     }
 }

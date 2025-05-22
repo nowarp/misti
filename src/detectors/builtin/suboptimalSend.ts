@@ -1,10 +1,11 @@
 import { CompilationUnit } from "../../internals/ir";
-import { foldExpressions } from "../../internals/tact";
+import { foldExpressions, isSelf } from "../../internals/tact";
 import {
   AstExpression,
   AstStaticCall,
   AstStructInstance,
   idText,
+  prettyPrint,
   SrcInfo,
 } from "../../internals/tact/imports";
 import { Category, Warning, Severity } from "../../internals/warnings";
@@ -55,7 +56,9 @@ export class SuboptimalSend extends AstDetector {
         foldExpressions(
           node,
           (acc, expr) => {
-            return this.findReplaceableSend(acc, expr);
+            this.findReplaceableSend(acc, expr);
+            this.findReplaceableForward(acc, expr);
+            return acc;
           },
           [] as Warning[],
         ),
@@ -99,13 +102,16 @@ export class SuboptimalSend extends AstDetector {
     );
   }
 
-  private findReplaceableSend(acc: Warning[], expr: AstExpression): Warning[] {
+  /**
+   * Find `send` calls that may have a more gas-efficient version.
+   */
+  private findReplaceableSend(acc: Warning[], expr: AstExpression): void {
     if (
       expr.kind !== "static_call" ||
       expr.args.length !== 1 ||
       expr.args[0].kind !== "struct_instance"
     ) {
-      return acc;
+      return;
     }
     const arg = expr.args[0];
     if (
@@ -121,7 +127,49 @@ export class SuboptimalSend extends AstDetector {
       const w = this.inspectMessageCall(expr, arg);
       if (w) acc.push(w);
     }
-    return acc;
+  }
+
+  private isSenderAccess(expr: AstExpression): boolean {
+    return (
+      (expr.kind === "static_call" &&
+        expr.args.length === 0 &&
+        idText(expr.function) === "sender") ||
+      (expr.kind === "field_access" &&
+        expr.aggregate.kind === "id" &&
+        idText(expr.field) === "sender" &&
+        // TODO: Replace the heuristics when we have types in AST:
+        //       https://github.com/nowarp/misti/issues/136
+        ["ctx", "context"].includes(idText(expr.aggregate).toLowerCase()))
+    );
+  }
+
+  /**
+   * Find `self.forward` calls that may have a more gas-efficient version.
+   *
+   * See:
+   * * https://docs.tact-lang.org/ref/core-base/#self-reply
+   * * https://docs.tact-lang.org/ref/core-base/#self-notify
+   */
+  private findReplaceableForward(acc: Warning[], expr: AstExpression): void {
+    if (
+      expr.kind == "method_call" &&
+      expr.args.length == 4 &&
+      idText(expr.method) === "forward" &&
+      isSelf(expr.self) &&
+      expr.args[3].kind === "null" &&
+      expr.args[2].kind === "boolean" &&
+      this.isSenderAccess(expr.args[0])
+    ) {
+      const replacement = expr.args[2].value ? "reply" : "notify";
+      const warn = this.makeWarning(
+        `Prefer \`self.${replacement}(${prettyPrint(expr.args[1])})\` over \`self.forward(...)\``,
+        expr.loc,
+        {
+          suggestion: `Use more gas-efficient \`self.${replacement}\` function: https://docs.tact-lang.org/ref/core-base/#self-${replacement}`,
+        },
+      );
+      acc.push(warn);
+    }
   }
 
   private inspectSendCall(

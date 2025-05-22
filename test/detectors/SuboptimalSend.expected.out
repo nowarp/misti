@@ -78,3 +78,21 @@ test/detectors/SuboptimalSend.tact:72:9:
   73 |             to: contractAddress(init),
 Help: Use more gas-efficient `cashback` function: https://docs.tact-lang.org/ref/core-common/#cashback
 See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
+
+[MEDIUM] SuboptimalSend: Prefer `self.reply(body)` over `self.forward(...)`
+test/detectors/SuboptimalSend.tact:114:9:
+  113 |         // self.forward -> self.reply
+> 114 |         self.forward(sender(), body, true, null);
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  115 |         // self.forward -> self.notify
+Help: Use more gas-efficient `self.reply` function: https://docs.tact-lang.org/ref/core-base/#self-reply
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
+
+[MEDIUM] SuboptimalSend: Prefer `self.notify(body)` over `self.forward(...)`
+test/detectors/SuboptimalSend.tact:116:9:
+  115 |         // self.forward -> self.notify
+> 116 |         self.forward(sender(), body, false, null);
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  117 |     }
+Help: Use more gas-efficient `self.notify` function: https://docs.tact-lang.org/ref/core-base/#self-notify
+See: https://nowarp.io/tools/misti/docs/detectors/SuboptimalSend
