@@ -54,10 +54,32 @@ export const cliOptionDefaults: Required<CLIOptions> = {
 
 export const cliOptions = [
   new Option(
-    "-t, --tools <className[:key=value...]>",
-    "Specify a tool to enable with optional configuration. Can be used multiple times.",
+    "-t, --tools <toolName|path:className[:key=value...]>",
+    "Specify a tool to enable with optional configuration. Can be used multiple times. Can be a built-in tool name or path:className for external tools.",
   )
     .argParser((value, previous: ToolConfig[] = []) => {
+      // First check if this is an external tool (contains a colon)
+      if (value.includes(":")) {
+        const parts = value.split(":");
+        // If it only has one colon, it's a path:className format for external tools
+        if (
+          parts.length >= 2 &&
+          !parts[0].includes("=") &&
+          !parts[1].includes("=")
+        ) {
+          const modulePath = parts[0];
+          const className = parts[1];
+          const options: Record<string, unknown> = {};
+          parts.slice(2).forEach((part) => {
+            const [key, val] = part.split("=");
+            options[key] = val;
+          });
+          const toolConfig = { modulePath, className, options };
+          return previous.concat([toolConfig]);
+        }
+      }
+
+      // Otherwise handle as a built-in tool
       const [className, ...optionParts] = value.split(":");
       const options: Record<string, unknown> = {};
       optionParts.forEach((part) => {
