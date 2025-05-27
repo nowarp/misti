@@ -3,6 +3,11 @@
  */
 export interface ToolConfig {
   /**
+   * Path to the module containing the tool.
+   * Used only for custom out-of-tree tools.
+   */
+  modulePath?: string;
+  /**
    * Name of the class that implements the tool.
    */
   className: string;

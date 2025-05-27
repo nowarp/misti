@@ -2,6 +2,7 @@ import { ToolOutput } from "../cli/result";
 import { MistiContext } from "../internals/context";
 import { InternalException } from "../internals/exceptions";
 import { CompilationUnit } from "../internals/ir";
+import path from "path";
 
 export type ToolName = string;
 
@@ -172,6 +173,41 @@ export async function findBuiltInTool<T extends Record<string, unknown>>(
     ctx.logger.error(`Error loading built-in tool ${name}: ${error}`);
     return undefined;
   }
+}
+
+/**
+ * Loads an external tool from a module path.
+ * @param ctx Misti context
+ * @param modulePath Path to the module
+ * @param className Name of the tool class to load
+ * @param options Options to pass to the tool constructor
+ * @returns A Promise that resolves to a Tool instance or undefined if loading failed
+ */
+export async function loadExternalTool<T extends Record<string, unknown>>(
+  ctx: MistiContext,
+  modulePath: string,
+  className: string,
+  options: T,
+): Promise<Tool<T> | undefined> {
+  let ToolClass;
+  let module;
+  try {
+    const absolutePath = path.resolve(modulePath);
+    const relativePath = path.relative(__dirname, absolutePath);
+    module = await import(relativePath.replace(path.extname(relativePath), ""));
+    ToolClass = module[className];
+  } catch (error) {
+    ctx.logger.error(`Failed to import module: ${modulePath}`);
+    ctx.logger.error(`${error}`);
+    return undefined;
+  }
+  if (!ToolClass) {
+    ctx.logger.error(
+      `Tool class ${className} not found in module ${modulePath}`,
+    );
+    return undefined;
+  }
+  return new ToolClass(ctx, options) as Tool<T>;
 }
 
 /**

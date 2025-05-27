@@ -12,7 +12,7 @@ import { Logger } from "../internals/logger";
 import { TactConfigManager, parseTactProject } from "../internals/tact";
 import { isBrowser, isTest, unreachable } from "../internals/util";
 import { Warning, Severity, hashWarning } from "../internals/warnings";
-import { Tool, findBuiltInTool } from "../tools/tool";
+import { Tool, findBuiltInTool, loadExternalTool } from "../tools/tool";
 import { VirtualFileSystem } from "../vfs/virtualFileSystem";
 import ignore from "ignore";
 import JSONbig from "json-bigint";
@@ -398,16 +398,28 @@ export class Driver {
    */
   async initializeTools(): Promise<void> {
     const toolPromises = this.ctx.config.tools.map(async (config) => {
-      const tool = await findBuiltInTool(
-        this.ctx,
-        config.className,
-        config.options || {},
-      );
+      let tool: Tool<any> | undefined;
+      if (config.modulePath) {
+        // Load external tool
+        tool = await this.loadExternalTool({
+          modulePath: config.modulePath,
+          className: config.className,
+          options: config.options || {},
+        });
+      } else {
+        // Load built-in tool
+        tool = await this.loadBuiltInTool({
+          className: config.className,
+          options: config.options || {},
+        });
+      }
+
       if (!tool) {
         throw ExecutionException.make(
-          `Built-in tool ${config.className} not found`,
+          `Tool ${config.className}${config.modulePath ? ` from ${config.modulePath}` : ""} not found`,
         );
       }
+
       return tool;
     });
 
@@ -415,6 +427,56 @@ export class Driver {
     this.ctx.logger.debug(
       `Enabled tools (${this.tools.length}): ${this.tools.map((t) => t.id).join(", ")}`,
     );
+  }
+
+  /**
+   * Loads an external tool from a module path.
+   * @param config Tool configuration with modulePath, className and options
+   * @returns The tool instance or undefined if loading failed
+   */
+  private async loadExternalTool(config: {
+    modulePath: string;
+    className: string;
+    options: Record<string, unknown>;
+  }): Promise<Tool<any> | undefined> {
+    const tool = await loadExternalTool(
+      this.ctx,
+      config.modulePath,
+      config.className,
+      config.options || {},
+    );
+
+    if (!tool) {
+      this.ctx.logger.error(
+        `Failed to load external tool ${config.className} from ${config.modulePath}`,
+      );
+      return undefined;
+    }
+
+    return tool;
+  }
+
+  /**
+   * Loads a built-in tool.
+   * @param config Tool configuration with className and options
+   * @returns The tool instance or undefined if not found
+   */
+  private async loadBuiltInTool(config: {
+    className: string;
+    options: Record<string, unknown>;
+  }): Promise<Tool<any> | undefined> {
+    const tool = await findBuiltInTool(
+      this.ctx,
+      config.className,
+      config.options || {},
+    );
+
+    if (!tool) {
+      this.ctx.logger.error(`Built-in tool ${config.className} not found`);
+      return undefined;
+    }
+
+    return tool;
   }
 
   /**

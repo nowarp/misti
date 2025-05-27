@@ -15,6 +15,7 @@ const DetectorConfigSchema = z.object({
 });
 
 const ToolConfigSchema = z.object({
+  modulePath: z.string().optional(),
   className: z.string(),
   options: z.record(z.unknown()).optional(),
 });
