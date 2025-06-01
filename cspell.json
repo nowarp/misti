@@ -96,6 +96,7 @@
     "GETSTORAGEFEE",
     "LDREF",
     "nowarp",
+    "callsites",
     "knip",
     "Idxes",
     "foreachmap",

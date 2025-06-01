@@ -10,6 +10,7 @@ import {
   idText,
   SrcInfo,
   prettyPrint as pp,
+  AstExpression,
 } from "../../internals/tact/imports";
 
 export type CGNodeId = number & { readonly brand: unique symbol };
@@ -40,10 +41,15 @@ export class CGEdge {
   /**
    * @param src The source node ID representing the calling function
    * @param dst The destination node ID representing the called function
+   * @param call The function/method call expression
    */
   constructor(
     public src: CGNodeId,
     public dst: CGNodeId,
+    // TODO: We could replace the AST node with its id if we decide to store
+    //       AstExpressions in AstStore. Right now, that's the only case we need
+    //       this access, so it makes no sense to store ALL the expressions there.
+    public call: AstExpression,
   ) {
     this.idx = IdxGenerator.next("cg_edge") as CGEdgeId;
   }
@@ -58,7 +64,9 @@ export class CGNode {
   public idx: CGNodeId;
   public inEdges: Set<CGEdgeId> = new Set();
   public outEdges: Set<CGEdgeId> = new Set();
+  /** Identifier of the function definition. */
   public astId: AstNodeId | undefined;
+  /** Location of the function definition. */
   public loc: SrcInfo | undefined;
   public effects: number = 0;
   public stateAccess: Map<StateKind, Set<string>> = new Map();

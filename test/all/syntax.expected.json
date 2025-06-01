@@ -518,7 +518,7 @@
   ],
   "logs": {
     "debug": [
-      "Enabled detectors (39): DivideBeforeMultiply, ReadOnlyVariables, NeverAccessedVariables, UnboundLoop, ZeroAddress, ConstantAddress, BranchDuplicate, DumpIsUsed, FieldDoubleInit, PreferAugmentedAssign, StringReceiversOverlap, AsmIsUsed, PreferredStdlibApi, InheritedStateMutation, ArgCopyMutation, OptimalMathFunction, DuplicatedCondition, UnusedOptional, EnsurePrgSeed, FalseCondition, SendInLoop, UnboundMap, StateMutationInGetter, UnusedExpressionResult, SuspiciousMessageMode, ShortCircuitCondition, EtaLikeSimplifications, ExitCodeUsage, CellBounds, UnprotectedCall, SuspiciousLoop, SuboptimalSend, PreferBinaryReceiver, PreferSenderFunction, ImplicitOpcode, SuboptimalCellOperation, DuplicatedImport, TransitiveImport, RedundantBooleanExpression",
+      "Enabled detectors (40): DivideBeforeMultiply, ReadOnlyVariables, NeverAccessedVariables, UnboundLoop, ZeroAddress, ConstantAddress, BranchDuplicate, DumpIsUsed, FieldDoubleInit, PreferAugmentedAssign, StringReceiversOverlap, AsmIsUsed, PreferredStdlibApi, InheritedStateMutation, ArgCopyMutation, OptimalMathFunction, DuplicatedCondition, UnusedOptional, EnsurePrgSeed, FalseCondition, SendInLoop, UnboundMap, StateMutationInGetter, UnusedExpressionResult, SuspiciousMessageMode, ShortCircuitCondition, EtaLikeSimplifications, ExitCodeUsage, CellBounds, UnprotectedCall, SuspiciousLoop, SuboptimalSend, PreferBinaryReceiver, PreferSenderFunction, ImplicitOpcode, SuboptimalCellOperation, DuplicatedImport, TransitiveImport, RedundantBooleanExpression, UnusedMethodArgument",
       "Enabled tools (0): ",
       "Parsing project syntax ...",
       "Parsing completed: syntax",

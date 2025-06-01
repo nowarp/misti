@@ -241,7 +241,7 @@ export class TactCallGraphBuilder {
       );
       if (functionName) {
         const calleeId = this.findOrAddFunction(functionName);
-        this.addEdge(callerId, calleeId);
+        this.addEdge(callerId, calleeId, expr);
       }
     }
 
@@ -287,12 +287,13 @@ export class TactCallGraphBuilder {
    * Adds a directed edge between two nodes in the call graph.
    * @param src The source node ID.
    * @param dst The destination node ID.
+   * @param call The callsite expression.
    */
-  private addEdge(src: CGNodeId, dst: CGNodeId) {
+  private addEdge(src: CGNodeId, dst: CGNodeId, call: AstExpression) {
     const srcNode = this.nodeMap.get(src);
     const dstNode = this.nodeMap.get(dst);
     if (srcNode && dstNode) {
-      const edge = new CGEdge(src, dst);
+      const edge = new CGEdge(src, dst, call);
       this.edgesMap.set(edge.idx, edge);
       srcNode.outEdges.add(edge.idx);
       dstNode.inEdges.add(edge.idx);

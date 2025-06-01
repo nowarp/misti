@@ -1,0 +1,35 @@
+[LOW] UnusedMethodArgument: Method inc1 always receives the same value self.b for argument #1
+test/detectors/UnusedMethodArgument.tact:5:5:
+  4 | 
+> 5 |     fun inc1(a: Int): Int { return a + 1; }
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  6 |     fun inc2(a: Int): Int { return a + 1; }
+Help: Consider removing this parameter and using self.b directly inside the method.
+See: https://nowarp.io/tools/misti/docs/detectors/UnusedMethodArgument
+
+[LOW] UnusedMethodArgument: Method inc2 always receives the same value self.a for argument #1
+test/detectors/UnusedMethodArgument.tact:6:5:
+  5 |     fun inc1(a: Int): Int { return a + 1; }
+> 6 |     fun inc2(a: Int): Int { return a + 1; }
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  7 |     fun inc3(a: Int): Int { return a + 1; }
+Help: Consider removing this parameter and using self.a directly inside the method.
+See: https://nowarp.io/tools/misti/docs/detectors/UnusedMethodArgument
+
+[LOW] UnusedMethodArgument: Method inc6 always receives the same value 2 for argument #1
+test/detectors/UnusedMethodArgument.tact:10:5:
+   9 |     fun inc5(a: Int): Int { return a + 1; }
+> 10 |     fun inc6(a: Int): Int { return a + 1; }
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  11 |     fun inc7(a: Int): Int { return a + 1; }
+Help: Consider removing this parameter and using 2 directly inside the method.
+See: https://nowarp.io/tools/misti/docs/detectors/UnusedMethodArgument
+
+[LOW] UnusedMethodArgument: Method inc7 always receives the same value 1 for argument #1
+test/detectors/UnusedMethodArgument.tact:11:5:
+  10 |     fun inc6(a: Int): Int { return a + 1; }
+> 11 |     fun inc7(a: Int): Int { return a + 1; }
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  12 |     fun inc8(a: Int): Int { return a + 1; }
+Help: Consider removing this parameter and using 1 directly inside the method.
+See: https://nowarp.io/tools/misti/docs/detectors/UnusedMethodArgument

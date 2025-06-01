@@ -535,6 +535,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  UnusedMethodArgument: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/unusedMethodArgument").then(
+        (module) => new module.UnusedMethodArgument(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**
