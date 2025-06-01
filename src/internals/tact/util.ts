@@ -236,7 +236,10 @@ export function isPrimitiveLiteral(expr: AstExpression): boolean {
 }
 
 /**
- * Checks if the AST of two nodes is equal using the Tact AST comparison API.
+ * Checks if the AST of two nodes is equal.
+ *
+ * The current implementation became very simple after removing the AST
+ * comparison API from Tact.
  */
 export function nodesAreEqual(node1: any, node2: any): boolean {
   if (node1.kind !== node2.kind) return false;

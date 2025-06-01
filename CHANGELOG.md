@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `DuplicatedImport` detector: PR [#381](https://github.com/nowarp/misti/pull/381)
 - `TransitiveImport` detector: Issue [#382](https://github.com/nowarp/misti/issues/382)
+- `RedundantBooleanExpression` detector: Issue [#401](https://github.com/nowarp/misti/issues/401)
 - Support for external tools: Users can now load custom tools using the `-t` option with a `path:className` format, similar to how external detectors work: PR [#398](https://github.com/nowarp/misti/pull/398)
 - `SuboptimalSend`: Suggest replacing `self.forward` with `self.{notify,reply}`: Issue [#386](https://github.com/nowarp/misti/issues/386)
 

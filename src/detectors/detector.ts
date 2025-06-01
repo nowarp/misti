@@ -528,6 +528,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  RedundantBooleanExpression: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/redundantBooleanExpression").then(
+        (module) => new module.RedundantBooleanExpression(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**

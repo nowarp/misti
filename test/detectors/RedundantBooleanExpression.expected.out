@@ -1,0 +1,26 @@
+[MEDIUM] RedundantBooleanExpression: Redundant boolean expression: found duplicate conditions
+test/detectors/RedundantBooleanExpression.tact:9:13:
+   8 | 
+>  9 |         if ((self.a > 0) || (self.a > 0)) {} // Bad
+                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  10 |         if ((self.a == 1) || (self.a != 0) || (self.a == 1)) {} // Bad
+Help: Remove duplicate conditions to simplify the expression.
+See: https://nowarp.io/tools/misti/docs/detectors/RedundantBooleanExpression
+
+[MEDIUM] RedundantBooleanExpression: Redundant boolean expression: found duplicate conditions
+test/detectors/RedundantBooleanExpression.tact:10:13:
+   9 |         if ((self.a > 0) || (self.a > 0)) {} // Bad
+> 10 |         if ((self.a == 1) || (self.a != 0) || (self.a == 1)) {} // Bad
+                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  11 |         if ((self.a == 1) && (self.a != 0) && (self.a == 1)) {} // Bad
+Help: Remove duplicate conditions to simplify the expression.
+See: https://nowarp.io/tools/misti/docs/detectors/RedundantBooleanExpression
+
+[MEDIUM] RedundantBooleanExpression: Redundant boolean expression: found duplicate conditions
+test/detectors/RedundantBooleanExpression.tact:11:13:
+  10 |         if ((self.a == 1) || (self.a != 0) || (self.a == 1)) {} // Bad
+> 11 |         if ((self.a == 1) && (self.a != 0) && (self.a == 1)) {} // Bad
+                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  12 |     }
+Help: Remove duplicate conditions to simplify the expression.
+See: https://nowarp.io/tools/misti/docs/detectors/RedundantBooleanExpression
