@@ -1,0 +1,26 @@
+[LOW] PreferGlobalFunction: Method 'id' doesn't access contract state and should be a global function
+test/detectors/PreferGlobalFunction.tact:14:5:
+  13 | 
+> 14 |     fun id(a: Int): Int { return a; } // Bad
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  15 |     fun get42(): Int { return 42; } // Bad
+Help: Consider converting 'id' to a global function for better gas efficiency and cleaner code.
+See: https://nowarp.io/tools/misti/docs/detectors/PreferGlobalFunction
+
+[LOW] PreferGlobalFunction: Method 'get42' doesn't access contract state and should be a global function
+test/detectors/PreferGlobalFunction.tact:15:5:
+  14 |     fun id(a: Int): Int { return a; } // Bad
+> 15 |     fun get42(): Int { return 42; } // Bad
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  16 |     fun getEval(): Int { return eval(); } // Bad
+Help: Consider converting 'get42' to a global function for better gas efficiency and cleaner code.
+See: https://nowarp.io/tools/misti/docs/detectors/PreferGlobalFunction
+
+[LOW] PreferGlobalFunction: Method 'getEval' doesn't access contract state and should be a global function
+test/detectors/PreferGlobalFunction.tact:16:5:
+  15 |     fun get42(): Int { return 42; } // Bad
+> 16 |     fun getEval(): Int { return eval(); } // Bad
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  17 | }
+Help: Consider converting 'getEval' to a global function for better gas efficiency and cleaner code.
+See: https://nowarp.io/tools/misti/docs/detectors/PreferGlobalFunction

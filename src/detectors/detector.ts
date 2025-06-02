@@ -542,6 +542,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  PreferGlobalFunction: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/preferGlobalFunction").then(
+        (module) => new module.PreferGlobalFunction(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**

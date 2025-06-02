@@ -292,12 +292,17 @@ export class TactIRBuilder {
           );
           switch (entry.kind) {
             case "contract": {
-              const contract = new Contract(name, methodCFGs, entry.loc);
+              const contract = new Contract(
+                name,
+                methodCFGs,
+                entry.id,
+                entry.loc,
+              );
               acc.contracts.set(contract.idx, contract);
               break;
             }
             case "trait": {
-              const trait = new Trait(name, methodCFGs, {
+              const trait = new Trait(name, methodCFGs, entry.id, {
                 ...entry.loc,
                 origin: hackOrigin(entry),
               } as SrcInfo);

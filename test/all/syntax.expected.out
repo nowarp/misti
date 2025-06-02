@@ -107,6 +107,42 @@ test/all/syntax.tact:200:9:
 Help: Replace with: return 1 == 2;
 See: https://nowarp.io/tools/misti/docs/detectors/EtaLikeSimplifications
 
+[LOW] PreferGlobalFunction: Method 'test' doesn't access contract state and should be a global function
+test/all/syntax.tact:21:5:
+  20 |     a: Int = 42;
+> 21 |     fun test() {}
+           ^~~~~~~~~~~~~
+  22 | }
+Help: Consider converting 'test' to a global function for better gas efficiency and cleaner code.
+See: https://nowarp.io/tools/misti/docs/detectors/PreferGlobalFunction
+
+[LOW] PreferGlobalFunction: Method 'funcWithStateWrite2' doesn't access contract state and should be a global function
+test/all/syntax.tact:134:5:
+  133 |     }
+> 134 |     fun funcWithStateWrite2(s: Slice): Address {
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  135 |         return s.loadAddress();
+Help: Consider converting 'funcWithStateWrite2' to a global function for better gas efficiency and cleaner code.
+See: https://nowarp.io/tools/misti/docs/detectors/PreferGlobalFunction
+
+[LOW] PreferGlobalFunction: Method 'funcWithMultipleEffects' doesn't access contract state and should be a global function
+test/all/syntax.tact:140:5:
+  139 |     // Effect.AccessDatetime + Effect.PrgUse + Effect.SeedInit
+> 140 |     fun funcWithMultipleEffects() {
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  141 |         let currentTime: Int = now();
+Help: Consider converting 'funcWithMultipleEffects' to a global function for better gas efficiency and cleaner code.
+See: https://nowarp.io/tools/misti/docs/detectors/PreferGlobalFunction
+
+[LOW] PreferGlobalFunction: Method 'f1' doesn't access contract state and should be a global function
+test/all/syntax.tact:193:5:
+  192 | contract TestQuickFix {
+> 193 |     fun f1(): Bool {
+            ^~~~~~~~~~~~~~~~
+  194 |         // Suggested to remove condition
+Help: Consider converting 'f1' to a global function for better gas efficiency and cleaner code.
+See: https://nowarp.io/tools/misti/docs/detectors/PreferGlobalFunction
+
 [INFO] DumpIsUsed: Found `dump` usage
 test/all/syntax.tact:41:35:
   40 |     try { /* empty */ }

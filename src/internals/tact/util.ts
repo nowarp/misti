@@ -84,6 +84,13 @@ export function isSelfAccess(expr: AstExpression): boolean {
 }
 
 /**
+ * @returns True for self methods: `self.method()`.
+ */
+export function isSelfMethod(expr: AstExpression): boolean {
+  return expr.kind === "method_call" && isSelfAccess(expr.self);
+}
+
+/**
  * @returns True iff `call` is a stdlib method mutating its receiver.
  */
 export function isStdlibMutationMethod(call: AstMethodCall): boolean {

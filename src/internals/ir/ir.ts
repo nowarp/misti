@@ -9,6 +9,7 @@ import { CallGraph } from "./callGraph";
 import { BasicBlock, Cfg } from "./cfg";
 import { ImportGraph } from "./imports";
 import { IdxGenerator } from "./indices";
+import { AstNodeId } from "../..";
 import { AstStatement, SrcInfo } from "../../internals/tact/imports";
 
 export type TraitContractIdx = number & { readonly __brand: unique symbol };
@@ -191,6 +192,7 @@ export abstract class TraitContract {
   constructor(
     public name: ContractName,
     public methods: Map<CfgIdx, Cfg>,
+    public id: AstNodeId,
     public loc: SrcInfo,
     idx: TraitContractIdx | undefined = undefined,
   ) {

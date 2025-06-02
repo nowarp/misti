@@ -260,6 +260,70 @@
       ]
     },
     {
+      "detectorId": "PreferGlobalFunction",
+      "description": "Method 'test' doesn't access contract state and should be a global function",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 21,
+        "column": 5,
+        "code": "  20 |     a: Int = 42;\n> 21 |     fun test() {}\n           ^~~~~~~~~~~~~\n  22 | }\n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferGlobalFunction",
+      "suggestion": "Consider converting 'test' to a global function for better gas efficiency and cleaner code.",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferGlobalFunction",
+      "description": "Method 'funcWithStateWrite2' doesn't access contract state and should be a global function",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 134,
+        "column": 5,
+        "code": "  133 |     }\n> 134 |     fun funcWithStateWrite2(s: Slice): Address {\n            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  135 |         return s.loadAddress();\n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferGlobalFunction",
+      "suggestion": "Consider converting 'funcWithStateWrite2' to a global function for better gas efficiency and cleaner code.",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferGlobalFunction",
+      "description": "Method 'funcWithMultipleEffects' doesn't access contract state and should be a global function",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 140,
+        "column": 5,
+        "code": "  139 |     // Effect.AccessDatetime + Effect.PrgUse + Effect.SeedInit\n> 140 |     fun funcWithMultipleEffects() {\n            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  141 |         let currentTime: Int = now();\n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferGlobalFunction",
+      "suggestion": "Consider converting 'funcWithMultipleEffects' to a global function for better gas efficiency and cleaner code.",
+      "quickfixes": []
+    },
+    {
+      "detectorId": "PreferGlobalFunction",
+      "description": "Method 'f1' doesn't access contract state and should be a global function",
+      "location": {
+        "file": "test/all/syntax.tact",
+        "line": 193,
+        "column": 5,
+        "code": "  192 | contract TestQuickFix {\n> 193 |     fun f1(): Bool {\n            ^~~~~~~~~~~~~~~~\n  194 |         // Suggested to remove condition\n"
+      },
+      "suppressed": false,
+      "severity": 2,
+      "category": 2,
+      "docURL": "https://nowarp.io/tools/misti/docs/detectors/PreferGlobalFunction",
+      "suggestion": "Consider converting 'f1' to a global function for better gas efficiency and cleaner code.",
+      "quickfixes": []
+    },
+    {
       "detectorId": "DumpIsUsed",
       "description": "Found `dump` usage",
       "location": {
@@ -518,7 +582,7 @@
   ],
   "logs": {
     "debug": [
-      "Enabled detectors (40): DivideBeforeMultiply, ReadOnlyVariables, NeverAccessedVariables, UnboundLoop, ZeroAddress, ConstantAddress, BranchDuplicate, DumpIsUsed, FieldDoubleInit, PreferAugmentedAssign, StringReceiversOverlap, AsmIsUsed, PreferredStdlibApi, InheritedStateMutation, ArgCopyMutation, OptimalMathFunction, DuplicatedCondition, UnusedOptional, EnsurePrgSeed, FalseCondition, SendInLoop, UnboundMap, StateMutationInGetter, UnusedExpressionResult, SuspiciousMessageMode, ShortCircuitCondition, EtaLikeSimplifications, ExitCodeUsage, CellBounds, UnprotectedCall, SuspiciousLoop, SuboptimalSend, PreferBinaryReceiver, PreferSenderFunction, ImplicitOpcode, SuboptimalCellOperation, DuplicatedImport, TransitiveImport, RedundantBooleanExpression, UnusedMethodArgument",
+      "Enabled detectors (41): DivideBeforeMultiply, ReadOnlyVariables, NeverAccessedVariables, UnboundLoop, ZeroAddress, ConstantAddress, BranchDuplicate, DumpIsUsed, FieldDoubleInit, PreferAugmentedAssign, StringReceiversOverlap, AsmIsUsed, PreferredStdlibApi, InheritedStateMutation, ArgCopyMutation, OptimalMathFunction, DuplicatedCondition, UnusedOptional, EnsurePrgSeed, FalseCondition, SendInLoop, UnboundMap, StateMutationInGetter, UnusedExpressionResult, SuspiciousMessageMode, ShortCircuitCondition, EtaLikeSimplifications, ExitCodeUsage, CellBounds, UnprotectedCall, SuspiciousLoop, SuboptimalSend, PreferBinaryReceiver, PreferSenderFunction, ImplicitOpcode, SuboptimalCellOperation, DuplicatedImport, TransitiveImport, RedundantBooleanExpression, UnusedMethodArgument, PreferGlobalFunction",
       "Enabled tools (0): ",
       "Parsing project syntax ...",
       "Parsing completed: syntax",
