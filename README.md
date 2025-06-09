@@ -14,20 +14,9 @@ Misti is a static analysis tool designed for smart contracts on the [TON blockch
 ```bash
 npm install -g @nowarp/misti
 ```
-
 3. Run Misti by specifying a Tact contract, project config, or directory to check:
 ```bash
 misti path/to/src/contracts
-```
-
-4. Use built-in tools:
-```bash
-misti path/to/src/contracts -t DumpAst
-```
-
-5. Use external tools:
-```bash
-misti path/to/src/contracts -t /path/to/custom-tool.js:CustomToolClassName
 ```
 
 See [Misti Configuration](https://nowarp.io/tools/misti/docs/tutorial/getting-started/) for available options, or [Developing Misti](https://nowarp.io/tools/misti/docs/next/hacking/developing-misti) for advanced instructions. Blueprint users should refer to the [appropriate documentation page](https://nowarp.io/tools/misti/docs/tutorial/blueprint).
