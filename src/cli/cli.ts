@@ -123,7 +123,7 @@ function handleOutputToConsole(
   colorizeOutput: boolean,
 ): void {
   const text = resultToString(result, outputFormat, colorizeOutput);
-  const print = outputFormat === "json" && outputFile !== STDOUT_PATH;
+  const print = outputFormat === "json";
   switch (result.kind) {
     case "warnings":
       print ? console.warn(text) : logger.warn(text);

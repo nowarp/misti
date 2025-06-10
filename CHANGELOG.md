@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `ImportGraph`: Set correct file paths of import nodes for `.func` files: PR [#381](https://github.com/nowarp/misti/pull/381)
 - `EtaLikeSimplifications`: Confusing help string for Boolean literals: Issue [#392](https://github.com/nowarp/misti/issues/392)
+- No output with `-o json` without `--output-path` specified: Issue [#403](https://github.com/nowarp/misti/issues/403)
 
 ## [0.8.3] - 2025-04-26
 
