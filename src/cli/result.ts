@@ -125,11 +125,15 @@ export type ResultReport =
  *
  * @param result The result of a Misti operation.
  * @param outputPath The path to save the result to.
+ * @param outputFormat The output format (json or plain).
+ * @param colorizeOutput Whether to colorize the output.
  * @returns The report of the result.
  */
 export function saveResultToFiles(
   result: Result,
   outputPath: string,
+  outputFormat: OutputFormat,
+  colorizeOutput: boolean,
 ): ResultReport {
   if (outputPath === STDOUT_PATH) {
     throw InternalException.make(`Incorrect output path: ${outputPath}`);
@@ -143,12 +147,14 @@ export function saveResultToFiles(
         message: result.error,
       };
     case "warnings":
-      fs.writeFileSync(
-        path.join(outputPath, `warnings.out`),
-        result.warnings
-          .map((warning) => formatWarning(warning, false, false))
-          .join("\n"),
-      );
+      const content =
+        outputFormat === "json"
+          ? JSONbig.stringify(result, null, 2)
+          : result.warnings
+              .map((warning) => formatWarning(warning, colorizeOutput, false))
+              .join("\n");
+      const extension = outputFormat === "json" ? "json" : "out";
+      fs.writeFileSync(path.join(outputPath, `warnings.${extension}`), content);
       return null;
     case "tool":
       result.output.forEach((tool) => {

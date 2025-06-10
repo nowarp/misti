@@ -78,7 +78,13 @@ export async function executeMisti(args: string[]): Promise<string> {
 export function handleMistiResult(driver: Driver, result: Result): void {
   const logger = driver.ctx.logger;
   driver.outputPath && driver.outputPath !== STDOUT_PATH
-    ? handleOutputToFile(result, driver.outputPath, logger)
+    ? handleOutputToFile(
+        result,
+        driver.outputPath,
+        driver.outputFormat,
+        driver.colorizeOutput,
+        logger,
+      )
     : handleOutputToConsole(
         result,
         driver.outputFormat,
@@ -94,9 +100,16 @@ export function handleMistiResult(driver: Driver, result: Result): void {
 function handleOutputToFile(
   result: Result,
   outputPath: string,
+  outputFormat: OutputFormat,
+  colorizeOutput: boolean,
   logger: Logger,
 ): void {
-  const report: ResultReport = saveResultToFiles(result, outputPath);
+  const report: ResultReport = saveResultToFiles(
+    result,
+    outputPath,
+    outputFormat,
+    colorizeOutput,
+  );
   if (report) {
     switch (report.kind) {
       case "error":
