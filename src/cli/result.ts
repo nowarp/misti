@@ -138,6 +138,9 @@ export function saveResultToFiles(
   if (outputPath === STDOUT_PATH) {
     throw InternalException.make(`Incorrect output path: ${outputPath}`);
   }
+  if (!fs.existsSync(outputPath)) {
+    fs.mkdirSync(outputPath, { recursive: true });
+  }
   switch (result.kind) {
     case "ok":
       return { kind: "ok" };
