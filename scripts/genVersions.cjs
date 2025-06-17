@@ -23,7 +23,7 @@ if (process.env.MISTI_RELEASE !== "1") {
   // Retrieve the Git revision number
   let gitRevision = "unknown";
   try {
-    gitRevision = execSync("git rev-parse --short HEAD").toString().trim();
+    gitRevision = execSync("git rev-parse --short master").toString().trim();
   } catch (error) {
     console.warn("Could not retrieve Git revision:", error);
   }
