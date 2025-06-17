@@ -23,6 +23,7 @@ See [Misti Configuration](https://nowarp.io/tools/misti/docs/tutorial/getting-st
 
 ## Resources
 - **[nowarp.io](https://nowarp.io)**: We are doing other TON Security stuff beyond Misti.
+- **[Scanner](https://nowarp.io/tools/scanner)**: A mass-scan tool that runs static analysis over all the publicly available contracts.
 - **[Documentation](https://nowarp.io/tools/misti/docs)**: Comprehensive guide on detectors, architecture, and development.
 - **[API Reference](https://nowarp.io/api/misti/)**: Useful for contributors or developers creating custom detectors.
 - **[Blueprint Plugin](https://github.com/nowarp/blueprint-misti)**: A plugin for the Blueprint Framework to enhance your workflow.
