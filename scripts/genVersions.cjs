@@ -34,9 +34,21 @@ if (process.env.MISTI_RELEASE !== "1") {
 
 const TACT_COMPILER_VERSION = packageJson.dependencies["@tact-lang/compiler"];
 
-const normalizeVersion = (version) =>
-    version.startsWith("^") || version.startsWith("~") ? version.slice(1)
-                                                       : version;
+const normalizeVersion = (version) => {
+    // Handle range versions like ">=1.6.7 <1.6.9"
+    const rangeMatch = version.match(/>=([0-9.]+)\s+<([0-9.]+)/);
+    if (rangeMatch) {
+        return `${rangeMatch[1]}-${rangeMatch[2]}`;
+    }
+
+    // Handle single versions with ^ or ~ prefixes
+    if (version.startsWith("^") || version.startsWith("~")) {
+        return version.slice(1) + "+";
+    }
+
+    // Handle specific version, e.g. "1.6.7"
+    return version + "+";
+};
 
 const content = `
 export const MISTI_VERSION = '${MISTI_VERSION}';

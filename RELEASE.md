@@ -1,6 +1,7 @@
 # Misti Release Checklist
 
 - [ ] Release new Misti version
+  - [ ] If the next Misti version is incompatible with the Tact compiler in use, set the maximum version of `@tact-lang/compiler` in `package.json` (e.g. `>=1.6.7 <1.6.9`) and make a commit first
   - [ ] Run: `yarn release --dry-run` to ensure everything works as expected
   - [ ] Run: `yarn release` and follow the instructions
 - [ ] Create a GitHub release
