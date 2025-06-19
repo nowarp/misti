@@ -4,6 +4,7 @@
   "project": ["src/**/*.ts"],
   "ignore": [
     ".github/workflows/tact.yml",
+    "typedoc.json",
     "src/internals/warnings.ts",
     "src/internals/util.ts"
   ],
