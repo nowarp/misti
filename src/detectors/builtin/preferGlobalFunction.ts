@@ -1,12 +1,7 @@
 import { CompilationUnit } from "../../internals/ir";
 import { AstFunctionDef } from "../../internals/tact/imports";
 import { findInExpressions } from "../../internals/tact/iterators";
-import {
-  isSelfAccess,
-  isSelf,
-  isSelfMethod,
-  functionHasAttribute,
-} from "../../internals/tact/util";
+import { isSelfAccess, isSelf, isSelfMethod } from "../../internals/tact/util";
 import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
@@ -60,7 +55,7 @@ export class PreferGlobalFunction extends AstDetector {
         if (
           methodAst.kind === "contract_init" ||
           methodAst.kind === "receiver" ||
-          functionHasAttribute(methodAst, "override")
+          methodAst.attributes.length !== 0
         ) {
           continue;
         }

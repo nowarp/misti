@@ -21,6 +21,6 @@ test/detectors/PreferGlobalFunction.tact:16:5:
   15 |     fun get42(): Int { return 42; } // Bad
 > 16 |     fun getEval(): Int { return eval(); } // Bad
            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  17 | }
+  17 | 
 Help: Consider converting 'getEval' to a global function for better gas efficiency and cleaner code.
 See: https://nowarp.io/tools/misti/docs/detectors/PreferGlobalFunction

@@ -14,4 +14,6 @@ contract Test with T {
     fun id(a: Int): Int { return a; } // Bad
     fun get42(): Int { return 42; } // Bad
     fun getEval(): Int { return eval(); } // Bad
+
+    get fun getter(): Int { return self.field }
 }
