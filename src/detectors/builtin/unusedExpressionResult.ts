@@ -97,9 +97,9 @@ export class UnusedExpressionResult extends AstDetector {
     methodReturnTypes: Map<string, AstType | undefined> | undefined,
   ): Warning[] {
     const warnings: Warning[] = [];
-    const warn = () =>
+    const warn = (kind: string) =>
       this.makeWarning(
-        `Result of evaluation of ${prettyPrint(expr)} is unused`,
+        `Result of ${kind} is unused: ${prettyPrint(expr)}`,
         expr.loc,
         {
           suggestion: "Remove the expression or assign its result",
@@ -125,7 +125,7 @@ export class UnusedExpressionResult extends AstDetector {
       case "address":
       case "cell":
       case "slice":
-        warnings.push(warn());
+        warnings.push(warn("evaluation"));
         break;
       case "method_call":
         if (
@@ -133,7 +133,7 @@ export class UnusedExpressionResult extends AstDetector {
           isSelf(expr.self) &&
           methodReturnTypes.get(idText(expr.method))
         ) {
-          warnings.push(warn());
+          warnings.push(warn("method call"));
         }
         break;
       case "static_call": {
@@ -142,7 +142,7 @@ export class UnusedExpressionResult extends AstDetector {
           !IGNORED_FUNCTIONS.has(funName) &&
           this.freeFunctionReturnTypes.get(funName)
         ) {
-          warnings.push(warn());
+          warnings.push(warn("function call"));
         }
         break;
       }
