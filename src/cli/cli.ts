@@ -44,7 +44,12 @@ export function createMistiCommand(): Command {
 
 /**
  * Runs the Misti CLI command with the provided arguments.
+ *
+ * Note: This function throws internal exceptions. Handle exceptions
+ * appropriately when calling this function.
+ *
  * @param args The list of arguments to pass to the CLI command.
+ * @param command Optional pre-configured Command instance. Defaults to createMistiCommand().
  * @returns The created Driver instance and the result of execution.
  */
 export async function runMistiCommand(
