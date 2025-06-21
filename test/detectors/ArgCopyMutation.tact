@@ -1,5 +1,11 @@
 const WHATEVER: Int = 0;
 
+fun f1(b: Builder, x: Int) {
+    // OK: .storeUint mutates Builder
+    // See: https://github.com/nowarp/misti/issues/395
+    b.storeUint(x, 32).endCell();
+}
+
 contract Test {
     m: map<Int, Int>;
     fun test(a: Int, m: map<Int, Int>) {

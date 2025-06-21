@@ -195,7 +195,7 @@ export class ArgCopyMutation extends AstDetector {
       // TODO: Should be improved when we have types in AST
       // Sort out integral types. It is unlikely that the user will expect they change inside the function.
       // See: tact:src/types/resolveExpression.ts
-      const skipTypes = ["Int", "Bool"];
+      const skipTypes = ["Int", "Bool", "Builder", "StringBuilder", "Slice"];
       if (p.type.kind === "type_id" && skipTypes.includes(p.type.text)) {
         return acc;
       }
