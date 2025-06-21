@@ -1,53 +1,53 @@
 [LOW] ShortCircuitCondition: Consider reordering: Move expensive function call to the end
-test/detectors/ShortCircuitCondition.tact:6:17:
-  5 |     fun testCondition1(): Bool {
-> 6 |         return (self.expensiveCheck() && (self.a > 10)); // Bad
-                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  7 |     }
+test/detectors/ShortCircuitCondition.tact:7:15:
+  6 | 
+> 7 |       require(self.expensiveCheck() && (self.a > 10), ""); // Bad
+                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  8 |       require(true || self.expensiveCheck(), ""); // Bad
 Help: Place cheaper conditions on the left to leverage short-circuiting: self.a > 10 && self.expensiveCheck()
 See: https://nowarp.io/tools/misti/docs/detectors/ShortCircuitCondition
 
 [LOW] ShortCircuitCondition: Consider reordering: Move expensive function call to the end
-test/detectors/ShortCircuitCondition.tact:16:17:
-  15 |     fun testCondition3(): Bool {
-> 16 |         return ((self.a > 0) && self.expensiveCheck() && false); //Bad: Should warn for moving false left
-                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  17 |     }
+test/detectors/ShortCircuitCondition.tact:9:15:
+   8 |       require(true || self.expensiveCheck(), ""); // Bad
+>  9 |       require((self.a > 0) && self.expensiveCheck() && false, ""); // Bad
+                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  10 |       if ((self.expensiveCheck() && (self.a < 3)) || ((self.a > 10) && true)) {} // Bad
 Help: Place cheaper conditions on the left to leverage short-circuiting: false && self.a > 0 && self.expensiveCheck()
 See: https://nowarp.io/tools/misti/docs/detectors/ShortCircuitCondition
 
 [LOW] ShortCircuitCondition: Consider reordering: Move constant to the left
-test/detectors/ShortCircuitCondition.tact:16:17:
-  15 |     fun testCondition3(): Bool {
-> 16 |         return ((self.a > 0) && self.expensiveCheck() && false); //Bad: Should warn for moving false left
-                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  17 |     }
+test/detectors/ShortCircuitCondition.tact:9:15:
+   8 |       require(true || self.expensiveCheck(), ""); // Bad
+>  9 |       require((self.a > 0) && self.expensiveCheck() && false, ""); // Bad
+                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  10 |       if ((self.expensiveCheck() && (self.a < 3)) || ((self.a > 10) && true)) {} // Bad
 Help: Reorder to optimize && condition short-circuiting: false && self.a > 0 && self.expensiveCheck()
 See: https://nowarp.io/tools/misti/docs/detectors/ShortCircuitCondition
 
 [LOW] ShortCircuitCondition: Consider reordering: Move expensive function call to the end
-test/detectors/ShortCircuitCondition.tact:21:13:
-  20 |     fun testCondition4(): Bool {
-> 21 |         if ((self.expensiveCheck() && (self.a < 3)) || ((self.a > 10) && true)) {
-                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  22 |             return true; // Bad: Should warn for moving constants to the left
+test/detectors/ShortCircuitCondition.tact:10:11:
+   9 |       require((self.a > 0) && self.expensiveCheck() && false, ""); // Bad
+> 10 |       if ((self.expensiveCheck() && (self.a < 3)) || ((self.a > 10) && true)) {} // Bad
+                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  11 |     }
 Help: Place cheaper conditions on the left to leverage short-circuiting: self.a > 10 && true || self.expensiveCheck() && self.a < 3
 See: https://nowarp.io/tools/misti/docs/detectors/ShortCircuitCondition
 
 [LOW] ShortCircuitCondition: Consider reordering: Move expensive function call to the end
-test/detectors/ShortCircuitCondition.tact:21:14:
-  20 |     fun testCondition4(): Bool {
-> 21 |         if ((self.expensiveCheck() && (self.a < 3)) || ((self.a > 10) && true)) {
-                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  22 |             return true; // Bad: Should warn for moving constants to the left
+test/detectors/ShortCircuitCondition.tact:10:12:
+   9 |       require((self.a > 0) && self.expensiveCheck() && false, ""); // Bad
+> 10 |       if ((self.expensiveCheck() && (self.a < 3)) || ((self.a > 10) && true)) {} // Bad
+                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  11 |     }
 Help: Place cheaper conditions on the left to leverage short-circuiting: self.a < 3 && self.expensiveCheck()
 See: https://nowarp.io/tools/misti/docs/detectors/ShortCircuitCondition
 
 [LOW] ShortCircuitCondition: Consider reordering: Move constant to the left
-test/detectors/ShortCircuitCondition.tact:21:57:
-  20 |     fun testCondition4(): Bool {
-> 21 |         if ((self.expensiveCheck() && (self.a < 3)) || ((self.a > 10) && true)) {
-                                                               ^~~~~~~~~~~~~~~~~~~~~
-  22 |             return true; // Bad: Should warn for moving constants to the left
+test/detectors/ShortCircuitCondition.tact:10:55:
+   9 |       require((self.a > 0) && self.expensiveCheck() && false, ""); // Bad
+> 10 |       if ((self.expensiveCheck() && (self.a < 3)) || ((self.a > 10) && true)) {} // Bad
+                                                             ^~~~~~~~~~~~~~~~~~~~~
+  11 |     }
 Help: Reorder to optimize && condition short-circuiting: true && self.a > 10
 See: https://nowarp.io/tools/misti/docs/detectors/ShortCircuitCondition
