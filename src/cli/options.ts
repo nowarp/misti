@@ -101,7 +101,7 @@ export const cliOptions = [
     cliOptionDefaults.listTools,
   ),
   new Option(
-    "-o, --output-format <json|plain>",
+    "-o, --output-format <json|plain|sarif>",
     "Set the output format for all tools and warnings",
   ).default(cliOptionDefaults.outputFormat),
   new Option("-C, --no-colors", "Disables ANSI colors in the output.").default(

@@ -102,4 +102,40 @@ describe("CLI Argument Parsing", () => {
     const result = await runMistiCommand(args);
     expect((result as [Driver, Result])[1]).toEqual({ kind: "ok" });
   });
+
+  it("should initialize driver with SARIF output format", async () => {
+    const args = ["--output-format", "sarif", TACT_CONFIG_PATH];
+    const driverMakeSpy = jest.spyOn(Driver, "create");
+    driverMakeSpy.mockImplementation(async (): Promise<Driver> => {
+      return {
+        execute: jest.fn(),
+      } as unknown as Driver;
+    });
+    await runMistiCommand(args);
+    expect(driverMakeSpy).toHaveBeenCalledWith(
+      [TACT_CONFIG_PATH],
+      expect.objectContaining({
+        outputFormat: "sarif",
+      }),
+    );
+    driverMakeSpy.mockRestore();
+  });
+
+  it("should reject tools with SARIF output format", async () => {
+    const args = [
+      "--tools",
+      "SomeTools",
+      "--output-format",
+      "sarif",
+      TACT_CONFIG_PATH,
+    ];
+    const result = await runMistiCommand(args);
+    expect(
+      result !== undefined &&
+        result[1].kind === "error" &&
+        result[1].error.includes(
+          'Cannot execute tools with --output-format "sarif"',
+        ),
+    );
+  });
 });

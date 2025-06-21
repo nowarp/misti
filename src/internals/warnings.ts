@@ -1,3 +1,4 @@
+import { MISTI_VERSION } from "../version";
 import { getMistiAnnotation } from "./annotation";
 import { InternalException } from "./exceptions";
 import { QuickFix } from "./quickfix";
@@ -260,4 +261,187 @@ export function warningIsSuppressed(
  */
 export function makeDocURL(detectorName: string): string {
   return `${BASE_DOC_URL}/${detectorName}`;
+}
+
+/**
+ * SARIF types for conversion
+ */
+export interface SarifResult {
+  ruleId: string;
+  level: "error" | "warning" | "note" | "none";
+  message: {
+    text: string;
+  };
+  locations: Array<{
+    physicalLocation: {
+      artifactLocation: {
+        uri: string;
+      };
+      region: {
+        startLine: number;
+        startColumn: number;
+      };
+    };
+  }>;
+  properties?: {
+    category?: string;
+    severity?: string;
+    detectorId?: string;
+    extraDescription?: string;
+    docURL?: string;
+    suggestion?: string;
+  };
+}
+
+export interface SarifReport {
+  $schema: string;
+  version: "2.1.0";
+  runs: Array<{
+    tool: {
+      driver: {
+        name: string;
+        version?: string;
+        informationUri?: string;
+        rules: Array<{
+          id: string;
+          name: string;
+          shortDescription: {
+            text: string;
+          };
+          fullDescription?: {
+            text: string;
+          };
+          helpUri?: string;
+          properties?: {
+            category?: string;
+            severity?: string;
+          };
+        }>;
+      };
+    };
+    results: SarifResult[];
+  }>;
+}
+
+/**
+ * Converts a Misti severity to SARIF level.
+ */
+function severityToSarifLevel(
+  severity: Severity,
+): "error" | "warning" | "note" | "none" {
+  switch (severity) {
+    case Severity.CRITICAL:
+    case Severity.HIGH:
+      return "error";
+    case Severity.MEDIUM:
+      return "warning";
+    case Severity.LOW:
+    case Severity.INFO:
+      return "note";
+    default:
+      return "none";
+  }
+}
+
+/**
+ * Converts a Warning to SARIF result format.
+ */
+export function warningToSarifResult(warning: Warning): SarifResult {
+  const result: SarifResult = {
+    ruleId: warning.detectorId,
+    level: severityToSarifLevel(warning.severity),
+    message: {
+      text: warning.description,
+    },
+    locations: [
+      {
+        physicalLocation: {
+          artifactLocation: {
+            uri: `file://${warning.location.file}`,
+          },
+          region: {
+            startLine: warning.location.line,
+            startColumn: warning.location.column,
+          },
+        },
+      },
+    ],
+  };
+
+  // Add optional properties
+  const properties: Record<string, string> = {};
+  if (warning.category !== undefined) {
+    properties.category = categoryToString(warning.category);
+  }
+  properties.severity = Severity[warning.severity];
+  properties.detectorId = warning.detectorId;
+  if (warning.extraDescription !== undefined) {
+    properties.extraDescription = warning.extraDescription;
+  }
+  if (warning.docURL !== undefined) {
+    properties.docURL = warning.docURL;
+  }
+  if (warning.suggestion !== undefined) {
+    properties.suggestion = warning.suggestion;
+  }
+
+  if (Object.keys(properties).length > 0) {
+    result.properties = properties;
+  }
+
+  return result;
+}
+
+/**
+ * Converts an array of warnings to a complete SARIF report.
+ */
+export function warningsToSarifReport(warnings: Warning[]): SarifReport {
+  // Extract unique detector rules
+  const ruleMap = new Map<string, Warning>();
+  warnings.forEach((warning) => {
+    if (!ruleMap.has(warning.detectorId)) {
+      ruleMap.set(warning.detectorId, warning);
+    }
+  });
+
+  const rules = Array.from(ruleMap.values()).map((warning) => ({
+    id: warning.detectorId,
+    name: warning.detectorId,
+    shortDescription: {
+      text: warning.description,
+    },
+    fullDescription: warning.extraDescription
+      ? {
+          text: warning.extraDescription,
+        }
+      : undefined,
+    helpUri: warning.docURL || undefined,
+    properties: {
+      category: warning.category
+        ? categoryToString(warning.category)
+        : undefined,
+      severity: Severity[warning.severity],
+    },
+  }));
+
+  const results = warnings.map(warningToSarifResult);
+
+  return {
+    $schema:
+      "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+    version: "2.1.0",
+    runs: [
+      {
+        tool: {
+          driver: {
+            name: "Misti",
+            version: MISTI_VERSION,
+            informationUri: "https://nowarp.io/tools/misti",
+            rules,
+          },
+        },
+        results,
+      },
+    ],
+  };
 }

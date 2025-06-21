@@ -32,7 +32,7 @@ export interface DetectorConfig {
   className: string;
 }
 
-export type OutputFormat = "json" | "plain";
+export type OutputFormat = "json" | "plain" | "sarif";
 
 /**
  * Exit codes after executing Misti.

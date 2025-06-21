@@ -219,6 +219,16 @@ export class Driver {
         `Cannot execute multiple tools with --output-format "plain". Use --output-format "json" for multiple tools.`,
       );
     }
+    // Prevent tools usage with SARIF output format
+    if (
+      options.tools &&
+      options.tools.length > 0 &&
+      options.outputFormat === "sarif"
+    ) {
+      throw ExecutionException.make(
+        `Cannot execute tools with --output-format "sarif". SARIF format is only supported for detector warnings.`,
+      );
+    }
     // Check for duplicate tool class names
     if (options.tools && options.tools.length > 0) {
       const toolClassNames = options.tools.map((tool) => tool.className);

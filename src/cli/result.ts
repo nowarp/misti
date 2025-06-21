@@ -2,7 +2,11 @@ import { STDOUT_PATH } from "./options";
 import { OutputFormat, ExitCode } from "../cli/types";
 import { InternalException } from "../internals/exceptions";
 import { unreachable } from "../internals/util";
-import { formatWarning, Warning } from "../internals/warnings";
+import {
+  formatWarning,
+  Warning,
+  warningsToSarifReport,
+} from "../internals/warnings";
 import fs from "fs";
 import JSONbig from "json-bigint";
 import path from "path";
@@ -71,6 +75,25 @@ export function resultToString(
   if (outputFormat === "json") {
     return JSONbig.stringify(result, null, 2);
   }
+  if (outputFormat === "sarif") {
+    switch (result.kind) {
+      case "warnings":
+        const sarifReport = warningsToSarifReport(result.warnings);
+        return JSONbig.stringify(sarifReport, null, 2);
+      case "ok":
+        // Empty SARIF report for no warnings
+        const emptySarifReport = warningsToSarifReport([]);
+        return JSONbig.stringify(emptySarifReport, null, 2);
+      case "error":
+        throw new Error(
+          `SARIF format is not supported for error results: ${result.error}`,
+        );
+      case "tool":
+        throw new Error("SARIF format is not supported for tool results");
+      default:
+        unreachable(result);
+    }
+  }
   switch (result.kind) {
     case "ok":
       return "No errors found";
@@ -125,7 +148,7 @@ export type ResultReport =
  *
  * @param result The result of a Misti operation.
  * @param outputPath The path to save the result to.
- * @param outputFormat The output format (json or plain).
+ * @param outputFormat The output format (json, plain, or sarif).
  * @param colorizeOutput Whether to colorize the output.
  * @returns The report of the result.
  */
@@ -150,13 +173,21 @@ export function saveResultToFiles(
         message: result.error,
       };
     case "warnings":
-      const content =
-        outputFormat === "json"
-          ? JSONbig.stringify(result, null, 2)
-          : result.warnings
-              .map((warning) => formatWarning(warning, colorizeOutput, false))
-              .join("\n");
-      const extension = outputFormat === "json" ? "json" : "out";
+      let content: string;
+      let extension: string;
+      if (outputFormat === "json") {
+        content = JSONbig.stringify(result, null, 2);
+        extension = "json";
+      } else if (outputFormat === "sarif") {
+        const sarifReport = warningsToSarifReport(result.warnings);
+        content = JSONbig.stringify(sarifReport, null, 2);
+        extension = "sarif";
+      } else {
+        content = result.warnings
+          .map((warning) => formatWarning(warning, colorizeOutput, false))
+          .join("\n");
+        extension = "out";
+      }
       fs.writeFileSync(path.join(outputPath, `warnings.${extension}`), content);
       return null;
     case "tool":

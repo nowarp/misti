@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `SuboptimalSend`: Suggest replacing `self.forward` with `self.{notify,reply}`: Issue [#386](https://github.com/nowarp/misti/issues/386)
 - Add short option `-O` for `--output-path`
 - Include maximum supported Tact version in `--version` output: Issue [#405](https://github.com/nowarp/misti/issues/405)
+- SARIF output support: Issue [#409](https://github.com/nowarp/misti/issues/409)
 
 ### Changed
 - `DuplicatedImport` and `TransitiveImport`: Don't check internal stdlib imports
