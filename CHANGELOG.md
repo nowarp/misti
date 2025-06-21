@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Warn if one of the disabled detectors (`-dd`) is unused: Issue [#393](https://github.com/nowarp/misti/issues/393)
 - If the directory for `--output-path` is unavailable, try to create it
 - `UnusedExpressionResult`: More informative error on unused method/function calls: Issue [#404](https://github.com/nowarp/misti/issues/404)
+- `ShortCircuitCondition`: Don't report cheap math and time stdlib functions: Issue [#407](https://github.com/nowarp/misti/issues/407)
 
 ### Fixed
 - `ImportGraph`: Set correct file paths of import nodes for `.func` files: PR [#381](https://github.com/nowarp/misti/pull/381)

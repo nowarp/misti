@@ -6,7 +6,11 @@ import {
   findInExpressions,
   MakeLiteral,
 } from "../../internals/tact";
-import { AstExpression, prettyPrint } from "../../internals/tact/imports";
+import {
+  AstExpression,
+  idText,
+  prettyPrint,
+} from "../../internals/tact/imports";
 import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
@@ -39,13 +43,36 @@ export class ShortCircuitCondition extends AstDetector {
   category = Category.OPTIMIZATION;
 
   async check(cu: CompilationUnit): Promise<Warning[]> {
+    const cheapFunctions = this.getCheapStdlibFunctions(cu);
     return Array.from(cu.ast.getFunctions()).reduce(
-      (acc, fun) => acc.concat(this.checkFunction(fun)),
+      (acc, fun) => acc.concat(this.checkFunction(fun, cheapFunctions)),
       [] as Warning[],
     );
   }
 
-  private checkFunction(fun: any): Warning[] {
+  /**
+   * Heuristics to detect cheap stdlib functions that should not be reported.
+   */
+  private getCheapStdlibFunctions(cu: CompilationUnit): string[] {
+    return Array.from(cu.ast.getAsmFunctions({ includeStdlib: true })).reduce(
+      (acc, f) => {
+        if (
+          f.loc.origin === "stdlib" &&
+          f.attributes.length === 0 &&
+          f.return !== undefined &&
+          !idText(f.name).includes("Random") &&
+          (f.loc.file?.endsWith("time.tact") ||
+            f.loc.file?.endsWith("math.tact"))
+        ) {
+          acc.push(idText(f.name));
+        }
+        return acc;
+      },
+      [] as string[],
+    );
+  }
+
+  private checkFunction(fun: any, skipFunNames: string[]): Warning[] {
     return foldStatements(
       fun,
       (acc, stmt) => {
@@ -54,8 +81,14 @@ export class ShortCircuitCondition extends AstDetector {
             expr.kind === "op_binary" &&
             (expr.op === "&&" || expr.op === "||")
           ) {
-            const leftExpensive = this.containsExpensiveCall(expr.left);
-            const rightExpensive = this.containsExpensiveCall(expr.right);
+            const leftExpensive = this.containsExpensiveCall(
+              expr.left,
+              skipFunNames,
+            );
+            const rightExpensive = this.containsExpensiveCall(
+              expr.right,
+              skipFunNames,
+            );
             const leftIsConstant = this.isConstantExpression(expr.left);
             const rightIsConstant = this.isConstantExpression(expr.right);
             if (
@@ -100,13 +133,18 @@ export class ShortCircuitCondition extends AstDetector {
     );
   }
 
-  private containsExpensiveCall(expr: AstExpression | null): boolean {
+  private containsExpensiveCall(
+    expr: AstExpression | null,
+    skipFunNames: string[],
+  ): boolean {
     if (!expr) return false;
     return (
       findInExpressions(
         expr,
         (e) =>
-          (e.kind === "method_call" || e.kind === "static_call") &&
+          (e.kind === "method_call" ||
+            (e.kind === "static_call" &&
+              !skipFunNames.includes(idText(e.function)))) &&
           !this.containsInitOf(e),
       ) !== null
     );
