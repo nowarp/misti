@@ -129,13 +129,8 @@ describe("CLI Argument Parsing", () => {
       "sarif",
       TACT_CONFIG_PATH,
     ];
-    const result = await runMistiCommand(args);
-    expect(
-      result !== undefined &&
-        result[1].kind === "error" &&
-        result[1].error.includes(
-          'Cannot execute tools with --output-format "sarif"',
-        ),
+    await expect(runMistiCommand(args)).rejects.toThrow(
+      'Cannot execute tools with --output-format "sarif"',
     );
   });
 });
