@@ -1,4 +1,8 @@
-contract Test {
+trait T {
+    abstract fun inherited(a: Int): Int;
+}
+
+contract Test with T {
     a: Int = 0;
     b: Int = 0;
 
@@ -48,4 +52,6 @@ contract Test {
         let sb: StringBuilder = beginString();
         sb.append("a");
     }
+
+    override fun inherited(a: Int): Int { return 42; } // OK: inherited from trait
 }

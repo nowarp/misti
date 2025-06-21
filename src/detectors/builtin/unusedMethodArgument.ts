@@ -6,7 +6,11 @@ import {
   isLiteral,
   prettyPrint,
 } from "../../internals/tact/imports";
-import { isSelfAccess, nodesAreEqual } from "../../internals/tact/util";
+import {
+  functionHasAttribute,
+  isSelfAccess,
+  nodesAreEqual,
+} from "../../internals/tact/util";
 import { Category, Warning, Severity } from "../../internals/warnings";
 import { AstDetector } from "../detector";
 
@@ -56,6 +60,24 @@ export class UnusedMethodArgument extends AstDetector {
     cu.callGraph.getNodes().forEach((node) => {
       if (!node.loc || node.loc.origin !== "user") {
         return;
+      }
+
+      // Don't report inherited trait and special methods
+      if (node.astId) {
+        const astNode = cu.ast.getFunction(node.astId);
+        if (
+          astNode &&
+          astNode.kind === "function_def" &&
+          functionHasAttribute(
+            astNode,
+            "extends",
+            "virtual",
+            "abstract",
+            "override",
+          )
+        ) {
+          return;
+        }
       }
 
       const callsites: AstMethodCall[] = [];

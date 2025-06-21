@@ -32,7 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - No output with `-o json` without `--output-path` specified: Issue [#403](https://github.com/nowarp/misti/issues/403)
 - `-o json --output-path <some dir>` stores warnings in the plain text format
 - `PreferGlobalFunction`: Don't report methods with attributes: Issue [#406](https://github.com/nowarp/misti/issues/406)
-- `ArgCopyMutation`: False positive on mutating method calls: issue [#395](https://github.com/nowarp/misti/issues/395)
+- `ArgCopyMutation`: False positive on mutating method calls: Issue [#395](https://github.com/nowarp/misti/issues/395)
+- `UnusedMethodArgument`: Don't report inherited trait methods: Issue [#402](https://github.com/nowarp/misti/issues/402)
 
 ## [0.8.3] - 2025-04-26
 
