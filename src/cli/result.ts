@@ -71,6 +71,7 @@ export function resultToString(
   result: Result,
   outputFormat: OutputFormat,
   colorizeOutput: boolean,
+  projectInfo?: Map<string, { projectRoot: string }>,
 ): string {
   if (outputFormat === "json") {
     return JSONbig.stringify(result, null, 2);
@@ -78,11 +79,29 @@ export function resultToString(
   if (outputFormat === "sarif") {
     switch (result.kind) {
       case "warnings":
-        const sarifReport = warningsToSarifReport(result.warnings);
+        const exitCode = ExitCode.WARNINGS;
+        const executionSuccessful = true; // Tool ran successfully, but found warnings
+        const repositoryRoot = projectInfo
+          ? Array.from(projectInfo.values())[0]?.projectRoot
+          : undefined;
+        const sarifReport = warningsToSarifReport(
+          result.warnings,
+          executionSuccessful,
+          exitCode,
+          repositoryRoot,
+        );
         return JSONbig.stringify(sarifReport, null, 2);
       case "ok":
         // Empty SARIF report for no warnings
-        const emptySarifReport = warningsToSarifReport([]);
+        const emptyRepositoryRoot = projectInfo
+          ? Array.from(projectInfo.values())[0]?.projectRoot
+          : undefined;
+        const emptySarifReport = warningsToSarifReport(
+          [],
+          true,
+          ExitCode.SUCCESS,
+          emptyRepositoryRoot,
+        );
         return JSONbig.stringify(emptySarifReport, null, 2);
       case "error":
         throw new Error(
@@ -157,6 +176,7 @@ export function saveResultToFiles(
   outputPath: string,
   outputFormat: OutputFormat,
   colorizeOutput: boolean,
+  projectInfo?: Map<string, { projectRoot: string }>,
 ): ResultReport {
   if (outputPath === STDOUT_PATH) {
     throw InternalException.make(`Incorrect output path: ${outputPath}`);
@@ -179,7 +199,17 @@ export function saveResultToFiles(
         content = JSONbig.stringify(result, null, 2);
         extension = "json";
       } else if (outputFormat === "sarif") {
-        const sarifReport = warningsToSarifReport(result.warnings);
+        const exitCode = ExitCode.WARNINGS;
+        const executionSuccessful = true; // Tool ran successfully, but found warnings
+        const repositoryRoot = projectInfo
+          ? Array.from(projectInfo.values())[0]?.projectRoot
+          : undefined;
+        const sarifReport = warningsToSarifReport(
+          result.warnings,
+          executionSuccessful,
+          exitCode,
+          repositoryRoot,
+        );
         content = JSONbig.stringify(sarifReport, null, 2);
         extension = "sarif";
       } else {
