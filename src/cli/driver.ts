@@ -42,6 +42,11 @@ export class Driver {
   /** Minimum severity level to report warnings. */
   minSeverity: Severity;
   outputFormat: OutputFormat;
+  /** Project configuration managers for each project, used for proper path resolution in SARIF output. */
+  projectConfigs: Map<
+    ProjectName,
+    { configManager: TactConfigManager; projectRoot: string }
+  > = new Map();
 
   private constructor(tactPaths: string[], options: CLIOptions) {
     this.fs = options.fs;
@@ -53,6 +58,7 @@ export class Driver {
     this.minSeverity = options.minSeverity;
     this.outputFormat = options.outputFormat;
     this.outputPath = options.outputPath;
+    this.projectConfigs = new Map();
   }
 
   /**
@@ -138,6 +144,7 @@ export class Driver {
           );
           const cu = createIR(this.ctx, projectName, ast, importGraph);
           acc.set(projectName, cu);
+          this.projectConfigs.set(projectName, { configManager, projectRoot });
         } else {
           // Tact configuration file
           configManager = TactConfigManager.fromConfig(tactPath);
@@ -155,6 +162,10 @@ export class Driver {
             const projectName = configProject.name as ProjectName;
             const cu = createIR(this.ctx, projectName, ast, importGraph);
             acc.set(projectName, cu);
+            this.projectConfigs.set(projectName, {
+              configManager,
+              projectRoot: configManager.getProjectRoot(),
+            });
           });
         }
         return acc;

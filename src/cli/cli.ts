@@ -72,8 +72,19 @@ export async function runMistiCommand(
  */
 export async function executeMisti(args: string[]): Promise<string> {
   const [driver, mistiResult] = await runMistiCommand(args);
+  const projectInfo = new Map(
+    Array.from(driver.projectConfigs.entries()).map(([name, config]) => [
+      name,
+      { projectRoot: config.projectRoot },
+    ]),
+  );
   return mistiResult
-    ? resultToString(mistiResult, driver.outputFormat, driver.colorizeOutput)
+    ? resultToString(
+        mistiResult,
+        driver.outputFormat,
+        driver.colorizeOutput,
+        projectInfo,
+      )
     : "";
 }
 
@@ -82,6 +93,12 @@ export async function executeMisti(args: string[]): Promise<string> {
  */
 export function handleMistiResult(driver: Driver, result: Result): void {
   const logger = driver.ctx.logger;
+  const projectInfo = new Map(
+    Array.from(driver.projectConfigs.entries()).map(([name, config]) => [
+      name,
+      { projectRoot: config.projectRoot },
+    ]),
+  );
   driver.outputPath && driver.outputPath !== STDOUT_PATH
     ? handleOutputToFile(
         result,
@@ -89,6 +106,7 @@ export function handleMistiResult(driver: Driver, result: Result): void {
         driver.outputFormat,
         driver.colorizeOutput,
         logger,
+        projectInfo,
       )
     : handleOutputToConsole(
         result,
@@ -96,6 +114,7 @@ export function handleMistiResult(driver: Driver, result: Result): void {
         driver.outputPath,
         logger,
         driver.colorizeOutput,
+        projectInfo,
       );
 }
 
@@ -108,12 +127,14 @@ function handleOutputToFile(
   outputFormat: OutputFormat,
   colorizeOutput: boolean,
   logger: Logger,
+  projectInfo?: Map<string, { projectRoot: string }>,
 ): void {
   const report: ResultReport = saveResultToFiles(
     result,
     outputPath,
     outputFormat,
     colorizeOutput,
+    projectInfo,
   );
   if (report) {
     switch (report.kind) {
@@ -139,8 +160,14 @@ function handleOutputToConsole(
   outputFile: string,
   logger: Logger,
   colorizeOutput: boolean,
+  projectInfo?: Map<string, { projectRoot: string }>,
 ): void {
-  const text = resultToString(result, outputFormat, colorizeOutput);
+  const text = resultToString(
+    result,
+    outputFormat,
+    colorizeOutput,
+    projectInfo,
+  );
   const print = outputFormat === "json";
   switch (result.kind) {
     case "warnings":

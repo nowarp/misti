@@ -73,10 +73,10 @@ describe("SARIF Output", () => {
       expect(warningToSarifResult(highWarning).level).toBe("error");
 
       const mediumWarning = createMockWarning({ severity: Severity.MEDIUM });
-      expect(warningToSarifResult(mediumWarning).level).toBe("warning");
+      expect(warningToSarifResult(mediumWarning).level).toBe("error"); // MEDIUM now maps to error for GitHub
 
       const lowWarning = createMockWarning({ severity: Severity.LOW });
-      expect(warningToSarifResult(lowWarning).level).toBe("note");
+      expect(warningToSarifResult(lowWarning).level).toBe("warning"); // LOW now maps to warning
 
       const infoWarning = createMockWarning({ severity: Severity.INFO });
       expect(warningToSarifResult(infoWarning).level).toBe("note");
@@ -109,7 +109,7 @@ describe("SARIF Output", () => {
         createMockWarning({ detectorId: "Detector1", severity: Severity.LOW }), // Duplicate detector
       ];
 
-      const sarifReport = warningsToSarifReport(warnings);
+      const sarifReport = warningsToSarifReport(warnings, true, 1); // Warnings found, so exit code 1
 
       expect(sarifReport.$schema).toBe(
         "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
@@ -134,10 +134,12 @@ describe("SARIF Output", () => {
     });
 
     it("should handle empty warnings array", () => {
-      const sarifReport = warningsToSarifReport([]);
+      const sarifReport = warningsToSarifReport([], true, 0); // No warnings, exit code 0
 
       expect(sarifReport.runs[0].tool.driver.rules).toHaveLength(0);
       expect(sarifReport.runs[0].results).toHaveLength(0);
+      expect(sarifReport.runs[0].invocations[0].exitCode).toBe(0);
+      expect(sarifReport.runs[0].invocations[0].executionSuccessful).toBe(true);
     });
 
     it("should create proper rule definitions", () => {
@@ -150,7 +152,7 @@ describe("SARIF Output", () => {
         severity: Severity.MEDIUM,
       });
 
-      const sarifReport = warningsToSarifReport([warning]);
+      const sarifReport = warningsToSarifReport([warning], true, 1);
       const rule = sarifReport.runs[0].tool.driver.rules[0];
 
       expect(rule.id).toBe("TestRule");
@@ -160,6 +162,23 @@ describe("SARIF Output", () => {
       expect(rule.helpUri).toBe("https://docs.example.com/testrule");
       expect(rule.properties!.category).toBe("Optimization");
       expect(rule.properties!.severity).toBe("MEDIUM");
+    });
+
+    it("should include invocations section with tool execution details", () => {
+      const warning = createMockWarning();
+      const sarifReport = warningsToSarifReport([warning], true, 1); // executionSuccessful=true, exitCode=1 for warnings
+      const run = sarifReport.runs[0];
+
+      expect(run.invocations).toHaveLength(1);
+      const invocation = run.invocations[0];
+
+      expect(invocation.executionSuccessful).toBe(true); // Tool executed successfully
+      expect(invocation.exitCode).toBe(1); // Exit code 1 indicates warnings found
+      expect(invocation.commandLine).toBeDefined();
+      expect(invocation.arguments).toBeDefined();
+      expect(invocation.startTimeUtc).toBeDefined();
+      expect(invocation.workingDirectory?.uri).toBeDefined();
+      expect(invocation.workingDirectory?.uri).toMatch(/^file:\/\//);
     });
   });
 
