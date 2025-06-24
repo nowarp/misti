@@ -36,12 +36,12 @@ describe("SARIF Output", () => {
       const sarifResult = warningToSarifResult(warning);
 
       expect(sarifResult.ruleId).toBe("TestDetector");
-      expect(sarifResult.level).toBe("error"); // HIGH severity maps to error
+      expect(sarifResult.level).toBe("error");
       expect(sarifResult.message.text).toBe("Test warning description");
       expect(sarifResult.locations).toHaveLength(1);
       expect(
         sarifResult.locations[0].physicalLocation.artifactLocation.uri,
-      ).toBe("file:///test/file.tact");
+      ).toBe("/test/file.tact");
       expect(sarifResult.locations[0].physicalLocation.region.startLine).toBe(
         10,
       );
@@ -73,10 +73,10 @@ describe("SARIF Output", () => {
       expect(warningToSarifResult(highWarning).level).toBe("error");
 
       const mediumWarning = createMockWarning({ severity: Severity.MEDIUM });
-      expect(warningToSarifResult(mediumWarning).level).toBe("error"); // MEDIUM now maps to error for GitHub
+      expect(warningToSarifResult(mediumWarning).level).toBe("warning");
 
       const lowWarning = createMockWarning({ severity: Severity.LOW });
-      expect(warningToSarifResult(lowWarning).level).toBe("warning"); // LOW now maps to warning
+      expect(warningToSarifResult(lowWarning).level).toBe("warning");
 
       const infoWarning = createMockWarning({ severity: Severity.INFO });
       expect(warningToSarifResult(infoWarning).level).toBe("note");
