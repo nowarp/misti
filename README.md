@@ -1,12 +1,11 @@
 # <img src="img/misti.svg" alt="Misti Logo" width="32"/> Misti
-Misti is a static analysis tool designed for smart contracts on the [TON blockchain](https://ton.org/) written in [Tact](https://tact-lang.org/).
+Misti is a static analysis tool designed for smart contracts on the [TON blockchain](https://ton.org/) written in [Tact](https://tact-lang.org/). It detects errors and pitfalls in your code before deployment.
 
 #### Features
 - **Code Analysis**: Built-in suite of [41 detectors](https://nowarp.io/tools/misti/docs/next/detectors) for identifying security vulnerabilities and anti-patterns.
 - **CI/CD Integration**:
   [Integrate](https://nowarp.io/tools/misti/docs/tutorial/ci-cd) Misti into your CI/CD pipeline to ensure continuous code quality checks.
 - **Custom Detectors**: Create [custom detectors](https://nowarp.io/tools/misti/docs/hacking/custom-detector) to solve specific problems in your code or to provide a thorough security review if you are an auditor.
-- **Custom Tools**: Extend Misti with your own tools for custom analysis and reporting capabilities.
 
 ## Getting Started
 1. *(optional)* [Install Soufflé](https://souffle-lang.github.io/install) to enable more built-in detectors.
