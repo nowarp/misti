@@ -63,7 +63,7 @@ jobs:
         done
 
     - name: Check broken links
-      uses: lycheeverse/lychee-action@v1
+      uses: lycheeverse/lychee-action@v2.0.2
       with:
         args: src/ test/ examples/ bin/ benchmarks/ scripts/ README.md RELEASE.md
         output: /tmp/lychee.txt
