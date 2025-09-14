@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `SuspiciousUnary` detector: PR [#84](https://github.com/nowarp/misti/issues/84)
+
 ## [0.9.0] - 2025-06-25
 
 ### Added

@@ -1,0 +1,28 @@
+[LOW] SuspiciousUnary: Suspicious unary expression
+test/detectors/SuspiciousUnary.tact:1:26:
+> 1 | fun bad1(): Int { return + 1; } // Bad
+                               ^~~
+  2 | fun ok1(): Int { return - 1; } // OK
++1 in that position may indicate typo
+Help: Consider refactoring removing the unary `+`
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousUnary
+
+[LOW] SuspiciousUnary: Suspicious unary expression
+test/detectors/SuspiciousUnary.tact:10:17:
+   9 |     receive() {
+> 10 |         let a = +1; // Bad
+                       ^~
+  11 |         let b = -1; // OK
++1 in that position may indicate typo
+Help: Consider refactoring removing the unary `+`
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousUnary
+
+[LOW] SuspiciousUnary: Suspicious unary expression
+test/detectors/SuspiciousUnary.tact:19:23:
+  18 | 
+> 19 |         self.field1 = +1; // Bad
+                             ^~
+  20 |         self.field1 = -1; // OK
++1 in that position may indicate typo
+Help: Consider refactoring removing the unary `+`
+See: https://nowarp.io/tools/misti/docs/detectors/SuspiciousUnary

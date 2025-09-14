@@ -549,6 +549,13 @@ export const BuiltInDetectors: Record<string, DetectorEntry> = {
       ),
     enabledByDefault: true,
   },
+  SuspiciousUnary: {
+    loader: (ctx: MistiContext) =>
+      import("./builtin/suspiciousUnary").then(
+        (module) => new module.SuspiciousUnary(ctx),
+      ),
+    enabledByDefault: true,
+  },
 };
 
 /**
